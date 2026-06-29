@@ -1,0 +1,358 @@
+App:
+  Properties:
+    Formulas: |-
+      =glbDATA_CONST_NavTable = Table(
+          {
+              NavLabel: "Home",
+              NavID: 1,
+              NavIcon: "M2.5 3A.5.5 0 0 1 3 2.5h10a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5H3a.5.5 0 0 1-.5-.5zm-1 4A.5.5 0 0 1 2 6.5h12a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5H2a.5.5 0 0 1-.5-.5zm0 4A.5.5 0 0 1 2 10.5h12a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5H2a.5.5 0 0 1-.5-.5z",
+              NavHasSub: false,
+              NavType: "nav",
+              NavParentID: 0,
+              NavSortKey: 1.0,
+              Target: Home
+          },
+          {
+              NavLabel: "Book",
+              NavID: 2,
+              NavIcon: "M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1H3v10a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V3h1.5a.5.5 0 0 0 0-1zm-1 .5v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V3zm-2 5a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-1 0v-3a.5.5 0 0 1 .5-.5m-2 2a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-1 0V10a.5.5 0 0 1 .5-.5m-2 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-1 0v-1a.5.5 0 0 1 .5-.5",
+              NavHasSub: false,
+              NavType: "nav",
+              NavParentID: 0,
+              NavSortKey: 2.0,
+              Target: Book
+          },
+          {
+              NavLabel: "View",
+              NavID: 3,
+              NavIcon: "M0 0h1v15h15v1H0zm14.817 3.113a.5.5 0 0 1 .07.704l-4.5 5.5a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61 4.15-5.073a.5.5 0 0 1 .704-.07",
+              NavHasSub: true,
+              NavType: "nav",
+              NavParentID: 0,
+              NavSortKey: 3.0,
+              Target: View
+          },
+              {
+              NavLabel: "Rooms",
+              NavID: 31,
+              NavIcon: "",
+              NavHasSub: false,
+              NavType: "sub",
+              NavParentID: 3,
+              NavSortKey: 3.1
+          },
+              {
+              NavLabel: "Timeline",
+              NavID: 32,
+              NavIcon: "",
+              NavHasSub: false,
+              NavType: "sub",
+              NavParentID: 3,
+              NavSortKey: 3.2
+          },
+          {
+              NavLabel: "Find",
+              NavID: 4,
+              NavIcon: "M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492M5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.892 3.433-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.892-1.64-.901-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52z",
+              NavHasSub: false,
+              NavType: "nav",
+              NavParentID: 0,
+              NavSortKey: 4.0,
+              Target: Find
+          }
+      );
+
+
+      // ------ Element Properties --------
+
+      ButtonProperties(kind:Text, size:Text, font:Text, text:Text, w:Number, disabled:Boolean,active:Boolean):Text = 
+          "data:image/svg+xml;utf8," & EncodeUrl(
+              With({
+                  FillColor: Switch(kind,
+                      "danger",  If(active, AppTheme.ButtonDangerActive, AppTheme.ButtonDangerPrimary),
+                      "tertiary", If(active, AppTheme.ButtonTertiaryActive, AppTheme.ButtonTertiary),
+                      "ghost",   If(active, AppTheme.ButtonPrimaryActive, "transparent"), 
+                      If(active, AppTheme.ButtonPrimaryActive, AppTheme.ButtonPrimary) 
+                  ),
+                  TextColor: Switch(kind,
+                      "ghost",   "#0f62fe", 
+                      AppTheme.PrimaryText 
+                  ),
+                  CalcHeight: Switch(Lower(size),
+                      "sm",   32,
+                      "md",   40,
+                      "lg",   48,
+                      "xl",   64,
+                      "2xl",  80,
+                      48 
+                  ),
+                  FontSize: Switch(Lower(size),
+                      "sm",   "12px",
+                      "md",   "14px",
+                      "lg",   "14px",
+                      "xl",   "16px",
+                      "2xl",  "18px",
+                      "14px"
+                  )
+              },
+              "<svg width='" & w & "' height='" & CalcHeight & "' xmlns='http://www.w3.org/2000/svg'>
+                  <rect width='100%' height='100%' 
+                      fill='" & If(disabled, "#c6c6c6", FillColor) & "' 
+                      fill-opacity='" & If(kind = "ghost" && !disabled && !active, "0", "1") & "' />
+                  <text 
+                      x='16' 
+                      y='50%' 
+                      dominant-baseline='central' 
+                      fill='" & If(disabled, "#8d8d8d", TextColor) & "' 
+                      font-family=""" & font & """ 
+                      font-size='" & FontSize & "'>
+                      " & text & "
+                  </text>
+              </svg>"
+          ));
+
+      TileProperties(kind:Text, title:Text, subtitle:Text, w:Number, h:Number, active:Boolean, disabled:Boolean, font:Text, showArrow:Boolean):Text =
+          "data:image/svg+xml;utf8," & EncodeUrl(
+              With(
+                  {
+                      _bg: Switch(kind,
+                          "primary", If(disabled, "#525252", If(active, AppTheme.ButtonDisabled, AppTheme.TileBg)),
+                          "ghost", "transparent",
+                          If(disabled, "#e0e0e0", If(active, "#e0e0e0", "#ffffff"))
+                      ),
+                      _border: Switch(kind,
+                          "primary", If(disabled, "#525252", If(active, "#002d9c", "#0f62fe")),
+                          "ghost", If(active, "#0f62fe", "#525252"),
+                          If(active, "#0f62fe", "#3d3d3d")
+                      ),
+                      _titleCol: If(disabled, "#525252", AppTheme.TileText),
+                      _subCol: If(disabled, "#393939", If(kind = "primary", "#6f6f6f", "#8d8d8d")),
+                      _arrowCol: If(disabled, "#525252", "#8d8d8d"),
+                      _font: If(IsBlank(font), "'IBM Plex Sans', sans-serif", font),
+                      _ty: Text(h / 2 - 9, "[$-en-US]0"),
+                      _sy: Text(h / 2 + 10, "[$-en-US]0"),
+                      _ax1: Text(w - 28, "[$-en-US]0"),
+                      _ax2: Text(w - 16, "[$-en-US]0"),
+                      _ay0: Text(h / 2 - 6, "[$-en-US]0"),
+                      _aym: Text(h / 2, "[$-en-US]0"),
+                      _ay1: Text(h / 2 + 6, "[$-en-US]0")
+                  },
+                  "<svg width='" & w & "' height='" & h & "' xmlns='http://www.w3.org/2000/svg'>" &
+                  "<rect width='" & w & "' height='" & h & "' fill='" & _bg & "' stroke='" & _border & "' stroke-width='0'/>" &
+                  "<text x='16' y='" & _ty & "' dominant-baseline='central' fill='" & _titleCol & "' font-family=""" & _font & """ font-size='14px' font-weight='600'>" & title & "</text>" &
+                  "<text x='16' y='" & _sy & "' dominant-baseline='central' fill='" & _subCol & "' font-family=""" & _font & """ font-size='11px'>" & subtitle & "</text>" &
+                  If(showArrow && !disabled,
+                      "<path d='M " & _ax1 & " " & _ay0 & " L " & _ax2 & " " & _aym & " L " & _ax1 & " " & _ay1 & "' stroke='" & _arrowCol & "' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/>",
+                      ""
+                  ) &
+                  "</svg>"
+              )
+          );
+
+      ContentSwitcherItem(text:Text, w:Number, h:Number, active:Boolean, font:Text):Text = 
+          "data:image/svg+xml;utf8," & EncodeUrl(
+              With({
+                  BgColor: If(active, AppTheme.ButtonPrimary, "#f4f4f4"),
+                  TextColor: If(active, "#f4f4f4", "#8d8d8d"),
+                  BorderColor: "transparent"
+              },
+              "<svg width='" & w & "' height='" & h & "' xmlns='http://www.w3.org/2000/svg'><rect width='100%' height='100%' fill='" & BgColor & "' stroke='" & BorderColor & "' stroke-width='1'/><text x='50%' y='50%' dominant-baseline='central' text-anchor='middle' fill='" & TextColor & "' font-family=""" & font & """ font-size='12px'>" & text & "</text></svg>"
+          ));
+
+      ThemeMap = {
+          Light: {
+              PrimaryText: ColourTokens.Light.PrimaryText,
+              TextPrimary: ColorValue("#161616"),
+              TextSecondary: ColorValue("#525252"),
+              TextMuted: ColorValue("#8d8d8d"),
+              Border: ColorValue("#e0e0e0"),
+              Surface: ColorValue("#ffffff"),
+              SurfaceAlt: ColorValue("#f4f4f4"),
+              StatusBusyText: ColorValue("#da1e28"),
+              StatusBusyBg: ColorValue("#fff1f1"),
+              StatusFreeText: ColorValue("#24a148"),
+              StatusFreeBg: ColorValue("#defbe6"),
+              StatusWarnText: ColorValue("#b28600"),
+              StatusWarnBg: ColorValue("#fcf4d6"),
+              Primary: "#0f62fe",
+              FocusedBorder: Color.Red,
+              ButtonPrimary: "#0f62fe",
+              ButtonPrimaryHover: RGBA(0, 0, 0, 0.1),
+              ButtonPrimaryActive: "#002d9c",
+              ButtonPrimaryPressed: RGBA(0, 0, 0, 0.2),
+              ButtonSecondary: "#393939",
+              ButtonSecondaryHover: RGBA(0, 0, 0, 0.1),
+              ButtonSecondaryActive: "#6f6f6f",
+              ButtonSecondaryPressed: RGBA(0, 0, 0, 0.2),
+              ButtonTertiary: "#0f62fe",
+              ButtonTertiaryHover: RGBA(0, 0, 0, 0.1),
+              ButtonTertiaryActive: "#002d9c",
+              ButtonTertiaryPressed: RGBA(0, 0, 0, 0.2),
+              ButtonDangerPrimary: "#da1e28",
+              ButtonDangerSecondary: "#da1e28",
+              ButtonDangerHover: RGBA(0, 0, 0, 0.1),
+              ButtonDangerActive: "#750e13",
+              ButtonDangerPressed: RGBA(0, 0, 0, 0.2),
+              ButtonSeparator: "#e0e0e0",
+              ButtonDisabled: "#c6c6c6",
+              ButtonDisabledText: "#8d8d8d",
+              HeaderBackground: ColorValue(ColourTokens.Light.Primary),
+              HeaderBorder: ColorValue(ColourTokens.Light.BorderSubtle),
+              HeaderAccent: ColorValue(ColourTokens.Light.Accent),
+              layer01Bg: ColorValue(ColourTokens.Light.layer01Bg),
+              Background: ColorValue(ColourTokens.Light.Background),
+              SideNavBg:           ColorValue(ColourTokens.Light.SideNavBg),
+              SideNavItemHover:    ColorValue(ColourTokens.Light.SideNavItemHover),
+              SideNavItemActive:   ColorValue(ColourTokens.Light.SideNavItemActive),
+              SideNavItemSelected: ColorValue(ColourTokens.Light.SideNavItemSelected),
+              SideNavText:         ColorValue(ColourTokens.Light.SideNavText),
+              SideNavTextActive:   ColorValue(ColourTokens.Light.SideNavTextActive),
+              SideNavActiveBar:    ColorValue(ColourTokens.Light.SideNavActiveBar),
+              SideNavSectionLabel: ColorValue(ColourTokens.Light.SideNavSectionLabel),
+              SideNavDivider:      ColorValue(ColourTokens.Light.SideNavDivider),
+              SideNavFooterBg:     ColorValue(ColourTokens.Light.SideNavFooterBg),
+              SideNavFooterText:   ColorValue(ColourTokens.Light.SideNavFooterText),
+              SwitcherNavBg:       ColorValue(ColourTokens.Light.Primary),
+              TileBg:              ColourTokens.Light.layer01Bg,
+              TileText:              ColourTokens.Light.SideNavText
+          },
+          Dark: {
+              PrimaryText: ColourTokens.Dark.PrimaryText,
+              TextPrimary: ColorValue("#f4f4f4"),
+              TextSecondary: ColorValue("#c6c6c6"),
+              TextMuted: ColorValue("#8d8d8d"),
+              Border: ColorValue("#393939"),
+              Surface: ColorValue("#161616"),
+              SurfaceAlt: ColorValue("#262626"),
+              StatusBusyText: ColorValue("#ff8389"),
+              StatusBusyBg: ColorValue("#2d1515"),
+              StatusFreeText: ColorValue("#42be65"),
+              StatusFreeBg: ColorValue("#152a17"),
+              StatusWarnText: ColorValue("#f1c21b"),
+              StatusWarnBg: ColorValue("#2d2200"),
+              Primary: "#0f62fe",
+              FocusedBorder: Color.Red,
+              ButtonPrimary: "#0f62fe",
+              ButtonPrimaryHover: RGBA(0, 0, 0, 0.1),
+              ButtonPrimaryActive: "#002d9c",
+              ButtonPrimaryPressed: RGBA(0, 0, 0, 0.2),
+              ButtonSecondary: "#393939",
+              ButtonSecondaryHover: RGBA(0, 0, 0, 0.1),
+              ButtonSecondaryActive: "#6f6f6f",
+              ButtonSecondaryPressed: RGBA(0, 0, 0, 0.2),
+              ButtonTertiary: "#0f62fe",
+              ButtonTertiaryHover: RGBA(0, 0, 0, 0.1),
+              ButtonTertiaryActive: "#002d9c",
+              ButtonTertiaryPressed: RGBA(0, 0, 0, 0.2),
+              ButtonDangerPrimary: "#da1e28",
+              ButtonDangerSecondary: "#da1e28",
+              ButtonDangerHover: RGBA(0, 0, 0, 0.1),
+              ButtonDangerActive: "#750e13",
+              ButtonDangerPressed: RGBA(0, 0, 0, 0.2),
+              ButtonSeparator: "#e0e0e0",
+              ButtonDisabled: "#c6c6c6",
+              ButtonDisabledText: "#8d8d8d",
+              HeaderBackground: ColorValue(ColourTokens.Dark.Primary),
+              HeaderBorder: ColorValue(ColourTokens.Dark.BorderSubtle),
+              HeaderAccent: ColorValue(ColourTokens.Dark.Accent),
+              Background: ColorValue(ColourTokens.Dark.Background),
+              layer01Bg: ColorValue(ColourTokens.Dark.layer01Bg),
+              SideNavBg:           ColorValue(ColourTokens.Dark.SideNavBg),
+              SideNavItemHover:    ColorValue(ColourTokens.Dark.SideNavItemHover),
+              SideNavItemActive:   ColorValue(ColourTokens.Dark.SideNavItemActive),
+              SideNavItemSelected: ColorValue(ColourTokens.Dark.SideNavItemSelected),
+              SideNavText:         ColorValue(ColourTokens.Dark.SideNavText),
+              SideNavTextActive:   ColorValue(ColourTokens.Dark.SideNavTextActive),
+              SideNavActiveBar:    ColorValue(ColourTokens.Dark.SideNavActiveBar),
+              SideNavSectionLabel: ColorValue(ColourTokens.Dark.SideNavSectionLabel),
+              SideNavDivider:      ColorValue(ColourTokens.Dark.SideNavDivider),
+              SideNavFooterBg:     ColorValue(ColourTokens.Dark.SideNavFooterBg),
+              SideNavFooterText:   ColorValue(ColourTokens.Dark.SideNavFooterText),
+              SwitcherNavBg:       ColorValue(ColourTokens.Dark.Primary),
+              TileBg:              ColourTokens.Dark.layer01Bg,
+              TileText:              ColourTokens.Dark.SideNavText
+          }
+      };
+
+      ColourTokens = {
+          Light: {
+              BorderSubtle: "#e0e0e0",
+              Background: "#ffffff",
+              PrimaryText: "#ffffff",
+              Primary: "#0f62fe",
+              Accent: "#d0e2ff",
+              layer01Bg: "#f4f4f4",
+              SideNavBg:            "#ffffff",
+              SideNavItemHover:     "#e8e8e880",
+              SideNavItemActive:    "#e0e0e0",
+              SideNavItemSelected:  "#d0e2ff",
+              SideNavText:          "#525252",
+              SideNavTextActive:    "#161616",
+              SideNavActiveBar:     "#0f62fe",
+              SideNavSectionLabel:  "#8d8d8d",
+              SideNavDivider:       "#e0e0e0",
+              SideNavFooterBg:      "#f4f4f4",
+              SideNavFooterText:    "#8d8d8d"
+          },
+          Dark: {
+              BorderSubtle: "#ffffff",
+              Background: "#ffffff",
+              Primary: "#0f62fe",
+              PrimaryText: "#ffffff",
+              Accent: "#d0e2ff",
+              layer01Bg: "#f4f4f4",
+              SideNavBg:            "#161616",
+              SideNavItemHover:     "#2d2d2d80",
+              SideNavItemActive:    "#393939",
+              SideNavItemSelected:  "#002d9c",
+              SideNavText:          "#c6c6c6",
+              SideNavTextActive:    "#f4f4f4",
+              SideNavActiveBar:     "#4589ff",
+              SideNavSectionLabel:  "#6f6f6f",
+              SideNavDivider:       "#393939",
+              SideNavFooterBg:      "#262626",
+              SideNavFooterText:    "#6f6f6f"
+          }
+      };
+
+      AppTheme = If(glbIsDarkMode, ThemeMap.Dark, ThemeMap.Light);
+      CarbonFontFamily = "'IBM Plex Sans', 'Segoe UI', Arial";
+
+      glbSideNavIconStr =
+          If(!glbIsDarkMode, "rgba(198,198,198,1)", "rgba(82,82,82,1)");
+      glbSideNavIconActiveStr =
+          If(!glbIsDarkMode, "rgba(69,137,255,1)", "rgba(15,98,254,1)");
+
+      Timeline_DayStart = DateAdd(DateValue(Text(glbSelectedDate, "yyyy-mm-dd")), 8 * 60, TimeUnit.Minutes);
+      Timeline_DayEnd = DateAdd(DateValue(Text(glbSelectedDate, "yyyy-mm-dd")), 18 * 60, TimeUnit.Minutes);
+      Timeline_SlotMinutes = 15;
+      Timeline_SlotCount = 40;
+
+
+
+
+      //------------------------------
+      //--- Find Timeline Formulas ---
+      //------------------------------
+
+      varFindWindowStart = DateAdd(DateValue(Text(varFindSelectedDate,"yyyy-mm-dd")),8*60,TimeUnit.Minutes);
+      varFindWindowEnd   = If(varFindViewMode="Day",DateAdd(DateValue(Text(varFindSelectedDate,"yyyy-mm-dd")),18*60,TimeUnit.Minutes),DateAdd(DateValue(Text(varFindSelectedDate,"yyyy-mm-dd")),7*24*60-360,TimeUnit.Minutes));
+      varFindWeekStart   = DateAdd(varFindSelectedDate,-(Weekday(varFindSelectedDate,StartOfWeek.Monday)-1),TimeUnit.Days);
+
+      //----------------------------------
+      //--- End Find Timeline Formulas ---
+      //----------------------------------
+    OnStart: |-
+      =Set(glbIsDarkMode, false);
+
+      Set(glbUI_NavID, 1);
+      Set(glbUI_NavLabel, "Home");
+      Set(glbNav_LeftNavOpen, false);
+      Set(glbUI_SearchOpen, false);
+      Set(glbUI_NotifOpen, false);
+      Set(glbNav_SwitcherOpen, false);
+      Set(glbUI_ProfileOpen, false);
+
+      ClearCollect(colRooms, Rooms);
+      ClearCollect(colBookings, RoomBookings);
+    Theme: =PowerAppsTheme
