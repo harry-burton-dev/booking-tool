@@ -475,7 +475,7 @@ Screens:
                                               Children:
                                                 - recAccentBar:
                                                     Control: GroupContainer@1.5.0
-                                                    Variant: ManualLayout
+                                                    Variant: AutoLayout
                                                     Properties:
                                                       AlignInContainer: =AlignInContainer.Stretch
                                                       Fill: =If(ThisItem.RowEnd < Now(), AppTheme.TextMuted, If(ThisItem.IsMine, AppTheme.StatusFreeText, ColorValue(AppTheme.Primary)))
