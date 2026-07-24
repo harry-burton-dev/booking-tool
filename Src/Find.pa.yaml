@@ -12,11 +12,8 @@ Screens:
       Fill: =RGBA(255, 255, 255, 1)
       LoadingSpinnerColor: =RGBA(0, 120, 212, 1)
       OnVisible: |
-        =Set(glbDayStart, DateAdd(DateValue(Text(glbSelectedDate, "yyyy-mm-dd")), 8 * 60, TimeUnit.Minutes));
-        Set(glbDayEnd, DateAdd(DateValue(Text(glbSelectedDate, "yyyy-mm-dd")), 18 * 60, TimeUnit.Minutes));
-        UpdateContext({varShowTimeline: false});
-        Set(varFindViewMode, "Day"); 
-        Set(varFindSelectedDate, Today()); 
+        =Set(varFindViewMode, "Day");
+        Set(varFindSelectedDate, Today());
         Select(btnLoadFindBookings)
     Children:
       - con_shell_find:

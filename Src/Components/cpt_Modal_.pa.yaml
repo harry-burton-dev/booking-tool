@@ -227,7 +227,7 @@ ComponentDefinitions:
                                                     false
                                                 )
                                             )
-                                          OnSelect: =Set(glbPressed, !glbPressed)
+                                          OnSelect: =Select(btn_tile)
                                           PressedBorderColor: =RGBA(0, 0, 0, 0)
                                           PressedFill: =RGBA(0, 0, 0, 0)
                                           TabIndex: =0

@@ -12,9 +12,7 @@ Screens:
       Fill: =RGBA(255, 255, 255, 1)
       LoadingSpinnerColor: =RGBA(0, 120, 212, 1)
       OnVisible: |+
-        =Set(glbDayStart, DateAdd(DateValue(Text(glbSelectedDate, "yyyy-mm-dd")), 8 * 60, TimeUnit.Minutes));
-        Set(glbDayEnd, DateAdd(DateValue(Text(glbSelectedDate, "yyyy-mm-dd")), 18 * 60, TimeUnit.Minutes));
-        UpdateContext({varShowTimeline: false});
+        =UpdateContext({varShowTimeline: false});
 
     Children:
       - con_shell_view:
@@ -161,7 +159,7 @@ Screens:
                                                     false
                                                 )
                                             )
-                                          OnSelect: =Set(glbPressed, !glbPressed)
+                                          OnSelect: =Select(btn_Card)
                                           PressedBorderColor: =RGBA(0, 0, 0, 0)
                                           PressedFill: =RGBA(0, 0, 0, 0)
                                           TabIndex: =0
@@ -436,8 +434,7 @@ Screens:
                               HoverColor: =RGBA(255, 255, 255, 1)
                               HoverFill: =RGBA(16, 110, 190, 1)
                               OnSelect: |-
-                                =NotificationType.Success;
-                                ClearCollect(colRoomBookings,
+                                =ClearCollect(colRoomBookings,
                                     Sort(
                                         Filter(
                                             colBookings,
@@ -461,22 +458,8 @@ Screens:
                                         BookedBy: booking.BookedBy.DisplayName
                                     })
                                 );
-                                Clear(colTimelineRows);
-                                ForAll(
-                                    colRoomBookings As booking,
-                                    Collect(colTimelineRows, {
-                                        RowType: "booked",
-                                        RowStart: booking.StartDateTime,
-                                        RowEnd: booking.EndDateTime,
-                                        RowHeight: DateDiff(booking.StartDateTime, booking.EndDateTime, TimeUnit.Minutes) / 60 * 120,
-                                        Title: booking.Title,
-                                        BookedBy: booking.BookedBy.DisplayName
-                                    })
-                                );
-                                Set(varBookingsLoaded, true);
-                                If(varBookingsLoaded,
-                                    If(
-                                        IsEmpty(colRoomBookings),
+                                If(
+                                    IsEmpty(colRoomBookings),
                                         Collect(colTimelineRows, {
                                             RowType: "free",
                                             RowStart: Timeline_DayStart,
@@ -529,7 +512,6 @@ Screens:
                                                 )
                                             )
                                         )
-                                    )
                                 );
                                 ClearCollect(colTimelineRows, Sort(colTimelineRows, RowStart, SortOrder.Ascending))
                               PressedBorderColor: =RGBA(0, 69, 120, 1)

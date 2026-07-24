@@ -12,8 +12,7 @@ Screens:
       Fill: =RGBA(255, 255, 255, 1)
       LoadingSpinnerColor: =RGBA(0, 120, 212, 1)
       OnVisible: |-
-        =Set(varHomeLoaded, false);
-        Select(btnLoadHomeData);
+        =Select(btnLoadHomeData);
     Children:
       - con_shell:
           Control: GroupContainer@1.5.0
@@ -120,8 +119,7 @@ Screens:
                                             SortOrder.Ascending
                                         )
                                     )
-                                );
-                                Set(varHomeLoaded, true)
+                                )
                               PressedBorderColor: =RGBA(0,0,0,0)
                               PressedColor: =RGBA(0,0,0,0)
                               PressedFill: =RGBA(0,0,0,0)
