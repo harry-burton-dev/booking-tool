@@ -853,7 +853,7 @@ Screens:
                                                 DisabledBorderColor: =RGBA(0,0,0,0)
                                                 DisabledColor: =RGBA(0,0,0,0)
                                                 DisabledFill: =RGBA(0,0,0,0)
-                                                DisplayMode: =DisplayMode.View
+                                                DisplayMode: =DisplayMode.Edit
                                                 Fill: =RGBA(0,0,0,0)
                                                 FocusedBorderColor: =RGBA(15,98,254,1)
                                                 FocusedBorderThickness: =2
@@ -861,9 +861,7 @@ Screens:
                                                 HoverBorderColor: =RGBA(0,0,0,0)
                                                 HoverColor: =RGBA(0,0,0,0)
                                                 HoverFill: =RGBA(0,0,0,0.04)
-                                                OnSelect: |-
-                                                  =Set(gblSelectedRoom, LookUp(colRooms, RoomID = ThisItem.RoomID));
-                                                  Navigate(Find, ScreenTransition.Fade)
+                                                OnSelect: =Navigate(Find, ScreenTransition.Fade)
                                                 PressedBorderColor: =RGBA(0,0,0,0)
                                                 PressedColor: =RGBA(0,0,0,0)
                                                 PressedFill: =RGBA(0,0,0,0.08)
@@ -947,7 +945,7 @@ Screens:
                                           HoverFill: =RGBA(0,0,0,0)
                                           LayoutMinHeight: =0
                                           LayoutMinWidth: =0
-                                          OnSelect: =Navigate(Find, ScreenTransition.Fade); Set(gblUI_Nav_currentTab, "Rooms")
+                                          OnSelect: =Navigate(Find, ScreenTransition.Fade); Set(gblUI_Nav_currentTab, "")
                                           PaddingBottom: =0
                                           PaddingLeft: =0
                                           PaddingRight: =0

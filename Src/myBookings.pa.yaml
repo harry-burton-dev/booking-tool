@@ -402,7 +402,7 @@ Screens:
                                     BorderColor: =RGBA(15,98,254,1)
                                     BorderThickness: =0
                                     Color: =ColorValue(AppTheme.PrimaryText)
-                                    DisplayMode: =DisplayMode.Disabled
+                                    DisplayMode: =DisplayMode.Edit
                                     Fill: =ColorValue(AppTheme.ButtonPrimary)
                                     FocusedBorderColor: =RGBA(15,98,254,1)
                                     FocusedBorderThickness: =2
@@ -410,7 +410,36 @@ Screens:
                                     FontWeight: =FontWeight.Normal
                                     HoverColor: =ColorValue(AppTheme.PrimaryText)
                                     HoverFill: =RGBA(13,83,217,1)
-                                    OnSelect: =
+                                    OnSelect: |-
+                                      =Set(gbl_UI_Book_Modal_Step, "1");
+                                      Set(varSelectedRoom, Blank());
+                                      Set(varSelectedDate, Today());
+                                      Set(varStartTime, Blank());
+                                      Set(varEndTime, Blank());
+                                      Set(varTitle, Blank());
+                                      Set(varNotes, Blank());
+                                      Set(varConflict, false);
+                                      Set(varBookingError, false);
+                                      Set(varSubmitting, false);
+                                      Set(varConflictingBooking, Blank());
+                                      Set(varNextFreeSlot, Blank());
+                                      ClearCollect(varAlternativeRooms, Filter(colRooms, true = false));
+                                      With(
+                                          {_now: Now(), _todayStart: DateAdd(Today(), 8 * 60, TimeUnit.Minutes)},
+                                          With(
+                                              {_next: DateAdd(_now, Mod(15 - Mod(DateDiff(_todayStart, _now, TimeUnit.Minutes), 15), 15), TimeUnit.Minutes)},
+                                              With(
+                                                  {_start: If(_next < _todayStart, _todayStart, _next)},
+                                                  If(
+                                                      _start <= DateAdd(_todayStart, 540, TimeUnit.Minutes),
+                                                      Set(varStartTime, _start);
+                                                      Set(varEndTime, DateAdd(_start, 60, TimeUnit.Minutes))
+                                                  )
+                                              )
+                                          )
+                                      );
+                                      Set(gbl_UI_Book_Modal, true);
+                                      Navigate(Home, ScreenTransition.Fade)
                                     PressedColor: =ColorValue(AppTheme.PrimaryText)
                                     PressedFill: =RGBA(11,69,182,1)
                                     RadiusBottomLeft: =2

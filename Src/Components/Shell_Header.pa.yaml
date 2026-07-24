@@ -227,10 +227,10 @@ ComponentDefinitions:
                               Color: =RGBA(244,244,244,1)
                               Fill: =RGBA(0,0,0,0)
                               Font: ="IBM Plex Sans"
-                              FontWeight: =If(gblUI_Nav_currentTab = "myBookings",FontWeight.Semibold ,FontWeight.Lighter )
+                              FontWeight: =If(gblUI_Nav_currentTab = "Bookings",FontWeight.Semibold ,FontWeight.Lighter )
                               Height: =48
                               HoverFill: =RGBA(255,255,255,0.08)
-                              OnSelect: =Set(gblUI_Nav_currentTab, Self.Text); Navigate(myBookings); Set(gbl_UI_Nav_sideItem, "Browse")
+                              OnSelect: =Set(gblUI_Nav_currentTab, Self.Text); Navigate(myBookings)
                               PressedFill: =RGBA(255,255,255,0.12)
                               RadiusBottomLeft: =0
                               RadiusBottomRight: =0

@@ -359,13 +359,8 @@ App:
     OnStart: |-
       =Set(glbIsDarkMode, false);
 
-            Set(glbUI_NavID, 1);
-            Set(glbUI_NavLabel, "Home");
-            Set(glbNav_LeftNavOpen, false);
-            Set(glbUI_SearchOpen, false);
-            Set(glbUI_NotifOpen, false);
-            Set(glbNav_SwitcherOpen, false);
-            Set(glbUI_ProfileOpen, false);
+            Set(gblUI_Nav_currentTab, "Home");
+            Set(glbSelectedDate, Today());
 
             ClearCollect(colRooms, MockRoomsSeed);
             ClearCollect(colBookings, MockBookingsSeed);
