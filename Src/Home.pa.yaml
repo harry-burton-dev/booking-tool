@@ -1,0 +1,1035 @@
+# ************************************************************************************************
+# Warning: YAML source code for Canvas Apps should only be used to review changes made within Power Apps Studio and for minor edits (Preview).
+# Use the maker portal to create and edit your Power Apps.
+# 
+# The schema file for Canvas Apps is available at https://go.microsoft.com/fwlink/?linkid=2304907
+# 
+# For more information, visit https://go.microsoft.com/fwlink/?linkid=2292623
+# ************************************************************************************************
+Screens:
+  Home:
+    Properties:
+      Fill: =RGBA(255, 255, 255, 1)
+      LoadingSpinnerColor: =RGBA(0, 120, 212, 1)
+      OnVisible: |-
+        =Refresh(Book_Bookings);
+        Set(varHomeLoaded, false);
+        Select(btnLoadHomeData);
+    Children:
+      - con_shell:
+          Control: GroupContainer@1.5.0
+          Variant: ManualLayout
+          Properties:
+            DropShadow: =DropShadow.None
+            Height: =Parent.Height
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Width: =Parent.Width
+          Children:
+            - Shell_Header_:
+                Control: CanvasComponent
+                ComponentName: Shell_Header
+                Properties:
+                  HeaderNavTab: ="Text"
+                  Height: =48
+                  InstanceScreenName: =""
+                  ShellIcons: |-
+                    ={
+                        ShellIconMenu: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20'><rect x='2' y='4' width='16' height='2' fill='%23f4f4f4'/><rect x='2' y='9' width='16' height='2' fill='%23f4f4f4'/><rect x='2' y='14' width='16' height='2' fill='%23f4f4f4'/></svg>",
+                        ShellIconClose: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20'><line x1='3' y1='3' x2='17' y2='17' stroke='%23f4f4f4' stroke-width='2'/><line x1='17' y1='3' x2='3' y2='17' stroke='%23f4f4f4' stroke-width='2'/></svg>",
+                        ShellIconSearch: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20'><circle cx='9' cy='9' r='6' fill='none' stroke='%23f4f4f4' stroke-width='2'/><line x1='13.5' y1='13.5' x2='17' y2='17' stroke='%23f4f4f4' stroke-width='2' stroke-linecap='round'/></svg>",
+                        ShellIconNotification: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20'><path d='M10 2C7.24 2 5 4.24 5 7v7l-2 2h14l-2-2V7c0-2.76-2.24-5-5-5z' fill='%23f4f4f4'/><rect x='8.5' y='16' width='3' height='2.5' rx='1.5' fill='%23f4f4f4'/></svg>",
+                        ShellIconAppSwitcher: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20'><rect x='2' y='2' width='4' height='4' fill='%23f4f4f4'/><rect x='8' y='2' width='4' height='4' fill='%23f4f4f4'/><rect x='14' y='2' width='4' height='4' fill='%23f4f4f4'/><rect x='2' y='8' width='4' height='4' fill='%23f4f4f4'/><rect x='8' y='8' width='4' height='4' fill='%23f4f4f4'/><rect x='14' y='8' width='4' height='4' fill='%23f4f4f4'/><rect x='2' y='14' width='4' height='4' fill='%23f4f4f4'/><rect x='8' y='14' width='4' height='4' fill='%23f4f4f4'/><rect x='14' y='14' width='4' height='4' fill='%23f4f4f4'/></svg>"
+                    }
+                  Width: =App.Width
+            - con_body_home:
+                Control: GroupContainer@1.5.0
+                Variant: AutoLayout
+                Properties:
+                  Height: =Parent.Height - 48
+                  LayoutAlignItems: =LayoutAlignItems.Center
+                  LayoutDirection: =LayoutDirection.Vertical
+                  PaddingBottom: =32
+                  PaddingLeft: =32
+                  PaddingRight: =32
+                  PaddingTop: =32
+                  Width: =Parent.Width
+                  Y: =48
+                Children:
+                  - conHomeBody:
+                      Control: GroupContainer@1.5.0
+                      Variant: AutoLayout
+                      Properties:
+                        DropShadow: =DropShadow.None
+                        Fill: =AppTheme.Background
+                        Height: =Parent.Height
+                        LayoutAlignItems: =LayoutAlignItems.Stretch
+                        LayoutDirection: =LayoutDirection.Vertical
+                        LayoutGap: =16
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        LayoutOverflowY: =LayoutOverflow.Scroll
+                        PaddingBottom: =24
+                        PaddingRight: =24
+                        PaddingTop: =16
+                        RadiusBottomLeft: =0
+                        RadiusBottomRight: =0
+                        RadiusTopLeft: =0
+                        RadiusTopRight: =0
+                        Width: =Parent.Width
+                      Children:
+                        - btnLoadHomeData:
+                            Control: Classic/Button@2.2.0
+                            Properties:
+                              AlignInContainer: =AlignInContainer.Start
+                              BorderColor: =RGBA(0,0,0,0)
+                              BorderStyle: =BorderStyle.None
+                              Color: =RGBA(0,0,0,0)
+                              DisabledBorderColor: =RGBA(0,0,0,0)
+                              DisabledColor: =RGBA(0,0,0,0)
+                              DisabledFill: =RGBA(0,0,0,0)
+                              Fill: =RGBA(0,0,0,0)
+                              FocusedBorderColor: =RGBA(0,0,0,0)
+                              FocusedBorderThickness: =0
+                              Height: =0
+                              HoverBorderColor: =RGBA(0,0,0,0)
+                              HoverColor: =RGBA(0,0,0,0)
+                              HoverFill: =RGBA(0,0,0,0)
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              OnSelect: |-
+                                =ClearCollect(colTodayBookings,
+                                    Sort(
+                                        Filter(Book_Bookings,
+                                            StartDateTime >= Today(),
+                                            StartDateTime < DateAdd(Today(), 1, TimeUnit.Days)
+                                        ),
+                                        StartDateTime,
+                                        SortOrder.Ascending
+                                    )
+                                );
+                                Set(varNextBooking,
+                                    LookUp(Book_Bookings,
+                                        BookedBy.Email = User().Email &&
+                                        EndDateTime > Now(),
+                                        StartDateTime
+                                    )
+                                );
+                                Set(varNextBookingRecord,
+                                    LookUp(Book_Bookings,
+                                        BookedBy.Email = User().Email &&
+                                        EndDateTime > Now()
+                                    )
+                                );
+                                Set(varHomeLoaded, true)
+                              PressedBorderColor: =RGBA(0,0,0,0)
+                              PressedColor: =RGBA(0,0,0,0)
+                              PressedFill: =RGBA(0,0,0,0)
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
+                              Text: =""
+                              Visible: =false
+                              Width: =0
+                        - conActions:
+                            Control: GroupContainer@1.5.0
+                            Variant: AutoLayout
+                            Properties:
+                              DropShadow: =DropShadow.None
+                              Fill: =RGBA(0,0,0,0)
+                              FillPortions: =0
+                              Height: =94
+                              LayoutAlignItems: =LayoutAlignItems.Stretch
+                              LayoutDirection: =LayoutDirection.Horizontal
+                              LayoutGap: =4
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                            Children:
+                              - con_TileBook:
+                                  Control: GroupContainer@1.5.0
+                                  Variant: ManualLayout
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Center
+                                    DropShadow: =DropShadow.None
+                                    Fill: =RGBA(0,0,0,0)
+                                    FillPortions: =0
+                                    Height: =72
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Width: =220
+                                  Children:
+                                    - lbl_TitleTileBook:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                          Color: =RGBA(0,0,0,0)
+                                          Fill: =RGBA(0,0,0,0)
+                                          Font: =Font.Lato
+                                          Height: =Parent.Height
+                                          Size: =12
+                                          Text: ="Book a room"
+                                          Visible: =false
+                                          Width: =Parent.Width
+                                          Wrap: =false
+                                    - lbl_SubTileBook:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                          Color: =RGBA(0,0,0,0)
+                                          Fill: =RGBA(0,0,0,0)
+                                          Font: =Font.Lato
+                                          Height: =Parent.Height
+                                          Size: =12
+                                          Text: ="Start a new booking"
+                                          Visible: =false
+                                          Width: =Parent.Width
+                                          Wrap: =false
+                                    - img_TileBook:
+                                        Control: Image@2.2.3
+                                        Properties:
+                                          BorderColor: =RGBA(0,0,0,0)
+                                          BorderStyle: =BorderStyle.None
+                                          DisabledFill: =RGBA(0,0,0,0)
+                                          Fill: =RGBA(0,0,0,0)
+                                          Height: =72
+                                          HoverBorderColor: =RGBA(0,0,0,0)
+                                          HoverFill: =RGBA(0,0,0,0)
+                                          Image: =TileProperties("primary", lbl_TitleTileBook.Text, lbl_SubTileBook.Text, Self.Width, Self.Height, false, false, CarbonFontFamily, false)
+                                          PressedBorderColor: =RGBA(0,0,0,0)
+                                          PressedFill: =RGBA(0,0,0,0)
+                                          Width: =Parent.Width
+                                    - btn_TileBook:
+                                        Control: Classic/Button@2.2.0
+                                        Properties:
+                                          BorderColor: =RGBA(0,0,0,0)
+                                          BorderStyle: =BorderStyle.None
+                                          BorderThickness: =0
+                                          Color: =RGBA(0,0,0,0)
+                                          DisabledBorderColor: =RGBA(0,0,0,0)
+                                          DisabledColor: =RGBA(0,0,0,0)
+                                          DisabledFill: =RGBA(0,0,0,0)
+                                          Fill: =RGBA(0,0,0,0)
+                                          FocusedBorderColor: =RGBA(15,98,254,1)
+                                          FocusedBorderThickness: =2
+                                          Height: =72
+                                          HoverBorderColor: =RGBA(0,0,0,0)
+                                          HoverColor: =RGBA(0,0,0,0)
+                                          HoverFill: =RGBA(0,0,0,0.08)
+                                          OnSelect: |-
+                                            =Set(gbl_UI_Book_Modal_Step, "1");
+                                            Set(varSelectedRoom, Blank());
+                                            Set(varSelectedDate, Today());
+                                            Set(varStartTime, Blank());
+                                            Set(varEndTime, Blank());
+                                            //Set(varTitle, Blank());
+                                            //Set(varNotes, Blank());
+                                            Set(varConflict, false);
+                                            Set(varBookingError, false);
+                                            Set(varSubmitting, false);
+                                            //Set(varConflictingBooking, Blank());
+                                            //Set(varNextFreeSlot, Blank());
+
+                                            ClearCollect(
+                                                varAlternativeRooms,
+                                                Filter(colRooms, true = false)
+                                            );
+
+                                            With(
+                                                {
+                                                    _now: Now(),
+                                                    _todayStart: DateAdd(Today(), 8 * 60, TimeUnit.Minutes)
+                                                },
+                                                With(
+                                                    {
+                                                        _next: DateAdd(
+                                                            _now,
+                                                            Mod(
+                                                                15 - Mod(
+                                                                    DateDiff(_todayStart, _now, TimeUnit.Minutes),
+                                                                    15
+                                                                ),
+                                                                15
+                                                            ),
+                                                            TimeUnit.Minutes
+                                                        )
+                                                    },
+                                                    With(
+                                                        {
+                                                            _start: If(
+                                                                _next < _todayStart,
+                                                                _todayStart,
+                                                                _next
+                                                            )
+                                                        },
+                                                        If(
+                                                            _start <= DateAdd(_todayStart, 540, TimeUnit.Minutes),
+                                                            Set(varStartTime, _start);
+                                                            Set(varEndTime, DateAdd(_start, 60, TimeUnit.Minutes))
+                                                        )
+                                                    )
+                                                )
+                                            );
+
+                                            Set(gbl_UI_Book_Modal, true);
+                                          PaddingBottom: =0
+                                          PaddingLeft: =0
+                                          PaddingRight: =0
+                                          PaddingTop: =0
+                                          PressedBorderColor: =RGBA(0,0,0,0)
+                                          PressedColor: =RGBA(0,0,0,0)
+                                          PressedFill: =RGBA(0,0,0,0.15)
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                          Text: =""
+                                          Width: =Parent.Width
+                              - con_TileView:
+                                  Control: GroupContainer@1.5.0
+                                  Variant: ManualLayout
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Center
+                                    DropShadow: =DropShadow.None
+                                    Fill: =RGBA(0,0,0,0)
+                                    FillPortions: =0
+                                    Height: =72
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Width: =220
+                                  Children:
+                                    - lbl_TitleTileView:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                          Color: =RGBA(0,0,0,0)
+                                          Fill: =RGBA(0,0,0,0)
+                                          Font: =Font.Lato
+                                          Height: =Parent.Height
+                                          Size: =12
+                                          Text: ="View rooms"
+                                          Visible: =false
+                                          Width: =Parent.Width
+                                          Wrap: =false
+                                    - lbl_SubTileView:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                          Color: =RGBA(0,0,0,0)
+                                          Fill: =RGBA(0,0,0,0)
+                                          Font: =Font.Lato
+                                          Height: =Parent.Height
+                                          Size: =12
+                                          Text: ="Timelines &amp; availability"
+                                          Visible: =false
+                                          Width: =Parent.Width
+                                          Wrap: =false
+                                    - img_TileView:
+                                        Control: Image@2.2.3
+                                        Properties:
+                                          BorderColor: =RGBA(0,0,0,0)
+                                          BorderStyle: =BorderStyle.None
+                                          DisabledFill: =RGBA(0,0,0,0)
+                                          Fill: =RGBA(0,0,0,0)
+                                          Height: =72
+                                          HoverBorderColor: =RGBA(0,0,0,0)
+                                          HoverFill: =RGBA(0,0,0,0)
+                                          Image: =TileProperties("secondary", lbl_TitleTileView.Text, lbl_SubTileView.Text, Self.Width, Self.Height, false, false, CarbonFontFamily, false)
+                                          PressedBorderColor: =RGBA(0,0,0,0)
+                                          PressedFill: =RGBA(0,0,0,0)
+                                          Width: =Parent.Width
+                                    - btn_TileView:
+                                        Control: Classic/Button@2.2.0
+                                        Properties:
+                                          BorderColor: =RGBA(0,0,0,0)
+                                          BorderStyle: =BorderStyle.None
+                                          BorderThickness: =0
+                                          Color: =RGBA(0,0,0,0)
+                                          DisabledBorderColor: =RGBA(0,0,0,0)
+                                          DisabledColor: =RGBA(0,0,0,0)
+                                          DisabledFill: =RGBA(0,0,0,0)
+                                          Fill: =RGBA(0,0,0,0)
+                                          FocusedBorderColor: =RGBA(15,98,254,1)
+                                          FocusedBorderThickness: =2
+                                          Height: =72
+                                          HoverBorderColor: =RGBA(0,0,0,0)
+                                          HoverColor: =RGBA(0,0,0,0)
+                                          HoverFill: =RGBA(0,0,0,0.04)
+                                          OnSelect: =Navigate(Rooms, ScreenTransition.Fade)
+                                          PaddingBottom: =0
+                                          PaddingLeft: =0
+                                          PaddingRight: =0
+                                          PaddingTop: =0
+                                          PressedBorderColor: =RGBA(0,0,0,0)
+                                          PressedColor: =RGBA(0,0,0,0)
+                                          PressedFill: =RGBA(0,0,0,0.08)
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                          Text: =""
+                                          Width: =Parent.Width
+                              - con_TileMyBook:
+                                  Control: GroupContainer@1.5.0
+                                  Variant: ManualLayout
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Center
+                                    DropShadow: =DropShadow.None
+                                    Fill: =RGBA(0,0,0,0)
+                                    FillPortions: =0
+                                    Height: =72
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Width: =220
+                                  Children:
+                                    - lbl_TitleTileMyBook:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                          Color: =RGBA(0,0,0,0)
+                                          Fill: =RGBA(0,0,0,0)
+                                          Font: =Font.Lato
+                                          Height: =Parent.Height
+                                          Size: =12
+                                          Text: ="My bookings"
+                                          Visible: =false
+                                          Width: =Parent.Width
+                                          Wrap: =false
+                                    - lbl_SubTileMyBook:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                          Color: =RGBA(0,0,0,0)
+                                          Fill: =RGBA(0,0,0,0)
+                                          Font: =Font.Lato
+                                          Height: =Parent.Height
+                                          Size: =12
+                                          Text: =Text(CountRows(Filter(colBookings, BookedBy.Email = User().Email, EndDateTime >= Now())), "[$-en-US]0") & " upcoming"
+                                          Visible: =false
+                                          Width: =Parent.Width
+                                          Wrap: =false
+                                    - img_TileMyBook:
+                                        Control: Image@2.2.3
+                                        Properties:
+                                          BorderColor: =RGBA(0,0,0,0)
+                                          BorderStyle: =BorderStyle.None
+                                          DisabledFill: =RGBA(0,0,0,0)
+                                          Fill: =RGBA(0,0,0,0)
+                                          Height: =72
+                                          HoverBorderColor: =RGBA(0,0,0,0)
+                                          HoverFill: =RGBA(0,0,0,0)
+                                          Image: =TileProperties("secondary", lbl_TitleTileMyBook.Text, lbl_SubTileMyBook.Text, Self.Width, Self.Height, false, false, CarbonFontFamily, false)
+                                          PressedBorderColor: =RGBA(0,0,0,0)
+                                          PressedFill: =RGBA(0,0,0,0)
+                                          Width: =Parent.Width
+                                    - btn_TileMyBook:
+                                        Control: Classic/Button@2.2.0
+                                        Properties:
+                                          BorderColor: =RGBA(0,0,0,0)
+                                          BorderStyle: =BorderStyle.None
+                                          BorderThickness: =0
+                                          Color: =RGBA(0,0,0,0)
+                                          DisabledBorderColor: =RGBA(0,0,0,0)
+                                          DisabledColor: =RGBA(0,0,0,0)
+                                          DisabledFill: =RGBA(0,0,0,0)
+                                          Fill: =RGBA(0,0,0,0)
+                                          FocusedBorderColor: =RGBA(15,98,254,1)
+                                          FocusedBorderThickness: =2
+                                          Height: =72
+                                          HoverBorderColor: =RGBA(0,0,0,0)
+                                          HoverColor: =RGBA(0,0,0,0)
+                                          HoverFill: =RGBA(0,0,0,0.04)
+                                          OnSelect: =Navigate(myBookings, ScreenTransition.Fade)
+                                          PaddingBottom: =0
+                                          PaddingLeft: =0
+                                          PaddingRight: =0
+                                          PaddingTop: =0
+                                          PressedBorderColor: =RGBA(0,0,0,0)
+                                          PressedColor: =RGBA(0,0,0,0)
+                                          PressedFill: =RGBA(0,0,0,0.08)
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                          Text: =""
+                                          Width: =Parent.Width
+                        - conPanelRow:
+                            Control: GroupContainer@1.5.0
+                            Variant: AutoLayout
+                            Properties:
+                              DropShadow: =DropShadow.None
+                              Fill: =RGBA(0,0,0,0)
+                              FillPortions: =0
+                              Height: =208
+                              LayoutAlignItems: =LayoutAlignItems.Stretch
+                              LayoutDirection: =LayoutDirection.Horizontal
+                              LayoutGap: =8
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                            Children:
+                              - conNextBooking:
+                                  Control: GroupContainer@1.5.0
+                                  Variant: AutoLayout
+                                  Properties:
+                                    BorderColor: =RGBA(15,98,254,1)
+                                    DropShadow: =DropShadow.None
+                                    Fill: =AppTheme.layer01Bg
+                                    LayoutAlignItems: =LayoutAlignItems.Stretch
+                                    LayoutDirection: =LayoutDirection.Vertical
+                                    LayoutGap: =8
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    PaddingBottom: =16
+                                    PaddingLeft: =16
+                                    PaddingRight: =16
+                                    PaddingTop: =16
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                  Children:
+                                    - conNextHeader:
+                                        Control: GroupContainer@1.5.0
+                                        Variant: AutoLayout
+                                        Properties:
+                                          DropShadow: =DropShadow.None
+                                          Fill: =RGBA(0,0,0,0)
+                                          FillPortions: =0
+                                          Height: =32
+                                          LayoutAlignItems: =LayoutAlignItems.Center
+                                          LayoutDirection: =LayoutDirection.Horizontal
+                                          LayoutGap: =8
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                        Children:
+                                          - lblNextPanelTitle:
+                                              Control: Label@2.5.1
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.Stretch
+                                                Color: =AppTheme.SideNavText
+                                                FillPortions: =1
+                                                Font: =Font.Lato
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                PaddingBottom: =0
+                                                PaddingLeft: =0
+                                                PaddingRight: =0
+                                                PaddingTop: =0
+                                                Size: =12
+                                                Text: ="Your next booking"
+                                                Wrap: =false
+                                          - btnNextViewAll:
+                                              Control: Classic/Button@2.2.0
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.Center
+                                                BorderColor: =RGBA(0,0,0,0)
+                                                BorderStyle: =BorderStyle.None
+                                                BorderThickness: =0
+                                                Color: =ColorValue("#0f62fe")
+                                                DisabledBorderColor: =RGBA(0,0,0,0)
+                                                DisabledColor: =AppTheme.TextMuted
+                                                DisabledFill: =RGBA(0,0,0,0)
+                                                Fill: =RGBA(0,0,0,0)
+                                                FocusedBorderColor: =RGBA(15,98,254,1)
+                                                FocusedBorderThickness: =2
+                                                Font: =Font.Lato
+                                                Height: =24
+                                                HoverBorderColor: =RGBA(0,0,0,0)
+                                                HoverColor: =ColorValue("#0043ce")
+                                                HoverFill: =RGBA(0,0,0,0)
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                OnSelect: =Navigate(myBookings, ScreenTransition.Fade)
+                                                PaddingBottom: =0
+                                                PaddingLeft: =0
+                                                PaddingRight: =0
+                                                PaddingTop: =0
+                                                PressedBorderColor: =RGBA(0,0,0,0)
+                                                PressedColor: =ColorValue("#0f62fe")
+                                                PressedFill: =RGBA(0,0,0,0)
+                                                RadiusBottomLeft: =0
+                                                RadiusBottomRight: =0
+                                                RadiusTopLeft: =0
+                                                RadiusTopRight: =0
+                                                Size: =12
+                                                Text: ="View all"
+                                                Width: =64
+                                    - conNextContent:
+                                        Control: GroupContainer@1.5.0
+                                        Variant: AutoLayout
+                                        Properties:
+                                          DropShadow: =DropShadow.None
+                                          Fill: =RGBA(0,0,0,0)
+                                          Height: =88
+                                          LayoutAlignItems: =LayoutAlignItems.Stretch
+                                          LayoutDirection: =LayoutDirection.Vertical
+                                          LayoutGap: =4
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                          Visible: =!IsBlank(varNextBookingRecord)
+                                        Children:
+                                          - lblNextRoom:
+                                              Control: Label@2.5.1
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.Stretch
+                                                AutoHeight: =true
+                                                Color: =AppTheme.TextPrimary
+                                                Font: =Font.Lato
+                                                FontWeight: =FontWeight.Semibold
+                                                Height: =22
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                Size: =15
+                                                Text: =varNextBookingRecord.Name
+                                                Wrap: =false
+                                          - lblNextTime:
+                                              Control: Label@2.5.1
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.Stretch
+                                                Color: =ColorValue("#0f62fe")
+                                                Font: =Font.Lato
+                                                Height: =18
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                Size: =12
+                                                Text: =Text(varNextBookingRecord.StartDateTime, "HH:mm") & " - " & Text(varNextBookingRecord.EndDateTime, "HH:mm") & " today"
+                                                Wrap: =false
+                                          - lblNextTitle:
+                                              Control: Label@2.5.1
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.Stretch
+                                                Color: =AppTheme.TextMuted
+                                                Font: =Font.Lato
+                                                Height: =18
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                Size: =12
+                                                Text: =varNextBookingRecord.Title
+                                                Wrap: =false
+                                          - lblNextCountdown:
+                                              Control: Label@2.5.1
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.Stretch
+                                                Color: =RGBA(66,190,101,1)
+                                                Font: =Font.Lato
+                                                Height: =18
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                Size: =12
+                                                Text: ="In " & Text(DateDiff(Now(), varNextBookingRecord.StartDateTime, TimeUnit.Minutes), "[$-en-US]0") & " min"
+                                                Wrap: =false
+                                    - img_nextemptystate_:
+                                        Control: Image@2.2.3
+                                        Properties:
+                                          AlignInContainer: =AlignInContainer.Center
+                                          BorderColor: =RGBA(0,0,0,0)
+                                          BorderStyle: =BorderStyle.None
+                                          DisabledFill: =RGBA(0,0,0,0)
+                                          Fill: =RGBA(0,0,0,0)
+                                          Height: =140
+                                          HoverBorderColor: =RGBA(0,0,0,0)
+                                          HoverFill: =RGBA(0,0,0,0)
+                                          Image: |-
+                                            =With(
+                                                {
+                                                    wHeading: "No upcoming bookings",
+                                                    wBody: "Bookings you make will appear here."
+                                                },
+                                                "data:image/svg+xml," &
+                                                EncodeUrl(
+                                                    "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 100'>" &
+                                                    "<circle cx='270' cy='48' r='22' fill='none' stroke='#c6c6c6' stroke-width='4'/>" &
+                                                    "<line x1='285' y1='64' x2='302' y2='81' stroke='#c6c6c6' stroke-width='5' stroke-linecap='round'/>" &
+                                                    "<line x1='248' y1='42' x2='262' y2='42' stroke='#c6c6c6' stroke-width='3' stroke-linecap='round'/>" &
+                                                    "<line x1='248' y1='52' x2='258' y2='52' stroke='#c6c6c6' stroke-width='3' stroke-linecap='round'/>" &
+                                                    "<text x='318' y='44' font-family='IBM Plex Sans,Arial,sans-serif' font-size='20' font-weight='500' fill='#161616'>" & Substitute(wHeading, "&", "&amp;") & "</text>" &
+                                                    "<text x='318' y='66' font-family='IBM Plex Sans,Arial,sans-serif' font-size='16' fill='#525252'>" & Substitute(wBody, "&", "&amp;") & "</text>" &
+                                                    "</svg>"
+                                                )
+                                            )
+                                          ImagePosition: =ImagePosition.Stretch
+                                          PressedBorderColor: =RGBA(0,0,0,0)
+                                          PressedFill: =RGBA(0,0,0,0)
+                                          Visible: =IsBlank(varNextBookingRecord)
+                                          Width: =Parent.Width
+                              - conRoomsNow:
+                                  Control: GroupContainer@1.5.0
+                                  Variant: AutoLayout
+                                  Properties:
+                                    BorderColor: =AppTheme.Border
+                                    DropShadow: =DropShadow.None
+                                    Fill: =AppTheme.layer01Bg
+                                    LayoutAlignItems: =LayoutAlignItems.Stretch
+                                    LayoutDirection: =LayoutDirection.Vertical
+                                    LayoutGap: =8
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    PaddingBottom: =16
+                                    PaddingLeft: =16
+                                    PaddingRight: =16
+                                    PaddingTop: =16
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                  Children:
+                                    - conRoomsHeader:
+                                        Control: GroupContainer@1.5.0
+                                        Variant: AutoLayout
+                                        Properties:
+                                          DropShadow: =DropShadow.None
+                                          Fill: =RGBA(0,0,0,0)
+                                          FillPortions: =0
+                                          Height: =32
+                                          LayoutAlignItems: =LayoutAlignItems.Center
+                                          LayoutDirection: =LayoutDirection.Horizontal
+                                          LayoutGap: =8
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                        Children:
+                                          - lblRoomsNowTitle:
+                                              Control: Label@2.5.1
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.Stretch
+                                                Color: =AppTheme.SideNavText
+                                                FillPortions: =1
+                                                Font: =Font.Lato
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                Size: =12
+                                                Text: ="Rooms available now"
+                                                Wrap: =false
+                                          - btnRoomsViewAll:
+                                              Control: Classic/Button@2.2.0
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.Center
+                                                BorderColor: =RGBA(0,0,0,0)
+                                                BorderStyle: =BorderStyle.None
+                                                BorderThickness: =0
+                                                Color: =ColorValue("#0f62fe")
+                                                DisabledBorderColor: =RGBA(0,0,0,0)
+                                                DisabledColor: =AppTheme.TextMuted
+                                                DisabledFill: =RGBA(0,0,0,0)
+                                                Fill: =RGBA(0,0,0,0)
+                                                FocusedBorderColor: =RGBA(15,98,254,1)
+                                                FocusedBorderThickness: =2
+                                                Font: =Font.Lato
+                                                Height: =24
+                                                HoverBorderColor: =RGBA(0,0,0,0)
+                                                HoverColor: =ColorValue("#0043ce")
+                                                HoverFill: =RGBA(0,0,0,0)
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                OnSelect: =Navigate(Find, ScreenTransition.Fade)
+                                                PaddingBottom: =0
+                                                PaddingLeft: =0
+                                                PaddingRight: =0
+                                                PaddingTop: =0
+                                                PressedBorderColor: =RGBA(0,0,0,0)
+                                                PressedColor: =ColorValue("#0f62fe")
+                                                PressedFill: =RGBA(0,0,0,0)
+                                                RadiusBottomLeft: =0
+                                                RadiusBottomRight: =0
+                                                RadiusTopLeft: =0
+                                                RadiusTopRight: =0
+                                                Size: =12
+                                                Text: ="View all"
+                                                Width: =64
+                                    - galRoomChips:
+                                        Control: Gallery@2.15.0
+                                        Variant: Vertical
+                                        Properties:
+                                          DelayItemLoading: =false
+                                          Fill: =RGBA(0,0,0,0)
+                                          FillPortions: =0
+                                          Height: =120
+                                          Items: |-
+                                            =AddColumns(
+                                                colRooms,
+                                                RoomStatus,
+                                                With(
+                                                    {
+                                                        _current: LookUp(colTodayBookings, RoomID.Value = ThisRecord.RoomID.Value && StartDateTime <= Now() && EndDateTime > Now()),
+                                                        _next: First(Sort(Filter(colTodayBookings, RoomID.Value = ThisRecord.RoomID.Value && StartDateTime > Now()), StartDateTime, SortOrder.Ascending))
+                                                    },
+                                                    {
+                                                        State: If(!IsBlank(_current), "Busy", IsBlank(_next), "FreeAllDay", DateDiff(Now(), _next.StartDateTime, TimeUnit.Minutes) <= 60, "FreeWarning", "Free"),
+                                                        Minutes: DateDiff(Now(), _next.StartDateTime, TimeUnit.Minutes)
+                                                    }
+                                                )
+                                            )
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          ShowScrollbar: =false
+                                          TemplatePadding: =2
+                                          TemplateSize: =60
+                                          WrapCount: =3
+                                        Children:
+                                          - rectChipBg:
+                                              Control: Rectangle@2.3.0
+                                              Properties:
+                                                BorderColor: |-
+                                                  =Switch(ThisItem.RoomStatus.State,
+                                                      "Busy", 
+                                                      RGBA(218, 30, 40, 1),    // Bright Red
+
+                                                      "FreeWarning", 
+                                                      RGBA(241, 194, 27, 1),   // Amber/Yellow
+
+                                                      "FreeAllDay", 
+                                                      RGBA(36, 161, 72, 1),    // Vibrant Green
+
+                                                      RGBA(36, 161, 72, 1)     // Default Green for "Free"
+                                                  )
+                                                Fill: |-
+                                                  =Switch(ThisItem.RoomStatus.State,
+                                                      "Busy", AppTheme.StatusBusyBg,
+                                                      "FreeWarning", AppTheme.StatusWarnBg,
+                                                      AppTheme.StatusFreeBg // Default Green
+                                                  )
+                                                Height: =Parent.TemplateHeight - 4
+                                                Width: =210.66666666666663
+                                          - lblChipRoom:
+                                              Control: Label@2.5.1
+                                              Properties:
+                                                Color: =AppTheme.SideNavText
+                                                Font: =Font.Lato
+                                                FontWeight: =FontWeight.Semibold
+                                                Height: =20
+                                                Size: =12
+                                                Text: =ThisItem.Title
+                                                Width: =192.33333333333334
+                                                Wrap: =false
+                                                Y: =8
+                                          - lblChipStatus:
+                                              Control: Label@2.5.1
+                                              Properties:
+                                                Color: |-
+                                                  =Switch(ThisItem.RoomStatus.State,
+                                                      "Busy", AppTheme.StatusBusyText,
+                                                      "FreeWarning", AppTheme.StatusWarnText,
+                                                      AppTheme.StatusFreeText // Default Green
+                                                  )
+                                                Font: =Font.Lato
+                                                Height: =16
+                                                Size: =11
+                                                Text: |-
+                                                  =Switch(ThisItem.RoomStatus.State,
+                                                      "Busy", "Busy",
+                                                      "FreeAllDay", "Free - All Day",
+                                                      "FreeWarning", "Free - " & ThisItem.RoomStatus.Minutes & "m",
+                                                      "Free"
+                                                  )
+                                                Width: =192.33333333333334
+                                                Wrap: =false
+                                                Y: =30
+                                          - btnChipOverlay:
+                                              Control: Classic/Button@2.2.0
+                                              Properties:
+                                                BorderColor: =RGBA(0,0,0,0)
+                                                BorderStyle: =BorderStyle.None
+                                                BorderThickness: =0
+                                                Color: =RGBA(0,0,0,0)
+                                                DisabledBorderColor: =RGBA(0,0,0,0)
+                                                DisabledColor: =RGBA(0,0,0,0)
+                                                DisabledFill: =RGBA(0,0,0,0)
+                                                DisplayMode: =DisplayMode.View
+                                                Fill: =RGBA(0,0,0,0)
+                                                FocusedBorderColor: =RGBA(15,98,254,1)
+                                                FocusedBorderThickness: =2
+                                                Height: =Parent.TemplateHeight
+                                                HoverBorderColor: =RGBA(0,0,0,0)
+                                                HoverColor: =RGBA(0,0,0,0)
+                                                HoverFill: =RGBA(0,0,0,0.04)
+                                                OnSelect: |-
+                                                  =Set(gblSelectedRoom, LookUp(colRooms, RoomID = ThisItem.RoomID));
+                                                  Navigate(Find, ScreenTransition.Fade)
+                                                PressedBorderColor: =RGBA(0,0,0,0)
+                                                PressedColor: =RGBA(0,0,0,0)
+                                                PressedFill: =RGBA(0,0,0,0.08)
+                                                RadiusBottomLeft: =0
+                                                RadiusBottomRight: =0
+                                                RadiusTopLeft: =0
+                                                RadiusTopRight: =0
+                                                Text: =""
+                                                Width: =210.66666666666663
+                        - conOccupancy:
+                            Control: GroupContainer@1.5.0
+                            Variant: AutoLayout
+                            Properties:
+                              BorderColor: =AppTheme.Border
+                              DropShadow: =DropShadow.None
+                              Fill: =AppTheme.layer01Bg
+                              Height: =385
+                              LayoutAlignItems: =LayoutAlignItems.Stretch
+                              LayoutDirection: =LayoutDirection.Vertical
+                              LayoutGap: =8
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              PaddingBottom: =16
+                              PaddingLeft: =16
+                              PaddingRight: =16
+                              PaddingTop: =16
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
+                            Children:
+                              - conOccupancyHeader:
+                                  Control: GroupContainer@1.5.0
+                                  Variant: AutoLayout
+                                  Properties:
+                                    DropShadow: =DropShadow.None
+                                    Fill: =RGBA(0,0,0,0)
+                                    FillPortions: =0
+                                    Height: =32
+                                    LayoutAlignItems: =LayoutAlignItems.Center
+                                    LayoutDirection: =LayoutDirection.Horizontal
+                                    LayoutGap: =8
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                  Children:
+                                    - lblOccTitle:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                          AlignInContainer: =AlignInContainer.Stretch
+                                          Color: =AppTheme.SideNavText
+                                          FillPortions: =1
+                                          Font: =Font.Lato
+                                          FontWeight: =FontWeight.Semibold
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          Size: =12
+                                          Text: ="Today's occupancy"
+                                          Wrap: =false
+                                    - btnOccViewRooms:
+                                        Control: Classic/Button@2.2.0
+                                        Properties:
+                                          AlignInContainer: =AlignInContainer.Center
+                                          BorderColor: =RGBA(0,0,0,0)
+                                          BorderStyle: =BorderStyle.None
+                                          BorderThickness: =0
+                                          Color: =ColorValue("#0f62fe")
+                                          DisabledBorderColor: =RGBA(0,0,0,0)
+                                          DisabledColor: =AppTheme.TextMuted
+                                          DisabledFill: =RGBA(0,0,0,0)
+                                          Fill: =RGBA(0,0,0,0)
+                                          FocusedBorderColor: =RGBA(15,98,254,1)
+                                          FocusedBorderThickness: =2
+                                          Font: =Font.Lato
+                                          Height: =24
+                                          HoverBorderColor: =RGBA(0,0,0,0)
+                                          HoverColor: =ColorValue("#0043ce")
+                                          HoverFill: =RGBA(0,0,0,0)
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          OnSelect: =Navigate(Find, ScreenTransition.Fade); Set(gblUI_Nav_currentTab, "Rooms")
+                                          PaddingBottom: =0
+                                          PaddingLeft: =0
+                                          PaddingRight: =0
+                                          PaddingTop: =0
+                                          PressedBorderColor: =RGBA(0,0,0,0)
+                                          PressedColor: =ColorValue("#0f62fe")
+                                          PressedFill: =RGBA(0,0,0,0)
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                          Size: =12
+                                          Text: ="View rooms"
+                                          Width: =96
+                              - galOccupancy:
+                                  Control: Gallery@2.15.0
+                                  Variant: Vertical
+                                  Properties:
+                                    DelayItemLoading: =false
+                                    Fill: =RGBA(0,0,0,0)
+                                    Height: =192
+                                    Items: =colRooms
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    ShowScrollbar: =false
+                                    TemplatePadding: =0
+                                    TemplateSize: =32
+                                  Children:
+                                    - lblOccRoomName:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                          Color: =AppTheme.TextSecondary
+                                          Font: =Font.Lato
+                                          Height: =16
+                                          Size: =11
+                                          Text: =ThisItem.Title
+                                          Width: =110
+                                          Wrap: =false
+                                          Y: =8
+                                    - recBarTrack:
+                                        Control: Rectangle@2.3.0
+                                        Properties:
+                                          BorderColor: =RGBA(0,0,0,0)
+                                          Fill: =AppTheme.Border
+                                          Height: =8
+                                          Width: =Parent.Width - 166
+                                          X: =118
+                                          Y: =12
+                                    - recBarFill:
+                                        Control: Rectangle@2.3.0
+                                        Properties:
+                                          BorderColor: =RGBA(0,0,0,0)
+                                          Fill: =RGBA(15,98,254,1)
+                                          Height: =8
+                                          Width: |-
+                                            =With(
+                                                {_occ: CountRows(Filter(colTodayBookings, RoomID.Id = ThisItem.RoomID)) * 0.25 / 10},
+                                                Max(0, (Parent.Width - 166) * _occ)
+                                            )
+                                          X: =118
+                                          Y: =12
+                                    - lblOccPct:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                          Align: =Align.Right
+                                          Color: =AppTheme.SideNavText
+                                          Font: =Font.Lato
+                                          Height: =16
+                                          Size: =10
+                                          Text: =Text(CountRows(Filter(colTodayBookings, RoomID.Value = ThisItem.RoomID)) * 0.25 / 10 * 100, "[$-en-US]0") & "%"
+                                          Width: =36
+                                          Wrap: =false
+                                          X: =Parent.Width - 40
+                                          Y: =8
+      - cpt_Modal__book:
+          Control: CanvasComponent
+          ComponentName: cpt_Modal_
+          Properties:
+            Height: =App.Height
+            ModalTitleText: =
+            OnSubmit: =true
+            OnSubmitEdit: ="Text"
+            OptionalLabelText: =" "
+            Visible: =gbl_UI_Book_Modal = true
+            Width: =App.Width

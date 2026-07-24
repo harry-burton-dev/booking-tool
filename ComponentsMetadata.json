@@ -1,0 +1,18 @@
+{
+  "Components": [
+    {
+      "Name": "Shell_Header",
+      "TemplateName": "02505bd3719741e0a753ad8181feb078",
+      "Description": "",
+      "AllowCustomization": true,
+      "AllowAccessToGlobals": true
+    },
+    {
+      "Name": "cpt_Modal_",
+      "TemplateName": "f5e4cd182c924c98b3d6c01964a0fa92",
+      "Description": "",
+      "AllowCustomization": true,
+      "AllowAccessToGlobals": true
+    }
+  ]
+}
