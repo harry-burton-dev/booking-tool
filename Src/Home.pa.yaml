@@ -768,8 +768,8 @@ Screens:
                                                 RoomStatus,
                                                 With(
                                                     {
-                                                        _current: LookUp(colTodayBookings, RoomID.Value = ThisRecord.RoomID.Value && StartDateTime <= Now() && EndDateTime > Now()),
-                                                        _next: First(Sort(Filter(colTodayBookings, RoomID.Value = ThisRecord.RoomID.Value && StartDateTime > Now()), StartDateTime, SortOrder.Ascending))
+                                                        _current: LookUp(colTodayBookings, RoomID.Id = ThisRecord.ID && StartDateTime <= Now() && EndDateTime > Now()),
+                                                        _next: First(Sort(Filter(colTodayBookings, RoomID.Id = ThisRecord.ID && StartDateTime > Now()), StartDateTime, SortOrder.Ascending))
                                                     },
                                                     {
                                                         State: If(!IsBlank(_current), "Busy", IsBlank(_next), "FreeAllDay", DateDiff(Now(), _next.StartDateTime, TimeUnit.Minutes) <= 60, "FreeWarning", "Free"),
@@ -1003,7 +1003,7 @@ Screens:
                                           Height: =8
                                           Width: |-
                                             =With(
-                                                {_occ: CountRows(Filter(colTodayBookings, RoomID.Id = ThisItem.RoomID)) * 0.25 / 10},
+                                                {_occ: CountRows(Filter(colTodayBookings, RoomID.Id = ThisItem.ID)) * 0.25 / 10},
                                                 Max(0, (Parent.Width - 166) * _occ)
                                             )
                                           X: =118
@@ -1016,7 +1016,7 @@ Screens:
                                           Font: =Font.Lato
                                           Height: =16
                                           Size: =10
-                                          Text: =Text(CountRows(Filter(colTodayBookings, RoomID.Value = ThisItem.RoomID)) * 0.25 / 10 * 100, "[$-en-US]0") & "%"
+                                          Text: =Text(CountRows(Filter(colTodayBookings, RoomID.Id = ThisItem.ID)) * 0.25 / 10 * 100, "[$-en-US]0") & "%"
                                           Width: =36
                                           Wrap: =false
                                           X: =Parent.Width - 40

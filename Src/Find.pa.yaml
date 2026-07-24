@@ -157,7 +157,7 @@ Screens:
                                   ClearCollect(colTimelineRows_R01, Sort(colTimelineRows_R01, RowStart, SortOrder.Ascending)) // (d)
                               );
                               // ── R02 ───────────────────────────────────────────────────────────────
-                              With({room: Filter(varFindBookings, RoomID.Value = 2)},
+                              With({room: Filter(varFindBookings, RoomID.Id = 2)},
                                   Collect(colTimelineRows_R02,
                                       ForAll(room As b, {
                                           RowType:   "booked",
@@ -189,7 +189,7 @@ Screens:
                                   ClearCollect(colTimelineRows_R02, Sort(colTimelineRows_R02, RowStart, SortOrder.Ascending))
                               );
                               // ── R03 ───────────────────────────────────────────────────────────────
-                              With({room: Filter(varFindBookings, RoomID.Value = 3)},
+                              With({room: Filter(varFindBookings, RoomID.Id = 3)},
                                   Collect(colTimelineRows_R03,
                                       ForAll(room As b, {
                                           RowType:   "booked",
@@ -221,7 +221,7 @@ Screens:
                                   ClearCollect(colTimelineRows_R03, Sort(colTimelineRows_R03, RowStart, SortOrder.Ascending))
                               );
                               // ── R04 ───────────────────────────────────────────────────────────────
-                              With({room: Filter(varFindBookings, RoomID.Value = 4)},
+                              With({room: Filter(varFindBookings, RoomID.Id = 4)},
                                   Collect(colTimelineRows_R04,
                                       ForAll(room As b, {
                                           RowType:   "booked",
@@ -253,7 +253,7 @@ Screens:
                                   ClearCollect(colTimelineRows_R04, Sort(colTimelineRows_R04, RowStart, SortOrder.Ascending))
                               );
                               // ── R05 ───────────────────────────────────────────────────────────────
-                              With({room: Filter(varFindBookings, RoomID.Value = 5)},
+                              With({room: Filter(varFindBookings, RoomID.Id = 5)},
                                   Collect(colTimelineRows_R05,
                                       ForAll(room As b, {
                                           RowType:   "booked",
@@ -285,7 +285,7 @@ Screens:
                                   ClearCollect(colTimelineRows_R05, Sort(colTimelineRows_R05, RowStart, SortOrder.Ascending))
                               );
                               // ── R06 ───────────────────────────────────────────────────────────────
-                              With({room: Filter(varFindBookings, RoomID.Value = 6)},
+                              With({room: Filter(varFindBookings, RoomID.Id = 6)},
                                   Collect(colTimelineRows_R06,
                                       ForAll(room As b, {
                                           RowType:   "booked",

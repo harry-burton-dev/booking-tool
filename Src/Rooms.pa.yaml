@@ -441,7 +441,7 @@ Screens:
                                     Sort(
                                         Filter(
                                             colBookings,
-                                            RoomID.Value = varSelectedRoom.RoomID,
+                                            RoomID.Id = varSelectedRoom.ID,
                                             StartDateTime >= Timeline_DayStart,
                                             EndDateTime <= Timeline_DayEnd
                                         ),
