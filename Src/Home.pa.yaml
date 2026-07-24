@@ -12,8 +12,7 @@ Screens:
       Fill: =RGBA(255, 255, 255, 1)
       LoadingSpinnerColor: =RGBA(0, 120, 212, 1)
       OnVisible: |-
-        =Refresh(Book_Bookings);
-        Set(varHomeLoaded, false);
+        =Set(varHomeLoaded, false);
         Select(btnLoadHomeData);
     Children:
       - con_shell:
@@ -102,7 +101,7 @@ Screens:
                               OnSelect: |-
                                 =ClearCollect(colTodayBookings,
                                     Sort(
-                                        Filter(Book_Bookings,
+                                        Filter(colBookings,
                                             StartDateTime >= Today(),
                                             StartDateTime < DateAdd(Today(), 1, TimeUnit.Days)
                                         ),
@@ -111,14 +110,14 @@ Screens:
                                     )
                                 );
                                 Set(varNextBooking,
-                                    LookUp(Book_Bookings,
+                                    LookUp(colBookings,
                                         BookedBy.Email = User().Email &&
                                         EndDateTime > Now(),
                                         StartDateTime
                                     )
                                 );
                                 Set(varNextBookingRecord,
-                                    LookUp(Book_Bookings,
+                                    LookUp(colBookings,
                                         BookedBy.Email = User().Email &&
                                         EndDateTime > Now()
                                     )

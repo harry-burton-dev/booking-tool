@@ -105,7 +105,7 @@ Screens:
                           ClearCollect(
                               varFindBookings,
                               Sort(
-                                  Filter(Book_Bookings, StartDateTime >= varFindWindowStart, EndDateTime <= varFindWindowEnd),
+                                  Filter(colBookings, StartDateTime >= varFindWindowStart, EndDateTime <= varFindWindowEnd),
                                   StartDateTime,
                                   SortOrder.Ascending
                               )

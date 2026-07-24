@@ -440,7 +440,7 @@ Screens:
                                 ClearCollect(colRoomBookings,
                                     Sort(
                                         Filter(
-                                            Book_Bookings,
+                                            colBookings,
                                             RoomID.Value = varSelectedRoom.RoomID,
                                             StartDateTime >= Timeline_DayStart,
                                             EndDateTime <= Timeline_DayEnd

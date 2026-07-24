@@ -287,6 +287,75 @@ App:
             //----------------------------------
             //--- End Find Timeline Formulas ---
             //----------------------------------
+
+            //--------------------------------------------------------
+            //--- Sandbox mock data (mirrors Book_Rooms/Book_Bookings) ---
+            //--------------------------------------------------------
+
+            MockRoomsSeed = Table(
+                {ID: 1, Title: "Boardroom", RoomID: 1},
+                {ID: 2, Title: "Meeting Room A", RoomID: 2},
+                {ID: 3, Title: "Meeting Room B", RoomID: 3},
+                {ID: 4, Title: "Huddle Space 1", RoomID: 4},
+                {ID: 5, Title: "Huddle Space 2", RoomID: 5},
+                {ID: 6, Title: "Training Room", RoomID: 6}
+            );
+
+            MockBookingsSeed = Table(
+                {
+                    ID: 1, Title: "Team Standup",
+                    RoomID: {Id: 1, Value: 1}, 'RoomID: Title': {Id: 1, Value: "Boardroom"},
+                    StartDateTime: DateAdd(Today(), 9 * 60, TimeUnit.Minutes),
+                    EndDateTime: DateAdd(Today(), 9 * 60 + 30, TimeUnit.Minutes),
+                    BookedBy: {'@odata.type': "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser", Claims: "", DisplayName: "", Email: "", Department: "", JobTitle: "", Picture: ""}
+                },
+                {
+                    ID: 2, Title: "Client Call",
+                    RoomID: {Id: 2, Value: 2}, 'RoomID: Title': {Id: 2, Value: "Meeting Room A"},
+                    StartDateTime: DateAdd(Today(), 10 * 60, TimeUnit.Minutes),
+                    EndDateTime: DateAdd(Today(), 11 * 60, TimeUnit.Minutes),
+                    BookedBy: {'@odata.type': "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser", Claims: "i:0#.f|membership|alex.morgan@example.com", DisplayName: "Alex Morgan", Email: "alex.morgan@example.com", Department: "", JobTitle: "", Picture: ""}
+                },
+                {
+                    ID: 3, Title: "Design Review",
+                    RoomID: {Id: 3, Value: 3}, 'RoomID: Title': {Id: 3, Value: "Meeting Room B"},
+                    StartDateTime: DateAdd(Today(), 13 * 60, TimeUnit.Minutes),
+                    EndDateTime: DateAdd(Today(), 14 * 60, TimeUnit.Minutes),
+                    BookedBy: {'@odata.type': "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser", Claims: "i:0#.f|membership|priya.shah@example.com", DisplayName: "Priya Shah", Email: "priya.shah@example.com", Department: "", JobTitle: "", Picture: ""}
+                },
+                {
+                    ID: 4, Title: "1:1",
+                    RoomID: {Id: 4, Value: 4}, 'RoomID: Title': {Id: 4, Value: "Huddle Space 1"},
+                    StartDateTime: DateAdd(Today(), 15 * 60, TimeUnit.Minutes),
+                    EndDateTime: DateAdd(Today(), 15 * 60 + 30, TimeUnit.Minutes),
+                    BookedBy: {'@odata.type': "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser", Claims: "i:0#.f|membership|sam.lee@example.com", DisplayName: "Sam Lee", Email: "sam.lee@example.com", Department: "", JobTitle: "", Picture: ""}
+                },
+                {
+                    ID: 5, Title: "Sprint Planning",
+                    RoomID: {Id: 1, Value: 1}, 'RoomID: Title': {Id: 1, Value: "Boardroom"},
+                    StartDateTime: DateAdd(Today(), 24 * 60 + 9 * 60, TimeUnit.Minutes),
+                    EndDateTime: DateAdd(Today(), 24 * 60 + 10 * 60 + 30, TimeUnit.Minutes),
+                    BookedBy: {'@odata.type': "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser", Claims: "i:0#.f|membership|alex.morgan@example.com", DisplayName: "Alex Morgan", Email: "alex.morgan@example.com", Department: "", JobTitle: "", Picture: ""}
+                },
+                {
+                    ID: 6, Title: "Training Session",
+                    RoomID: {Id: 6, Value: 6}, 'RoomID: Title': {Id: 6, Value: "Training Room"},
+                    StartDateTime: DateAdd(Today(), 2 * 24 * 60 + 9 * 60, TimeUnit.Minutes),
+                    EndDateTime: DateAdd(Today(), 2 * 24 * 60 + 11 * 60, TimeUnit.Minutes),
+                    BookedBy: {'@odata.type': "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser", Claims: "i:0#.f|membership|priya.shah@example.com", DisplayName: "Priya Shah", Email: "priya.shah@example.com", Department: "", JobTitle: "", Picture: ""}
+                },
+                {
+                    ID: 7, Title: "Past Review",
+                    RoomID: {Id: 2, Value: 2}, 'RoomID: Title': {Id: 2, Value: "Meeting Room A"},
+                    StartDateTime: DateAdd(Today(), -24 * 60 + 9 * 60, TimeUnit.Minutes),
+                    EndDateTime: DateAdd(Today(), -24 * 60 + 10 * 60, TimeUnit.Minutes),
+                    BookedBy: {'@odata.type': "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser", Claims: "", DisplayName: "", Email: "", Department: "", JobTitle: "", Picture: ""}
+                }
+            );
+
+            //--------------------------------------------------------
+            //--- End sandbox mock data ---
+            //--------------------------------------------------------
     OnStart: |-
       =Set(glbIsDarkMode, false);
 
@@ -298,6 +367,21 @@ App:
             Set(glbNav_SwitcherOpen, false);
             Set(glbUI_ProfileOpen, false);
 
-            ClearCollect(colRooms, Book_Rooms);
-            ClearCollect(colBookings, Book_Bookings);
+            ClearCollect(colRooms, MockRoomsSeed);
+            ClearCollect(colBookings, MockBookingsSeed);
+
+            /* Bind the two placeholder seed bookings (IDs 1 and 7 - one upcoming, one past) to whoever is signed into the sandbox session */
+            UpdateIf(colBookings, ID = 1 || ID = 7,
+                {
+                    BookedBy: {
+                        '@odata.type': "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser",
+                        Claims: "i:0#.f|membership|" & Lower(User().Email),
+                        DisplayName: User().FullName,
+                        Email: User().Email,
+                        Department: "",
+                        JobTitle: "",
+                        Picture: ""
+                    }
+                }
+            );
     Theme: =PowerAppsTheme

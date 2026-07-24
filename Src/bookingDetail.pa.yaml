@@ -12,8 +12,7 @@ Screens:
       Fill: =RGBA(255, 255, 255, 1)
       LoadingSpinnerColor: =RGBA(0, 120, 212, 1)
       OnVisible: |-
-        =Refresh(Book_Bookings);
-        UpdateContext({varConfirmCancel: false})
+        =UpdateContext({varConfirmCancel: false})
     Children:
       - con_shell_1:
           Control: GroupContainer@1.5.0
@@ -401,7 +400,7 @@ Screens:
                                                 FontWeight: =FontWeight.Normal
                                                 HoverColor: =ColorValue(AppTheme.PrimaryText)
                                                 HoverFill: =ColorValue("#b81922")
-                                                OnSelect: =Remove(Book_Bookings, gblSelectedBooking); Notify("Booking cancelled", NotificationType.Success); Navigate(myBookings, ScreenTransition.Fade)
+                                                OnSelect: =Remove(colBookings, gblSelectedBooking); Notify("Booking cancelled", NotificationType.Success); Navigate(myBookings, ScreenTransition.Fade)
                                                 PressedColor: =ColorValue(AppTheme.PrimaryText)
                                                 PressedFill: =ColorValue("#921620")
                                                 RadiusBottomLeft: =2

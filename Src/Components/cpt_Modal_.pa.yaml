@@ -530,7 +530,7 @@ ComponentDefinitions:
                                                 varConflict,
                                                 !IsEmpty(
                                                     Filter(
-                                                        Book_Bookings,
+                                                        colBookings,
                                                         RoomID.Value = varSelectedRoom.RoomID,
                                                         StartDateTime < varEndTime,
                                                         EndDateTime > varStartTime
@@ -541,7 +541,7 @@ ComponentDefinitions:
                                             Set(
                                                 varConflictingBooking,
                                                 LookUp(
-                                                    Book_Bookings,
+                                                    colBookings,
                                                     RoomID.Value = varSelectedRoom.RoomID &&
                                                     StartDateTime < varEndTime &&
                                                     EndDateTime > varStartTime
@@ -551,7 +551,7 @@ ComponentDefinitions:
                                             Set(
                                                 varNextFreeSlot,
                                                 LookUp(
-                                                    Book_Bookings,
+                                                    colBookings,
                                                     RoomID.Value = varSelectedRoom.RoomID &&
                                                     StartDateTime >= varStartTime,
                                                     EndDateTime
@@ -561,7 +561,7 @@ ComponentDefinitions:
                                             ClearCollect(
                                                 colOverlappingBookings,
                                                 Filter(
-                                                    Book_Bookings,
+                                                    colBookings,
                                                     StartDateTime < varEndTime &&
                                                     EndDateTime > varStartTime
                                                 )
@@ -650,7 +650,7 @@ ComponentDefinitions:
                                                 varConflict,
                                                 !IsEmpty(
                                                     Filter(
-                                                        Book_Bookings,
+                                                        colBookings,
                                                         RoomID.Value = varSelectedRoom.RoomID,
                                                         StartDateTime < varEndTime,
                                                         EndDateTime > varStartTime
@@ -661,7 +661,7 @@ ComponentDefinitions:
                                             Set(
                                                 varConflictingBooking,
                                                 LookUp(
-                                                    Book_Bookings,
+                                                    colBookings,
                                                     RoomID.Value = varSelectedRoom.RoomID &&
                                                     StartDateTime < varEndTime &&
                                                     EndDateTime > varStartTime
@@ -671,7 +671,7 @@ ComponentDefinitions:
                                             Set(
                                                 varNextFreeSlot,
                                                 LookUp(
-                                                    Book_Bookings,
+                                                    colBookings,
                                                     RoomID.Value = varSelectedRoom.RoomID &&
                                                     StartDateTime >= varStartTime,
                                                     EndDateTime
@@ -681,7 +681,7 @@ ComponentDefinitions:
                                             ClearCollect(
                                                 colOverlappingBookings,
                                                 Filter(
-                                                    Book_Bookings,
+                                                    colBookings,
                                                     StartDateTime < varEndTime &&
                                                     EndDateTime > varStartTime
                                                 )
@@ -1405,7 +1405,7 @@ ComponentDefinitions:
                                   If(
                                       !IsBlank(
                                           LookUp(
-                                              Book_Bookings,
+                                              colBookings,
                                               RoomID.Value = varSelectedRoom.RoomID &&
                                               StartDateTime < vEnd &&
                                               EndDateTime > vStart
@@ -1421,14 +1421,18 @@ ComponentDefinitions:
                                       ),
 
                                       /* Create booking */
-                                      Patch(
-                                          Book_Bookings,
-                                          Defaults(Book_Bookings),
+                                      Collect(
+                                          colBookings,
                                           {
+                                              ID: Max(colBookings, ID) + 1,
                                               Title: varTitle,
                                               RoomID: {
                                                   Id: Value(varSelectedRoom.ID),
                                                   Value: varSelectedRoom.RoomID
+                                              },
+                                              'RoomID: Title': {
+                                                  Id: Value(varSelectedRoom.ID),
+                                                  Value: varSelectedRoom.Title
                                               },
                                               StartDateTime: vStart,
                                               EndDateTime: vEnd,
