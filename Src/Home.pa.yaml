@@ -225,13 +225,13 @@ Screens:
                                             Set(varSelectedDate, Today());
                                             Set(varStartTime, Blank());
                                             Set(varEndTime, Blank());
-                                            //Set(varTitle, Blank());
-                                            //Set(varNotes, Blank());
+                                            Set(varTitle, Blank());
+                                            Set(varNotes, Blank());
                                             Set(varConflict, false);
                                             Set(varBookingError, false);
                                             Set(varSubmitting, false);
-                                            //Set(varConflictingBooking, Blank());
-                                            //Set(varNextFreeSlot, Blank());
+                                            Set(varConflictingBooking, Blank());
+                                            Set(varNextFreeSlot, Blank());
 
                                             ClearCollect(
                                                 varAlternativeRooms,

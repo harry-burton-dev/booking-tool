@@ -525,6 +525,7 @@ ComponentDefinitions:
                                           LayoutMinWidth: =0
                                           OnChange: |-
                                             =Set(varStartTime, drpStartTime.Selected.value);
+                                            If(!IsBlank(varEndTime) && varEndTime <= varStartTime, Set(varEndTime, Blank()));
 
                                             Set(
                                                 varConflict,
@@ -785,7 +786,7 @@ ComponentDefinitions:
                                           ChevronBackground: =AppTheme.HeaderBackground
                                           ChevronFill: =AppTheme.HeaderAccent
                                           Color: =AppTheme.SideNavText
-                                          Default: =If(IsBlank(varEndTime), "", Text(varEndTime, "HH:mm"))
+                                          Default: =1
                                           DisabledBorderColor: =AppTheme.SurfaceAlt
                                           DisabledColor: =AppTheme.TextMuted
                                           DisabledFill: =AppTheme.SurfaceAlt
@@ -1064,10 +1065,16 @@ ComponentDefinitions:
                                           HoverColor: =RGBA(0, 0, 0, 0)
                                           HoverFill: =RGBA(0, 0, 0, 0.06)
                                           OnSelect: |-
-                                            =Concurrent(
-                                                Set(varSelectedRoom, ThisItem),
-                                                Set(varConflict, false),
-                                                Set(varStep, 3)
+                                            =Set(varSelectedRoom, ThisItem);
+                                            Set(varConflict,
+                                                !IsBlank(
+                                                    LookUp(
+                                                        colBookings,
+                                                        RoomID.Id = ThisItem.ID &&
+                                                        StartDateTime < varEndTime &&
+                                                        EndDateTime > varStartTime
+                                                    )
+                                                )
                                             )
                                           PressedColor: =RGBA(0, 0, 0, 0)
                                           PressedFill: =RGBA(0, 0, 0, 0.12)
@@ -1373,7 +1380,7 @@ ComponentDefinitions:
                         DisabledBorderColor: =AppTheme.SurfaceAlt
                         DisabledColor: =AppTheme.TextMuted
                         DisabledFill: =AppTheme.SurfaceAlt
-                        DisplayMode: =If(IsBlank(varSelectedRoom) || IsBlank(varStartTime) || IsBlank(varEndTime) || IsBlank(varTitle) || varConflict || varStartTime < Now() || varSubmitting, DisplayMode.Disabled, DisplayMode.Edit)
+                        DisplayMode: =If(IsBlank(varSelectedRoom) || IsBlank(varStartTime) || IsBlank(varEndTime) || varEndTime <= varStartTime || IsBlank(varTitle) || varConflict || varStartTime < Now() || varSubmitting, DisplayMode.Disabled, DisplayMode.Edit)
                         Fill: =RGBA(15, 98, 254, 1)
                         FocusedBorderColor: =RGBA(15, 98, 254, 1)
                         FocusedBorderThickness: =2
@@ -1393,7 +1400,7 @@ ComponentDefinitions:
                               Sequence(
                                   If(
                                       tglRecurring.Checked,
-                                      Value(drpWeeks.Selected.Value),
+                                      Max(1, Coalesce(Value(drpWeeks.Selected.Value), 1)),
                                       1
                                   )
                               ),
