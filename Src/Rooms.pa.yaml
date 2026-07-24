@@ -12,9 +12,7 @@ Screens:
       Fill: =RGBA(255, 255, 255, 1)
       LoadingSpinnerColor: =RGBA(0, 120, 212, 1)
       OnVisible: |+
-        =Set(glbDayStart, DateAdd(DateValue(Text(glbSelectedDate, "yyyy-mm-dd")), 8 * 60, TimeUnit.Minutes));
-        Set(glbDayEnd, DateAdd(DateValue(Text(glbSelectedDate, "yyyy-mm-dd")), 18 * 60, TimeUnit.Minutes));
-        UpdateContext({varShowTimeline: false});
+        =UpdateContext({varShowTimeline: false});
 
     Children:
       - con_shell_view:
@@ -161,7 +159,7 @@ Screens:
                                                     false
                                                 )
                                             )
-                                          OnSelect: =Set(glbPressed, !glbPressed)
+                                          OnSelect: =Select(btn_Card)
                                           PressedBorderColor: =RGBA(0, 0, 0, 0)
                                           PressedFill: =RGBA(0, 0, 0, 0)
                                           TabIndex: =0
