@@ -631,7 +631,8 @@ Screens:
                                                 LayoutMinHeight: =0
                                                 LayoutMinWidth: =0
                                                 Size: =12
-                                                Text: =With({_m: DateDiff(Now(), varNextBookingRecord.StartDateTime, TimeUnit.Minutes)}, If(_m <= 0, "Now", _m < 60, "In " & _m & " min", _m < 1440, "In " & RoundDown(_m / 60, 0) & "h " & Mod(_m, 60) & "m", "In " & RoundDown(_m / 1440, 0) & " days"))
+                                                Text: |-
+                                                  =With({_m: DateDiff(Now(), varNextBookingRecord.StartDateTime, TimeUnit.Minutes)}, If(_m <= 0, "Now", _m < 60, "In " & _m & " min", _m < 1440, "In " & RoundDown(_m / 60, 0) & "h " & Mod(_m, 60) & "m", "In " & RoundDown(_m / 1440, 0) & " days"))
                                                 Wrap: =false
                                     - img_nextemptystate_:
                                         Control: Image@2.2.3
