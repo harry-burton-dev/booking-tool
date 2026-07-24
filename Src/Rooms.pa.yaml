@@ -1,9 +1,9 @@
 # ************************************************************************************************
 # Warning: YAML source code for Canvas Apps should only be used to review changes made within Power Apps Studio and for minor edits (Preview).
 # Use the maker portal to create and edit your Power Apps.
-# 
+#
 # The schema file for Canvas Apps is available at https://go.microsoft.com/fwlink/?linkid=2304907
-# 
+#
 # For more information, visit https://go.microsoft.com/fwlink/?linkid=2292623
 # ************************************************************************************************
 Screens:
@@ -16,7 +16,7 @@ Screens:
 
     Children:
       - con_shell_view:
-          Control: GroupContainer@1.5.0
+          Control: GroupContainer
           Variant: ManualLayout
           Properties:
             DropShadow: =DropShadow.None
@@ -44,7 +44,7 @@ Screens:
                     }
                   Width: =App.Width
             - con_body_home_view:
-                Control: GroupContainer@1.5.0
+                Control: GroupContainer
                 Variant: AutoLayout
                 Properties:
                   Height: =Parent.Height - 48
@@ -58,7 +58,7 @@ Screens:
                   Y: =48
                 Children:
                   - con_rooms_view:
-                      Control: GroupContainer@1.5.0
+                      Control: GroupContainer
                       Variant: AutoLayout
                       Properties:
                         DropShadow: =DropShadow.None
@@ -75,7 +75,7 @@ Screens:
                         Visible: =!varShowTimeline
                       Children:
                         - gal_rooms_view:
-                            Control: Gallery@2.15.0
+                            Control: Gallery
                             Variant: Horizontal
                             Properties:
                               AlignInContainer: =AlignInContainer.Start
@@ -87,7 +87,7 @@ Screens:
                               WrapCount: =2
                             Children:
                               - con_tile_view:
-                                  Control: GroupContainer@1.5.0
+                                  Control: GroupContainer
                                   Variant: ManualLayout
                                   Properties:
                                     DropShadow: =DropShadow.None
@@ -99,7 +99,7 @@ Screens:
                                     Width: =Parent.TemplateWidth
                                   Children:
                                     - lbl_textID_Desc:
-                                        Control: Label@2.5.1
+                                        Control: Label
                                         Properties:
                                           BorderColor: =RGBA(0, 0, 0, 0)
                                           BorderStyle: =BorderStyle.None
@@ -116,7 +116,7 @@ Screens:
                                           X: =20
                                           Y: =20
                                     - lbl_textID_Card:
-                                        Control: Label@2.5.1
+                                        Control: Label
                                         Properties:
                                           BorderColor: =RGBA(0, 0, 0, 0)
                                           BorderStyle: =BorderStyle.None
@@ -131,7 +131,7 @@ Screens:
                                           Visible: =false
                                           Width: =200
                                     - img_Card:
-                                        Control: Image@2.2.3
+                                        Control: Image
                                         Properties:
                                           BorderColor: =AppTheme.FocusedBorder
                                           DisabledBorderColor: =RGBA(0, 0, 0, 0)
@@ -142,19 +142,19 @@ Screens:
                                           HoverFill: =
                                           Image: |-
                                             =With(
-                                                { 
+                                                {
                                                     _tileTitle: lbl_textID_Card.Text,
-                                                    _tileSubtitle: lbl_textID_Desc.Text, 
+                                                    _tileSubtitle: lbl_textID_Desc.Text,
                                                     _isActive: varUI_ST_ActiveBtn = lbl_textID_Card.Text
                                                 },
                                                 TileProperties(
                                                     "primary",
-                                                    _tileTitle, 
+                                                    _tileTitle,
                                                     _tileSubtitle,
-                                                    Self.Width, 
+                                                    Self.Width,
                                                     Self.Height,
                                                     _isActive,
-                                                    false, 
+                                                    false,
                                                     CarbonFontFamily,
                                                     false
                                                 )
@@ -165,7 +165,7 @@ Screens:
                                           TabIndex: =0
                                           Width: =Parent.Width
                                     - btn_Card:
-                                        Control: Classic/Button@2.2.0
+                                        Control: Classic/Button
                                         Properties:
                                           BorderColor: =RGBA(0, 0, 0, 0)
                                           BorderStyle: =BorderStyle.None
@@ -203,7 +203,7 @@ Screens:
                                           Text: =""
                                           Width: =Parent.Width
                   - con_timeline_view:
-                      Control: GroupContainer@1.5.0
+                      Control: GroupContainer
                       Variant: AutoLayout
                       Properties:
                         DropShadow: =DropShadow.None
@@ -216,13 +216,13 @@ Screens:
                         Width: =Parent.Width
                       Children:
                         - con_timelineheader:
-                            Control: GroupContainer@1.5.0
+                            Control: GroupContainer
                             Variant: AutoLayout
                             Properties:
                               DropShadow: =DropShadow.None
                               Fill: =AppTheme.HeaderBackground
                               FillPortions: =0
-                              Height: =40
+                              Height: =48
                               LayoutAlignItems: =LayoutAlignItems.Center
                               LayoutDirection: =LayoutDirection.Horizontal
                               LayoutMinHeight: =16
@@ -233,7 +233,7 @@ Screens:
                               RadiusTopRight: =0
                             Children:
                               - btnBackToRooms:
-                                  Control: Classic/Button@2.2.0
+                                  Control: Classic/Button
                                   Properties:
                                     AlignInContainer: =AlignInContainer.Center
                                     BorderStyle: =BorderStyle.None
@@ -258,16 +258,76 @@ Screens:
                                     Size: =11
                                     Text: ="← Rooms"
                                     Width: =96
-                              - lblTimelineHeader:
-                                  Control: Label@2.5.1
+                              - conHeaderTitle:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
                                   Properties:
-                                    AlignInContainer: =AlignInContainer.Stretch
-                                    Color: =ColorValue(AppTheme.PrimaryText)
-                                    FillPortions: =1
+                                    DropShadow: =DropShadow.None
+                                    Fill: =RGBA(0,0,0,0)
+                                    LayoutAlignItems: =LayoutAlignItems.Stretch
+                                    LayoutDirection: =LayoutDirection.Vertical
                                     PaddingLeft: =8
-                                    Text: =Text(glbSelectedDate, "dddd dd mmmm yyyy") & " · 08:00 – 18:00"
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                  Children:
+                                    - lblRoomName:
+                                        Control: Label
+                                        Properties:
+                                          Color: =ColorValue(AppTheme.PrimaryText)
+                                          FontWeight: =FontWeight.Semibold
+                                          LayoutMinHeight: =20
+                                          PaddingBottom: =0
+                                          PaddingTop: =2
+                                          Text: =varSelectedRoom.Title
+                                    - lblHeaderSummary:
+                                        Control: Label
+                                        Properties:
+                                          Color: =RGBA(255,255,255,0.7)
+                                          LayoutMinHeight: =14
+                                          Size: =10
+                                          Text: |-
+                                            =Text(glbSelectedDate, "ddd dd mmm") & " · " & CountRows(colRoomBookings) & " booking" & If(CountRows(colRoomBookings) = 1, "", "s") & " · " &
+                                            With(
+                                                {freeMin: 600 - Sum(colRoomBookings, DateDiff(StartDateTime, EndDateTime, TimeUnit.Minutes))},
+                                                If(
+                                                    freeMin <= 0,
+                                                    "fully booked",
+                                                    If(freeMin >= 60, Text(RoundDown(freeMin / 60, 0)) & "h ", "") & If(Mod(freeMin, 60) > 0, Text(Mod(freeMin, 60)) & "m ", "") & "free"
+                                                )
+                                            )
+                              - btnToday:
+                                  Control: Classic/Button
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Center
+                                    BorderStyle: =BorderStyle.None
+                                    BorderThickness: =0
+                                    Color: =ColorValue(AppTheme.PrimaryText)
+                                    DisabledBorderColor: =RGBA(0,0,0,0)
+                                    DisabledColor: =RGBA(255,255,255,0.4)
+                                    DisabledFill: =RGBA(0,0,0,0)
+                                    DisplayMode: =If(glbSelectedDate = Today(), DisplayMode.Disabled, DisplayMode.Edit)
+                                    Fill: =RGBA(0,0,0,0)
+                                    FocusedBorderColor: =RGBA(255,255,255,1)
+                                    FocusedBorderThickness: =2
+                                    Font: =Font.Lato
+                                    FontWeight: =FontWeight.Normal
+                                    Height: =32
+                                    HoverColor: =ColorValue(AppTheme.PrimaryText)
+                                    HoverFill: =RGBA(255,255,255,0.16)
+                                    OnSelect: =Set(glbSelectedDate, Today()); Select(btn_LoadTimeline)
+                                    PressedColor: =ColorValue(AppTheme.PrimaryText)
+                                    PressedFill: =RGBA(255,255,255,0.24)
+                                    RadiusBottomLeft: =2
+                                    RadiusBottomRight: =2
+                                    RadiusTopLeft: =2
+                                    RadiusTopRight: =2
+                                    Size: =11
+                                    Text: ="Today"
+                                    Width: =64
                               - imgDateBack:
-                                  Control: Image@2.2.3
+                                  Control: Image
                                   Properties:
                                     AlignInContainer: =AlignInContainer.Center
                                     Height: =44
@@ -277,7 +337,7 @@ Screens:
                                       Select(btn_LoadTimeline);
                                     Width: =40
                               - DatePicker2:
-                                  Control: ModernDatePicker@1.0.1
+                                  Control: ModernDatePicker
                                   Properties:
                                     Color: =ColorValue(AppTheme.PrimaryText)
                                     DefaultDate: =glbSelectedDate
@@ -288,7 +348,7 @@ Screens:
                                     OnChange: =Set(glbSelectedDate, DatePicker2.SelectedDate); Select(btn_LoadTimeline)
                                     Width: =200
                               - lblCurrentDate:
-                                  Control: Label@2.5.1
+                                  Control: Label
                                   Properties:
                                     Align: =Align.Center
                                     AlignInContainer: =AlignInContainer.Center
@@ -301,7 +361,7 @@ Screens:
                                     Visible: =false
                                     Width: =140
                               - imgDateForward:
-                                  Control: Image@2.2.3
+                                  Control: Image
                                   Properties:
                                     AlignInContainer: =AlignInContainer.Center
                                     Height: =44
@@ -311,10 +371,10 @@ Screens:
                                       Select(btn_LoadTimeline)
                                     Width: =40
                         - galTimeline:
-                            Control: Gallery@2.15.0
+                            Control: Gallery
                             Variant: BrowseLayout_Flexible_SocialFeed_ver5.0
                             Properties:
-                              Height: =Parent.Height - 40
+                              Height: =Parent.Height - 48
                               Items: =colTimelineRows
                               LayoutMinHeight: =0
                               LayoutMinWidth: =0
@@ -322,7 +382,7 @@ Screens:
                               Width: =Parent.Width
                             Children:
                               - conSlotRow:
-                                  Control: GroupContainer@1.5.0
+                                  Control: GroupContainer
                                   Variant: AutoLayout
                                   Properties:
                                     Fill: =AppTheme.Surface
@@ -336,7 +396,7 @@ Screens:
                                     Width: =Parent.TemplateWidth
                                   Children:
                                     - conTimeLabel:
-                                        Control: GroupContainer@1.5.0
+                                        Control: GroupContainer
                                         Variant: AutoLayout
                                         Properties:
                                           AlignInContainer: =AlignInContainer.Center
@@ -351,76 +411,151 @@ Screens:
                                           RadiusTopRight: =0
                                         Children:
                                           - lblSlotTime:
-                                              Control: Label@2.5.1
+                                              Control: Label
                                               Properties:
                                                 Align: =Align.Right
                                                 AlignInContainer: =AlignInContainer.Center
                                                 Color: =AppTheme.TextMuted
-                                                Height: =Parent.Height
+                                                Height: =18
                                                 LayoutMinHeight: =16
                                                 PaddingBottom: =0
                                                 PaddingLeft: =0
                                                 PaddingRight: =8
-                                                PaddingTop: =6
+                                                PaddingTop: =4
                                                 Size: =11
-                                                Text: |-
-                                                  =If(
-                                                      ThisItem.RowType = "booked",
-                                                      Text(ThisItem.RowStart, "HH:mm") & " – " & Text(ThisItem.RowEnd, "HH:mm"),
-                                                      Mod(DateDiff(Timeline_DayStart, ThisItem.RowStart, TimeUnit.Minutes), 60) = 0,
-                                                      Text(ThisItem.RowStart, "HH:mm"),
-                                                      ""
-                                                  )
+                                                Text: =If(Mod(DateDiff(Timeline_DayStart, ThisItem.RowStart, TimeUnit.Minutes), 60) = 0, Text(ThisItem.RowStart, "HH:mm"), "")
                                                 VerticalAlign: =VerticalAlign.Top
                                                 Width: =Parent.Width
+                                          - lblNowMarker:
+                                              Control: Label
+                                              Properties:
+                                                Align: =Align.Right
+                                                AlignInContainer: =AlignInContainer.Center
+                                                Color: =AppTheme.StatusBusyText
+                                                LayoutMinHeight: =14
+                                                PaddingRight: =8
+                                                Size: =10
+                                                Text: ="● now"
+                                                Visible: =Now() >= ThisItem.RowStart && Now() < ThisItem.RowEnd
+                                                Width: =Parent.Width
+                                          - lblSlotEndTime:
+                                              Control: Label
+                                              Properties:
+                                                Align: =Align.Right
+                                                AlignInContainer: =AlignInContainer.Center
+                                                Color: =AppTheme.TextMuted
+                                                FillPortions: =1
+                                                Height: =18
+                                                LayoutMinHeight: =16
+                                                PaddingBottom: =4
+                                                PaddingLeft: =0
+                                                PaddingRight: =8
+                                                PaddingTop: =0
+                                                Size: =11
+                                                Text: |+
+                                                  =If(Mod(DateDiff(Timeline_DayStart, ThisItem.RowEnd, TimeUnit.Minutes), 60) <> 0, Text(ThisItem.RowEnd, "HH:mm"), "")
+                                                VerticalAlign: =VerticalAlign.Bottom
+                                                Width: =Parent.Width
                                     - conSlotBlock:
-                                        Control: GroupContainer@1.5.0
+                                        Control: GroupContainer
                                         Variant: AutoLayout
                                         Properties:
-                                          BorderColor: =AppTheme.Border
-                                          BorderThickness: =1
-                                          Fill: |
-                                            =If(
-                                              ThisItem.RowType = "booked",
-                                              AppTheme.HeaderBackground,
-                                              AppTheme.layer01Bg
-                                            )
                                           Height: =Parent.Height
-                                          LayoutDirection: =LayoutDirection.Horizontal
-                                          LayoutGap: =2
-                                          PaddingLeft: =12
-                                          PaddingRight: =12
-                                          RadiusBottomLeft: =0
-                                          RadiusBottomRight: =0
-                                          RadiusTopLeft: =0
-                                          RadiusTopRight: =0
+                                          LayoutAlignItems: =LayoutAlignItems.Stretch
+                                          LayoutDirection: =LayoutDirection.Vertical
+                                          PaddingBottom: =2
+                                          PaddingRight: =16
+                                          PaddingTop: =2
                                         Children:
-                                          - lblBookingTitle:
-                                              Control: Label@2.5.1
+                                          - conBookedCard:
+                                              Control: GroupContainer
+                                              Variant: AutoLayout
                                               Properties:
-                                                AlignInContainer: =AlignInContainer.Stretch
-                                                Color: =ColorValue(AppTheme.PrimaryText)
-                                                FillPortions: =1
-                                                FontWeight: =FontWeight.Semibold
-                                                LayoutMinHeight: =20
-                                                LayoutMinWidth: =0
-                                                PaddingBottom: =0
-                                                PaddingLeft: =0
-                                                PaddingRight: =0
-                                                PaddingTop: =0
-                                                Text: =Text(ThisItem.RowStart, "HH:mm") & " – " & Text(ThisItem.RowEnd, "HH:mm") & "  " & ThisItem.Title & " " & ThisItem.BookedBy
+                                                Fill: =If(ThisItem.RowEnd < Now(), AppTheme.SurfaceAlt, If(ThisItem.IsMine, AppTheme.StatusFreeBg, AppTheme.HeaderAccent))
+                                                LayoutAlignItems: =LayoutAlignItems.Stretch
+                                                LayoutDirection: =LayoutDirection.Horizontal
+                                                RadiusBottomLeft: =0
+                                                RadiusBottomRight: =0
+                                                RadiusTopLeft: =0
+                                                RadiusTopRight: =0
                                                 Visible: =ThisItem.RowType = "booked"
-                                          - lblBookedBy:
-                                              Control: Label@2.5.1
+                                              Children:
+                                                - recAccentBar:
+                                                    Control: GroupContainer
+                                                    Variant: AutoLayout
+                                                    Properties:
+                                                      Fill: =If(ThisItem.RowEnd < Now(), AppTheme.TextMuted, If(ThisItem.IsMine, AppTheme.StatusFreeText, ColorValue(AppTheme.Primary)))
+                                                      FillPortions: =0
+                                                      LayoutDirection: =LayoutDirection.Horizontal
+                                                      LayoutMaxWidth: =4
+                                                      LayoutMinWidth: =4
+                                                      RadiusBottomLeft: =0
+                                                      RadiusBottomRight: =0
+                                                      RadiusTopLeft: =0
+                                                      RadiusTopRight: =0
+                                                      Width: =4
+                                                - conBookedText:
+                                                    Control: GroupContainer
+                                                    Variant: AutoLayout
+                                                    Properties:
+                                                      LayoutAlignItems: =LayoutAlignItems.Stretch
+                                                      LayoutDirection: =LayoutDirection.Vertical
+                                                      PaddingBottom: =2
+                                                      PaddingLeft: =10
+                                                      PaddingTop: =4
+                                                    Children:
+                                                      - lblBookingTitle:
+                                                          Control: Label
+                                                          Properties:
+                                                            AutoHeight: =true
+                                                            Color: =If(ThisItem.RowEnd < Now(), AppTheme.TextMuted, AppTheme.TextPrimary)
+                                                            FillPortions: =1
+                                                            FontWeight: =FontWeight.Semibold
+                                                            LayoutMinHeight: =18
+                                                            LayoutMinWidth: =0
+                                                            PaddingBottom: =0
+                                                            PaddingLeft: =0
+                                                            PaddingRight: =0
+                                                            PaddingTop: =0
+                                                            Text: =If(ThisItem.RowHeight < 48, ThisItem.Title & "  ·  " & ThisItem.BookedBy, ThisItem.Title)
+                                                            VerticalAlign: =VerticalAlign.Top
+                                                      - lblBookedBy:
+                                                          Control: Label
+                                                          Properties:
+                                                            AutoHeight: =true
+                                                            Color: =If(ThisItem.RowEnd < Now(), AppTheme.TextMuted, AppTheme.TextSecondary)
+                                                            FillPortions: =1
+                                                            LayoutMinHeight: =16
+                                                            Size: =11
+                                                            Text: =ThisItem.BookedBy & "  ·  " & Text(ThisItem.RowStart, "HH:mm") & " – " & Text(ThisItem.RowEnd, "HH:mm")
+                                                            VerticalAlign: =VerticalAlign.Top
+                                                            Visible: =ThisItem.RowHeight >= 48
+                                          - conFreeSlot:
+                                              Control: GroupContainer
+                                              Variant: AutoLayout
                                               Properties:
-                                                AlignInContainer: =AlignInContainer.Stretch
-                                                Color: =ColorValue(AppTheme.PrimaryText)
-                                                LayoutMinHeight: =16
-                                                Size: =11
-                                                Text: =ThisItem.BookedBy
-                                                Visible: =false
+                                                BorderColor: =AppTheme.Border
+                                                BorderThickness: =1
+                                                Fill: =AppTheme.Surface
+                                                LayoutAlignItems: =LayoutAlignItems.Center
+                                                LayoutDirection: =LayoutDirection.Vertical
+                                                RadiusBottomLeft: =0
+                                                RadiusBottomRight: =0
+                                                RadiusTopLeft: =0
+                                                RadiusTopRight: =0
+                                                Visible: =ThisItem.RowType = "free"
+                                              Children:
+                                                - lblFreeSlot:
+                                                    Control: Label
+                                                    Properties:
+                                                      Align: =Align.Center
+                                                      Color: =AppTheme.TextMuted
+                                                      Height: =Parent.Height
+                                                      Size: =11
+                                                      Text: =If(ThisItem.RowMinutes >= 30, "Available · " & If(ThisItem.RowMinutes >= 60, Text(RoundDown(ThisItem.RowMinutes / 60, 0)) & "h", "") & If(Mod(ThisItem.RowMinutes, 60) > 0, If(ThisItem.RowMinutes >= 60, " ", "") & Text(Mod(ThisItem.RowMinutes, 60)) & "m", ""), "")
+                                                      Width: =Parent.Width
                         - btn_LoadTimeline:
-                            Control: Classic/Button@2.2.0
+                            Control: Classic/Button
                             Properties:
                               BorderColor: =RGBA(0, 0, 0, 0)
                               BorderStyle: =BorderStyle.None
@@ -453,65 +588,84 @@ Screens:
                                         RowType: "booked",
                                         RowStart: booking.StartDateTime,
                                         RowEnd: booking.EndDateTime,
-                                        RowHeight: DateDiff(booking.StartDateTime, booking.EndDateTime, TimeUnit.Minutes) / 60 * 120,
+                                        RowHeight: DateDiff(booking.StartDateTime, booking.EndDateTime, TimeUnit.Minutes) * 2,
+                                        RowMinutes: DateDiff(booking.StartDateTime, booking.EndDateTime, TimeUnit.Minutes),
                                         Title: booking.Title,
-                                        BookedBy: booking.BookedBy.DisplayName
+                                        BookedBy: booking.BookedBy.DisplayName,
+                                        IsMine: booking.BookedBy.Email = User().Email
                                     })
                                 );
-                                If(
-                                    IsEmpty(colRoomBookings),
-                                        Collect(colTimelineRows, {
-                                            RowType: "free",
-                                            RowStart: Timeline_DayStart,
-                                            RowEnd: Timeline_DayEnd,
-                                            RowHeight: DateDiff(Timeline_DayStart, Timeline_DayEnd, TimeUnit.Minutes) / 60 * 120,
-                                            Title: "",
-                                            BookedBy: ""
-                                        }),
-                                        // Free slot before first booking
-                                        If(
-                                            First(colRoomBookings).StartDateTime > Timeline_DayStart,
-                                            Collect(colTimelineRows, {
-                                                RowType: "free",
-                                                RowStart: Timeline_DayStart,
-                                                RowEnd: First(colRoomBookings).StartDateTime,
-                                                RowHeight: DateDiff(Timeline_DayStart, First(colRoomBookings).StartDateTime, TimeUnit.Minutes) / 60 * 120,
-                                                Title: "",
-                                                BookedBy: ""
-                                            })
-                                        );
-                                        ForAll(
-                                            colRoomBookings As booking,
-                                            With(
-                                                {
-                                                    nextBooking: LookUp(
-                                                        colRoomBookings,
-                                                        StartDateTime > booking.EndDateTime,
-                                                        StartDateTime
-                                                    )
-                                                },
+                                ForAll(
+                                    Sequence(10) As hr,
+                                    With(
+                                        {
+                                            cellStart: DateAdd(Timeline_DayStart, (hr.Value - 1) * 60, TimeUnit.Minutes),
+                                            cellEnd: DateAdd(Timeline_DayStart, hr.Value * 60, TimeUnit.Minutes)
+                                        },
+                                        With(
+                                            { overl: SortByColumns(Filter(colRoomBookings, StartDateTime < cellEnd, EndDateTime > cellStart), "StartDateTime", SortOrder.Ascending) },
+                                            If(
+                                                IsEmpty(overl),
+                                                Collect(colTimelineRows, {
+                                                    RowType: "free",
+                                                    RowStart: cellStart,
+                                                    RowEnd: cellEnd,
+                                                    RowHeight: DateDiff(cellStart, cellEnd, TimeUnit.Minutes) * 2,
+                                                    RowMinutes: DateDiff(cellStart, cellEnd, TimeUnit.Minutes),
+                                                    Title: "",
+                                                    BookedBy: "",
+                                                    IsMine: false
+                                                }),
                                                 If(
-                                                    IsBlank(nextBooking) && booking.EndDateTime < Timeline_DayEnd,
+                                                    First(overl).StartDateTime > cellStart,
                                                     Collect(colTimelineRows, {
                                                         RowType: "free",
-                                                        RowStart: booking.EndDateTime,
-                                                        RowEnd: Timeline_DayEnd,
-                                                        RowHeight: DateDiff(booking.EndDateTime, Timeline_DayEnd, TimeUnit.Minutes) / 60 * 120,
+                                                        RowStart: cellStart,
+                                                        RowEnd: First(overl).StartDateTime,
+                                                        RowHeight: DateDiff(cellStart, First(overl).StartDateTime, TimeUnit.Minutes) * 2,
+                                                        RowMinutes: DateDiff(cellStart, First(overl).StartDateTime, TimeUnit.Minutes),
                                                         Title: "",
-                                                        BookedBy: ""
-                                                    }),
-                                                    !IsBlank(nextBooking),
-                                                    Collect(colTimelineRows, {
-                                                        RowType: "free",
-                                                        RowStart: booking.EndDateTime,
-                                                        RowEnd: nextBooking,
-                                                        RowHeight: DateDiff(booking.EndDateTime, nextBooking, TimeUnit.Minutes) / 60 * 120,
-                                                        Title: "",
-                                                        BookedBy: ""
+                                                        BookedBy: "",
+                                                        IsMine: false
                                                     })
+                                                );
+                                                ForAll(
+                                                    overl As b,
+                                                    With(
+                                                        { segStart: If(b.EndDateTime > cellStart, b.EndDateTime, cellStart) },
+                                                        With(
+                                                            {
+                                                                nb: LookUp(
+                                                                    SortByColumns(Filter(colRoomBookings, StartDateTime >= b.EndDateTime), "StartDateTime", SortOrder.Ascending),
+                                                                    StartDateTime < cellEnd,
+                                                                    StartDateTime
+                                                                )
+                                                            },
+                                                            With(
+                                                                { segEnd: If(IsBlank(nb), cellEnd, If(nb < cellEnd, nb, cellEnd)) },
+                                                                If(
+                                                                    segStart < segEnd &&
+                                                                        segStart >= cellStart &&
+                                                                        segEnd <= cellEnd &&
+                                                                        CountRows(Filter(overl, EndDateTime = b.EndDateTime, StartDateTime < b.StartDateTime)) = 0,
+                                                                    Collect(colTimelineRows, {
+                                                                        RowType: "free",
+                                                                        RowStart: segStart,
+                                                                        RowEnd: segEnd,
+                                                                        RowHeight: DateDiff(segStart, segEnd, TimeUnit.Minutes) * 2,
+                                                                        RowMinutes: DateDiff(segStart, segEnd, TimeUnit.Minutes),
+                                                                        Title: "",
+                                                                        BookedBy: "",
+                                                                        IsMine: false
+                                                                    })
+                                                                )
+                                                            )
+                                                        )
+                                                    )
                                                 )
                                             )
                                         )
+                                    )
                                 );
                                 ClearCollect(colTimelineRows, Sort(colTimelineRows, RowStart, SortOrder.Ascending))
                               PressedBorderColor: =RGBA(0, 69, 120, 1)
