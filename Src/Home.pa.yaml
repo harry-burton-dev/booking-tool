@@ -764,12 +764,12 @@ Screens:
                                           Height: =120
                                           Items: |-
                                             =AddColumns(
-                                                colRooms,
+                                                colRooms As r,
                                                 RoomStatus,
                                                 With(
                                                     {
-                                                        _current: LookUp(colTodayBookings, RoomID.Id = ThisRecord.ID && StartDateTime <= Now() && EndDateTime > Now()),
-                                                        _next: First(Sort(Filter(colTodayBookings, RoomID.Id = ThisRecord.ID && StartDateTime > Now()), StartDateTime, SortOrder.Ascending))
+                                                        _current: LookUp(colTodayBookings, RoomID.Id = r.ID && StartDateTime <= Now() && EndDateTime > Now()),
+                                                        _next: First(Sort(Filter(colTodayBookings, RoomID.Id = r.ID && StartDateTime > Now()), StartDateTime, SortOrder.Ascending))
                                                     },
                                                     {
                                                         State: If(!IsBlank(_current), "Busy", IsBlank(_next), "FreeAllDay", DateDiff(Now(), _next.StartDateTime, TimeUnit.Minutes) <= 60, "FreeWarning", "Free"),

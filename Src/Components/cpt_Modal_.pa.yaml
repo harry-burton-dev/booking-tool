@@ -570,12 +570,12 @@ ComponentDefinitions:
                                             ClearCollect(
                                                 varAlternativeRooms,
                                                 Filter(
-                                                    colRooms,
-                                                    RoomID <> varSelectedRoom.RoomID &&
+                                                    colRooms As rm,
+                                                    rm.ID <> varSelectedRoom.ID &&
                                                     IsEmpty(
                                                         Filter(
                                                             colOverlappingBookings,
-                                                            RoomID.Id = ThisRecord.ID
+                                                            RoomID.Id = rm.ID
                                                         )
                                                     )
                                                 )
@@ -690,12 +690,12 @@ ComponentDefinitions:
                                             ClearCollect(
                                                 varAlternativeRooms,
                                                 Filter(
-                                                    colRooms,
-                                                    RoomID <> varSelectedRoom.RoomID &&
+                                                    colRooms As rm,
+                                                    rm.ID <> varSelectedRoom.ID &&
                                                     IsEmpty(
                                                         Filter(
                                                             colOverlappingBookings,
-                                                            RoomID.Id = ThisRecord.ID
+                                                            RoomID.Id = rm.ID
                                                         )
                                                     )
                                                 )
