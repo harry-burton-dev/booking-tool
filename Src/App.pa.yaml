@@ -304,49 +304,49 @@ App:
             MockBookingsSeed = Table(
                 {
                     ID: 1, Title: "Team Standup", Name: "Boardroom",
-                    RoomID: {Id: 1, Value: 1}, 'RoomID: Title': {Id: 1, Value: "Boardroom"},
+                    RoomID: {Id: 1, Value: "1"}, 'RoomID: Title': {Id: 1, Value: "Boardroom"},
                     StartDateTime: DateAdd(Today(), 9 * 60, TimeUnit.Minutes),
                     EndDateTime: DateAdd(Today(), 9 * 60 + 30, TimeUnit.Minutes),
                     BookedBy: {'@odata.type': "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser", Claims: "", DisplayName: "", Email: "", Department: "", JobTitle: "", Picture: ""}
                 },
                 {
                     ID: 2, Title: "Client Call", Name: "Meeting Room A",
-                    RoomID: {Id: 2, Value: 2}, 'RoomID: Title': {Id: 2, Value: "Meeting Room A"},
+                    RoomID: {Id: 2, Value: "2"}, 'RoomID: Title': {Id: 2, Value: "Meeting Room A"},
                     StartDateTime: DateAdd(Today(), 10 * 60, TimeUnit.Minutes),
                     EndDateTime: DateAdd(Today(), 11 * 60, TimeUnit.Minutes),
                     BookedBy: {'@odata.type': "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser", Claims: "i:0#.f|membership|alex.morgan@example.com", DisplayName: "Alex Morgan", Email: "alex.morgan@example.com", Department: "", JobTitle: "", Picture: ""}
                 },
                 {
                     ID: 3, Title: "Design Review", Name: "Meeting Room B",
-                    RoomID: {Id: 3, Value: 3}, 'RoomID: Title': {Id: 3, Value: "Meeting Room B"},
+                    RoomID: {Id: 3, Value: "3"}, 'RoomID: Title': {Id: 3, Value: "Meeting Room B"},
                     StartDateTime: DateAdd(Today(), 13 * 60, TimeUnit.Minutes),
                     EndDateTime: DateAdd(Today(), 14 * 60, TimeUnit.Minutes),
                     BookedBy: {'@odata.type': "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser", Claims: "i:0#.f|membership|priya.shah@example.com", DisplayName: "Priya Shah", Email: "priya.shah@example.com", Department: "", JobTitle: "", Picture: ""}
                 },
                 {
                     ID: 4, Title: "1:1", Name: "Huddle Space 1",
-                    RoomID: {Id: 4, Value: 4}, 'RoomID: Title': {Id: 4, Value: "Huddle Space 1"},
+                    RoomID: {Id: 4, Value: "4"}, 'RoomID: Title': {Id: 4, Value: "Huddle Space 1"},
                     StartDateTime: DateAdd(Today(), 15 * 60, TimeUnit.Minutes),
                     EndDateTime: DateAdd(Today(), 15 * 60 + 30, TimeUnit.Minutes),
                     BookedBy: {'@odata.type': "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser", Claims: "i:0#.f|membership|sam.lee@example.com", DisplayName: "Sam Lee", Email: "sam.lee@example.com", Department: "", JobTitle: "", Picture: ""}
                 },
                 {
                     ID: 5, Title: "Sprint Planning", Name: "Boardroom",
-                    RoomID: {Id: 1, Value: 1}, 'RoomID: Title': {Id: 1, Value: "Boardroom"},
+                    RoomID: {Id: 1, Value: "1"}, 'RoomID: Title': {Id: 1, Value: "Boardroom"},
                     StartDateTime: DateAdd(Today(), 24 * 60 + 9 * 60, TimeUnit.Minutes),
                     EndDateTime: DateAdd(Today(), 24 * 60 + 10 * 60 + 30, TimeUnit.Minutes),
                     BookedBy: {'@odata.type': "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser", Claims: "i:0#.f|membership|alex.morgan@example.com", DisplayName: "Alex Morgan", Email: "alex.morgan@example.com", Department: "", JobTitle: "", Picture: ""}
                 },
                 {
                     ID: 6, Title: "Training Session", Name: "Training Room",
-                    RoomID: {Id: 6, Value: 6}, 'RoomID: Title': {Id: 6, Value: "Training Room"},
+                    RoomID: {Id: 6, Value: "6"}, 'RoomID: Title': {Id: 6, Value: "Training Room"},
                     StartDateTime: DateAdd(Today(), 2 * 24 * 60 + 9 * 60, TimeUnit.Minutes),
                     EndDateTime: DateAdd(Today(), 2 * 24 * 60 + 11 * 60, TimeUnit.Minutes),
                     BookedBy: {'@odata.type': "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser", Claims: "i:0#.f|membership|priya.shah@example.com", DisplayName: "Priya Shah", Email: "priya.shah@example.com", Department: "", JobTitle: "", Picture: ""}
                 },
                 {
                     ID: 7, Title: "Past Review", Name: "Meeting Room A",
-                    RoomID: {Id: 2, Value: 2}, 'RoomID: Title': {Id: 2, Value: "Meeting Room A"},
+                    RoomID: {Id: 2, Value: "2"}, 'RoomID: Title': {Id: 2, Value: "Meeting Room A"},
                     StartDateTime: DateAdd(Today(), -24 * 60 + 9 * 60, TimeUnit.Minutes),
                     EndDateTime: DateAdd(Today(), -24 * 60 + 10 * 60, TimeUnit.Minutes),
                     BookedBy: {'@odata.type': "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser", Claims: "", DisplayName: "", Email: "", Department: "", JobTitle: "", Picture: ""}
