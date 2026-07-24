@@ -11,6 +11,8 @@ Screens:
     Properties:
       Fill: =RGBA(255, 255, 255, 1)
       LoadingSpinnerColor: =RGBA(0, 120, 212, 1)
+      OnVisible: |-
+        =Set(varNowTick, Now())
     Children:
       - con_shell:
           Control: GroupContainer@1.5.0
@@ -354,7 +356,7 @@ Screens:
                                           Font: =Font.Lato
                                           Height: =Parent.Height
                                           Size: =12
-                                          Text: =Text(CountRows(Filter(MyBookings, EndDateTime >= Now())), "[$-en-US]0") & " upcoming"
+                                          Text: =Text(CountRows(Filter(MyBookings, EndDateTime >= varNowTick)), "[$-en-US]0") & " upcoming"
                                           Visible: =false
                                           Width: =Parent.Width
                                           Wrap: =false
@@ -713,12 +715,12 @@ Screens:
                                                 RoomStatus,
                                                 With(
                                                     {
-                                                        _current: LookUp(TodayBookings, RoomID.Id = r.ID && StartDateTime <= Now() && EndDateTime > Now()),
-                                                        _next: First(Sort(Filter(TodayBookings, RoomID.Id = r.ID && StartDateTime > Now()), StartDateTime, SortOrder.Ascending))
+                                                        _current: LookUp(TodayBookings, RoomID.Id = r.ID && StartDateTime <= varNowTick && EndDateTime > varNowTick),
+                                                        _next: First(Sort(Filter(TodayBookings, RoomID.Id = r.ID && StartDateTime > varNowTick), StartDateTime, SortOrder.Ascending))
                                                     },
                                                     {
-                                                        State: If(!IsBlank(_current), "Busy", IsBlank(_next), "FreeAllDay", DateDiff(Now(), _next.StartDateTime, TimeUnit.Minutes) <= 60, "FreeWarning", "Free"),
-                                                        Minutes: DateDiff(Now(), _next.StartDateTime, TimeUnit.Minutes)
+                                                        State: If(!IsBlank(_current), "Busy", IsBlank(_next), "FreeAllDay", DateDiff(varNowTick, _next.StartDateTime, TimeUnit.Minutes) <= 60, "FreeWarning", "Free"),
+                                                        Minutes: DateDiff(varNowTick, _next.StartDateTime, TimeUnit.Minutes)
                                                     }
                                                 )
                                             )

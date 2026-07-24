@@ -311,9 +311,10 @@ App:
                 StartDateTime, SortOrder.Ascending
             );
 
+            // varNowTick (set on App.OnStart and Home.OnVisible) forces recalc per Home visit — Now() alone would not trigger re-evaluation.
             NextBookingRecord = First(
                 Sort(
-                    Filter(MyBookings, EndDateTime > Now()),
+                    Filter(MyBookings, EndDateTime > varNowTick),
                     StartDateTime, SortOrder.Ascending
                 )
             );
@@ -406,6 +407,7 @@ App:
 
             Set(gblUI_Nav_currentTab, "Home");
             Set(glbSelectedDate, Today());
+            Set(varNowTick, Now());
 
             ClearCollect(colRooms, MockRoomsSeed);
             ClearCollect(colBookings, MockBookingsSeed);
