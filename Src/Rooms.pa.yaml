@@ -170,16 +170,16 @@ Screens:
                                           BorderColor: =RGBA(0, 0, 0, 0)
                                           BorderStyle: =BorderStyle.None
                                           BorderThickness: =0
-                                          Color: =RGBA(255, 255, 255, 1)
+                                          Color: =RGBA(0, 0, 0, 0)
                                           DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                                          DisabledColor: =RGBA(161, 159, 157, 1)
+                                          DisabledColor: =RGBA(0, 0, 0, 0)
                                           DisabledFill: =RGBA(242, 242, 241, 0)
                                           Fill: =RGBA(0, 0, 0, 0)
                                           FocusedBorderColor: =Color.Red
                                           Font: =Font.Lato
                                           Height: =Parent.Height
                                           HoverBorderColor: =RGBA(0, 0, 0, 0)
-                                          HoverColor: =RGBA(255, 255, 255, 1)
+                                          HoverColor: =RGBA(0, 0, 0, 0)
                                           HoverFill: =AppTheme.ButtonPrimaryHover
                                           OnSelect: |-
                                             =UpdateContext({
@@ -193,14 +193,15 @@ Screens:
                                           PaddingRight: =0
                                           PaddingTop: =0
                                           PressedBorderColor: =RGBA(0, 69, 120, 1)
-                                          PressedColor: =RGBA(255, 255, 255, 1)
+                                          PressedColor: =RGBA(0, 0, 0, 0)
                                           PressedFill: =AppTheme.ButtonPrimaryPressed
                                           RadiusBottomLeft: =0
                                           RadiusBottomRight: =0
                                           RadiusTopLeft: =0
                                           RadiusTopRight: =0
                                           TabIndex: =0
-                                          Text: =""
+                                          Text: |-
+                                            ="View timeline for " & ThisItem.Title
                                           Width: =Parent.Width
                   - con_timeline_view:
                       Control: GroupContainer

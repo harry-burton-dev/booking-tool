@@ -160,7 +160,7 @@ Screens:
                                           RadiusBottomRight: =0
                                           RadiusTopLeft: =0
                                           RadiusTopRight: =0
-                                          Text: =""
+                                          Text: ="Show upcoming bookings"
                                           Width: =120
                               - con_SegAll:
                                   Control: GroupContainer@1.5.0
@@ -227,7 +227,7 @@ Screens:
                                           RadiusBottomRight: =0
                                           RadiusTopLeft: =0
                                           RadiusTopRight: =0
-                                          Text: =""
+                                          Text: ="Show all bookings"
                                           Width: =80
                         - galMyBookings:
                             Control: Gallery@2.15.0
@@ -355,7 +355,7 @@ Screens:
                                     RadiusBottomRight: =0
                                     RadiusTopLeft: =0
                                     RadiusTopRight: =0
-                                    Text: =""
+                                    Text: =ThisItem.Title & ", " & lblCardTitle.Text & ", " & Text(ThisItem.StartDateTime, "ddd dd mmm HH:mm") & ". Open booking details"
                                     Width: =Parent.Width
                         - conEmptyState:
                             Control: GroupContainer@1.5.0

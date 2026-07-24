@@ -231,7 +231,7 @@ Screens:
                                           RadiusBottomRight: =0
                                           RadiusTopLeft: =0
                                           RadiusTopRight: =0
-                                          Text: =""
+                                          Text: ="Book a room — start a new booking"
                                           Width: =Parent.Width
                               - con_TileView:
                                   Control: GroupContainer@1.5.0
@@ -317,7 +317,7 @@ Screens:
                                           RadiusBottomRight: =0
                                           RadiusTopLeft: =0
                                           RadiusTopRight: =0
-                                          Text: =""
+                                          Text: ="View rooms — timelines and availability"
                                           Width: =Parent.Width
                               - con_TileMyBook:
                                   Control: GroupContainer@1.5.0
@@ -403,7 +403,7 @@ Screens:
                                           RadiusBottomRight: =0
                                           RadiusTopLeft: =0
                                           RadiusTopRight: =0
-                                          Text: =""
+                                          Text: ="My bookings — " & lbl_SubTileMyBook.Text
                                           Width: =Parent.Width
                         - conPanelRow:
                             Control: GroupContainer@1.5.0
@@ -815,7 +815,8 @@ Screens:
                                                 RadiusBottomRight: =0
                                                 RadiusTopLeft: =0
                                                 RadiusTopRight: =0
-                                                Text: =""
+                                                Text: |-
+                                                  =ThisItem.Title & ": " & lblChipStatus.Text & ". View availability"
                                                 Width: =210.66666666666663
                         - conOccupancy:
                             Control: GroupContainer@1.5.0
