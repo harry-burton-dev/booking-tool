@@ -1419,46 +1419,60 @@ ComponentDefinitions:
                                           )
                                       ),
 
-                                      /* Save failed date */
+                                      /* Slot already taken — record as a conflict */
                                       Collect(
                                           colFailedBookings,
                                           {
-                                              BookingDate: Text(vStart, "dd mmm yyyy")
+                                              BookingDate: Text(vStart, "dd mmm yyyy"),
+                                              Reason: "conflict"
                                           }
                                       ),
 
-                                      /* Create booking */
-                                      Collect(
-                                          colBookings,
-                                          {
-                                              ID: Max(colBookings, ID) + 1,
-                                              Title: varTitle,
-                                              RoomID: {
-                                                  Id: Value(varSelectedRoom.ID),
-                                                  Value: Text(varSelectedRoom.RoomID)
-                                              },
-                                              'RoomID: Title': {
-                                                  Id: Value(varSelectedRoom.ID),
-                                                  Value: varSelectedRoom.Title
-                                              },
-                                              StartDateTime: vStart,
-                                              EndDateTime: vEnd,
-                                              BookedBy: {
-                                                  '@odata.type': "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser",
-                                                  Claims: "i:0#.f|membership|" & Lower(User().Email),
-                                                  DisplayName: User().FullName,
-                                                  Email: User().Email,
-                                                  Department: "",
-                                                  JobTitle: "",
-                                                  Picture: ""
+                                      /* Create booking; record a write failure if it errors */
+                                      IfError(
+                                          Collect(
+                                              colBookings,
+                                              {
+                                                  ID: Max(colBookings, ID) + 1,
+                                                  Title: varTitle,
+                                                  RoomID: {
+                                                      Id: Value(varSelectedRoom.ID),
+                                                      Value: Text(varSelectedRoom.RoomID)
+                                                  },
+                                                  'RoomID: Title': {
+                                                      Id: Value(varSelectedRoom.ID),
+                                                      Value: varSelectedRoom.Title
+                                                  },
+                                                  StartDateTime: vStart,
+                                                  EndDateTime: vEnd,
+                                                  BookedBy: {
+                                                      '@odata.type': "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser",
+                                                      Claims: "i:0#.f|membership|" & Lower(User().Email),
+                                                      DisplayName: User().FullName,
+                                                      Email: User().Email,
+                                                      Department: "",
+                                                      JobTitle: "",
+                                                      Picture: ""
+                                                  }
                                               }
-                                          }
+                                          ),
+                                          Collect(
+                                              colFailedBookings,
+                                              {
+                                                  BookingDate: Text(vStart, "dd mmm yyyy"),
+                                                  Reason: "error"
+                                              }
+                                          )
                                       )
                                   )
                               )
                           );
 
-                          /* Tell user what happened */
+                          /* PROD-REVERT: reinstate Refresh(Book_Bookings) here per MOCK_DATA.md */
+
+                          Set(varBookingError, !IsEmpty(Filter(colFailedBookings, Reason = "error")));
+
+                          /* Tell user what happened; close the modal on BOTH branches */
                           If(
                               CountRows(colFailedBookings) > 0,
                               Notify(
@@ -1466,7 +1480,8 @@ ComponentDefinitions:
                                   Concat(colFailedBookings, BookingDate, ", "),
                                   NotificationType.Warning,
                                   10000
-                              ),
+                              );
+                              Set(gbl_UI_Book_Modal, false),
                               Notify(
                                   "Booking(s) created successfully",
                                   NotificationType.Success

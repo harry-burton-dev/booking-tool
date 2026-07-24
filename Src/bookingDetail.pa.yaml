@@ -401,7 +401,14 @@ Screens:
                                                 FontWeight: =FontWeight.Normal
                                                 HoverColor: =ColorValue(AppTheme.PrimaryText)
                                                 HoverFill: =ColorValue("#b81922")
-                                                OnSelect: =Remove(colBookings, gblSelectedBooking); Notify("Booking cancelled", NotificationType.Success); Navigate(myBookings, ScreenTransition.Fade)
+                                                OnSelect: |-
+                                                  =IfError(
+                                                      Remove(colBookings, LookUp(colBookings, ID = gblSelectedBooking.ID)),
+                                                      Notify("Couldn't cancel this booking. Please try again.", NotificationType.Error),
+                                                      Set(gblSelectedBooking, Blank());
+                                                      Notify("Booking cancelled", NotificationType.Success);
+                                                      Navigate(myBookings, ScreenTransition.Fade)
+                                                  )
                                                 PressedColor: =ColorValue(AppTheme.PrimaryText)
                                                 PressedFill: =ColorValue("#921620")
                                                 RadiusBottomLeft: =2

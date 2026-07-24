@@ -379,4 +379,7 @@ App:
                     }
                 }
             );
+    OnError: |-
+      =Trace("Unhandled error: " & FirstError.Message & " (" & FirstError.Source & ")", TraceSeverity.Error);
+      Notify("Something went wrong: " & FirstError.Message, NotificationType.Error)
     Theme: =PowerAppsTheme
