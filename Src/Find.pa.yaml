@@ -563,7 +563,7 @@ Screens:
                                     RadiusBottomRight: =0
                                     RadiusTopLeft: =0
                                     RadiusTopRight: =0
-                                    Visible: =false
+                                    Visible: =true
                                     Width: =conRoomCol_R02.Width
                                     X: =40
                                     Y: =40
@@ -687,7 +687,7 @@ Screens:
                                                 RadiusBottomRight: =0
                                                 RadiusTopLeft: =0
                                                 RadiusTopRight: =0
-                                                Width: =Parent.Width / 5
+                                                Width: =Parent.Width / 6
                                               Children:
                                                 - galTimeline_R01:
                                                     Control: Gallery@2.15.0
@@ -763,7 +763,7 @@ Screens:
                                                 RadiusBottomRight: =0
                                                 RadiusTopLeft: =0
                                                 RadiusTopRight: =0
-                                                Width: =Parent.Width / 5
+                                                Width: =Parent.Width / 6
                                               Children:
                                                 - galTimeline_R02_1:
                                                     Control: Gallery@2.15.0
@@ -839,7 +839,7 @@ Screens:
                                                 RadiusBottomRight: =0
                                                 RadiusTopLeft: =0
                                                 RadiusTopRight: =0
-                                                Width: =Parent.Width / 5
+                                                Width: =Parent.Width / 6
                                               Children:
                                                 - galTimeline_R03_1:
                                                     Control: Gallery@2.15.0
@@ -915,7 +915,7 @@ Screens:
                                                 RadiusBottomRight: =0
                                                 RadiusTopLeft: =0
                                                 RadiusTopRight: =0
-                                                Width: =Parent.Width / 5
+                                                Width: =Parent.Width / 6
                                               Children:
                                                 - galTimeline_R04_1:
                                                     Control: Gallery@2.15.0
@@ -991,7 +991,7 @@ Screens:
                                                 RadiusBottomRight: =0
                                                 RadiusTopLeft: =0
                                                 RadiusTopRight: =0
-                                                Width: =Parent.Width / 5
+                                                Width: =Parent.Width / 6
                                               Children:
                                                 - galTimeline_R05_1:
                                                     Control: Gallery@2.15.0
@@ -1067,8 +1067,8 @@ Screens:
                                                 RadiusBottomRight: =0
                                                 RadiusTopLeft: =0
                                                 RadiusTopRight: =0
-                                                Visible: =false
-                                                Width: =Parent.Width / 5
+                                                Visible: =true
+                                                Width: =Parent.Width / 6
                                               Children:
                                                 - galTimeline_R06_1:
                                                     Control: Gallery@2.15.0
