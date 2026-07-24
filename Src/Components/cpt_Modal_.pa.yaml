@@ -1026,7 +1026,7 @@ ComponentDefinitions:
                                           Font: =Font.Lato
                                           FontWeight: =FontWeight.Semibold
                                           Height: =Parent.TemplateHeight
-                                          Text: =ThisItem.Name
+                                          Text: =ThisItem.Title
                                           Width: =Parent.Width - 100
                                           Wrap: =false
                                     - lbl_textAlternativeRoomDetails:

@@ -109,17 +109,16 @@ Screens:
                                         SortOrder.Ascending
                                     )
                                 );
-                                Set(varNextBooking,
-                                    LookUp(colBookings,
-                                        BookedBy.Email = User().Email &&
-                                        EndDateTime > Now(),
-                                        StartDateTime
-                                    )
-                                );
                                 Set(varNextBookingRecord,
-                                    LookUp(colBookings,
-                                        BookedBy.Email = User().Email &&
-                                        EndDateTime > Now()
+                                    First(
+                                        Sort(
+                                            Filter(colBookings,
+                                                BookedBy.Email = User().Email &&
+                                                EndDateTime > Now()
+                                            ),
+                                            StartDateTime,
+                                            SortOrder.Ascending
+                                        )
                                     )
                                 );
                                 Set(varHomeLoaded, true)
@@ -595,7 +594,7 @@ Screens:
                                                 LayoutMinHeight: =0
                                                 LayoutMinWidth: =0
                                                 Size: =15
-                                                Text: =varNextBookingRecord.Name
+                                                Text: =varNextBookingRecord.'RoomID: Title'.Value
                                                 Wrap: =false
                                           - lblNextTime:
                                               Control: Label@2.5.1
@@ -607,7 +606,7 @@ Screens:
                                                 LayoutMinHeight: =0
                                                 LayoutMinWidth: =0
                                                 Size: =12
-                                                Text: =Text(varNextBookingRecord.StartDateTime, "HH:mm") & " - " & Text(varNextBookingRecord.EndDateTime, "HH:mm") & " today"
+                                                Text: =Text(varNextBookingRecord.StartDateTime, "HH:mm") & " - " & Text(varNextBookingRecord.EndDateTime, "HH:mm") & If(Text(varNextBookingRecord.StartDateTime, "yyyymmdd") = Text(Today(), "yyyymmdd"), " today", Text(varNextBookingRecord.StartDateTime, "yyyymmdd") = Text(DateAdd(Today(), 1, TimeUnit.Days), "yyyymmdd"), " tomorrow", " " & Text(varNextBookingRecord.StartDateTime, "ddd dd mmm"))
                                                 Wrap: =false
                                           - lblNextTitle:
                                               Control: Label@2.5.1
@@ -631,7 +630,7 @@ Screens:
                                                 LayoutMinHeight: =0
                                                 LayoutMinWidth: =0
                                                 Size: =12
-                                                Text: ="In " & Text(DateDiff(Now(), varNextBookingRecord.StartDateTime, TimeUnit.Minutes), "[$-en-US]0") & " min"
+                                                Text: =With({_m: DateDiff(Now(), varNextBookingRecord.StartDateTime, TimeUnit.Minutes)}, If(_m <= 0, "Now", _m < 60, "In " & _m & " min", _m < 1440, "In " & RoundDown(_m / 60, 0) & "h " & Mod(_m, 60) & "m", "In " & RoundDown(_m / 1440, 0) & " days"))
                                                 Wrap: =false
                                     - img_nextemptystate_:
                                         Control: Image@2.2.3

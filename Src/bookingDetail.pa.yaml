@@ -174,7 +174,7 @@ Screens:
                                           Height: =20
                                           LayoutMinHeight: =0
                                           Size: =14
-                                          Text: =gblSelectedBooking.Name
+                                          Text: =gblSelectedBooking.'RoomID: Title'.Value
                                           Wrap: =false
                               - fldDate:
                                   Control: GroupContainer@1.5.0

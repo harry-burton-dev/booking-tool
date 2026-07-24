@@ -282,7 +282,7 @@ Screens:
                                     Font: =Font.Lato
                                     FontWeight: =FontWeight.Semibold
                                     Height: =20
-                                    Text: =ThisItem.Name
+                                    Text: =ThisItem.Title
                                     Width: =Parent.Width - 80
                                     Wrap: =false
                                     X: =16
