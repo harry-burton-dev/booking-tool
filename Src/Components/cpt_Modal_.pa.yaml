@@ -527,44 +527,30 @@ ComponentDefinitions:
                                             =Set(varStartTime, drpStartTime.Selected.value);
                                             If(!IsBlank(varEndTime) && varEndTime <= varStartTime, Set(varEndTime, Blank()));
 
-                                            Set(
-                                                varConflict,
-                                                !IsEmpty(
-                                                    Filter(
-                                                        colBookings,
-                                                        RoomID.Id = varSelectedRoom.ID,
-                                                        StartDateTime < varEndTime,
-                                                        EndDateTime > varStartTime
-                                                    )
-                                                )
-                                            );
-
-                                            Set(
-                                                varConflictingBooking,
-                                                LookUp(
-                                                    colBookings,
-                                                    RoomID.Id = varSelectedRoom.ID &&
-                                                    StartDateTime < varEndTime &&
-                                                    EndDateTime > varStartTime
-                                                )
-                                            );
-
-                                            Set(
-                                                varNextFreeSlot,
-                                                LookUp(
-                                                    colBookings,
-                                                    RoomID.Id = varSelectedRoom.ID &&
-                                                    StartDateTime >= varStartTime,
-                                                    EndDateTime
-                                                )
-                                            );
-
+                                            /* Date-bounded fetch first (delegable after revert); room narrowing client-side */
                                             ClearCollect(
                                                 colOverlappingBookings,
                                                 Filter(
                                                     colBookings,
                                                     StartDateTime < varEndTime &&
                                                     EndDateTime > varStartTime
+                                                )
+                                            );
+
+                                            Set(varConflict, !IsEmpty(Filter(colOverlappingBookings, RoomID.Id = varSelectedRoom.ID)));
+
+                                            Set(varConflictingBooking, LookUp(colOverlappingBookings, RoomID.Id = varSelectedRoom.ID));
+
+                                            Set(
+                                                varNextFreeSlot,
+                                                LookUp(
+                                                    Filter(
+                                                        colBookings,
+                                                        StartDateTime >= varStartTime,
+                                                        StartDateTime < DateAdd(varSelectedDate, 1, TimeUnit.Days)
+                                                    ),
+                                                    RoomID.Id = varSelectedRoom.ID,
+                                                    EndDateTime
                                                 )
                                             );
 
@@ -647,44 +633,30 @@ ComponentDefinitions:
                                           OnChange: |-
                                             =Set(varEndTime, drpEndTime.Selected.value);
 
-                                            Set(
-                                                varConflict,
-                                                !IsEmpty(
-                                                    Filter(
-                                                        colBookings,
-                                                        RoomID.Id = varSelectedRoom.ID,
-                                                        StartDateTime < varEndTime,
-                                                        EndDateTime > varStartTime
-                                                    )
-                                                )
-                                            );
-
-                                            Set(
-                                                varConflictingBooking,
-                                                LookUp(
-                                                    colBookings,
-                                                    RoomID.Id = varSelectedRoom.ID &&
-                                                    StartDateTime < varEndTime &&
-                                                    EndDateTime > varStartTime
-                                                )
-                                            );
-
-                                            Set(
-                                                varNextFreeSlot,
-                                                LookUp(
-                                                    colBookings,
-                                                    RoomID.Id = varSelectedRoom.ID &&
-                                                    StartDateTime >= varStartTime,
-                                                    EndDateTime
-                                                )
-                                            );
-
+                                            /* Date-bounded fetch first (delegable after revert); room narrowing client-side */
                                             ClearCollect(
                                                 colOverlappingBookings,
                                                 Filter(
                                                     colBookings,
                                                     StartDateTime < varEndTime &&
                                                     EndDateTime > varStartTime
+                                                )
+                                            );
+
+                                            Set(varConflict, !IsEmpty(Filter(colOverlappingBookings, RoomID.Id = varSelectedRoom.ID)));
+
+                                            Set(varConflictingBooking, LookUp(colOverlappingBookings, RoomID.Id = varSelectedRoom.ID));
+
+                                            Set(
+                                                varNextFreeSlot,
+                                                LookUp(
+                                                    Filter(
+                                                        colBookings,
+                                                        StartDateTime >= varStartTime,
+                                                        StartDateTime < DateAdd(varSelectedDate, 1, TimeUnit.Days)
+                                                    ),
+                                                    RoomID.Id = varSelectedRoom.ID,
+                                                    EndDateTime
                                                 )
                                             );
 
@@ -1412,10 +1384,12 @@ ComponentDefinitions:
                                   If(
                                       !IsBlank(
                                           LookUp(
-                                              colBookings,
-                                              RoomID.Id = varSelectedRoom.ID &&
-                                              StartDateTime < vEnd &&
-                                              EndDateTime > vStart
+                                              Filter(
+                                                  colBookings,
+                                                  StartDateTime < vEnd,
+                                                  EndDateTime > vStart
+                                              ),
+                                              RoomID.Id = varSelectedRoom.ID
                                           )
                                       ),
 
@@ -1435,6 +1409,7 @@ ComponentDefinitions:
                                               {
                                                   ID: Max(colBookings, ID) + 1,
                                                   Title: varTitle,
+                                                  BookedByEmail: Lower(User().Email),
                                                   RoomID: {
                                                       Id: Value(varSelectedRoom.ID),
                                                       Value: Text(varSelectedRoom.RoomID)

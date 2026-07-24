@@ -12,16 +12,7 @@ Screens:
       Fill: =RGBA(255, 255, 255, 1)
       LoadingSpinnerColor: =RGBA(0, 120, 212, 1)
       OnVisible: |-
-        =Set(varMyBookingsFilter, "Upcoming");
-        ClearCollect(varMyBookings,
-            Sort(
-                Filter(colBookings,
-                    BookedBy.Email = User().Email
-                ),
-                StartDateTime,
-                SortOrder.Ascending
-            )
-        )
+        =Set(varMyBookingsFilter, "Upcoming")
     Children:
       - con_shell_mybook:
           Control: GroupContainer@1.5.0
@@ -245,7 +236,7 @@ Screens:
                               Fill: =AppTheme.Background
                               Items: |-
                                 =Sort(
-                                    Filter(varMyBookings,
+                                    Filter(MyBookings,
                                         If(varMyBookingsFilter = "Upcoming",
                                             EndDateTime >= Now(),
                                             true

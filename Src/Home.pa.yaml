@@ -11,8 +11,6 @@ Screens:
     Properties:
       Fill: =RGBA(255, 255, 255, 1)
       LoadingSpinnerColor: =RGBA(0, 120, 212, 1)
-      OnVisible: |-
-        =Select(btnLoadHomeData);
     Children:
       - con_shell:
           Control: GroupContainer@1.5.0
@@ -78,58 +76,6 @@ Screens:
                         RadiusTopRight: =0
                         Width: =Parent.Width
                       Children:
-                        - btnLoadHomeData:
-                            Control: Classic/Button@2.2.0
-                            Properties:
-                              AlignInContainer: =AlignInContainer.Start
-                              BorderColor: =RGBA(0,0,0,0)
-                              BorderStyle: =BorderStyle.None
-                              Color: =RGBA(0,0,0,0)
-                              DisabledBorderColor: =RGBA(0,0,0,0)
-                              DisabledColor: =RGBA(0,0,0,0)
-                              DisabledFill: =RGBA(0,0,0,0)
-                              Fill: =RGBA(0,0,0,0)
-                              FocusedBorderColor: =RGBA(0,0,0,0)
-                              FocusedBorderThickness: =0
-                              Height: =0
-                              HoverBorderColor: =RGBA(0,0,0,0)
-                              HoverColor: =RGBA(0,0,0,0)
-                              HoverFill: =RGBA(0,0,0,0)
-                              LayoutMinHeight: =0
-                              LayoutMinWidth: =0
-                              OnSelect: |-
-                                =ClearCollect(colTodayBookings,
-                                    Sort(
-                                        Filter(colBookings,
-                                            StartDateTime >= Today(),
-                                            StartDateTime < DateAdd(Today(), 1, TimeUnit.Days)
-                                        ),
-                                        StartDateTime,
-                                        SortOrder.Ascending
-                                    )
-                                );
-                                Set(varNextBookingRecord,
-                                    First(
-                                        Sort(
-                                            Filter(colBookings,
-                                                BookedBy.Email = User().Email &&
-                                                EndDateTime > Now()
-                                            ),
-                                            StartDateTime,
-                                            SortOrder.Ascending
-                                        )
-                                    )
-                                )
-                              PressedBorderColor: =RGBA(0,0,0,0)
-                              PressedColor: =RGBA(0,0,0,0)
-                              PressedFill: =RGBA(0,0,0,0)
-                              RadiusBottomLeft: =0
-                              RadiusBottomRight: =0
-                              RadiusTopLeft: =0
-                              RadiusTopRight: =0
-                              Text: =""
-                              Visible: =false
-                              Width: =0
                         - conActions:
                             Control: GroupContainer@1.5.0
                             Variant: AutoLayout
@@ -408,7 +354,7 @@ Screens:
                                           Font: =Font.Lato
                                           Height: =Parent.Height
                                           Size: =12
-                                          Text: =Text(CountRows(Filter(colBookings, BookedBy.Email = User().Email, EndDateTime >= Now())), "[$-en-US]0") & " upcoming"
+                                          Text: =Text(CountRows(Filter(MyBookings, EndDateTime >= Now())), "[$-en-US]0") & " upcoming"
                                           Visible: =false
                                           Width: =Parent.Width
                                           Wrap: =false
@@ -578,7 +524,7 @@ Screens:
                                           RadiusBottomRight: =0
                                           RadiusTopLeft: =0
                                           RadiusTopRight: =0
-                                          Visible: =!IsBlank(varNextBookingRecord)
+                                          Visible: =!IsBlank(NextBookingRecord)
                                         Children:
                                           - lblNextRoom:
                                               Control: Label@2.5.1
@@ -593,7 +539,7 @@ Screens:
                                                 LayoutMinWidth: =0
                                                 Size: =15
                                                 Text: |-
-                                                  =varNextBookingRecord.'RoomID: Title'.Value
+                                                  =NextBookingRecord.'RoomID: Title'.Value
                                                 Wrap: =false
                                           - lblNextTime:
                                               Control: Label@2.5.1
@@ -605,7 +551,7 @@ Screens:
                                                 LayoutMinHeight: =0
                                                 LayoutMinWidth: =0
                                                 Size: =12
-                                                Text: =Text(varNextBookingRecord.StartDateTime, "HH:mm") & " - " & Text(varNextBookingRecord.EndDateTime, "HH:mm") & If(Text(varNextBookingRecord.StartDateTime, "yyyymmdd") = Text(Today(), "yyyymmdd"), " today", Text(varNextBookingRecord.StartDateTime, "yyyymmdd") = Text(DateAdd(Today(), 1, TimeUnit.Days), "yyyymmdd"), " tomorrow", " " & Text(varNextBookingRecord.StartDateTime, "ddd dd mmm"))
+                                                Text: =Text(NextBookingRecord.StartDateTime, "HH:mm") & " - " & Text(NextBookingRecord.EndDateTime, "HH:mm") & If(Text(NextBookingRecord.StartDateTime, "yyyymmdd") = Text(Today(), "yyyymmdd"), " today", Text(NextBookingRecord.StartDateTime, "yyyymmdd") = Text(DateAdd(Today(), 1, TimeUnit.Days), "yyyymmdd"), " tomorrow", " " & Text(NextBookingRecord.StartDateTime, "ddd dd mmm"))
                                                 Wrap: =false
                                           - lblNextTitle:
                                               Control: Label@2.5.1
@@ -617,7 +563,7 @@ Screens:
                                                 LayoutMinHeight: =0
                                                 LayoutMinWidth: =0
                                                 Size: =12
-                                                Text: =varNextBookingRecord.Title
+                                                Text: =NextBookingRecord.Title
                                                 Wrap: =false
                                           - lblNextCountdown:
                                               Control: Label@2.5.1
@@ -630,7 +576,7 @@ Screens:
                                                 LayoutMinWidth: =0
                                                 Size: =12
                                                 Text: |-
-                                                  =With({_m: DateDiff(Now(), varNextBookingRecord.StartDateTime, TimeUnit.Minutes)}, If(_m <= 0, "Now", _m < 60, "In " & _m & " min", _m < 1440, "In " & RoundDown(_m / 60, 0) & "h " & Mod(_m, 60) & "m", "In " & RoundDown(_m / 1440, 0) & " days"))
+                                                  =With({_m: DateDiff(Now(), NextBookingRecord.StartDateTime, TimeUnit.Minutes)}, If(_m <= 0, "Now", _m < 60, "In " & _m & " min", _m < 1440, "In " & RoundDown(_m / 60, 0) & "h " & Mod(_m, 60) & "m", "In " & RoundDown(_m / 1440, 0) & " days"))
                                                 Wrap: =false
                                     - img_nextemptystate_:
                                         Control: Image@2.2.3
@@ -664,7 +610,7 @@ Screens:
                                           ImagePosition: =ImagePosition.Stretch
                                           PressedBorderColor: =RGBA(0,0,0,0)
                                           PressedFill: =RGBA(0,0,0,0)
-                                          Visible: =IsBlank(varNextBookingRecord)
+                                          Visible: =IsBlank(NextBookingRecord)
                                           Width: =Parent.Width
                               - conRoomsNow:
                                   Control: GroupContainer@1.5.0
@@ -767,8 +713,8 @@ Screens:
                                                 RoomStatus,
                                                 With(
                                                     {
-                                                        _current: LookUp(colTodayBookings, RoomID.Id = r.ID && StartDateTime <= Now() && EndDateTime > Now()),
-                                                        _next: First(Sort(Filter(colTodayBookings, RoomID.Id = r.ID && StartDateTime > Now()), StartDateTime, SortOrder.Ascending))
+                                                        _current: LookUp(TodayBookings, RoomID.Id = r.ID && StartDateTime <= Now() && EndDateTime > Now()),
+                                                        _next: First(Sort(Filter(TodayBookings, RoomID.Id = r.ID && StartDateTime > Now()), StartDateTime, SortOrder.Ascending))
                                                     },
                                                     {
                                                         State: If(!IsBlank(_current), "Busy", IsBlank(_next), "FreeAllDay", DateDiff(Now(), _next.StartDateTime, TimeUnit.Minutes) <= 60, "FreeWarning", "Free"),
@@ -1000,7 +946,7 @@ Screens:
                                           Height: =8
                                           Width: |-
                                             =With(
-                                                {_occ: CountRows(Filter(colTodayBookings, RoomID.Id = ThisItem.ID)) * 0.25 / 10},
+                                                {_occ: CountRows(Filter(TodayBookings, RoomID.Id = ThisItem.ID)) * 0.25 / 10},
                                                 Max(0, (Parent.Width - 166) * _occ)
                                             )
                                           X: =118
@@ -1013,7 +959,7 @@ Screens:
                                           Font: =Font.Lato
                                           Height: =16
                                           Size: =10
-                                          Text: =Text(CountRows(Filter(colTodayBookings, RoomID.Id = ThisItem.ID)) * 0.25 / 10 * 100, "[$-en-US]0") & "%"
+                                          Text: =Text(CountRows(Filter(TodayBookings, RoomID.Id = ThisItem.ID)) * 0.25 / 10 * 100, "[$-en-US]0") & "%"
                                           Width: =36
                                           Wrap: =false
                                           X: =Parent.Width - 40

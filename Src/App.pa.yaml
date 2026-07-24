@@ -288,6 +288,44 @@ App:
             //--- End Find Timeline Formulas ---
             //----------------------------------
 
+            //--------------------------------------------------
+            //--- Derived data (named formulas — always fresh) ---
+            //--------------------------------------------------
+            // Date bounds first (delegable against SharePoint after revert);
+            // person narrowing on BookedByEmail (plain text column = delegable eq).
+
+            TodayBookings = Sort(
+                Filter(colBookings,
+                    StartDateTime >= Today(),
+                    StartDateTime < DateAdd(Today(), 1, TimeUnit.Days)
+                ),
+                StartDateTime, SortOrder.Ascending
+            );
+
+            // 90-day lookback keeps the "All" tab bounded (delegation-safe on revert).
+            MyBookings = Sort(
+                Filter(colBookings,
+                    EndDateTime >= DateAdd(Today(), -90, TimeUnit.Days),
+                    BookedByEmail = Lower(User().Email)
+                ),
+                StartDateTime, SortOrder.Ascending
+            );
+
+            NextBookingRecord = First(
+                Sort(
+                    Filter(MyBookings, EndDateTime > Now()),
+                    StartDateTime, SortOrder.Ascending
+                )
+            );
+
+            FindBookings = Sort(
+                Filter(colBookings,
+                    StartDateTime >= varFindWindowStart,
+                    EndDateTime <= varFindWindowEnd
+                ),
+                StartDateTime, SortOrder.Ascending
+            );
+
             //--------------------------------------------------------
             //--- Sandbox mock data (mirrors Book_Rooms/Book_Bookings) ---
             //--------------------------------------------------------
@@ -304,6 +342,7 @@ App:
             MockBookingsSeed = Table(
                 {
                     ID: 1, Title: "Team Standup", Name: "Team Standup",
+                    BookedByEmail: "",
                     RoomID: {Id: 1, Value: "1"}, 'RoomID: Title': {Id: 1, Value: "Boardroom"},
                     StartDateTime: DateAdd(Today(), 9 * 60, TimeUnit.Minutes),
                     EndDateTime: DateAdd(Today(), 9 * 60 + 30, TimeUnit.Minutes),
@@ -311,6 +350,7 @@ App:
                 },
                 {
                     ID: 2, Title: "Client Call", Name: "Client Call",
+                    BookedByEmail: "alex.morgan@example.com",
                     RoomID: {Id: 2, Value: "2"}, 'RoomID: Title': {Id: 2, Value: "Meeting Room A"},
                     StartDateTime: DateAdd(Today(), 10 * 60, TimeUnit.Minutes),
                     EndDateTime: DateAdd(Today(), 11 * 60, TimeUnit.Minutes),
@@ -318,6 +358,7 @@ App:
                 },
                 {
                     ID: 3, Title: "Design Review", Name: "Design Review",
+                    BookedByEmail: "priya.shah@example.com",
                     RoomID: {Id: 3, Value: "3"}, 'RoomID: Title': {Id: 3, Value: "Meeting Room B"},
                     StartDateTime: DateAdd(Today(), 13 * 60, TimeUnit.Minutes),
                     EndDateTime: DateAdd(Today(), 14 * 60, TimeUnit.Minutes),
@@ -325,6 +366,7 @@ App:
                 },
                 {
                     ID: 4, Title: "1:1", Name: "1:1",
+                    BookedByEmail: "sam.lee@example.com",
                     RoomID: {Id: 4, Value: "4"}, 'RoomID: Title': {Id: 4, Value: "Huddle Space 1"},
                     StartDateTime: DateAdd(Today(), 15 * 60, TimeUnit.Minutes),
                     EndDateTime: DateAdd(Today(), 15 * 60 + 30, TimeUnit.Minutes),
@@ -332,6 +374,7 @@ App:
                 },
                 {
                     ID: 5, Title: "Sprint Planning", Name: "Sprint Planning",
+                    BookedByEmail: "alex.morgan@example.com",
                     RoomID: {Id: 1, Value: "1"}, 'RoomID: Title': {Id: 1, Value: "Boardroom"},
                     StartDateTime: DateAdd(Today(), 24 * 60 + 9 * 60, TimeUnit.Minutes),
                     EndDateTime: DateAdd(Today(), 24 * 60 + 10 * 60 + 30, TimeUnit.Minutes),
@@ -339,6 +382,7 @@ App:
                 },
                 {
                     ID: 6, Title: "Training Session", Name: "Training Session",
+                    BookedByEmail: "priya.shah@example.com",
                     RoomID: {Id: 6, Value: "6"}, 'RoomID: Title': {Id: 6, Value: "Training Room"},
                     StartDateTime: DateAdd(Today(), 2 * 24 * 60 + 9 * 60, TimeUnit.Minutes),
                     EndDateTime: DateAdd(Today(), 2 * 24 * 60 + 11 * 60, TimeUnit.Minutes),
@@ -346,6 +390,7 @@ App:
                 },
                 {
                     ID: 7, Title: "Past Review", Name: "Past Review",
+                    BookedByEmail: "",
                     RoomID: {Id: 2, Value: "2"}, 'RoomID: Title': {Id: 2, Value: "Meeting Room A"},
                     StartDateTime: DateAdd(Today(), -24 * 60 + 9 * 60, TimeUnit.Minutes),
                     EndDateTime: DateAdd(Today(), -24 * 60 + 10 * 60, TimeUnit.Minutes),
@@ -368,6 +413,7 @@ App:
             /* Bind the two placeholder seed bookings (IDs 1 and 7 - one upcoming, one past) to whoever is signed into the sandbox session */
             UpdateIf(colBookings, ID = 1 || ID = 7,
                 {
+                    BookedByEmail: Lower(User().Email),
                     BookedBy: {
                         '@odata.type': "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser",
                         Claims: "i:0#.f|membership|" & Lower(User().Email),
