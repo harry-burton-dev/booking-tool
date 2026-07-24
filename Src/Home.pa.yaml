@@ -594,7 +594,8 @@ Screens:
                                                 LayoutMinHeight: =0
                                                 LayoutMinWidth: =0
                                                 Size: =15
-                                                Text: =varNextBookingRecord.'RoomID: Title'.Value
+                                                Text: |-
+                                                  =varNextBookingRecord.'RoomID: Title'.Value
                                                 Wrap: =false
                                           - lblNextTime:
                                               Control: Label@2.5.1
