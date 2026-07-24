@@ -61,10 +61,12 @@ Screens:
                         - imgDateBack_1:
                             Control: Image@2.2.3
                             Properties:
+                              AccessibleLabel: ="Previous day"
                               AlignInContainer: =AlignInContainer.Center
                               Height: =44
                               Image: ="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAzMiAzMic+PHBhdGggZD0nTTIwIDI0TDEyIDE2IDIwIDgnIHN0cm9rZT0nI0M2QzZDNicgc3Ryb2tlLXdpZHRoPScyJyBmaWxsPSdub25lJyBzdHJva2UtbGluZWNhcD0ncm91bmQnIHN0cm9rZS1saW5lam9pbj0ncm91bmQnLz48L3N2Zz4="
                               OnSelect: =Set(varFindSelectedDate, DateAdd(varFindSelectedDate, If(varFindViewMode = "Week", -7, -1), TimeUnit.Days)); Select(btnLoadFindBookings)
+                              TabIndex: =0
                               Width: =40
                         - lblFindDate:
                             Control: Label@2.5.1
@@ -81,10 +83,12 @@ Screens:
                         - imgDateForward_1:
                             Control: Image@2.2.3
                             Properties:
+                              AccessibleLabel: ="Next day"
                               AlignInContainer: =AlignInContainer.Center
                               Height: =44
                               Image: ="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAzMiAzMic+PHBhdGggZD0nTTEyIDI0TDIwIDE2IDEyIDgnIHN0cm9rZT0nI0M2QzZDNicgc3Ryb2tlLXdpZHRoPScyJyBmaWxsPSdub25lJyBzdHJva2UtbGluZWNhcD0ncm91bmQnIHN0cm9rZS1saW5lam9pbj0ncm91bmQnLz48L3N2Zz4="
                               OnSelect: =Set(varFindSelectedDate, DateAdd(varFindSelectedDate, If(varFindViewMode = "Week", 7, 1), TimeUnit.Days)); Select(btnLoadFindBookings)
+                              TabIndex: =0
                               Width: =40
                         - tabFindViewMode:
                             Control: TabList@2.2.31

@@ -162,7 +162,7 @@ Screens:
                                           OnSelect: =Select(btn_Card)
                                           PressedBorderColor: =RGBA(0, 0, 0, 0)
                                           PressedFill: =RGBA(0, 0, 0, 0)
-                                          TabIndex: =0
+                                          TabIndex: =-1
                                           Width: =Parent.Width
                                     - btn_Card:
                                         Control: Classic/Button
@@ -199,7 +199,7 @@ Screens:
                                           RadiusBottomRight: =0
                                           RadiusTopLeft: =0
                                           RadiusTopRight: =0
-                                          TabIndex: =-1
+                                          TabIndex: =0
                                           Text: =""
                                           Width: =Parent.Width
                   - con_timeline_view:
@@ -329,12 +329,14 @@ Screens:
                               - imgDateBack:
                                   Control: Image
                                   Properties:
+                                    AccessibleLabel: ="Previous day"
                                     AlignInContainer: =AlignInContainer.Center
                                     Height: =44
                                     Image: ="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAzMiAzMic+PHBhdGggZD0nTTIwIDI0TDEyIDE2IDIwIDgnIHN0cm9rZT0nI0M2QzZDNicgc3Ryb2tlLXdpZHRoPScyJyBmaWxsPSdub25lJyBzdHJva2UtbGluZWNhcD0ncm91bmQnIHN0cm9rZS1saW5lam9pbj0ncm91bmQnLz48L3N2Zz4="
                                     OnSelect: |-
                                       =Set(glbSelectedDate, DateAdd(glbSelectedDate, -1, TimeUnit.Days));
                                       Select(btn_LoadTimeline);
+                                    TabIndex: =0
                                     Width: =40
                               - DatePicker2:
                                   Control: ModernDatePicker
@@ -363,12 +365,14 @@ Screens:
                               - imgDateForward:
                                   Control: Image
                                   Properties:
+                                    AccessibleLabel: ="Next day"
                                     AlignInContainer: =AlignInContainer.Center
                                     Height: =44
                                     Image: ="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAzMiAzMic+PHBhdGggZD0nTTEyIDI0TDIwIDE2IDEyIDgnIHN0cm9rZT0nI0M2QzZDNicgc3Ryb2tlLXdpZHRoPScyJyBmaWxsPSdub25lJyBzdHJva2UtbGluZWNhcD0ncm91bmQnIHN0cm9rZS1saW5lam9pbj0ncm91bmQnLz48L3N2Zz4="
                                     OnSelect: |-
                                       =Set(glbSelectedDate, DateAdd(glbSelectedDate, 1, TimeUnit.Days));
                                       Select(btn_LoadTimeline)
+                                    TabIndex: =0
                                     Width: =40
                         - galTimeline:
                             Control: Gallery

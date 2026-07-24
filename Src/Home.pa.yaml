@@ -571,7 +571,7 @@ Screens:
                                               Control: Label@2.5.1
                                               Properties:
                                                 AlignInContainer: =AlignInContainer.Stretch
-                                                Color: =RGBA(66,190,101,1)
+                                                Color: =AppTheme.StatusFreeText
                                                 Font: =Font.Lato
                                                 Height: =18
                                                 LayoutMinHeight: =0

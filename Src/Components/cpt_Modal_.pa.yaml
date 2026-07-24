@@ -230,7 +230,7 @@ ComponentDefinitions:
                                           OnSelect: =Select(btn_tile)
                                           PressedBorderColor: =RGBA(0, 0, 0, 0)
                                           PressedFill: =RGBA(0, 0, 0, 0)
-                                          TabIndex: =0
+                                          TabIndex: =-1
                                           Width: =Parent.Width
                                     - btn_tile:
                                         Control: Classic/Button@2.2.0
@@ -263,7 +263,7 @@ ComponentDefinitions:
                                           RadiusBottomRight: =0
                                           RadiusTopLeft: =0
                                           RadiusTopRight: =0
-                                          TabIndex: =-1
+                                          TabIndex: =0
                                           Text: =""
                                           Width: =Parent.Width
                   - conStep2:
