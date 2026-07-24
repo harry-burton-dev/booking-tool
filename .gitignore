@@ -1,2 +1,11 @@
 .claude/
 .memsearch/
+
+# AI-authoring scaffolding — not part of the Power Apps msapp structure.
+# Kept on disk locally for Claude's own continuity, not tracked in git.
+CLAUDE.md
+MOCK_DATA.md
+docs/
+
+# Packaged .msapp build output (regenerate from source; don't commit binaries)
+*.msapp
