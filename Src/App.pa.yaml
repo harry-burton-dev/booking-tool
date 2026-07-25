@@ -296,8 +296,8 @@ App:
 
             TodayBookings = Sort(
                 Filter(colBookings,
-                    StartDateTime >= Today(),
-                    StartDateTime < DateAdd(Today(), 1, TimeUnit.Days)
+                    StartDateTime >= Date(Year(varNowTick), Month(varNowTick), Day(varNowTick)),
+                    StartDateTime < DateAdd(Date(Year(varNowTick), Month(varNowTick), Day(varNowTick)), 1, TimeUnit.Days)
                 ),
                 StartDateTime, SortOrder.Ascending
             );
@@ -320,9 +320,20 @@ App:
             );
 
             FindBookings = Sort(
-                Filter(colBookings,
-                    StartDateTime >= varFindWindowStart,
-                    EndDateTime <= varFindWindowEnd
+                ForAll(
+                    Filter(colBookings,
+                        StartDateTime < varFindWindowEnd,
+                        EndDateTime > varFindWindowStart
+                    ) As b,
+                    {
+                        ID: b.ID,
+                        Title: b.Title,
+                        RoomID: b.RoomID,
+                        BookedBy: b.BookedBy,
+                        BookedByEmail: b.BookedByEmail,
+                        StartDateTime: If(b.StartDateTime < varFindWindowStart, varFindWindowStart, b.StartDateTime),
+                        EndDateTime: If(b.EndDateTime > varFindWindowEnd, varFindWindowEnd, b.EndDateTime)
+                    }
                 ),
                 StartDateTime, SortOrder.Ascending
             );
@@ -396,6 +407,22 @@ App:
                     StartDateTime: DateAdd(Today(), -24 * 60 + 9 * 60, TimeUnit.Minutes),
                     EndDateTime: DateAdd(Today(), -24 * 60 + 10 * 60, TimeUnit.Minutes),
                     BookedBy: {'@odata.type': "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser", Claims: "", DisplayName: "", Email: "", Department: "", JobTitle: "", Picture: ""}
+                },
+                {
+                    ID: 8, Title: "Back-to-back", Name: "Back-to-back",
+                    BookedByEmail: "sam.lee@example.com",
+                    RoomID: {Id: 1, Value: "1"}, 'RoomID: Title': {Id: 1, Value: "Boardroom"},
+                    StartDateTime: DateAdd(Today(), 9 * 60 + 30, TimeUnit.Minutes),
+                    EndDateTime: DateAdd(Today(), 10 * 60, TimeUnit.Minutes),
+                    BookedBy: {'@odata.type': "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser", Claims: "i:0#.f|membership|sam.lee@example.com", DisplayName: "Sam Lee", Email: "sam.lee@example.com", Department: "", JobTitle: "", Picture: ""}
+                },
+                {
+                    ID: 9, Title: "Evening overrun", Name: "Evening overrun",
+                    BookedByEmail: "priya.shah@example.com",
+                    RoomID: {Id: 5, Value: "5"}, 'RoomID: Title': {Id: 5, Value: "Huddle Space 2"},
+                    StartDateTime: DateAdd(Today(), 17 * 60 + 30, TimeUnit.Minutes),
+                    EndDateTime: DateAdd(Today(), 18 * 60 + 30, TimeUnit.Minutes),
+                    BookedBy: {'@odata.type': "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser", Claims: "i:0#.f|membership|priya.shah@example.com", DisplayName: "Priya Shah", Email: "priya.shah@example.com", Department: "", JobTitle: "", Picture: ""}
                 }
             );
 

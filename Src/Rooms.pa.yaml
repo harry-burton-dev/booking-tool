@@ -175,7 +175,8 @@ Screens:
                                           DisabledColor: =RGBA(0, 0, 0, 0)
                                           DisabledFill: =RGBA(242, 242, 241, 0)
                                           Fill: =RGBA(0, 0, 0, 0)
-                                          FocusedBorderColor: =Color.Red
+                                          FocusedBorderColor: =RGBA(15, 98, 254, 1)
+                                          FocusedBorderThickness: =2
                                           Font: =Font.Lato
                                           Height: =Parent.Height
                                           HoverBorderColor: =RGBA(0, 0, 0, 0)
@@ -333,7 +334,7 @@ Screens:
                                     AccessibleLabel: ="Previous day"
                                     AlignInContainer: =AlignInContainer.Center
                                     Height: =44
-                                    Image: ="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAzMiAzMic+PHBhdGggZD0nTTIwIDI0TDEyIDE2IDIwIDgnIHN0cm9rZT0nI0M2QzZDNicgc3Ryb2tlLXdpZHRoPScyJyBmaWxsPSdub25lJyBzdHJva2UtbGluZWNhcD0ncm91bmQnIHN0cm9rZS1saW5lam9pbj0ncm91bmQnLz48L3N2Zz4="
+                                    Image: ="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAzMiAzMic+PHBhdGggZD0nTTIwIDI0TDEyIDE2IDIwIDgnIHN0cm9rZT0nIzUyNTI1Micgc3Ryb2tlLXdpZHRoPScyJyBmaWxsPSdub25lJyBzdHJva2UtbGluZWNhcD0ncm91bmQnIHN0cm9rZS1saW5lam9pbj0ncm91bmQnLz48L3N2Zz4="
                                     OnSelect: |-
                                       =Set(glbSelectedDate, DateAdd(glbSelectedDate, -1, TimeUnit.Days));
                                       Select(btn_LoadTimeline);
@@ -369,7 +370,7 @@ Screens:
                                     AccessibleLabel: ="Next day"
                                     AlignInContainer: =AlignInContainer.Center
                                     Height: =44
-                                    Image: ="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAzMiAzMic+PHBhdGggZD0nTTEyIDI0TDIwIDE2IDEyIDgnIHN0cm9rZT0nI0M2QzZDNicgc3Ryb2tlLXdpZHRoPScyJyBmaWxsPSdub25lJyBzdHJva2UtbGluZWNhcD0ncm91bmQnIHN0cm9rZS1saW5lam9pbj0ncm91bmQnLz48L3N2Zz4="
+                                    Image: ="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAzMiAzMic+PHBhdGggZD0nTTEyIDI0TDIwIDE2IDEyIDgnIHN0cm9rZT0nIzUyNTI1Micgc3Ryb2tlLXdpZHRoPScyJyBmaWxsPSdub25lJyBzdHJva2UtbGluZWNhcD0ncm91bmQnIHN0cm9rZS1saW5lam9pbj0ncm91bmQnLz48L3N2Zz4="
                                     OnSelect: |-
                                       =Set(glbSelectedDate, DateAdd(glbSelectedDate, 1, TimeUnit.Days));
                                       Select(btn_LoadTimeline)
@@ -575,17 +576,18 @@ Screens:
                               HoverFill: =RGBA(16, 110, 190, 1)
                               OnSelect: |-
                                 =ClearCollect(colRoomBookings,
-                                    Sort(
+                                    Filter(
                                         Filter(
                                             colBookings,
-                                            RoomID.Id = varSelectedRoom.ID,
-                                            StartDateTime >= Timeline_DayStart,
-                                            EndDateTime <= Timeline_DayEnd
+                                            StartDateTime < Timeline_DayEnd,
+                                            EndDateTime > Timeline_DayStart
                                         ),
-                                        StartDateTime,
-                                        SortOrder.Ascending
+                                        RoomID.Id = varSelectedRoom.ID
                                     )
                                 );
+                                UpdateIf(colRoomBookings, StartDateTime < Timeline_DayStart, {StartDateTime: Timeline_DayStart});
+                                UpdateIf(colRoomBookings, EndDateTime > Timeline_DayEnd, {EndDateTime: Timeline_DayEnd});
+                                ClearCollect(colRoomBookings, Sort(colRoomBookings, StartDateTime, SortOrder.Ascending));
                                 Clear(colTimelineRows);
                                 ForAll(
                                     colRoomBookings As booking,

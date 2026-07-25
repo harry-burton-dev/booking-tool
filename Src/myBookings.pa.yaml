@@ -160,7 +160,7 @@ Screens:
                                           RadiusBottomRight: =0
                                           RadiusTopLeft: =0
                                           RadiusTopRight: =0
-                                          Text: ="Show upcoming bookings"
+                                          Text: ="Show upcoming bookings" & If(varMyBookingsFilter = "Upcoming", " (selected)", "")
                                           Width: =120
                               - con_SegAll:
                                   Control: GroupContainer@1.5.0
@@ -227,7 +227,7 @@ Screens:
                                           RadiusBottomRight: =0
                                           RadiusTopLeft: =0
                                           RadiusTopRight: =0
-                                          Text: ="Show all bookings"
+                                          Text: ="Show all bookings" & If(varMyBookingsFilter = "All", " (selected)", "")
                                           Width: =80
                         - galMyBookings:
                             Control: Gallery@2.15.0

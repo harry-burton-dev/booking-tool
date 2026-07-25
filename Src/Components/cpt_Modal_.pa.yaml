@@ -243,7 +243,8 @@ ComponentDefinitions:
                                           DisabledColor: =RGBA(0, 0, 0, 0)
                                           DisabledFill: =RGBA(242, 242, 241, 0)
                                           Fill: =RGBA(0, 0, 0, 0)
-                                          FocusedBorderColor: =Color.Red
+                                          FocusedBorderColor: =RGBA(15, 98, 254, 1)
+                                          FocusedBorderThickness: =2
                                           Font: =Font.Lato
                                           Height: =Parent.Height
                                           HoverBorderColor: =RGBA(0, 0, 0, 0)
@@ -251,6 +252,14 @@ ComponentDefinitions:
                                           HoverFill: =AppTheme.ButtonPrimaryHover
                                           OnSelect: |-
                                             =Set(varSelectedRoom, ThisItem);
+                                            If(!IsBlank(varStartTime) && !IsBlank(varEndTime),
+                                                ClearCollect(
+                                                    colOverlappingBookings,
+                                                    Filter(colBookings, StartDateTime < varEndTime && EndDateTime > varStartTime)
+                                                );
+                                                Set(varConflict, !IsEmpty(Filter(colOverlappingBookings, RoomID.Id = varSelectedRoom.ID)));
+                                                Set(varConflictingBooking, LookUp(colOverlappingBookings, RoomID.Id = varSelectedRoom.ID))
+                                            );
                                             Set(gbl_UI_Book_Modal_Step, "2")
                                           PaddingBottom: =0
                                           PaddingLeft: =0
@@ -526,7 +535,7 @@ ComponentDefinitions:
                                           LayoutMinWidth: =0
                                           OnChange: |-
                                             =Set(varStartTime, drpStartTime.Selected.value);
-                                            If(!IsBlank(varEndTime) && varEndTime <= varStartTime, Set(varEndTime, Blank()));
+                                            If(!IsBlank(varEndTime) && varEndTime <= varStartTime, Set(varEndTime, Blank()); Reset(drpEndTime));
 
                                             /* Date-bounded fetch first (delegable after revert); room narrowing client-side */
                                             ClearCollect(
@@ -1096,6 +1105,7 @@ ComponentDefinitions:
                                           OnSelect: |-
                                             =Set(varStartTime, Blank());
                                             Set(varEndTime, Blank());
+                                            Reset(drpEndTime);
                                             Set(varConflict, false);
                                           PressedColor: =AppTheme.TextPrimary
                                           PressedFill: =AppTheme.Surface
@@ -1142,7 +1152,7 @@ ComponentDefinitions:
                       Properties:
                         DropShadow: =DropShadow.None
                         FillPortions: =0
-                        Height: =16 + lbl_textStep4_confirmBooking.Height + 12 + conSummaryCard.Height + 12 + conTitleField.Height + 12 + conNotesField.Height + 16
+                        Height: =16 + lbl_textStep4_confirmBooking.Height + 12 + conSummaryCard.Height + 12 + lbl_textSlotTakenError.Height + 12 + lbl_textBookingFailedError.Height + 16
                         LayoutAlignItems: =LayoutAlignItems.Stretch
                         LayoutDirection: =LayoutDirection.Vertical
                         LayoutGap: =12
@@ -1290,7 +1300,20 @@ ComponentDefinitions:
                         HoverFill: =AppTheme.SurfaceAlt
                         LayoutMinHeight: =0
                         LayoutMinWidth: =0
-                        OnSelect: =Set(gbl_UI_Book_Modal, false)
+                        OnSelect: |-
+                          =If(
+                              gbl_UI_Book_Modal_Step = "3",
+                              Set(gbl_UI_Book_Modal_Step, "2"),
+                              gbl_UI_Book_Modal_Step = "2",
+                              Set(gbl_UI_Book_Modal_Step, "1"),
+                              /* step 1: close and reset transient wizard state */
+                              Set(varIsaSeries, false);
+                              Reset(tglRecurring);
+                              Reset(drpWeeks);
+                              Reset(txtBookingTitle);
+                              Reset(txtBookingNotes);
+                              Set(gbl_UI_Book_Modal, false)
+                          )
                         PressedBorderColor: =AppTheme.Border
                         PressedColor: =AppTheme.TextPrimary
                         PressedFill: =AppTheme.Border
@@ -1299,7 +1322,7 @@ ComponentDefinitions:
                         RadiusTopLeft: =2
                         RadiusTopRight: =2
                         Size: =11
-                        Text: ="Cancel"
+                        Text: =If(gbl_UI_Book_Modal_Step = "1", "Cancel", "Back")
                         Width: =100
                   - conFooterSpacer:
                       Control: GroupContainer@1.5.0
@@ -1319,7 +1342,7 @@ ComponentDefinitions:
                         DisabledBorderColor: =AppTheme.SurfaceAlt
                         DisabledColor: =ColorValue(AppTheme.ButtonDisabledText)
                         DisabledFill: =ColorValue(AppTheme.ButtonDisabled)
-                        DisplayMode: =If(gbl_UI_Book_Modal_Step = "1", If(IsBlank(varSelectedRoom), DisplayMode.Disabled, DisplayMode.Edit), If(gbl_UI_Book_Modal_Step = "2", If(varConflict || IsBlank(varStartTime) || IsBlank(varEndTime), DisplayMode.Disabled, DisplayMode.Edit), DisplayMode.Edit))
+                        DisplayMode: =If(IsBlank(varSelectedRoom) || IsBlank(varStartTime) || IsBlank(varEndTime) || varEndTime <= varStartTime || IsBlank(varTitle) || varConflict, DisplayMode.Disabled, DisplayMode.Edit)
                         Fill: =ColorValue(AppTheme.ButtonPrimary)
                         FocusedBorderColor: =RGBA(15, 98, 254, 1)
                         FocusedBorderThickness: =2
@@ -1330,8 +1353,8 @@ ComponentDefinitions:
                         HoverFill: =RGBA(13, 83, 217, 1)
                         LayoutMinHeight: =0
                         LayoutMinWidth: =0
-                        OnSelect: |+
-                          =Set(gbl_UI_Book_Modal_Step, "1")
+                        OnSelect: |-
+                          =Set(gbl_UI_Book_Modal_Step, "3")
                         PressedBorderColor: =RGBA(11, 69, 182, 1)
                         PressedColor: =RGBA(255, 255, 255, 1)
                         PressedFill: =RGBA(11, 69, 182, 1)
@@ -1341,7 +1364,7 @@ ComponentDefinitions:
                         RadiusTopRight: =2
                         Size: =11
                         Text: ="Next"
-                        Visible: =false
+                        Visible: =gbl_UI_Book_Modal_Step = "2"
                         Width: =120
                   - btnConfirm:
                       Control: Classic/Button@2.2.0
@@ -1365,111 +1388,136 @@ ComponentDefinitions:
                         LayoutMinHeight: =0
                         LayoutMinWidth: =0
                         OnSelect: |-
-                          =Set(varSubmitting, true);
-                          Clear(colFailedBookings);
-
-                          /* Loop through all occurrences */
-                          ForAll(
-                              Sequence(
-                                  If(
-                                      tglRecurring.Checked,
-                                      Max(1, Coalesce(Value(drpWeeks.Selected.Value), 1)),
-                                      1
+                          =Set(
+                              varConflict,
+                              !IsBlank(
+                                  LookUp(
+                                      Filter(colBookings, StartDateTime < varEndTime, EndDateTime > varStartTime),
+                                      RoomID.Id = varSelectedRoom.ID
                                   )
-                              ),
-                              With(
-                                  {
-                                      vStart: DateAdd(varStartTime, (Value - 1) * 7, TimeUnit.Days),
-                                      vEnd: DateAdd(varEndTime, (Value - 1) * 7, TimeUnit.Days)
-                                  },
-                                  If(
-                                      !IsBlank(
-                                          LookUp(
-                                              Filter(
-                                                  colBookings,
-                                                  StartDateTime < vEnd,
-                                                  EndDateTime > vStart
-                                              ),
-                                              RoomID.Id = varSelectedRoom.ID
-                                          )
-                                      ),
+                              )
+                          );
+                          If(!varConflict,
+                              Set(varSubmitting, true);
+                              Clear(colFailedBookings);
 
-                                      /* Slot already taken — record as a conflict */
-                                      Collect(
-                                          colFailedBookings,
-                                          {
-                                              BookingDate: Text(vStart, "dd mmm yyyy"),
-                                              Reason: "conflict"
-                                          }
-                                      ),
-
-                                      /* Create booking; record a write failure if it errors */
-                                      IfError(
-                                          Collect(
-                                              colBookings,
-                                              {
-                                                  ID: Max(colBookings, ID) + 1,
-                                                  Title: varTitle,
-                                                  BookedByEmail: Lower(User().Email),
-                                                  RoomID: {
-                                                      Id: Value(varSelectedRoom.ID),
-                                                      Value: Text(varSelectedRoom.RoomID)
-                                                  },
-                                                  'RoomID: Title': {
-                                                      Id: Value(varSelectedRoom.ID),
-                                                      Value: varSelectedRoom.Title
-                                                  },
-                                                  StartDateTime: vStart,
-                                                  EndDateTime: vEnd,
-                                                  BookedBy: {
-                                                      '@odata.type': "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser",
-                                                      Claims: "i:0#.f|membership|" & Lower(User().Email),
-                                                      DisplayName: User().FullName,
-                                                      Email: User().Email,
-                                                      Department: "",
-                                                      JobTitle: "",
-                                                      Picture: ""
-                                                  }
-                                              }
+                              /* Loop through all occurrences */
+                              ForAll(
+                                  Sequence(
+                                      If(
+                                          tglRecurring.Checked,
+                                          Max(1, Coalesce(Value(drpWeeks.Selected.Value), 1)),
+                                          1
+                                      )
+                                  ),
+                                  With(
+                                      {
+                                          vStart: DateAdd(varStartTime, (Value - 1) * 7, TimeUnit.Days),
+                                          vEnd: DateAdd(varEndTime, (Value - 1) * 7, TimeUnit.Days)
+                                      },
+                                      If(
+                                          !IsBlank(
+                                              LookUp(
+                                                  Filter(
+                                                      colBookings,
+                                                      StartDateTime < vEnd,
+                                                      EndDateTime > vStart
+                                                  ),
+                                                  RoomID.Id = varSelectedRoom.ID
+                                              )
                                           ),
+
+                                          /* Slot already taken — record as a conflict */
                                           Collect(
                                               colFailedBookings,
                                               {
                                                   BookingDate: Text(vStart, "dd mmm yyyy"),
-                                                  Reason: "error"
+                                                  Reason: "conflict"
                                               }
+                                          ),
+
+                                          /* Create booking; record a write failure if it errors */
+                                          IfError(
+                                              Collect(
+                                                  colBookings,
+                                                  {
+                                                      ID: Max(colBookings, ID) + 1,
+                                                      Title: varTitle,
+                                                      BookedByEmail: Lower(User().Email),
+                                                      RoomID: {
+                                                          Id: Value(varSelectedRoom.ID),
+                                                          Value: Text(varSelectedRoom.RoomID)
+                                                      },
+                                                      'RoomID: Title': {
+                                                          Id: Value(varSelectedRoom.ID),
+                                                          Value: varSelectedRoom.Title
+                                                      },
+                                                      StartDateTime: vStart,
+                                                      EndDateTime: vEnd,
+                                                      BookedBy: {
+                                                          '@odata.type': "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser",
+                                                          Claims: "i:0#.f|membership|" & Lower(User().Email),
+                                                          DisplayName: User().FullName,
+                                                          Email: User().Email,
+                                                          Department: "",
+                                                          JobTitle: "",
+                                                          Picture: ""
+                                                      }
+                                                  }
+                                              ),
+                                              Collect(
+                                                  colFailedBookings,
+                                                  {
+                                                      BookingDate: Text(vStart, "dd mmm yyyy"),
+                                                      Reason: "error"
+                                                  }
+                                              )
                                           )
                                       )
                                   )
-                              )
-                          );
-
-                          /* PROD-REVERT: reinstate Refresh(Book_Bookings) here per MOCK_DATA.md */
-
-                          Set(varBookingError, !IsEmpty(Filter(colFailedBookings, Reason = "error")));
-
-                          /* Tell user what happened; close the modal on BOTH branches */
-                          If(
-                              CountRows(colFailedBookings) > 0,
-                              Notify(
-                                  "Some bookings could not be created: " &
-                                  Concat(colFailedBookings, BookingDate, ", "),
-                                  NotificationType.Warning,
-                                  10000
                               );
-                              Set(gbl_UI_Book_Modal, false),
-                              Notify(
-                                  "Booking(s) created successfully",
-                                  NotificationType.Success
-                              );
-                              Navigate(
-                                  Home,
-                                  ScreenTransition.Fade
-                              );
-                              Set(gbl_UI_Book_Modal, false)
-                          );
 
-                          Set(varSubmitting, false);
+                              /* PROD-REVERT: reinstate Refresh(Book_Bookings) here per MOCK_DATA.md */
+
+                              Set(varBookingError, !IsEmpty(Filter(colFailedBookings, Reason = "error")));
+
+                              /* Tell user what happened; close the modal on BOTH branches */
+                              If(
+                                  CountRows(colFailedBookings) > 0,
+                                  If(
+                                      varBookingError,
+                                      Notify(
+                                          "Some bookings failed to save. Please try again. Not created: " &
+                                          Concat(colFailedBookings, BookingDate, ", "),
+                                          NotificationType.Error,
+                                          10000
+                                      ),
+                                      Notify(
+                                          "Some bookings could not be created (slot taken): " &
+                                          Concat(colFailedBookings, BookingDate, ", "),
+                                          NotificationType.Warning,
+                                          10000
+                                      )
+                                  );
+                                  Set(gbl_UI_Book_Modal, false),
+                                  Notify(
+                                      "Booking(s) created successfully",
+                                      NotificationType.Success
+                                  );
+                                  Navigate(
+                                      Home,
+                                      ScreenTransition.Fade
+                                  );
+                                  Set(varIsaSeries, false);
+                                  Reset(tglRecurring);
+                                  Reset(drpWeeks);
+                                  Reset(txtBookingTitle);
+                                  Reset(txtBookingNotes);
+                                  Set(gbl_UI_Book_Modal, false)
+                              );
+
+                              Set(varSubmitting, false);
+                          )
                         PressedBorderColor: =RGBA(11, 69, 182, 1)
                         PressedColor: =RGBA(255, 255, 255, 1)
                         PressedFill: =RGBA(11, 69, 182, 1)
@@ -1479,4 +1527,5 @@ ComponentDefinitions:
                         RadiusTopRight: =2
                         Size: =11
                         Text: ="Confirm"
+                        Visible: =gbl_UI_Book_Modal_Step = "3"
                         Width: =120

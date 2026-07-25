@@ -64,7 +64,7 @@ Screens:
                               AccessibleLabel: ="Previous day"
                               AlignInContainer: =AlignInContainer.Center
                               Height: =44
-                              Image: ="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAzMiAzMic+PHBhdGggZD0nTTIwIDI0TDEyIDE2IDIwIDgnIHN0cm9rZT0nI0M2QzZDNicgc3Ryb2tlLXdpZHRoPScyJyBmaWxsPSdub25lJyBzdHJva2UtbGluZWNhcD0ncm91bmQnIHN0cm9rZS1saW5lam9pbj0ncm91bmQnLz48L3N2Zz4="
+                              Image: ="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAzMiAzMic+PHBhdGggZD0nTTIwIDI0TDEyIDE2IDIwIDgnIHN0cm9rZT0nIzUyNTI1Micgc3Ryb2tlLXdpZHRoPScyJyBmaWxsPSdub25lJyBzdHJva2UtbGluZWNhcD0ncm91bmQnIHN0cm9rZS1saW5lam9pbj0ncm91bmQnLz48L3N2Zz4="
                               OnSelect: =Set(varFindSelectedDate, DateAdd(varFindSelectedDate, If(varFindViewMode = "Week", -7, -1), TimeUnit.Days)); Select(btnLoadFindBookings)
                               TabIndex: =0
                               Width: =40
@@ -86,7 +86,7 @@ Screens:
                               AccessibleLabel: ="Next day"
                               AlignInContainer: =AlignInContainer.Center
                               Height: =44
-                              Image: ="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAzMiAzMic+PHBhdGggZD0nTTEyIDI0TDIwIDE2IDEyIDgnIHN0cm9rZT0nI0M2QzZDNicgc3Ryb2tlLXdpZHRoPScyJyBmaWxsPSdub25lJyBzdHJva2UtbGluZWNhcD0ncm91bmQnIHN0cm9rZS1saW5lam9pbj0ncm91bmQnLz48L3N2Zz4="
+                              Image: ="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAzMiAzMic+PHBhdGggZD0nTTEyIDI0TDIwIDE2IDEyIDgnIHN0cm9rZT0nIzUyNTI1Micgc3Ryb2tlLXdpZHRoPScyJyBmaWxsPSdub25lJyBzdHJva2UtbGluZWNhcD0ncm91bmQnIHN0cm9rZS1saW5lam9pbj0ncm91bmQnLz48L3N2Zz4="
                               OnSelect: =Set(varFindSelectedDate, DateAdd(varFindSelectedDate, If(varFindViewMode = "Week", 7, 1), TimeUnit.Days)); Select(btnLoadFindBookings)
                               TabIndex: =0
                               Width: =40
@@ -136,11 +136,11 @@ Screens:
                                           RowHeight:DateDiff(_s,First(room).StartDateTime,TimeUnit.Minutes)/60*120,Title:"",BookedBy:""})
                                   );
                                   ForAll(room As b,                                                                // (c)
-                                      With({next: LookUp(room, StartDateTime > b.EndDateTime, StartDateTime)},
+                                      With({next: LookUp(room, StartDateTime >= b.EndDateTime, StartDateTime)},
                                           If(IsBlank(next) && b.EndDateTime < _e,
                                               Collect(colTimelineRows_R01, {RowType:"free",RowStart:b.EndDateTime,RowEnd:_e,
                                                   RowHeight:DateDiff(b.EndDateTime,_e,TimeUnit.Minutes)/60*120,Title:"",BookedBy:""}),
-                                              !IsBlank(next),
+                                              !IsBlank(next) && next > b.EndDateTime,
                                               Collect(colTimelineRows_R01, {RowType:"free",RowStart:b.EndDateTime,RowEnd:next,
                                                   RowHeight:DateDiff(b.EndDateTime,next,TimeUnit.Minutes)/60*120,Title:"",BookedBy:""})
                                           )
@@ -168,11 +168,11 @@ Screens:
                                           RowHeight:DateDiff(_s,First(room).StartDateTime,TimeUnit.Minutes)/60*120,Title:"",BookedBy:""})
                                   );
                                   ForAll(room As b,
-                                      With({next: LookUp(room, StartDateTime > b.EndDateTime, StartDateTime)},
+                                      With({next: LookUp(room, StartDateTime >= b.EndDateTime, StartDateTime)},
                                           If(IsBlank(next) && b.EndDateTime < _e,
                                               Collect(colTimelineRows_R02, {RowType:"free",RowStart:b.EndDateTime,RowEnd:_e,
                                                   RowHeight:DateDiff(b.EndDateTime,_e,TimeUnit.Minutes)/60*120,Title:"",BookedBy:""}),
-                                              !IsBlank(next),
+                                              !IsBlank(next) && next > b.EndDateTime,
                                               Collect(colTimelineRows_R02, {RowType:"free",RowStart:b.EndDateTime,RowEnd:next,
                                                   RowHeight:DateDiff(b.EndDateTime,next,TimeUnit.Minutes)/60*120,Title:"",BookedBy:""})
                                           )
@@ -200,11 +200,11 @@ Screens:
                                           RowHeight:DateDiff(_s,First(room).StartDateTime,TimeUnit.Minutes)/60*120,Title:"",BookedBy:""})
                                   );
                                   ForAll(room As b,
-                                      With({next: LookUp(room, StartDateTime > b.EndDateTime, StartDateTime)},
+                                      With({next: LookUp(room, StartDateTime >= b.EndDateTime, StartDateTime)},
                                           If(IsBlank(next) && b.EndDateTime < _e,
                                               Collect(colTimelineRows_R03, {RowType:"free",RowStart:b.EndDateTime,RowEnd:_e,
                                                   RowHeight:DateDiff(b.EndDateTime,_e,TimeUnit.Minutes)/60*120,Title:"",BookedBy:""}),
-                                              !IsBlank(next),
+                                              !IsBlank(next) && next > b.EndDateTime,
                                               Collect(colTimelineRows_R03, {RowType:"free",RowStart:b.EndDateTime,RowEnd:next,
                                                   RowHeight:DateDiff(b.EndDateTime,next,TimeUnit.Minutes)/60*120,Title:"",BookedBy:""})
                                           )
@@ -232,11 +232,11 @@ Screens:
                                           RowHeight:DateDiff(_s,First(room).StartDateTime,TimeUnit.Minutes)/60*120,Title:"",BookedBy:""})
                                   );
                                   ForAll(room As b,
-                                      With({next: LookUp(room, StartDateTime > b.EndDateTime, StartDateTime)},
+                                      With({next: LookUp(room, StartDateTime >= b.EndDateTime, StartDateTime)},
                                           If(IsBlank(next) && b.EndDateTime < _e,
                                               Collect(colTimelineRows_R04, {RowType:"free",RowStart:b.EndDateTime,RowEnd:_e,
                                                   RowHeight:DateDiff(b.EndDateTime,_e,TimeUnit.Minutes)/60*120,Title:"",BookedBy:""}),
-                                              !IsBlank(next),
+                                              !IsBlank(next) && next > b.EndDateTime,
                                               Collect(colTimelineRows_R04, {RowType:"free",RowStart:b.EndDateTime,RowEnd:next,
                                                   RowHeight:DateDiff(b.EndDateTime,next,TimeUnit.Minutes)/60*120,Title:"",BookedBy:""})
                                           )
@@ -264,11 +264,11 @@ Screens:
                                           RowHeight:DateDiff(_s,First(room).StartDateTime,TimeUnit.Minutes)/60*120,Title:"",BookedBy:""})
                                   );
                                   ForAll(room As b,
-                                      With({next: LookUp(room, StartDateTime > b.EndDateTime, StartDateTime)},
+                                      With({next: LookUp(room, StartDateTime >= b.EndDateTime, StartDateTime)},
                                           If(IsBlank(next) && b.EndDateTime < _e,
                                               Collect(colTimelineRows_R05, {RowType:"free",RowStart:b.EndDateTime,RowEnd:_e,
                                                   RowHeight:DateDiff(b.EndDateTime,_e,TimeUnit.Minutes)/60*120,Title:"",BookedBy:""}),
-                                              !IsBlank(next),
+                                              !IsBlank(next) && next > b.EndDateTime,
                                               Collect(colTimelineRows_R05, {RowType:"free",RowStart:b.EndDateTime,RowEnd:next,
                                                   RowHeight:DateDiff(b.EndDateTime,next,TimeUnit.Minutes)/60*120,Title:"",BookedBy:""})
                                           )
@@ -296,11 +296,11 @@ Screens:
                                           RowHeight:DateDiff(_s,First(room).StartDateTime,TimeUnit.Minutes)/60*120,Title:"",BookedBy:""})
                                   );
                                   ForAll(room As b,
-                                      With({next: LookUp(room, StartDateTime > b.EndDateTime, StartDateTime)},
+                                      With({next: LookUp(room, StartDateTime >= b.EndDateTime, StartDateTime)},
                                           If(IsBlank(next) && b.EndDateTime < _e,
                                               Collect(colTimelineRows_R06, {RowType:"free",RowStart:b.EndDateTime,RowEnd:_e,
                                                   RowHeight:DateDiff(b.EndDateTime,_e,TimeUnit.Minutes)/60*120,Title:"",BookedBy:""}),
-                                              !IsBlank(next),
+                                              !IsBlank(next) && next > b.EndDateTime,
                                               Collect(colTimelineRows_R06, {RowType:"free",RowStart:b.EndDateTime,RowEnd:next,
                                                   RowHeight:DateDiff(b.EndDateTime,next,TimeUnit.Minutes)/60*120,Title:"",BookedBy:""})
                                           )
