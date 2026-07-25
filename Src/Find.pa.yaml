@@ -102,7 +102,7 @@ Screens:
                       Properties:
                         AlignInContainer: =AlignInContainer.Start
                         OnSelect: |-
-                          =If(CountRows(FindBookings) = 500,
+                          =If(CountRows(FindBookings) >= 500,
                               Notify("Warning: results may be incomplete. Too many bookings in this window.", NotificationType.Warning)
                           );
                           // ── 2. Reset ──────────────────────────────────────────────────────────────

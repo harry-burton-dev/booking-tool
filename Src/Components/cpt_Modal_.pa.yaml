@@ -258,7 +258,32 @@ ComponentDefinitions:
                                                     Filter(colBookings, StartDateTime < varEndTime && EndDateTime > varStartTime)
                                                 );
                                                 Set(varConflict, !IsEmpty(Filter(colOverlappingBookings, RoomID.Id = varSelectedRoom.ID)));
-                                                Set(varConflictingBooking, LookUp(colOverlappingBookings, RoomID.Id = varSelectedRoom.ID))
+                                                Set(varConflictingBooking, LookUp(colOverlappingBookings, RoomID.Id = varSelectedRoom.ID));
+                                                Set(
+                                                    varNextFreeSlot,
+                                                    LookUp(
+                                                        Filter(
+                                                            colBookings,
+                                                            StartDateTime >= varStartTime,
+                                                            StartDateTime < DateAdd(varSelectedDate, 1, TimeUnit.Days)
+                                                        ),
+                                                        RoomID.Id = varSelectedRoom.ID,
+                                                        EndDateTime
+                                                    )
+                                                );
+                                                ClearCollect(
+                                                    varAlternativeRooms,
+                                                    Filter(
+                                                        colRooms As rm,
+                                                        rm.ID <> varSelectedRoom.ID &&
+                                                        IsEmpty(
+                                                            Filter(
+                                                                colOverlappingBookings,
+                                                                RoomID.Id = rm.ID
+                                                            )
+                                                        )
+                                                    )
+                                                )
                                             );
                                             Set(gbl_UI_Book_Modal_Step, "2")
                                           PaddingBottom: =0
