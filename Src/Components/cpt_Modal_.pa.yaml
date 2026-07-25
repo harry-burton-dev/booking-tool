@@ -458,7 +458,8 @@ ComponentDefinitions:
                                           Set(varStartTime, Blank()),
                                           Set(varEndTime, Blank()),
                                           Set(varConflict, false)
-                                      )
+                                      );
+                                      Reset(drpStartTime); Reset(drpEndTime)
                                     Size: =11
                         - conTimeRow:
                             Control: GroupContainer@1.5.0
@@ -1104,6 +1105,7 @@ ComponentDefinitions:
                                           LayoutMinWidth: =0
                                           OnSelect: |-
                                             =Set(varStartTime, Blank());
+                                            Reset(drpStartTime);
                                             Set(varEndTime, Blank());
                                             Reset(drpEndTime);
                                             Set(varConflict, false);
@@ -1388,12 +1390,38 @@ ComponentDefinitions:
                         LayoutMinHeight: =0
                         LayoutMinWidth: =0
                         OnSelect: |-
-                          =Set(
-                              varConflict,
-                              !IsBlank(
-                                  LookUp(
-                                      Filter(colBookings, StartDateTime < varEndTime, EndDateTime > varStartTime),
-                                      RoomID.Id = varSelectedRoom.ID
+                          =ClearCollect(
+                              colOverlappingBookings,
+                              Filter(
+                                  colBookings,
+                                  StartDateTime < varEndTime &&
+                                  EndDateTime > varStartTime
+                              )
+                          );
+                          Set(varConflict, !IsEmpty(Filter(colOverlappingBookings, RoomID.Id = varSelectedRoom.ID)));
+                          Set(varConflictingBooking, LookUp(colOverlappingBookings, RoomID.Id = varSelectedRoom.ID));
+                          Set(
+                              varNextFreeSlot,
+                              LookUp(
+                                  Filter(
+                                      colBookings,
+                                      StartDateTime >= varStartTime,
+                                      StartDateTime < DateAdd(varSelectedDate, 1, TimeUnit.Days)
+                                  ),
+                                  RoomID.Id = varSelectedRoom.ID,
+                                  EndDateTime
+                              )
+                          );
+                          ClearCollect(
+                              varAlternativeRooms,
+                              Filter(
+                                  colRooms As rm,
+                                  rm.ID <> varSelectedRoom.ID &&
+                                  IsEmpty(
+                                      Filter(
+                                          colOverlappingBookings,
+                                          RoomID.Id = rm.ID
+                                      )
                                   )
                               )
                           );
@@ -1499,6 +1527,11 @@ ComponentDefinitions:
                                           10000
                                       )
                                   );
+                                  Set(varIsaSeries, false);
+                                  Reset(tglRecurring);
+                                  Reset(drpWeeks);
+                                  Reset(txtBookingTitle);
+                                  Reset(txtBookingNotes);
                                   Set(gbl_UI_Book_Modal, false),
                                   Notify(
                                       "Booking(s) created successfully",
