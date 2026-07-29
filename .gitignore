@@ -1,0 +1,5 @@
+# Shallow clone of powerapps-process; carries its own git history
+.pa-toolkit/
+
+# Per-developer Claude Code settings
+.claude/settings.local.json
