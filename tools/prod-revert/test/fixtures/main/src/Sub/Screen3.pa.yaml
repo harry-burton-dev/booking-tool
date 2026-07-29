@@ -1,0 +1,15 @@
+Screens:
+  Screen3:
+    Children:
+      - BtnNew:
+          Control: Button
+          Properties:
+            OnSelect: |
+              =// PROD-REVERT[r-two-sites]
+              SubmitToProd(NewBooking)
+      - BtnEdit:
+          Control: Button
+          Properties:
+            OnSelect: |
+              =/* PROD-REVERT[r-two-sites] */
+              SubmitToProd(EditBooking)

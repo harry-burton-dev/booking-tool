@@ -1,0 +1,52 @@
+{
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "PowerAppsChecker",
+          "rules": [
+            { "id": "app-checker-type-mismatch", "name": "TypeMismatch" },
+            { "id": "app-checker-unused-var", "name": "UnusedVariable" },
+            { "id": "app-checker-naming", "name": "NamingConvention" },
+            { "id": "app-checker-line-drift", "name": "LineDrift" }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "app-checker-type-mismatch",
+          "level": "error",
+          "message": { "text": "Expected type Number but received Text." },
+          "locations": [
+            { "physicalLocation": { "artifactLocation": { "uri": "Screen1.fx.yaml" }, "region": { "startLine": 12 } } }
+          ]
+        },
+        {
+          "ruleId": "app-checker-unused-var",
+          "level": "warning",
+          "message": { "text": "Variable 'gblFoo' is never used." },
+          "locations": [
+            { "physicalLocation": { "artifactLocation": { "uri": "App.fx.yaml" }, "region": { "startLine": 5 } } }
+          ]
+        },
+        {
+          "ruleId": "app-checker-naming",
+          "level": "note",
+          "message": { "text": "Control name does not follow naming convention." },
+          "locations": [
+            { "physicalLocation": { "artifactLocation": { "uri": "Screen2.fx.yaml" }, "region": { "startLine": 30 } } }
+          ]
+        },
+        {
+          "ruleId": "app-checker-line-drift",
+          "level": "error",
+          "message": { "text": "Formula references undefined collection." },
+          "locations": [
+            { "physicalLocation": { "artifactLocation": { "uri": "Screen3.fx.yaml" }, "region": { "startLine": 10 } } }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+Screens:
+  GoodScreen:
+    Properties:
+      Fill: =RGBA(255, 255, 255, 1)
+    Children:
+      - lblRoomOk:
+          Control: Label@2.5.1
+          Properties:
+            Text: |-
+              ="Room: " & First(colRooms).Title
+      - lblSelectorOk:
+          Control: Label@2.5.1
+          Properties:
+            Text: |-
+              =LookUp(colBookings, ID = 1).'RoomID: Title'
+      - tglPrivateOk:
+          Control: Toggle@1.1.0
+          Properties:
+            Checked: =true
+            X: =40
+      - btnOverlayOk:
+          Control: Classic/Button
+          Properties:
+            Text: ="Open booking"
+      - lblWhenOk:
+          Control: Label@2.5.1
+          Properties:
+            Text: =Text(DateAdd(Date(1900,1,1), 8, TimeUnit.Hours), "hh:mm")
+      - lblUserWhen:
+          Control: Label@2.5.1
+          Properties:
+            Text: =Text(DateTimeValue(txtInput.Text), "hh:mm")

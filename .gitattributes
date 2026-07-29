@@ -1,0 +1,6 @@
+# Shell scripts must stay LF - CRLF breaks bash (canvas-guard is the publish gate)
+*.sh eol=lf
+
+# Canvas App source must stay LF - canvas-guard hashes the synced tree for
+# publish freshness, so checkout must not rewrite the bytes sync_canvas wrote
+*.pa.yaml eol=lf

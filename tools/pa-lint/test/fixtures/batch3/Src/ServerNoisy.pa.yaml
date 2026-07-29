@@ -1,0 +1,13 @@
+Screens:
+  Noisy:
+    Children:
+      - tglFlag:
+          Control: Toggle@1.1.0
+          Properties:
+            Checked: =false
+            TabIndex: =0
+            X: =40
+      - lblPlain:
+          Control: Label@2.5.1
+          Properties:
+            Text: ="hello"

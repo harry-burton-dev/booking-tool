@@ -1,0 +1,11 @@
+Screens:
+  Noisy:
+    Children:
+      - tglFlag:
+          Control: Toggle
+          Properties:
+            X: =40
+      - lblPlain:
+          Control: Label
+          Properties:
+            Text: ="hello"

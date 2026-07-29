@@ -1,0 +1,25 @@
+Screens:
+  Home:
+    Children:
+      - conShell:
+          Control: GroupContainer@1.3.0
+          Variant: AutoLayout
+          Properties:
+            LayoutMode: =LayoutMode.Auto
+          Children:
+            - conLegacy:
+                Control: GroupContainer@1.3.0
+                Variant: ManualLayout
+                Properties:
+                  Width: =320
+            - btnSave:
+                Control: Classic/Button
+                Properties:
+                  Text: ="Save"
+                  OnSelect: |-
+                    =If(gblIsSandbox, Notify("sandbox"), Notify(gblUserEmail));
+                    Set(varShowModal, gblFindLegacyGrid)
+            - cmbRoom:
+                Control: Classic/ComboBox
+                Properties:
+                  Width: =200

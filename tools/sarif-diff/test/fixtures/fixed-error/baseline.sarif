@@ -1,0 +1,23 @@
+{
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": { "driver": { "name": "PowerAppsChecker" } },
+      "results": [
+        {
+          "ruleId": "app-checker-undefined-var",
+          "level": "error",
+          "message": { "text": "Variable 'gblFoo' is not defined." },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": { "uri": "Screen2.fx.yaml" },
+                "region": { "startLine": 8 }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

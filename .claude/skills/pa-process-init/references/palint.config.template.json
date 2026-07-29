@@ -1,0 +1,12 @@
+{
+  "globalPrefixes": ["gbl", "glb"],
+  "extraTraps": [],
+  "denyControls": {},
+  "seedSchemas": {},
+  "statefulVars": [],
+  "designSystem": {
+    "enabled": false,
+    "tokenFiles": ["App.pa.yaml"],
+    "exemptMarker": "DS-EXEMPT"
+  }
+}

@@ -1,0 +1,9 @@
+App:
+  Properties:
+    OnStart: |-
+      =Set(gblUserEmail, User().Email);
+      Set(gblIsSandbox, true);
+      Collect(colRooms, {Title: "Huddle 1"})
+    Formulas: |-
+      =DSTheme = {Active: {Primary: RGBA(15, 98, 254, 1)}};
+      gblSideNavIconStr = If(gblIsSandbox, "rgba(198,198,198,1)", "rgba(82,82,82,1)");

@@ -1,0 +1,29 @@
+Screens:
+  Booking:
+    Children:
+      - btnResetWizard:
+          Control: Classic/Button
+          Properties:
+            Text: ="Start over"
+            Fill: =RGBA(15, 98, 254, 1)
+            OnSelect: |-
+              =// RESET-SITE[wizard-restart]
+              Set(varWizardStep, 1);
+              Set(varSelectedRoom, Blank());
+              Set(varIsPrivate, false);
+              Reset(dtpStart)
+      - btnCloseModal:
+          Control: Classic/Button
+          Properties:
+            Text: ="Close"
+            Color: =DSTheme.Active.Primary
+            OnSelect: |-
+              =// RESET-SITE[modal-close]
+              Set(varWizardStep, 1);
+              Set(varSelectedRoom, Blank());
+              Reset(dtpStart)
+      - lblAccent:
+          Control: Label@2.5.1
+          Properties:
+            Color: =ColorValue("#FA4D56")
+            Text: ="Accent"

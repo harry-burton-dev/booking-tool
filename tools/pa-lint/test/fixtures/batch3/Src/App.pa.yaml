@@ -1,0 +1,12 @@
+App:
+  Properties:
+    OnStart: |-
+      =Set(gblIsSandbox, true);
+      ClearCollect(colRooms,
+        {Title: "Huddle Space 1", RoomID: {Id: 1, Value: 1}, Capacity: 4, IsPrivate: false},
+        {Title: "Huddle Space 2", RoomID: {Id: 2, Value: "2"}, Capacity: "six", IsPrivate: false},
+        {Title: "Boardroom", RoomID: {Id: 3, Value: 3}, Seats: 12, IsPrivate: true}
+      );
+      ClearCollect(colBookings, {Title: "B1", RoomID: {Id: 1, Value: 1}})
+    Formulas: |-
+      =DSTheme = {Active: {Primary: RGBA(15, 98, 254, 1), Danger: ColorValue("#FA4D56")}};

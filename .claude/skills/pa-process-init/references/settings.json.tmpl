@@ -1,0 +1,94 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "mcp____SERVER____compile_canvas",
+        "hooks": [
+          {
+            "type": "mcp_tool",
+            "server": "__SERVER__",
+            "tool": "sync_canvas",
+            "input": {
+              "directoryPath": "__REPO__/.claude/canvas-guard/state/server-now"
+            },
+            "timeout": 120,
+            "statusMessage": "canvas-guard: reading live app state..."
+          },
+          {
+            "type": "command",
+            "command": "bash \"__REPO__/tools/canvas-guard/guard.sh\" preflight-from-hook",
+            "timeout": 120,
+            "statusMessage": "canvas-guard: freshness + pa-lint preflight..."
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "mcp____SERVER____compile_canvas",
+        "hooks": [
+          {
+            "type": "mcp_tool",
+            "server": "__SERVER__",
+            "tool": "sync_canvas",
+            "input": {
+              "directoryPath": "__REPO__/.claude/canvas-guard/state/server-now"
+            },
+            "timeout": 120,
+            "statusMessage": "canvas-guard: re-reading live app after publish..."
+          },
+          {
+            "type": "command",
+            "command": "bash \"__REPO__/tools/canvas-guard/guard.sh\" baseline 2>/dev/null || true",
+            "timeout": 60
+          }
+        ]
+      },
+      {
+        "matcher": "mcp____SERVER____sync_canvas",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"__REPO__/tools/canvas-guard/guard.sh\" baseline-from-hook 2>/dev/null || true",
+            "timeout": 60
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"__REPO__/tools/canvas-guard/session-start.sh\" 2>/dev/null || true",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"__REPO__/tools/session-close/session-close.js\" 2>/dev/null || true",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "Bash(bash \"__REPO__/tools/canvas-guard/guard.sh\" *)",
+      "Bash(tools/canvas-guard/guard.sh *)",
+      "Bash(node \"__REPO__/tools/pa-lint/lint.js\" *)",
+      "Bash(node tools/pa-lint/lint.js *)",
+      "Bash(node tools/prod-revert/revert-check.js *)",
+      "Bash(bash tools/pac-verify/pac-verify.sh *)",
+      "Bash(node tools/session-close/session-close.js *)",
+      "Bash(node tools/sarif-diff/sarif-diff.js *)",
+      "Bash(node tools/commit-msg-lint/commit-msg-lint.js *)"
+    ]
+  }
+}

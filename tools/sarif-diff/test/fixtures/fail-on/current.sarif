@@ -1,0 +1,36 @@
+{
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": { "driver": { "name": "PowerAppsChecker" } },
+      "results": [
+        {
+          "ruleId": "app-checker-unused-var",
+          "level": "warning",
+          "message": { "text": "Variable 'gblBar' is never used." },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": { "uri": "App.fx.yaml" },
+                "region": { "startLine": 3 }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "app-checker-naming",
+          "level": "note",
+          "message": { "text": "Control name does not follow naming convention." },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": { "uri": "Screen3.fx.yaml" },
+                "region": { "startLine": 22 }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

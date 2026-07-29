@@ -1,0 +1,10 @@
+{
+  "source": "Book_Rooms (SharePoint) — example snapshot",
+  "capturedAt": "2026-07-28",
+  "fields": {
+    "Title": "text",
+    "RoomID": "lookup-number",
+    "Capacity": "number",
+    "IsPrivate": "boolean"
+  }
+}

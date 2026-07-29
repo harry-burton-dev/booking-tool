@@ -1,0 +1,21 @@
+Screens:
+  Screen1:
+    Properties:
+      Fill: =RGBA(255, 255, 255, 1)
+    Children:
+      - Gallery1:
+          Control: Gallery
+          Properties:
+            Items: |
+              =// PROD-REVERT[r-dev]
+              Filter(
+                MockBookings,
+                Status = "Open"
+              )
+      - Button1:
+          Control: Button
+          Properties:
+            OnSelect: |
+              =/* PROD-REVERT[r-prod] */
+              Set(gEnv, "production");
+              Navigate(HomeScreen)

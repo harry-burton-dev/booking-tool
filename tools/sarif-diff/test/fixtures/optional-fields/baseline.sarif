@@ -1,0 +1,30 @@
+{
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": { "driver": { "name": "PowerAppsChecker" } },
+      "results": [
+        {
+          "level": "warning",
+          "message": { "text": "Result with no ruleId." }
+        },
+        {
+          "ruleId": "app-checker-no-location",
+          "level": "note",
+          "message": { "text": "Result with no locations array." }
+        },
+        {
+          "ruleId": "app-checker-no-level",
+          "message": { "text": "Result with no level (defaults to warning)." },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": { "uri": "Screen4.fx.yaml" }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

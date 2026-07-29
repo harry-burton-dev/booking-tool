@@ -1,0 +1,12 @@
+ComponentDefinitions:
+  cpt_Card:
+    DefinitionType: CanvasComponent
+    CustomProperties:
+      CardTitle:
+        PropertyKind: Input
+        DataType: Text
+    Children:
+      - lblCardTitle:
+          Control: Label@2.5.1
+          Properties:
+            Text: =cpt_Card.CardTitle

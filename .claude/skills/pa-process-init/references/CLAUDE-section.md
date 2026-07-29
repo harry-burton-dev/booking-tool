@@ -1,13 +1,3 @@
-## graphify
-
-This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
-
-Rules:
-- For codebase questions, first run `graphify query "<question>"` when graphify-out/graph.json exists. Use `graphify path "<A>" "<B>"` for relationships and `graphify explain "<concept>"` for focused concepts. These return a scoped subgraph, usually much smaller than GRAPH_REPORT.md or raw grep output.
-- If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing.
-- Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
-- After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
-
 ## Editing workflow — READ THIS BEFORE PLANNING ANYTHING
 
 There is no local runtime for a canvas app. **The live Power Apps app is the source of truth.
@@ -64,15 +54,3 @@ block — RULES P10), then `tools/pack-msapp/pack-msapp.ps1`. Deployment runbook
 Any coding task that fails the trivial threshold (≤2 files, ≤20 changed lines, no new logic)
 starts by invoking the `orchestrator-coding` skill — before reading implementation files or
 writing code. On a Canvas App, workers lint but never compile and never commit (RULES O1).
-
-### Local environment notes (this machine)
-
-- `bash` on PATH resolves to the **WSL** launcher (`C:\Windows\system32\bash.exe`), which cannot
-  run a Windows-path `.sh`. The hooks in `.claude/settings.json` therefore invoke Git Bash by
-  absolute path (`C:/Program Files/Git/bin/bash.exe`). Run `guard.sh` the same way, or put
-  `C:\Program Files\Git\bin` ahead of system32 on PATH.
-- `.gitattributes` pins `*.sh` and `*.pa.yaml` to LF. Do not remove it: CRLF breaks `guard.sh`,
-  and it would desync the snapshot bytes the guard hashes for publish freshness.
-- This repo's `Src/` came from MCP `sync_canvas`, so it has no `Controls/`, `References/`, or
-  `Properties.json`. Those come only from `pac canvas unpack` of a `.msapp` and are required by
-  `pack-msapp` for a production pack.

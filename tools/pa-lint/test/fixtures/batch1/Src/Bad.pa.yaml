@@ -1,0 +1,35 @@
+Screens:
+  BadScreen:
+    Properties:
+      Fill: =RGBA(255, 255, 255, 1)
+    Children:
+      - lblRoom:
+          Control: Label@2.5.1
+          Properties:
+            Text: ="Room: " & First(colRooms).Title
+      - lblSelector:
+          Control: Label@2.5.1
+          Properties:
+            Text: =LookUp(colBookings, ID = 1).'RoomID: Title'
+      - lblInterp:
+          Control: Label@2.5.1
+          Properties:
+            Text: =$"Label: {varCount}"
+      - tglPrivate:
+          Control: Toggle@1.1.0
+          Properties:
+            Default: =false
+            X: =40
+      - btnOverlay:
+          Control: Classic/Button
+          Properties:
+            AccessibleLabel: ="Open booking"
+            Text: ="Open"
+      - lblWhen:
+          Control: Label@2.5.1
+          Properties:
+            Text: =Text(DateTimeValue("1900-01-01 08:00:00"), "hh:mm")
+      - lblDay:
+          Control: Label@2.5.1
+          Properties:
+            Text: =Text(DateValue("2026-07-28"), "dd mmm")

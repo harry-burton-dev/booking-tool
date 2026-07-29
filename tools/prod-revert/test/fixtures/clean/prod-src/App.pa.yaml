@@ -1,0 +1,15 @@
+Screens:
+  Home:
+    Children:
+      - Gal1:
+          Control: Gallery
+          Properties:
+            Items: |
+              =// PROD-REVERT[c1]
+              Filter(Things, Active)
+      - Btn1:
+          Control: Button
+          Properties:
+            OnSelect: |
+              =// PROD-REVERT[c2]
+              Set(gApiBase, "https://api.example.com")

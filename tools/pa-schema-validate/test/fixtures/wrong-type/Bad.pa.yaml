@@ -1,0 +1,8 @@
+Screens:
+  Home:
+    Children:
+      - btnA:
+          Control: Classic/Button
+          IsLocked: "true"
+          Properties:
+            Text: ="A"

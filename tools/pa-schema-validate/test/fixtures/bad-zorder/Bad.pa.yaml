@@ -1,0 +1,11 @@
+Screens:
+  Home:
+    Children:
+      - btnA:
+          Control: Classic/Button
+          Properties:
+            Text: ="A"
+        btnB:
+          Control: Classic/Button
+          Properties:
+            Text: ="B"

@@ -1,0 +1,13 @@
+Screens:
+  Find:
+    Children:
+      - conFlat:
+          Control: GroupContainer@1.3.0
+          Variant: ManualLayout
+          Properties:
+            Width: =640
+          Children:
+            - btnSave:
+                Control: Classic/Button
+                Properties:
+                  Text: ="Duplicate name on purpose"

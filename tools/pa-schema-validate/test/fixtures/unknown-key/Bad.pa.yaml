@@ -1,0 +1,7 @@
+Screens:
+  Home:
+    Children:
+      - btnSave:
+          Control: Classic/Button
+          Propertiess:
+            Text: ="Save"

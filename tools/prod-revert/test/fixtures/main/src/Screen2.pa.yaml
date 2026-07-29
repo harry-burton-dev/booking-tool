@@ -1,0 +1,22 @@
+Screens:
+  Screen2:
+    Children:
+      - Label1:
+          Control: Label
+          Properties:
+            Text: |
+              =// PROD-REVERT[r-unknown]
+              Concatenate("Hello, ", gUserName)
+      - Form1:
+          Control: Form
+          Properties:
+            OnSuccess: |
+              =// PROD-REVERT[r-ambig]
+              Patch(MockData, Defaults(MockData), { Name: txtName.Text });
+              Patch(RealData, Defaults(RealData), { Name: txtName.Text })
+      - Timer1:
+          Control: Timer
+          Properties:
+            OnTimerEnd: |
+              =/* PROD-REVERT[r-orphan] */
+              Set(gTick, gTick + 1)

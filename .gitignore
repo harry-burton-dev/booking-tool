@@ -3,3 +3,7 @@
 
 # Per-developer Claude Code settings
 .claude/settings.local.json
+
+# canvas-guard / pac-verify machine-local state
+.claude/canvas-guard/state/
+.claude/pac-verify/

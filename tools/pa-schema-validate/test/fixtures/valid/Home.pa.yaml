@@ -1,0 +1,21 @@
+Screens:
+  Home:
+    Properties:
+      Fill: =RGBA(255, 255, 255, 1)
+      OnVisible: =Set(varNowTick, Now())
+    Children:
+      - lblTitle:
+          Control: Label
+          Properties:
+            Text: ="Hello"
+            Width: =Parent.Width
+      - conShell:
+          Control: GroupContainer
+          Variant: ManualLayout
+          Properties:
+            Height: =Parent.Height
+          Children:
+            - btnSave:
+                Control: Classic/Button
+                Properties:
+                  OnSelect: =Notify("Saved")
