@@ -1,0 +1,11 @@
+EditorState:
+  ScreensOrder:
+    - Home
+    - bookingDetail
+    - Find
+    - myBookings
+    - Profile
+    - Rooms
+  ComponentDefinitionsOrder:
+    - Shell_Header
+    - cpt_Modal_

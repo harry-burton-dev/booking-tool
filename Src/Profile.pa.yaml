@@ -1,0 +1,546 @@
+Screens:
+  Profile:
+    Properties:
+      Fill: =RGBA(255, 255, 255, 1)
+      LoadingSpinnerColor: =RGBA(0, 120, 212, 1)
+    Children:
+      - con_shell_profile:
+          Control: GroupContainer
+          Variant: ManualLayout
+          Properties:
+            DropShadow: =DropShadow.None
+            Height: =Parent.Height
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Width: =Parent.Width
+          Children:
+            - cpt_header_profile:
+                Control: CanvasComponent
+                ComponentName: Shell_Header
+                Properties:
+                  HeaderNavTab: ="Text"
+                  Height: =48
+                  InstanceScreenName: =""
+                  ShellIcons: =ShellIconSet
+                  Width: =App.Width
+            - con_body_profile:
+                Control: GroupContainer
+                Variant: AutoLayout
+                Properties:
+                  Height: =Parent.Height - 48
+                  LayoutAlignItems: =LayoutAlignItems.Center
+                  LayoutDirection: =LayoutDirection.Vertical
+                  PaddingBottom: =32
+                  PaddingLeft: =32
+                  PaddingRight: =32
+                  PaddingTop: =32
+                  Width: =Parent.Width
+                  Y: =48
+                Children:
+                  - conProfileCol:
+                      Control: GroupContainer
+                      Variant: AutoLayout
+                      Properties:
+                        AlignInContainer: =AlignInContainer.Center
+                        DropShadow: =DropShadow.None
+                        Fill: =RGBA(0,0,0,0)
+                        Height: =Parent.Height
+                        LayoutAlignItems: =LayoutAlignItems.Stretch
+                        LayoutDirection: =LayoutDirection.Vertical
+                        LayoutGap: =16
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        Width: =Min(Parent.Width, 640)
+                      Children:
+                        - conProfileIdentity:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              BorderColor: =AppTheme.Border
+                              BorderThickness: =1
+                              DropShadow: =DropShadow.None
+                              Fill: =AppTheme.SurfaceAlt
+                              LayoutDirection: =LayoutDirection.Vertical
+                              LayoutGap: =20
+                              LayoutJustifyContent: =LayoutJustifyContent.Center
+                              LayoutMaxHeight: =120
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              PaddingBottom: =24
+                              PaddingLeft: =24
+                              PaddingRight: =24
+                              PaddingTop: =24
+                              RadiusBottomLeft: =2
+                              RadiusBottomRight: =2
+                              RadiusTopLeft: =2
+                              RadiusTopRight: =2
+                            Children:
+                              - conProfileAvatarSlot:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.SetByContainer
+                                    DropShadow: =DropShadow.None
+                                    Fill: =RGBA(0,0,0,0)
+                                    FillPortions: =0
+                                    Height: =64
+                                    LayoutDirection: =LayoutDirection.Horizontal
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                  Children:
+                                    - htxProfileAvatar:
+                                        Control: HtmlViewer
+                                        Properties:
+                                          AutoHeight: =true
+                                          Height: =64
+                                          HtmlText: ="<div style='width:64px;height:64px;border-radius:50%;background:" & AppTheme.Primary & ";color:#f4f4f4;font-family:IBM Plex Sans,Segoe UI,sans-serif;font-size:20px;font-weight:600;display:flex;align-items:center;justify-content:center'>" & gblUserInitials & "</div>"
+                                          PaddingBottom: =0
+                                          PaddingLeft: =0
+                                          PaddingRight: =0
+                                          PaddingTop: =0
+                                          Width: =64
+                                    - lblProfileName:
+                                        Control: Label
+                                        Properties:
+                                          AlignInContainer: =AlignInContainer.Stretch
+                                          Color: =AppTheme.TextPrimary
+                                          FillPortions: =1
+                                          Font: =Font.Lato
+                                          FontWeight: =FontWeight.Semibold
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          Size: =20
+                                          Text: =User().FullName
+                                          X: =40
+                                          Y: =40
+                                    - lblProfileEmail:
+                                        Control: Label
+                                        Properties:
+                                          AlignInContainer: =AlignInContainer.Stretch
+                                          Color: =AppTheme.TextMuted
+                                          FillPortions: =1
+                                          Font: =Font.Lato
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          Size: =12
+                                          Text: =User().Email
+                                          X: =40
+                                          Y: =40
+                        - conProfileNotifications:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              BorderColor: =AppTheme.Border
+                              BorderThickness: =1
+                              DropShadow: =DropShadow.None
+                              Fill: =AppTheme.SurfaceAlt
+                              LayoutAlignItems: =LayoutAlignItems.Stretch
+                              LayoutDirection: =LayoutDirection.Vertical
+                              LayoutGap: =8
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              PaddingBottom: =24
+                              PaddingLeft: =24
+                              PaddingRight: =24
+                              PaddingTop: =24
+                              RadiusBottomLeft: =2
+                              RadiusBottomRight: =2
+                              RadiusTopLeft: =2
+                              RadiusTopRight: =2
+                            Children:
+                              - lblNotifTitle:
+                                  Control: Label
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Stretch
+                                    AutoHeight: =true
+                                    Color: =AppTheme.TextPrimary
+                                    DisplayMode: =DisplayMode.Disabled
+                                    Font: =Font.Lato
+                                    FontWeight: =FontWeight.Semibold
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Size: =16
+                                    Text: ="Notifications"
+                              - lblNotifCaption:
+                                  Control: Label
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Stretch
+                                    AutoHeight: =true
+                                    Color: =AppTheme.TextMuted
+                                    Font: =Font.Lato
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Size: =12
+                                    Text: =
+                              - conSetRow_NotifyConfirm:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
+                                  Properties:
+                                    DropShadow: =DropShadow.None
+                                    Fill: =RGBA(0,0,0,0)
+                                    FillPortions: =0
+                                    Height: =32
+                                    LayoutAlignItems: =LayoutAlignItems.Center
+                                    LayoutDirection: =LayoutDirection.Horizontal
+                                    LayoutGap: =16
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                  Children:
+                                    - lblSetNotifyConfirm:
+                                        Control: Label
+                                        Properties:
+                                          Color: =AppTheme.TextPrimary
+                                          DisplayMode: =DisplayMode.Disabled
+                                          FillPortions: =1
+                                          Font: =Font.Lato
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          Size: =12
+                                          Text: ="Booking confirmation email"
+                                          Wrap: =false
+                                    - tglSetNotifyConfirm:
+                                        Control: Toggle
+                                        Properties:
+                                          Checked: =gblUserSettings.NotifyConfirm
+                                          DisplayMode: =DisplayMode.Disabled
+                                          Label: =
+                                          LayoutMinHeight: =16
+                                          LayoutMinWidth: =16
+                                          OnCheck: |-
+                                            =/* PROD-REVERT: Patch(Book_UserSettings, ...) per MOCK_DATA.md */
+                                            Patch(colUserSettings, LookUp(colUserSettings, Email = Lower(User().Email)), {NotifyConfirm: true});
+                                            Set(gblUserSettings, LookUp(colUserSettings, Email = Lower(User().Email)))
+                                          OnUncheck: |-
+                                            =Patch(colUserSettings, LookUp(colUserSettings, Email = Lower(User().Email)), {NotifyConfirm: false});
+                                            Set(gblUserSettings, LookUp(colUserSettings, Email = Lower(User().Email)))
+                              - conSetRow_NotifyCancel:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
+                                  Properties:
+                                    DropShadow: =DropShadow.None
+                                    Fill: =RGBA(0,0,0,0)
+                                    FillPortions: =0
+                                    Height: =32
+                                    LayoutAlignItems: =LayoutAlignItems.Center
+                                    LayoutDirection: =LayoutDirection.Horizontal
+                                    LayoutGap: =16
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                  Children:
+                                    - lblSetNotifyCancel:
+                                        Control: Label
+                                        Properties:
+                                          Color: =AppTheme.TextPrimary
+                                          DisplayMode: =DisplayMode.Disabled
+                                          FillPortions: =1
+                                          Font: =Font.Lato
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          Size: =12
+                                          Text: ="Cancellation notice"
+                                          Wrap: =false
+                                    - tglSetNotifyCancel:
+                                        Control: Toggle
+                                        Properties:
+                                          Checked: =gblUserSettings.NotifyCancel
+                                          DisplayMode: =DisplayMode.Disabled
+                                          Label: =
+                                          LayoutMinHeight: =16
+                                          LayoutMinWidth: =16
+                                          OnCheck: |-
+                                            =Patch(colUserSettings, LookUp(colUserSettings, Email = Lower(User().Email)), {NotifyCancel: true});
+                                            Set(gblUserSettings, LookUp(colUserSettings, Email = Lower(User().Email)))
+                                          OnUncheck: |-
+                                            =Patch(colUserSettings, LookUp(colUserSettings, Email = Lower(User().Email)), {NotifyCancel: false});
+                                            Set(gblUserSettings, LookUp(colUserSettings, Email = Lower(User().Email)))
+                              - conSetRow_NotifyReminder:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
+                                  Properties:
+                                    DropShadow: =DropShadow.None
+                                    Fill: =RGBA(0,0,0,0)
+                                    FillPortions: =0
+                                    Height: =32
+                                    LayoutAlignItems: =LayoutAlignItems.Center
+                                    LayoutDirection: =LayoutDirection.Horizontal
+                                    LayoutGap: =16
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                  Children:
+                                    - lblSetNotifyReminder:
+                                        Control: Label
+                                        Properties:
+                                          Color: =AppTheme.TextPrimary
+                                          DisplayMode: =DisplayMode.Disabled
+                                          FillPortions: =1
+                                          Font: =Font.Lato
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          Size: =12
+                                          Text: ="Reminder before a booking"
+                                          Wrap: =false
+                                    - tglSetNotifyReminder:
+                                        Control: Toggle
+                                        Properties:
+                                          Checked: =gblUserSettings.NotifyReminder
+                                          DisplayMode: =DisplayMode.Disabled
+                                          Label: =
+                                          LayoutMinHeight: =16
+                                          LayoutMinWidth: =16
+                                          OnCheck: |-
+                                            =Patch(colUserSettings, LookUp(colUserSettings, Email = Lower(User().Email)), {NotifyReminder: true});
+                                            Set(gblUserSettings, LookUp(colUserSettings, Email = Lower(User().Email)))
+                                          OnUncheck: |-
+                                            =Patch(colUserSettings, LookUp(colUserSettings, Email = Lower(User().Email)), {NotifyReminder: false});
+                                            Set(gblUserSettings, LookUp(colUserSettings, Email = Lower(User().Email)))
+                              - conSetRow_ReminderMins:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
+                                  Properties:
+                                    DropShadow: =DropShadow.None
+                                    Fill: =RGBA(0,0,0,0)
+                                    FillPortions: =0
+                                    Height: =32
+                                    LayoutAlignItems: =LayoutAlignItems.Center
+                                    LayoutDirection: =LayoutDirection.Horizontal
+                                    LayoutGap: =16
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Visible: =tglSetNotifyReminder.Checked
+                                  Children:
+                                    - lblSetReminderMins:
+                                        Control: Label
+                                        Properties:
+                                          Color: =AppTheme.TextMuted
+                                          FillPortions: =1
+                                          Font: =Font.Lato
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          Size: =12
+                                          Text: ="Minutes before"
+                                          Wrap: =false
+                                    - drpReminderMinutes:
+                                        Control: Classic/DropDown
+                                        Properties:
+                                          BorderColor: =AppTheme.Border
+                                          BorderThickness: =0
+                                          ChevronBackground: =AppTheme.HeaderBackground
+                                          ChevronFill: =AppTheme.HeaderAccent
+                                          Color: =AppTheme.SideNavText
+                                          Default: =gblUserSettings.ReminderMinutes
+                                          Fill: =AppTheme.layer01Bg
+                                          FocusedBorderColor: =RGBA(15, 98, 254, 1)
+                                          FocusedBorderThickness: =2
+                                          Font: =Font.Lato
+                                          Items: =[15, 30, 60]
+                                          Items.Value: =Value
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          OnChange: |-
+                                            =Patch(colUserSettings, LookUp(colUserSettings, Email = Lower(User().Email)), {ReminderMinutes: Value(Self.Selected.Value)});
+                                            Set(gblUserSettings, LookUp(colUserSettings, Email = Lower(User().Email)))
+                                          Size: =11
+                                          Width: =96
+                              - conSetRow_NotifyDigest:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
+                                  Properties:
+                                    DropShadow: =DropShadow.None
+                                    Fill: =RGBA(0,0,0,0)
+                                    FillPortions: =0
+                                    Height: =32
+                                    LayoutAlignItems: =LayoutAlignItems.Center
+                                    LayoutDirection: =LayoutDirection.Horizontal
+                                    LayoutGap: =16
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                  Children:
+                                    - lblSetNotifyDigest:
+                                        Control: Label
+                                        Properties:
+                                          Color: =AppTheme.TextPrimary
+                                          DisplayMode: =DisplayMode.Disabled
+                                          FillPortions: =1
+                                          Font: =Font.Lato
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          Size: =12
+                                          Text: ="Morning digest of my bookings"
+                                          Wrap: =false
+                                    - tglSetNotifyDigest:
+                                        Control: Toggle
+                                        Properties:
+                                          Checked: =gblUserSettings.NotifyDigest
+                                          DisplayMode: =DisplayMode.Disabled
+                                          Label: =
+                                          LayoutMinHeight: =16
+                                          LayoutMinWidth: =16
+                                          OnCheck: |-
+                                            =Patch(colUserSettings, LookUp(colUserSettings, Email = Lower(User().Email)), {NotifyDigest: true});
+                                            Set(gblUserSettings, LookUp(colUserSettings, Email = Lower(User().Email)))
+                                          OnUncheck: |-
+                                            =Patch(colUserSettings, LookUp(colUserSettings, Email = Lower(User().Email)), {NotifyDigest: false});
+                                            Set(gblUserSettings, LookUp(colUserSettings, Email = Lower(User().Email)))
+                        - conProfileAbout:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              BorderColor: =AppTheme.Border
+                              BorderThickness: =1
+                              DropShadow: =DropShadow.None
+                              Fill: =AppTheme.SurfaceAlt
+                              LayoutAlignItems: =LayoutAlignItems.Stretch
+                              LayoutDirection: =LayoutDirection.Vertical
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              PaddingBottom: =24
+                              PaddingLeft: =24
+                              PaddingRight: =24
+                              PaddingTop: =24
+                              RadiusBottomLeft: =2
+                              RadiusBottomRight: =2
+                              RadiusTopLeft: =2
+                              RadiusTopRight: =2
+                            Children:
+                              - lblAboutTitle:
+                                  Control: Label
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Stretch
+                                    AutoHeight: =true
+                                    Color: =AppTheme.TextPrimary
+                                    Font: =Font.Lato
+                                    FontWeight: =FontWeight.Semibold
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Size: =16
+                                    Text: ="About"
+                              - capAboutVersion:
+                                  Control: Label
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Stretch
+                                    AutoHeight: =true
+                                    Color: =AppTheme.TextMuted
+                                    Font: =Font.Lato
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Size: =11
+                                    Text: ="Version"
+                              - valAboutVersion:
+                                  Control: Label
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Stretch
+                                    AutoHeight: =true
+                                    Color: =AppTheme.TextPrimary
+                                    Font: =Font.Lato
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Size: =12
+                                    Text: =AppVersionInfo
+                              - capAboutEnvironment:
+                                  Control: Label
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Stretch
+                                    AutoHeight: =true
+                                    Color: =AppTheme.TextMuted
+                                    Font: =Font.Lato
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Size: =11
+                                    Text: ="Environment"
+                              - valAboutEnvironment:
+                                  Control: Label
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Stretch
+                                    AutoHeight: =true
+                                    Color: =AppTheme.TextPrimary
+                                    Font: =Font.Lato
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Size: =12
+                                    Text: =If(IsSandbox, "Sandbox — mock data, no live SharePoint connection", "Production")
+                              - capAboutPolicy:
+                                  Control: Label
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Stretch
+                                    AutoHeight: =true
+                                    Color: =AppTheme.TextMuted
+                                    Font: =Font.Lato
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Size: =11
+                                    Text: ="Booking policy"
+                              - valAboutPolicy:
+                                  Control: Label
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Stretch
+                                    AutoHeight: =true
+                                    Color: =AppTheme.TextPrimary
+                                    Font: =Font.Lato
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Size: =12
+                                    Text: ="Bookable " & DayStartHour & ":00–" & DayEndHour & ":00, Monday to Friday, up to " & MaxBookingMinutes / 60 & " hours per booking"
+                              - lblAboutPrivacy:
+                                  Control: Label
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Stretch
+                                    AutoHeight: =true
+                                    Color: =AppTheme.TextMuted
+                                    Font: =Font.Lato
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Size: =12
+                                    Text: ="Bookings are stored in the team's SharePoint site. Meeting titles are visible to colleagues unless you choose 'Show as busy' when booking."
+                              - btnReportProblem:
+                                  Control: Classic/Button
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Start
+                                    BorderColor: =ColorValue(AppTheme.ButtonPrimary)
+                                    BorderThickness: =0
+                                    Color: =ColorValue(AppTheme.PrimaryText)
+                                    Fill: =ColorValue(AppTheme.ButtonPrimary)
+                                    FocusedBorderColor: =RGBA(15, 98, 254, 1)
+                                    FocusedBorderThickness: =2
+                                    Font: =Font.Lato
+                                    FontWeight: =FontWeight.Normal
+                                    Height: =36
+                                    HoverColor: =ColorValue(AppTheme.PrimaryText)
+                                    HoverFill: =RGBA(13, 83, 217, 1)
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    OnSelect: =false /* placeholder - contact route to be wired later */
+                                    PressedColor: =ColorValue(AppTheme.PrimaryText)
+                                    PressedFill: =RGBA(11, 69, 182, 1)
+                                    RadiusBottomLeft: =2
+                                    RadiusBottomRight: =2
+                                    RadiusTopLeft: =2
+                                    RadiusTopRight: =2
+                                    Size: =11
+                                    Text: ="Report a problem"
+                                    Width: =180

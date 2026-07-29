@@ -1,0 +1,521 @@
+Screens:
+  bookingDetail:
+    Properties:
+      Fill: =RGBA(255, 255, 255, 1)
+      LoadingSpinnerColor: =RGBA(0, 120, 212, 1)
+      OnVisible: |-
+        =UpdateContext({varConfirmCancel: false})
+    Children:
+      - con_shell_1:
+          Control: GroupContainer
+          Variant: ManualLayout
+          Properties:
+            DropShadow: =DropShadow.None
+            Height: =Parent.Height
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Width: =Parent.Width
+          Children:
+            - cpt_header_detail:
+                Control: CanvasComponent
+                ComponentName: Shell_Header
+                Properties:
+                  HeaderNavTab: ="Text"
+                  Height: =48
+                  InstanceScreenName: =""
+                  ShellIcons: =ShellIconSet
+                  Width: =App.Width
+            - con_body_home_1:
+                Control: GroupContainer
+                Variant: AutoLayout
+                Properties:
+                  Height: =Parent.Height - 48
+                  LayoutAlignItems: =LayoutAlignItems.Center
+                  LayoutDirection: =LayoutDirection.Vertical
+                  PaddingBottom: =32
+                  PaddingLeft: =32
+                  PaddingRight: =32
+                  PaddingTop: =32
+                  Width: =Parent.Width
+                  Y: =48
+                Children:
+                  - conDetail:
+                      Control: GroupContainer
+                      Variant: AutoLayout
+                      Properties:
+                        AlignInContainer: =AlignInContainer.Center
+                        DropShadow: =DropShadow.None
+                        Fill: =RGBA(0,0,0,0)
+                        Height: =Parent.Height
+                        LayoutAlignItems: =LayoutAlignItems.Stretch
+                        LayoutDirection: =LayoutDirection.Vertical
+                        LayoutGap: =16
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        Width: =Min(Parent.Width, 640)
+                      Children:
+                        - btnDetailBack:
+                            Control: Classic/Button
+                            Properties:
+                              AlignInContainer: =AlignInContainer.Start
+                              BorderColor: =AppTheme.Border
+                              BorderThickness: =1
+                              Color: =AppTheme.TextPrimary
+                              Fill: =AppTheme.SurfaceAlt
+                              FocusedBorderColor: =RGBA(15,98,254,1)
+                              FocusedBorderThickness: =2
+                              Font: =Font.Lato
+                              FontWeight: =FontWeight.Normal
+                              HoverColor: =AppTheme.TextPrimary
+                              HoverFill: =AppTheme.Border
+                              OnSelect: =Navigate(myBookings, ScreenTransition.Fade)
+                              PressedColor: =AppTheme.TextPrimary
+                              PressedFill: =AppTheme.Border
+                              RadiusBottomLeft: =2
+                              RadiusBottomRight: =2
+                              RadiusTopLeft: =2
+                              RadiusTopRight: =2
+                              Size: =11
+                              Text: ="← Back to my bookings"
+                              Width: =220
+                        - lblDetailTitle:
+                            Control: Label
+                            Properties:
+                              AlignInContainer: =AlignInContainer.Stretch
+                              AutoHeight: =true
+                              Color: =AppTheme.TextPrimary
+                              Font: =Font.Lato
+                              FontWeight: =FontWeight.Semibold
+                              Height: =32
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              Size: =20
+                              Text: =If(IsBlank(gblSelectedBooking), "No booking selected", gblSelectedBooking.Title)
+                        - lblDetailEmpty:
+                            Control: Label
+                            Properties:
+                              AlignInContainer: =AlignInContainer.Stretch
+                              Color: =AppTheme.TextMuted
+                              Font: =Font.Lato
+                              Height: =24
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              Size: =12
+                              Text: ="Open a booking from My bookings to see its details."
+                              Visible: =IsBlank(gblSelectedBooking)
+                        - conDetailCard:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              BorderColor: =AppTheme.Border
+                              BorderThickness: =1
+                              DropShadow: =DropShadow.None
+                              Fill: =AppTheme.SurfaceAlt
+                              LayoutAlignItems: =LayoutAlignItems.Stretch
+                              LayoutDirection: =LayoutDirection.Vertical
+                              LayoutGap: =20
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              PaddingBottom: =24
+                              PaddingLeft: =24
+                              PaddingRight: =24
+                              PaddingTop: =24
+                              RadiusBottomLeft: =2
+                              RadiusBottomRight: =2
+                              RadiusTopLeft: =2
+                              RadiusTopRight: =2
+                              Visible: =!IsBlank(gblSelectedBooking)
+                            Children:
+                              - lblStatusBadge:
+                                  Control: Label
+                                  Properties:
+                                    Align: =Align.Center
+                                    AlignInContainer: =AlignInContainer.Start
+                                    Color: =If(fnIsPast(gblSelectedBooking.EndDateTime), AppTheme.TextMuted, ColorValue(AppTheme.PrimaryText))
+                                    Fill: =If(fnIsPast(gblSelectedBooking.EndDateTime), AppTheme.Border, ColorValue(AppTheme.ButtonPrimary))
+                                    Font: =Font.Lato
+                                    Height: =24
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Size: =11
+                                    Text: =If(fnIsPast(gblSelectedBooking.EndDateTime), "Past", "Upcoming")
+                                    Width: =88
+                                    Wrap: =false
+                              - fldRoom:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
+                                  Properties:
+                                    DropShadow: =DropShadow.None
+                                    Fill: =RGBA(0,0,0,0)
+                                    LayoutAlignItems: =LayoutAlignItems.Stretch
+                                    LayoutDirection: =LayoutDirection.Vertical
+                                    LayoutGap: =4
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                  Children:
+                                    - capRoom:
+                                        Control: Label
+                                        Properties:
+                                          Color: =AppTheme.TextMuted
+                                          Font: =Font.Lato
+                                          Height: =16
+                                          LayoutMinHeight: =0
+                                          Size: =11
+                                          Text: ="Room"
+                                          Wrap: =false
+                                    - valRoom:
+                                        Control: Label
+                                        Properties:
+                                          AutoHeight: =true
+                                          Color: =AppTheme.TextPrimary
+                                          Font: =Font.Lato
+                                          FontWeight: =FontWeight.Semibold
+                                          Height: =20
+                                          LayoutMinHeight: =0
+                                          Size: =14
+                                          Text: |-
+                                            =gblSelectedBooking.'RoomID: Title'.Value
+                                          Wrap: =false
+                              - fldDate:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
+                                  Properties:
+                                    DropShadow: =DropShadow.None
+                                    Fill: =RGBA(0,0,0,0)
+                                    LayoutAlignItems: =LayoutAlignItems.Stretch
+                                    LayoutDirection: =LayoutDirection.Vertical
+                                    LayoutGap: =4
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                  Children:
+                                    - capDate:
+                                        Control: Label
+                                        Properties:
+                                          Color: =AppTheme.TextMuted
+                                          Font: =Font.Lato
+                                          Height: =16
+                                          LayoutMinHeight: =0
+                                          Size: =11
+                                          Text: ="Date"
+                                          Wrap: =false
+                                    - valDate:
+                                        Control: Label
+                                        Properties:
+                                          Color: =AppTheme.TextPrimary
+                                          Font: =Font.Lato
+                                          Height: =20
+                                          LayoutMinHeight: =0
+                                          Size: =14
+                                          Text: =Text(gblSelectedBooking.StartDateTime, "dddd dd mmmm yyyy")
+                                          Wrap: =false
+                              - fldTime:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
+                                  Properties:
+                                    DropShadow: =DropShadow.None
+                                    Fill: =RGBA(0,0,0,0)
+                                    LayoutAlignItems: =LayoutAlignItems.Stretch
+                                    LayoutDirection: =LayoutDirection.Vertical
+                                    LayoutGap: =4
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                  Children:
+                                    - capTime:
+                                        Control: Label
+                                        Properties:
+                                          Color: =AppTheme.TextMuted
+                                          Font: =Font.Lato
+                                          Height: =16
+                                          LayoutMinHeight: =0
+                                          Size: =11
+                                          Text: ="Time"
+                                          Wrap: =false
+                                    - valTime:
+                                        Control: Label
+                                        Properties:
+                                          Color: =AppTheme.TextPrimary
+                                          Font: =Font.Lato
+                                          Height: =20
+                                          LayoutMinHeight: =0
+                                          Size: =14
+                                          Text: =Text(gblSelectedBooking.StartDateTime, "HH:mm") & " – " & Text(gblSelectedBooking.EndDateTime, "HH:mm")
+                                          Wrap: =false
+                              - fldBy:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
+                                  Properties:
+                                    DropShadow: =DropShadow.None
+                                    Fill: =RGBA(0,0,0,0)
+                                    LayoutAlignItems: =LayoutAlignItems.Stretch
+                                    LayoutDirection: =LayoutDirection.Vertical
+                                    LayoutGap: =4
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                  Children:
+                                    - capBy:
+                                        Control: Label
+                                        Properties:
+                                          Color: =AppTheme.TextMuted
+                                          Font: =Font.Lato
+                                          Height: =16
+                                          LayoutMinHeight: =0
+                                          Size: =11
+                                          Text: ="Booked by"
+                                          Wrap: =false
+                                    - valBy:
+                                        Control: Label
+                                        Properties:
+                                          Color: =AppTheme.TextPrimary
+                                          Font: =Font.Lato
+                                          Height: =20
+                                          LayoutMinHeight: =0
+                                          Size: =14
+                                          Text: =gblSelectedBooking.BookedBy.DisplayName
+                                          Wrap: =false
+                        - conCancelZone:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              DropShadow: =DropShadow.None
+                              Fill: =RGBA(0,0,0,0)
+                              Height: =180
+                              LayoutAlignItems: =LayoutAlignItems.Stretch
+                              LayoutDirection: =LayoutDirection.Vertical
+                              LayoutGap: =8
+                              LayoutJustifyContent: =LayoutJustifyContent.End
+                              LayoutMaxHeight: =110
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              Visible: =!IsBlank(gblSelectedBooking) && !fnIsPast(gblSelectedBooking.EndDateTime)
+                            Children:
+                              - btnChangeTimeDetail:
+                                  Control: Classic/Button
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Start
+                                    BorderColor: =ColorValue(AppTheme.ButtonPrimary)
+                                    BorderThickness: =1
+                                    Color: =ColorValue(AppTheme.PrimaryText)
+                                    Fill: =ColorValue(AppTheme.ButtonPrimary)
+                                    FocusedBorderColor: =RGBA(15,98,254,1)
+                                    FocusedBorderThickness: =2
+                                    Font: =Font.Lato
+                                    FontWeight: =FontWeight.Normal
+                                    HoverColor: =ColorValue(AppTheme.PrimaryText)
+                                    HoverFill: =RGBA(13,83,217,1)
+                                    OnSelect: |-
+                                      =Set(varConflict, false);
+                                      Set(varBookingError, false);
+                                      Set(varSubmitting, false);
+                                      Set(varTitleTouched, false);
+                                      Set(gbl_UI_Book_CancelConfirm, false);
+                                      Set(gbl_Book_SubmitResult, "");
+                                      Set(varConflictingBooking, Blank());
+                                      Set(varNextFreeSlot, Blank());
+                                      ClearCollect(varAlternativeRooms, Filter(colRooms, true = false));
+
+                                      /* Times-only edit: no series controls in this flow.
+                                         tglRecurring/drpWeeks live inside cpt_Modal_ and cannot be
+                                         Reset() from a screen; the component resets them on close. */
+                                      Set(varIsaSeries, false);
+
+                                      /* Prefill the wizard from the booking being edited */
+                                      Set(gblEditingBookingID, gblSelectedBooking.ID);
+                                      Set(varSelectedRoom, LookUp(colRooms, ID = gblSelectedBooking.RoomID.Id));
+                                      Set(varSelectedDate, DateValue(Text(gblSelectedBooking.StartDateTime, "yyyy-mm-dd")));
+                                      Set(varStartTime, gblSelectedBooking.StartDateTime);
+                                      Set(varEndTime, gblSelectedBooking.EndDateTime);
+                                      Set(varTitle, gblSelectedBooking.Title);
+
+                                      Set(gbl_UI_Book_Modal_Step, WizardStep2);
+                                      Set(gbl_UI_Book_Modal, true)
+                                    PressedColor: =ColorValue(AppTheme.PrimaryText)
+                                    PressedFill: =RGBA(11,69,182,1)
+                                    RadiusBottomLeft: =2
+                                    RadiusBottomRight: =2
+                                    RadiusTopLeft: =2
+                                    RadiusTopRight: =2
+                                    Size: =11
+                                    Text: ="Change time"
+                                    Visible: =!varConfirmCancel
+                              - btnCancelStart:
+                                  Control: Classic/Button
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Start
+                                    BorderColor: =AppTheme.StatusBusyText
+                                    BorderThickness: =1
+                                    Color: =AppTheme.StatusBusyText
+                                    Fill: =AppTheme.Surface
+                                    FocusedBorderColor: =RGBA(15,98,254,1)
+                                    FocusedBorderThickness: =2
+                                    Font: =Font.Lato
+                                    FontWeight: =FontWeight.Normal
+                                    HoverColor: =AppTheme.StatusBusyText
+                                    HoverFill: =AppTheme.StatusBusyBg
+                                    OnSelect: |-
+                                      =UpdateContext({varConfirmCancel: true})
+                                    PressedColor: =AppTheme.StatusBusyText
+                                    PressedFill: =AppTheme.StatusBusyBg
+                                    RadiusBottomLeft: =2
+                                    RadiusBottomRight: =2
+                                    RadiusTopLeft: =2
+                                    RadiusTopRight: =2
+                                    Size: =11
+                                    Text: ="Cancel booking"
+                                    Visible: =!varConfirmCancel
+                              - conConfirmRow:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
+                                  Properties:
+                                    BorderColor: =AppTheme.StatusBusyText
+                                    BorderThickness: =1
+                                    DropShadow: =DropShadow.None
+                                    Fill: =AppTheme.StatusBusyBg
+                                    LayoutAlignItems: =LayoutAlignItems.Stretch
+                                    LayoutDirection: =LayoutDirection.Vertical
+                                    LayoutGap: =12
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    PaddingBottom: =16
+                                    PaddingLeft: =16
+                                    PaddingRight: =16
+                                    PaddingTop: =16
+                                    RadiusBottomLeft: =2
+                                    RadiusBottomRight: =2
+                                    RadiusTopLeft: =2
+                                    RadiusTopRight: =2
+                                    Visible: =varConfirmCancel
+                                  Children:
+                                    - lblCancelConfirm:
+                                        Control: Label
+                                        Properties:
+                                          AlignInContainer: =AlignInContainer.Stretch
+                                          AutoHeight: =true
+                                          Color: =AppTheme.StatusBusyText
+                                          Font: =Font.Lato
+                                          Height: =24
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          Size: =12
+                                          Text: ="Cancel this booking? This can't be undone."
+                                    - conConfirmButtons:
+                                        Control: GroupContainer
+                                        Variant: AutoLayout
+                                        Properties:
+                                          DropShadow: =DropShadow.None
+                                          Fill: =RGBA(0,0,0,0)
+                                          Height: =40
+                                          LayoutAlignItems: =LayoutAlignItems.Stretch
+                                          LayoutDirection: =LayoutDirection.Horizontal
+                                          LayoutGap: =8
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                        Children:
+                                          - btnKeepBooking:
+                                              Control: Classic/Button
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.Center
+                                                BorderColor: =AppTheme.Border
+                                                BorderThickness: =1
+                                                Color: =AppTheme.TextPrimary
+                                                Fill: =AppTheme.Surface
+                                                FocusedBorderColor: =RGBA(15,98,254,1)
+                                                FocusedBorderThickness: =2
+                                                Font: =Font.Lato
+                                                FontWeight: =FontWeight.Normal
+                                                HoverColor: =AppTheme.TextPrimary
+                                                HoverFill: =AppTheme.Border
+                                                OnSelect: |-
+                                                  =UpdateContext({varConfirmCancel: false})
+                                                PressedColor: =AppTheme.TextPrimary
+                                                PressedFill: =AppTheme.Border
+                                                RadiusBottomLeft: =2
+                                                RadiusBottomRight: =2
+                                                RadiusTopLeft: =2
+                                                RadiusTopRight: =2
+                                                Size: =11
+                                                Text: ="Keep booking"
+                                                Width: =140
+                                          - btnConfirmCancel:
+                                              Control: Classic/Button
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.Center
+                                                BorderColor: =AppTheme.StatusBusyText
+                                                BorderThickness: =0
+                                                Color: =ColorValue(AppTheme.PrimaryText)
+                                                Fill: =AppTheme.StatusBusyText
+                                                FocusedBorderColor: =RGBA(15,98,254,1)
+                                                FocusedBorderThickness: =2
+                                                Font: =Font.Lato
+                                                FontWeight: =FontWeight.Normal
+                                                HoverColor: =ColorValue(AppTheme.PrimaryText)
+                                                HoverFill: =ColorValue("#b81922")
+                                                OnSelect: |-
+                                                  =/* PROD-REVERT: Patch(Book_Bookings, ...) - soft delete; Remove() retired per WS4 */
+                                                  IfError(
+                                                      Patch(colBookings, LookUp(colBookings, ID = gblSelectedBooking.ID), {Status: "Cancelled"}),
+                                                      Notify("Couldn't cancel this booking. Please try again.", NotificationType.Error),
+                                                      Set(gblSelectedBooking, Blank());
+                                                      Notify("Booking cancelled", NotificationType.Success);
+                                                      Navigate(myBookings, ScreenTransition.Fade)
+                                                  )
+                                                PressedColor: =ColorValue(AppTheme.PrimaryText)
+                                                PressedFill: =ColorValue("#921620")
+                                                RadiusBottomLeft: =2
+                                                RadiusBottomRight: =2
+                                                RadiusTopLeft: =2
+                                                RadiusTopRight: =2
+                                                Size: =11
+                                                Text: ="Yes, cancel"
+                                                Width: =140
+      - cpt_Modal__book_detail:
+          Control: CanvasComponent
+          ComponentName: cpt_Modal_
+          Properties:
+            Height: =App.Height
+            ModalTitleText: =
+            OnSubmit: =Set(gbl_UI_Book_Modal, false) /* create flow unreachable from this screen */
+            OnSubmitEdit: |-
+              =If(cpt_Modal__book_detail.ValidPayload && gblEditingBookingID > 0,
+                  With({_occ: First(cpt_Modal__book_detail.PatchPayload)},
+                      If(
+                          !IsBlank(
+                              LookUp(
+                                  Filter(
+                                      colBookings,
+                                      Status = "Active",
+                                      fnOverlaps(StartDateTime, EndDateTime, _occ.StartDateTime, _occ.EndDateTime),
+                                      ID <> gblEditingBookingID
+                                  ),
+                                  RoomID.Id = _occ.RoomIdNumber
+                              )
+                          ),
+                          Notify("That slot is no longer free. Your booking is unchanged.", NotificationType.Warning, 6000),
+                          IfError(
+                              Patch(
+                                  colBookings,
+                                  LookUp(colBookings, ID = gblEditingBookingID),
+                                  {
+                                      Title: _occ.Title,
+                                      RoomID: {Id: _occ.RoomIdNumber, Value: _occ.RoomIdText},
+                                      'RoomID: Title': {Id: _occ.RoomIdNumber, Value: _occ.RoomTitle},
+                                      StartDateTime: _occ.StartDateTime,
+                                      EndDateTime: _occ.EndDateTime
+                                  }
+                              ),
+                              Notify("Couldn't update this booking. Please try again.", NotificationType.Error),
+                              Notify("Booking updated", NotificationType.Success)
+                          )
+                      )
+                  );
+
+                  /* PROD-REVERT: Patch(Book_Bookings, LookUp(Book_Bookings, ID = gblEditingBookingID), {...}) per MOCK_DATA.md */
+
+                  Set(gblSelectedBooking, LookUp(colBookings, ID = gblEditingBookingID));
+                  Set(gblEditingBookingID, 0);
+                  Set(gbl_UI_Book_Modal, false)
+              )
+            OptionalLabelText: =" "
+            Visible: =gbl_UI_Book_Modal = true
+            Width: =App.Width

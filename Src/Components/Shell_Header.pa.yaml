@@ -1,0 +1,427 @@
+ComponentDefinitions:
+  Shell_Header:
+    DefinitionType: CanvasComponent
+    AccessAppScope: true
+    CustomProperties:
+      HeaderNavTab:
+        PropertyKind: Input
+        DisplayName: HeaderNavTab
+        Description: A custom property
+        DataType: Text
+        Default: ="Text"
+      InstanceScreenName:
+        PropertyKind: Input
+        DisplayName: Instance Screen Name
+        Description: Name of the Current Screen
+        DataType: Text
+        Default: =""
+      ShellIcons:
+        PropertyKind: Input
+        DisplayName: Shell Icons
+        Description: Icons used in the shell
+        DataType: Record
+        Default: |-
+          ={
+              ShellIconMenu: $"data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20'><rect x='2' y='4' width='16' height='2' fill='{ThemeHex.HeaderNavItemText}'/><rect x='2' y='9' width='16' height='2' fill='{ThemeHex.HeaderNavItemText}'/><rect x='2' y='14' width='16' height='2' fill='{ThemeHex.HeaderNavItemText}'/></svg>",
+              ShellIconClose: $"data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20'><line x1='3' y1='3' x2='17' y2='17' stroke='{ThemeHex.HeaderNavItemText}' stroke-width='2'/><line x1='17' y1='3' x2='3' y2='17' stroke='{ThemeHex.HeaderNavItemText}' stroke-width='2'/></svg>",
+              ShellIconSearch: $"data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20'><circle cx='9' cy='9' r='6' fill='none' stroke='{ThemeHex.HeaderNavItemText}' stroke-width='2'/><line x1='13.5' y1='13.5' x2='17' y2='17' stroke='{ThemeHex.HeaderNavItemText}' stroke-width='2' stroke-linecap='round'/></svg>",
+              ShellIconNotification: $"data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20'><path d='M10 2C7.24 2 5 4.24 5 7v7l-2 2h14l-2-2V7c0-2.76-2.24-5-5-5z' fill='{ThemeHex.HeaderNavItemText}'/><rect x='8.5' y='16' width='3' height='2.5' rx='1.5' fill='{ThemeHex.HeaderNavItemText}'/></svg>",
+              ShellIconAppSwitcher: $"data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20'><rect x='2' y='2' width='4' height='4' fill='{ThemeHex.HeaderNavItemText}'/><rect x='8' y='2' width='4' height='4' fill='{ThemeHex.HeaderNavItemText}'/><rect x='14' y='2' width='4' height='4' fill='{ThemeHex.HeaderNavItemText}'/><rect x='2' y='8' width='4' height='4' fill='{ThemeHex.HeaderNavItemText}'/><rect x='8' y='8' width='4' height='4' fill='{ThemeHex.HeaderNavItemText}'/><rect x='14' y='8' width='4' height='4' fill='{ThemeHex.HeaderNavItemText}'/><rect x='2' y='14' width='4' height='4' fill='{ThemeHex.HeaderNavItemText}'/><rect x='8' y='14' width='4' height='4' fill='{ThemeHex.HeaderNavItemText}'/><rect x='14' y='14' width='4' height='4' fill='{ThemeHex.HeaderNavItemText}'/></svg>"
+          }
+    Properties:
+      Height: =48
+      Width: =App.Width
+    Children:
+      - con_Shell_Header:
+          Control: GroupContainer
+          Variant: AutoLayout
+          Properties:
+            Fill: =AppTheme.HeaderNavBg
+            Height: =48
+            LayoutAlignItems: =LayoutAlignItems.Stretch
+            LayoutDirection: =LayoutDirection.Horizontal
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Width: =Parent.Width
+          Children:
+            - con_Header_MenuBtn:
+                Control: GroupContainer
+                Variant: ManualLayout
+                Properties:
+                  AlignInContainer: =AlignInContainer.Center
+                  FillPortions: =0
+                  Height: =48
+                  RadiusBottomLeft: =0
+                  RadiusBottomRight: =0
+                  RadiusTopLeft: =0
+                  RadiusTopRight: =0
+                  Visible: =false
+                  Width: =48
+                Children:
+                  - img_Header_MenuIcon:
+                      Control: Image
+                      Properties:
+                        Height: =48
+                        Image: =If(gblUI_Nav_sideNavExpanded, Shell_Header.ShellIcons.ShellIconClose, Shell_Header.ShellIcons.ShellIconMenu)
+                        ImagePosition: =ImagePosition.Center
+                        Width: =48
+                  - btn_Header_MenuBtn:
+                      Control: Classic/Button
+                      Properties:
+                        BorderColor: =RGBA(0,0,0,0)
+                        BorderStyle: =BorderStyle.None
+                        Color: =RGBA(0,0,0,0)
+                        Fill: =RGBA(0,0,0,0)
+                        Height: =48
+                        HoverFill: =AppTheme.HeaderNavItemHover
+                        OnSelect: =Set(gblUI_Nav_sideNavExpanded, !gblUI_Nav_sideNavExpanded)
+                        PressedFill: =AppTheme.HeaderNavItemPressed
+                        RadiusBottomLeft: =0
+                        RadiusBottomRight: =0
+                        RadiusTopLeft: =0
+                        RadiusTopRight: =0
+                        Text: =""
+                        Width: =48
+            - htx_Header_Name:
+                Control: HtmlViewer
+                Properties:
+                  AlignInContainer: =AlignInContainer.Stretch
+                  AutoHeight: =true
+                  Height: =48
+                  HtmlText: |-
+                    ="<div style='display: flex; align-items: center; height: 48px; padding: 0 16px; white-space: nowrap;'>" &
+                    "<span style='font-family: IBM Plex Sans,Segoe UI,sans-serif; font-size: 14px; font-weight: 600; color: #f4f4f4; letter-spacing: 0.1px;'>MOC</span>" &
+                    "<span style='font-family: IBM Plex Sans,Segoe UI,sans-serif; font-size: 14px; font-weight: 400; color: #c6c6c6;'>&nbsp;| BOOK</span>" &
+                    "</div>"
+                  PaddingBottom: =0
+                  PaddingLeft: =0
+                  PaddingRight: =0
+                  PaddingTop: =0
+                  Width: =192
+            - con_Header_Nav:
+                Control: GroupContainer
+                Variant: AutoLayout
+                Properties:
+                  AlignInContainer: =AlignInContainer.Center
+                  DropShadow: =DropShadow.None
+                  Height: =Parent.Height
+                  LayoutAlignItems: =LayoutAlignItems.Stretch
+                  LayoutDirection: =LayoutDirection.Horizontal
+                  RadiusBottomLeft: =0
+                  RadiusBottomRight: =0
+                  RadiusTopLeft: =0
+                  RadiusTopRight: =0
+                  Width: =360
+                Children:
+                  - con_NavLink_Home:
+                      Control: GroupContainer
+                      Variant: ManualLayout
+                      Properties:
+                        AlignInContainer: =AlignInContainer.Center
+                        DropShadow: =DropShadow.None
+                        FillPortions: =0
+                        Height: =48
+                        RadiusBottomLeft: =0
+                        RadiusBottomRight: =0
+                        RadiusTopLeft: =0
+                        RadiusTopRight: =0
+                        Width: =96
+                      Children:
+                        - btn_NavLink_Home:
+                            Control: Classic/Button
+                            Properties:
+                              BorderColor: =RGBA(0,0,0,0)
+                              BorderStyle: =BorderStyle.None
+                              Color: =AppTheme.HeaderNavItemText
+                              Fill: =RGBA(0,0,0,0)
+                              Font: ="IBM Plex Sans"
+                              FontWeight: =If(gblUI_Nav_currentTab = "Home",FontWeight.Semibold , FontWeight.Lighter)
+                              Height: =48
+                              HoverFill: =AppTheme.HeaderNavItemHover
+                              OnSelect: =Set(gblUI_Nav_currentTab, Self.Text); Navigate(Home)
+                              PressedFill: =AppTheme.HeaderNavItemPressed
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
+                              Size: =14
+                              Text: ="Home"
+                              Width: =96
+                        - rct_NavLink_Home_Indicator:
+                            Control: Rectangle
+                            Properties:
+                              Fill: =If(gblUI_Nav_currentTab = btn_NavLink_Home.Text, ColorValue(AppTheme.Primary), RGBA(0,0,0,0))
+                              Height: =3
+                              Width: =96
+                              Y: =45
+                  - con_NavLink_Discover:
+                      Control: GroupContainer
+                      Variant: ManualLayout
+                      Properties:
+                        AlignInContainer: =AlignInContainer.Center
+                        DropShadow: =DropShadow.None
+                        FillPortions: =0
+                        Height: =48
+                        RadiusBottomLeft: =0
+                        RadiusBottomRight: =0
+                        RadiusTopLeft: =0
+                        RadiusTopRight: =0
+                        Width: =96
+                      Children:
+                        - btn_NavLink_Catalog:
+                            Control: Classic/Button
+                            Properties:
+                              BorderColor: =RGBA(0,0,0,0)
+                              BorderStyle: =BorderStyle.None
+                              Color: =AppTheme.HeaderNavItemText
+                              Fill: =RGBA(0,0,0,0)
+                              Font: ="IBM Plex Sans"
+                              FontWeight: =If(gblUI_Nav_currentTab = "Rooms", FontWeight.Semibold,FontWeight.Lighter )
+                              Height: =48
+                              HoverFill: =AppTheme.HeaderNavItemHover
+                              OnSelect: =Set(gblUI_Nav_currentTab, Self.Text); Navigate(Rooms)
+                              PressedFill: =AppTheme.HeaderNavItemPressed
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
+                              Size: =14
+                              Text: ="Rooms"
+                              Width: =96
+                        - rct_NavLink_Catalog_Indicator:
+                            Control: Rectangle
+                            Properties:
+                              Fill: =If(gblUI_Nav_currentTab = btn_NavLink_Catalog.Text, ColorValue(AppTheme.Primary), RGBA(0,0,0,0))
+                              Height: =3
+                              Width: =96
+                              Y: =45
+                  - con_NavLink_Create:
+                      Control: GroupContainer
+                      Variant: ManualLayout
+                      Properties:
+                        AlignInContainer: =AlignInContainer.Center
+                        DropShadow: =DropShadow.None
+                        FillPortions: =0
+                        Height: =48
+                        RadiusBottomLeft: =0
+                        RadiusBottomRight: =0
+                        RadiusTopLeft: =0
+                        RadiusTopRight: =0
+                        Width: =96
+                      Children:
+                        - btn_NavLink_Create:
+                            Control: Classic/Button
+                            Properties:
+                              BorderColor: =RGBA(0,0,0,0)
+                              BorderStyle: =BorderStyle.None
+                              Color: =AppTheme.HeaderNavItemText
+                              Fill: =RGBA(0,0,0,0)
+                              Font: ="IBM Plex Sans"
+                              FontWeight: =If(gblUI_Nav_currentTab = "Bookings",FontWeight.Semibold ,FontWeight.Lighter )
+                              Height: =48
+                              HoverFill: =AppTheme.HeaderNavItemHover
+                              OnSelect: =Set(gblUI_Nav_currentTab, Self.Text); Navigate(myBookings)
+                              PressedFill: =AppTheme.HeaderNavItemPressed
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
+                              Size: =14
+                              Text: ="Bookings"
+                              Width: =96
+                        - rct_NavLink_Create_Indicator:
+                            Control: Rectangle
+                            Properties:
+                              Fill: =If(gblUI_Nav_currentTab = btn_NavLink_Create.Text, ColorValue(AppTheme.Primary), RGBA(0,0,0,0))
+                              Height: =3
+                              Width: =96
+                              Y: =45
+                  - con_NavLink_Find:
+                      Control: GroupContainer
+                      Variant: ManualLayout
+                      Properties:
+                        AlignInContainer: =AlignInContainer.Center
+                        DropShadow: =DropShadow.None
+                        FillPortions: =0
+                        Height: =48
+                        RadiusBottomLeft: =0
+                        RadiusBottomRight: =0
+                        RadiusTopLeft: =0
+                        RadiusTopRight: =0
+                        Width: =96
+                      Children:
+                        - btn_NavLink_Find:
+                            Control: Classic/Button
+                            Properties:
+                              BorderColor: =RGBA(0,0,0,0)
+                              BorderStyle: =BorderStyle.None
+                              Color: =AppTheme.HeaderNavItemText
+                              Fill: =RGBA(0,0,0,0)
+                              Font: ="IBM Plex Sans"
+                              FontWeight: =If(gblUI_Nav_currentTab = "Find", FontWeight.Semibold,FontWeight.Lighter )
+                              Height: =48
+                              HoverFill: =AppTheme.HeaderNavItemHover
+                              OnSelect: =Set(gblUI_Nav_currentTab, Self.Text); Navigate(Find)
+                              PressedFill: =AppTheme.HeaderNavItemPressed
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
+                              Size: =14
+                              Text: ="Find"
+                              Width: =96
+                        - rct_NavLink_Find_Indicator:
+                            Control: Rectangle
+                            Properties:
+                              Fill: =If(gblUI_Nav_currentTab = btn_NavLink_Find.Text, ColorValue(AppTheme.Primary), RGBA(0,0,0,0))
+                              Height: =3
+                              Width: =96
+                              Y: =45
+            - rct_Header_Spacer:
+                Control: Rectangle
+                Properties:
+                  AlignInContainer: =AlignInContainer.Center
+                  Fill: =RGBA(0,0,0,0)
+                  Height: =48
+                  Width: =
+            - con_Header_GlobalBar:
+                Control: GroupContainer
+                Variant: AutoLayout
+                Properties:
+                  AlignInContainer: =AlignInContainer.Center
+                  DropShadow: =DropShadow.None
+                  FillPortions: =0
+                  Height: =Parent.Height
+                  LayoutAlignItems: =LayoutAlignItems.Stretch
+                  LayoutDirection: =LayoutDirection.Horizontal
+                  LayoutJustifyContent: =LayoutJustifyContent.End
+                  RadiusBottomLeft: =0
+                  RadiusBottomRight: =0
+                  RadiusTopLeft: =0
+                  RadiusTopRight: =0
+                  Width: =144
+                Children:
+                  - con_Header_Search:
+                      Control: GroupContainer
+                      Variant: ManualLayout
+                      Properties:
+                        AlignInContainer: =AlignInContainer.Center
+                        DropShadow: =DropShadow.None
+                        FillPortions: =0
+                        Height: =48
+                        RadiusBottomLeft: =0
+                        RadiusBottomRight: =0
+                        RadiusTopLeft: =0
+                        RadiusTopRight: =0
+                        Visible: =false
+                        Width: =48
+                      Children:
+                        - img_Header_Search:
+                            Control: Image
+                            Properties:
+                              Height: =48
+                              Image: =Shell_Header.ShellIcons.ShellIconSearch
+                              ImagePosition: =ImagePosition.Center
+                              Width: =48
+                        - btn_Header_Search:
+                            Control: Classic/Button
+                            Properties:
+                              BorderColor: =RGBA(0,0,0,0)
+                              BorderStyle: =BorderStyle.None
+                              Color: =RGBA(0,0,0,0)
+                              Fill: =If(gblUI_SearchOpen, AppTheme.HeaderNavItemActiveBg, RGBA(0,0,0,0))
+                              Height: =48
+                              HoverFill: =AppTheme.HeaderNavItemHover
+                              OnSelect: =Set(gblUI_SearchOpen, !gblUI_SearchOpen)
+                              PressedFill: =AppTheme.HeaderNavItemPressed
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
+                              Text: =""
+                              Width: =48
+                  - con_Header_Notification:
+                      Control: GroupContainer
+                      Variant: ManualLayout
+                      Properties:
+                        AlignInContainer: =AlignInContainer.Center
+                        DropShadow: =DropShadow.None
+                        FillPortions: =0
+                        Height: =48
+                        RadiusBottomLeft: =0
+                        RadiusBottomRight: =0
+                        RadiusTopLeft: =0
+                        RadiusTopRight: =0
+                        Visible: =false
+                        Width: =48
+                      Children:
+                        - img_Header_Notification:
+                            Control: Image
+                            Properties:
+                              Height: =48
+                              Image: =Shell_Header.ShellIcons.ShellIconNotification
+                              ImagePosition: =ImagePosition.Center
+                              Width: =48
+                        - btn_Header_Notification:
+                            Control: Classic/Button
+                            Properties:
+                              BorderColor: =RGBA(0,0,0,0)
+                              BorderStyle: =BorderStyle.None
+                              Color: =RGBA(0,0,0,0)
+                              Fill: =If(gblUI_NotifOpen, AppTheme.HeaderNavItemActiveBg, RGBA(0,0,0,0))
+                              Height: =48
+                              HoverFill: =AppTheme.HeaderNavItemHover
+                              OnSelect: =Set(gblUI_NotifOpen, !gblUI_NotifOpen)
+                              PressedFill: =AppTheme.HeaderNavItemPressed
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
+                              Text: =""
+                              Width: =48
+                  - con_Header_Avatar:
+                      Control: GroupContainer
+                      Variant: ManualLayout
+                      Properties:
+                        AlignInContainer: =AlignInContainer.Start
+                        DropShadow: =DropShadow.None
+                        FillPortions: =0
+                        Height: =48
+                        RadiusBottomLeft: =0
+                        RadiusBottomRight: =0
+                        RadiusTopLeft: =0
+                        RadiusTopRight: =0
+                        Width: =48
+                      Children:
+                        - htx_Header_Avatar:
+                            Control: HtmlViewer
+                            Properties:
+                              AutoHeight: =true
+                              Height: =32
+                              HtmlText: ="<div style='width:32px;height:32px;border-radius:50%;background:" & AppTheme.Primary & ";color:#f4f4f4;font-family:IBM Plex Sans,Segoe UI,sans-serif;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center'>" & gblUserInitials & "</div>"
+                              PaddingBottom: =0
+                              PaddingLeft: =0
+                              PaddingRight: =0
+                              PaddingTop: =0
+                              Width: =32
+                              X: =8
+                              Y: =8
+                        - btn_Header_Avatar:
+                            Control: Classic/Button
+                            Properties:
+                              BorderColor: =RGBA(0,0,0,0)
+                              BorderStyle: =BorderStyle.None
+                              Color: =RGBA(0,0,0,0)
+                              Fill: =If(gblUI_Nav_currentTab = "Profile", AppTheme.HeaderNavItemActiveBg, RGBA(0,0,0,0))
+                              Height: =48
+                              HoverFill: =AppTheme.HeaderNavItemHover
+                              OnSelect: =Set(gblUI_Nav_currentTab, "Profile"); Navigate(Profile)
+                              PressedFill: =AppTheme.HeaderNavItemPressed
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
+                              Text: =
+                              Width: =48
