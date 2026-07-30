@@ -174,10 +174,10 @@ template to improve that would risk the same wrap defect being fixed on the card
 ### 7. Typography
 
 Every `Font: =Font.Lato` in `Src/Rooms.pa.yaml` becomes `Font: ="IBM Plex Sans"` — 26 sites:
-18 in the browse container and 8 in `con_timeline_view`. The timeline sites are included
-even though the timeline is otherwise untouched, because a half-converted screen — Plex in
-browse, Lato in the Today view one click away — would look more broken than either
-extreme.
+18 in `con_rooms_view`, 5 in `con_timeline_view`, and 3 in `conRoomsSelectionBar`. The
+timeline sites are included even though the timeline is otherwise untouched, because a
+half-converted screen — Plex in browse, Lato in the Today view one click away — would look
+more broken than either extreme.
 
 This is the literal already used by `Src/Components/Shell_Header.pa.yaml`, not
 `=CarbonFontFamily`. `CarbonFontFamily` is `"'IBM Plex Sans', 'Segoe UI', Arial"`, a CSS

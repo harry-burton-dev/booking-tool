@@ -28,7 +28,7 @@ claim it from a passing assertion.
 
 - `Src/Rooms.pa.yaml` is the only file changed. If a task seems to need `App.pa.yaml`, stop and report.
 - Do not alter any `RoomsBrowse*` reference, filter expression, `OnSelect`, `Visible`, or `Items` formula.
-- Do not touch `con_timeline_view` except for its 8 `Font: =Font.Lato` sites (Task 6).
+- Do not touch `con_timeline_view` except for its 5 `Font: =Font.Lato` sites (Task 6). Full accounting of the 26: 18 in `con_rooms_view`, 5 in `con_timeline_view`, 3 in `conRoomsSelectionBar`.
 - Do not add controls except the single new `lblRoomsCardStatusDot` (Task 4).
 - Use `AppTheme` tokens; add no new raw colour.
 - Anchor every edit by quoted YAML, never by line number — line numbers shift as you edit.
@@ -537,11 +537,16 @@ to:
                                     Width: =Parent.Width
 ```
 
-and add, in alphabetical position (after `Font`, before `Height`):
+and add:
 
 ```yaml
                                     FillPortions: =If(App.Width < 768, 0, 1)
 ```
+
+Place it in alphabetical position, which is immediately after `Fill:` — `FillPortions`
+sorts before `Font`, not after it. This file keeps its properties alphabetical throughout
+and the server re-sorts them on the next `sync_canvas`, so matching that convention keeps
+the next round-trip diff clean. Property order carries no meaning in canvas YAML.
 
 `FillPortions` governs the dimension along the layout axis. The toolbar is horizontal above
 768px (so portions size the width — correct) and vertical below (where a non-zero value
@@ -719,7 +724,7 @@ UNVERIFIED: whether "IBM Plex Sans" resolves in the player or falls back to a
 ```powershell
 $rooms = [System.IO.File]::ReadAllText((Join-Path $workDir 'Rooms.pa.yaml'))
 $disabled = ([regex]::Matches($rooms, [regex]::Escape('DisabledColor: =RGBA(161, 159, 157, 1)'))).Count
-if ($disabled -lt 2) { throw "Expected 2 card DisabledColor literals, found $disabled." }
+if ($disabled -ne 3) { throw "Expected 3 DisabledColor literals (2 card labels + btn_LoadTimeline), found $disabled." }
 'defects confirmed present'
 ```
 
@@ -763,7 +768,11 @@ recorded as follow-up in the spec.
 
 ```powershell
 $rooms = [System.IO.File]::ReadAllText((Join-Path $workDir 'Rooms.pa.yaml'))
-if ($rooms -match [regex]::Escape('DisabledColor: =RGBA(161, 159, 157, 1)')) { throw 'Card DisabledColor literal remains.' }
+# Count-based. The literal occurs 3x in the base, and the third — on btn_LoadTimeline
+# inside con_timeline_view — is out of scope and MUST survive. A plain absence check
+# can never pass here, however correct the edit.
+$lit = ([regex]::Matches($rooms, [regex]::Escape('DisabledColor: =RGBA(161, 159, 157, 1)'))).Count
+if ($lit -ne 1) { throw "Expected 1 DisabledColor literal left (btn_LoadTimeline, in con_timeline_view), found $lit." }
 # Count-based: DisabledColor: =AppTheme.TextMuted already occurs once in the base,
 # so a plain presence check would pass even if neither card label were converted.
 $muted = ([regex]::Matches($rooms, [regex]::Escape('DisabledColor: =AppTheme.TextMuted'))).Count
