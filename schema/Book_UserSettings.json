@@ -1,0 +1,14 @@
+{
+  "list": "Book_UserSettings",
+  "site": "https://hbbaby.sharepoint.com/sites/booking-tool",
+  "columns": {
+    "Title": "Text (mirror of Email)",
+    "Email": "Text (always lowercase, unique per user)",
+    "NotifyConfirm": "Boolean",
+    "NotifyCancel": "Boolean",
+    "NotifyReminder": "Boolean",
+    "NotifyDigest": "Boolean",
+    "ReminderMinutes": "Number (15|30|60)"
+  },
+  "note": "List provisioned 2026-07-30 but NOT wired into the app (Phase 0 descope; see REVERT-CONTRACT MS1)"
+}

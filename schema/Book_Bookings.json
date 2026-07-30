@@ -1,0 +1,15 @@
+{
+  "list": "Book_Bookings",
+  "site": "https://hbbaby.sharepoint.com/sites/booking-tool",
+  "columns": {
+    "Title": "Text",
+    "BookedByEmail": "Text (always lowercase)",
+    "StartDateTime": "DateTime",
+    "EndDateTime": "DateTime",
+    "Status": "Text ('Active' | 'Cancelled')",
+    "isPrivate": "Boolean (display name IsPrivate)",
+    "BookedBy": "Person",
+    "RoomID": "Lookup -> Book_Rooms.RoomID (Number), .Value is the number as text",
+    "RoomID_x003a__x0020_Title": "Projected lookup (display 'RoomID: Title'), read-only - never Patch it"
+  }
+}

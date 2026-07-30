@@ -1,0 +1,13 @@
+{
+  "list": "Book_Rooms",
+  "site": "https://hbbaby.sharepoint.com/sites/booking-tool",
+  "columns": {
+    "Title": "Text",
+    "RoomID": "Number",
+    "Capacity": "Number",
+    "description": "Text",
+    "Equipment": "Text",
+    "BookedBy": "Person"
+  },
+  "invariant": "SharePoint item ID == RoomID for all rows (app patches lookup {Id: RoomIdNumber})"
+}
