@@ -141,6 +141,7 @@ Screens:
                                     BorderThickness: =0
                                     ChevronBackground: =AppTheme.layer01Bg
                                     ChevronFill: =AppTheme.TextPrimary
+                                    ChevronHoverBackground: =Color.Transparent
                                     Color: =AppTheme.TextPrimary
                                     Default: ="Any size"
                                     Fill: =AppTheme.layer01Bg
@@ -151,6 +152,7 @@ Screens:
                                     Items: =["Any size","4+","8+","14+","20+"]
                                     Items.Value: =Value
                                     OnChange: =Set(gblRoomsMinCapacity, Switch(Self.Selected.Value, "4+", 4, "8+", 8, "14+", 14, "20+", 20, 0))
+                                    SelectionFill: =AppTheme.ButtonDangerHover
                                     Size: =11
                                     Width: =160
                               - drpRoomsSort:
