@@ -265,7 +265,7 @@ Do not compile. Do not commit.
 
 **Interfaces:**
 - Consumes: nothing new.
-- Produces: a fixed, non-overlapping card stack inside the unchanged `TemplateSize: =200`.
+- Produces: a fixed, non-overlapping card stack inside a `TemplateSize: =216` card.
 
 The root cause: `lbl_textID_Desc` has `AutoHeight: =true` inside a **ManualLayout** container. It grows downward but does not displace siblings, so a wrapped description renders on top of the availability strip.
 
@@ -314,7 +314,11 @@ Apply these exact `Y` and `Height` values. Each control already exists; change o
 
 `lblRoomsStripEnd` currently has `Height: =10`, which clips its own `Size: =9` text — that is why it must go to 14 along with the other two.
 
-Content now ends at 184, leaving a 16px bottom margin inside the 200px template.
+Content now ends at 184. Also change `gal_rooms_view.TemplateSize` from `=200` to `=216`:
+`TemplateHeight` is a computed output property, and the `TemplatePadding: =8` added in Task 2
+reduces it below `TemplateSize` by an amount the control schema does not specify (8 or 16).
+216 guarantees at least 200px of usable card either way, so the 184px stack cannot land on
+the card border.
 
 - [ ] **Step 4: Assert the fix**
 
@@ -329,7 +333,7 @@ if ($ah -ne 2) { throw "Expected 2 AutoHeight: =true sites left (both in con_tim
 if ($rooms -notmatch [regex]::Escape('AutoHeight: =false')) { throw 'Card AutoHeight not set to false.' }
 if ($rooms -notmatch [regex]::Escape('Wrap: =false')) { throw 'Wrap: =false not added.' }
 if ($rooms -match '(?m)^\s*Height: =10\s*$') { throw 'lblRoomsStripEnd still has clipping height 10.' }
-if ($rooms -notmatch [regex]::Escape('TemplateSize: =200')) { throw 'Card template size must stay 200.' }
+if ($rooms -notmatch [regex]::Escape('TemplateSize: =216')) { throw 'Card template size must be 216.' }
 'task 3 contract passed'
 ```
 

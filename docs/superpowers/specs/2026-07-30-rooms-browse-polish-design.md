@@ -83,7 +83,16 @@ Cards become white, separated by 16px gutters, defined by the existing 1px
 `lbl_textID_Desc` sets `AutoHeight: =false` and `Wrap: =false`. A description too long for
 one line clips rather than overlapping the strip.
 
-The card stack is re-laid on a fixed rhythm inside the unchanged `TemplateSize: =200`:
+`gal_rooms_view.TemplateSize` goes `200` → `216`. `TemplateHeight` is a computed *output*
+property, distinct from the `TemplateSize` input, and the `TemplatePadding: =8` added for
+gutters reduces it — by 8 or by 16 depending on whether padding is applied to one edge or
+both, which the control schema does not specify. At the original 200 the worst case leaves
+184px of card for a 184px content stack, putting the equipment row exactly on the border.
+216 guarantees at least 200px of usable card either way. If padding turns out to cost only
+8, the card is 208 and simply sits slightly airier, which is closer to the reference
+proportions regardless.
+
+The card stack is re-laid on a fixed rhythm:
 
 | Element | `Y` | `Height` |
 |---|---|---|
@@ -94,7 +103,7 @@ The card stack is re-laid on a fixed rhythm inside the unchanged `TemplateSize: 
 | `lblRoomsStripStart`, `lblRoomsStripMid`, `lblRoomsStripEnd` | 124 | 14 |
 | `galRoomsCardEquipment` | 160 | 24 |
 
-Content ends at 184, leaving a 16px bottom margin. The three strip labels currently sit at
+Content ends at 184, inside a card of at least 200px. The three strip labels currently sit at
 `Y: =126` with heights 16, 16, and 10; the 10px label clips its own `Size: =9` text. All
 three become height 14 at `Y: =124`.
 
