@@ -318,7 +318,6 @@ Screens:
                                       /* Times-only edit: no series controls in this flow.
                                          tglRecurring/drpWeeks live inside cpt_Modal_ and cannot be
                                          Reset() from a screen; the component resets them on close. */
-                                      Set(varIsaSeries, false);
 
                                       /* Prefill the wizard from the booking being edited */
                                       Set(gblEditingBookingID, gblSelectedBooking.ID);
