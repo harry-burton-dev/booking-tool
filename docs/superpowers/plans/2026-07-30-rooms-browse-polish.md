@@ -35,6 +35,36 @@ claim it from a passing assertion.
 - The live app is the source of truth. App ID `498d4962-0b5f-4990-a400-1bf5de9a367c`, environment `Default-ecf69819-b595-4d54-b001-6a6efb5d9bfd`, login hint `harry@harry-burton.ai`.
 - Follow RULES P1-P10, Y1-Y9, DS1, O1-O3.
 
+### Reading and writing this file in PowerShell (read this before running any snippet)
+
+`Rooms.pa.yaml` is UTF-8 **without a BOM**, and it contains two non-ASCII glyphs that carry
+meaning: `●` (U+25CF, the status dot) and `·` (U+00B7, the separator in card text).
+
+Windows PowerShell 5.1 decodes a BOM-less file as CP1252, not UTF-8. Measured on this exact
+file:
+
+| Reader | `●` found | Effect |
+|---|---|---|
+| `Get-Content -Raw` | **0** of 2 | silently wrong |
+| `[System.IO.File]::ReadAllText(...)` | 2 of 2 | correct |
+
+Two consequences, both load-bearing:
+
+1. **A `Get-Content -Raw` absent-check on a `●` string is a false green.** Verified against
+   the unedited base: the Task 4 check for the *removal* of `Text: ="● " & ThisItem.StatusText`
+   reports PASS on a file that still plainly contains it. It would certify the task done with
+   zero edits made.
+2. **Read-with-`Get-Content` then write-with-`WriteAllText` destroys the glyphs.** Measured
+   round-trip: `Text: ="● "` becomes `Text: ="â— "`, permanently, and that corruption would
+   then be published to the live app.
+
+Therefore, without exception:
+
+- **Read** with `[System.IO.File]::ReadAllText($path)` — never `Get-Content`.
+- **Write** with `[System.IO.File]::WriteAllText($path, $text)` — never `Set-Content` or `Out-File`.
+
+Every snippet below already follows this. Do not "simplify" one back to `Get-Content`.
+
 ## File Map
 
 - **Modify:** `Src/Rooms.pa.yaml` — the only production change. Browse container (`con_rooms_view` subtree) for Tasks 2-5 and 7; whole-file font sweep in Task 6.
@@ -140,7 +170,7 @@ Quote this hash in every READY report.
 - [ ] **Step 1: Assert the defect is present**
 
 ```powershell
-$rooms = Get-Content -Raw (Join-Path $workDir 'Rooms.pa.yaml')
+$rooms = [System.IO.File]::ReadAllText((Join-Path $workDir 'Rooms.pa.yaml'))
 if ($rooms -notmatch [regex]::Escape('Fill: =AppTheme.layer01Bg')) { throw 'Expected grey card fill not found - baseline drifted.' }
 if ($rooms -notmatch [regex]::Escape('TemplatePadding: =0')) { throw 'Expected zero template padding not found - baseline drifted.' }
 if ($rooms -notmatch [regex]::Escape('BorderColor: =RGBA(245, 245, 245, 1)')) { throw 'Expected raw gallery border not found - baseline drifted.' }
@@ -188,7 +218,7 @@ and delete this whole line:
 - [ ] **Step 4: Assert the fix**
 
 ```powershell
-$rooms = Get-Content -Raw (Join-Path $workDir 'Rooms.pa.yaml')
+$rooms = [System.IO.File]::ReadAllText((Join-Path $workDir 'Rooms.pa.yaml'))
 # Count-based, NOT presence-based: 4 other controls already use AppTheme.Surface
 # (in con_timeline_view and conRoomsSelectionBar), so a plain -match would pass
 # even if this edit were never made. The line anchor also stops SurfaceAlt matching.
@@ -242,7 +272,7 @@ The root cause: `lbl_textID_Desc` has `AutoHeight: =true` inside a **ManualLayou
 - [ ] **Step 1: Assert the defect**
 
 ```powershell
-$rooms = Get-Content -Raw (Join-Path $workDir 'Rooms.pa.yaml')
+$rooms = [System.IO.File]::ReadAllText((Join-Path $workDir 'Rooms.pa.yaml'))
 if ($rooms -notmatch [regex]::Escape('AutoHeight: =true')) { throw 'Expected AutoHeight defect not found - baseline drifted.' }
 'defect confirmed present'
 ```
@@ -289,7 +319,7 @@ Content now ends at 184, leaving a 16px bottom margin inside the 200px template.
 - [ ] **Step 4: Assert the fix**
 
 ```powershell
-$rooms = Get-Content -Raw (Join-Path $workDir 'Rooms.pa.yaml')
+$rooms = [System.IO.File]::ReadAllText((Join-Path $workDir 'Rooms.pa.yaml'))
 # Count-based, NOT presence-based. AutoHeight: =true occurs 3x in the base: the
 # card's lbl_textID_Desc (the target) plus lblBookingTitle and lblBookedBy inside
 # con_timeline_view, which are out of scope and MUST survive. A plain -match would
@@ -333,7 +363,7 @@ UNVERIFIED: actual rendered text height at 1366/1024/767px requires Studio.
 - [ ] **Step 1: Assert both defects**
 
 ```powershell
-$rooms = Get-Content -Raw (Join-Path $workDir 'Rooms.pa.yaml')
+$rooms = [System.IO.File]::ReadAllText((Join-Path $workDir 'Rooms.pa.yaml'))
 if ($rooms -notmatch [regex]::Escape('"seats " & Text(ThisItem.Capacity)')) { throw 'Expected unconditional capacity append not found.' }
 if ($rooms -notmatch [regex]::Escape('Text: ="● " & ThisItem.StatusText')) { throw 'Expected combined dot+text label not found.' }
 'defects confirmed present'
@@ -428,7 +458,7 @@ name, so splitting the visual label adds no screen-reader duplication. Do not ad
 - [ ] **Step 5: Assert the fix**
 
 ```powershell
-$rooms = Get-Content -Raw (Join-Path $workDir 'Rooms.pa.yaml')
+$rooms = [System.IO.File]::ReadAllText((Join-Path $workDir 'Rooms.pa.yaml'))
 if ($rooms -match [regex]::Escape('Text: ="● " & ThisItem.StatusText')) { throw 'Combined dot+text label still present.' }
 $required = @(
   'lblRoomsCardStatusDot:',
@@ -469,7 +499,7 @@ UNVERIFIED: the guarded formula is evaluated by the Power Fx engine, not by
 - [ ] **Step 1: Assert the defects**
 
 ```powershell
-$rooms = Get-Content -Raw (Join-Path $workDir 'Rooms.pa.yaml')
+$rooms = [System.IO.File]::ReadAllText((Join-Path $workDir 'Rooms.pa.yaml'))
 if ($rooms -notmatch [regex]::Escape('Width: =If(App.Width < 768, Parent.Width, Parent.Width - 480)')) { throw 'Expected hardcoded 480 search offset not found.' }
 if ($rooms -notmatch [regex]::Escape('Height: =If(App.Width < 768, 208, 48)')) { throw 'Expected 208 toolbar height not found.' }
 'defects confirmed present'
@@ -557,7 +587,7 @@ correctly today, and narrowing it would risk reintroducing exactly this bug in t
 - [ ] **Step 6: Assert the fix**
 
 ```powershell
-$rooms = Get-Content -Raw (Join-Path $workDir 'Rooms.pa.yaml')
+$rooms = [System.IO.File]::ReadAllText((Join-Path $workDir 'Rooms.pa.yaml'))
 $required = @(
   'Height: =If(App.Width < 768, 240, 48)',
   'FillPortions: =If(App.Width < 768, 0, 1)',
@@ -604,7 +634,7 @@ UNVERIFIED: FillPortions behaviour under the 768px LayoutDirection switch
 - [ ] **Step 1: Count the sites before changing anything**
 
 ```powershell
-$rooms = Get-Content -Raw (Join-Path $workDir 'Rooms.pa.yaml')
+$rooms = [System.IO.File]::ReadAllText((Join-Path $workDir 'Rooms.pa.yaml'))
 $lato = ([regex]::Matches($rooms, [regex]::Escape('Font: =Font.Lato'))).Count
 if ($lato -ne 26) { throw "Expected 26 Font.Lato sites, found $lato - a prior task changed the count." }
 '26 sites confirmed'
@@ -617,13 +647,15 @@ Expected: prints `26 sites confirmed`. Note Task 4 added one control already car
 
 ```powershell
 $path = Join-Path $workDir 'Rooms.pa.yaml'
-$rooms = Get-Content -Raw $path
+$rooms = [System.IO.File]::ReadAllText($path)
 $rooms = $rooms.Replace('Font: =Font.Lato', 'Font: ="IBM Plex Sans"')
 [System.IO.File]::WriteAllText($path, $rooms)
 ```
 
-`WriteAllText` is used rather than `Set-Content` because `Set-Content` defaults to the
-system ANSI codepage and would corrupt the `·` and `●` characters in this file.
+Both halves of this pair matter. `ReadAllText` rather than `Get-Content -Raw`, and
+`WriteAllText` rather than `Set-Content` — see the encoding note in Global Constraints. Mixing
+them in either direction silently rewrites `●` as `â—` across the whole file, and this step is
+the one bulk rewrite in the plan, so it is where that would actually happen.
 
 All 26 are replaced, including the 8 inside `con_timeline_view`. A half-converted screen —
 Plex in browse, Lato in the Today view one click away — would look worse than either extreme.
@@ -647,7 +679,7 @@ to:
 - [ ] **Step 4: Assert the sweep**
 
 ```powershell
-$rooms = Get-Content -Raw (Join-Path $workDir 'Rooms.pa.yaml')
+$rooms = [System.IO.File]::ReadAllText((Join-Path $workDir 'Rooms.pa.yaml'))
 if ($rooms -match [regex]::Escape('Font: =Font.Lato')) { throw 'Font.Lato sites remain.' }
 if ($rooms -match [regex]::Escape('Font: =CarbonFontFamily')) { throw 'CarbonFontFamily still used in a native Font property.' }
 $plex = ([regex]::Matches($rooms, [regex]::Escape('Font: ="IBM Plex Sans"'))).Count
@@ -685,7 +717,7 @@ UNVERIFIED: whether "IBM Plex Sans" resolves in the player or falls back to a
 - [ ] **Step 1: Assert the defects**
 
 ```powershell
-$rooms = Get-Content -Raw (Join-Path $workDir 'Rooms.pa.yaml')
+$rooms = [System.IO.File]::ReadAllText((Join-Path $workDir 'Rooms.pa.yaml'))
 $disabled = ([regex]::Matches($rooms, [regex]::Escape('DisabledColor: =RGBA(161, 159, 157, 1)'))).Count
 if ($disabled -lt 2) { throw "Expected 2 card DisabledColor literals, found $disabled." }
 'defects confirmed present'
@@ -730,7 +762,7 @@ recorded as follow-up in the spec.
 - [ ] **Step 4: Assert the fix**
 
 ```powershell
-$rooms = Get-Content -Raw (Join-Path $workDir 'Rooms.pa.yaml')
+$rooms = [System.IO.File]::ReadAllText((Join-Path $workDir 'Rooms.pa.yaml'))
 if ($rooms -match [regex]::Escape('DisabledColor: =RGBA(161, 159, 157, 1)')) { throw 'Card DisabledColor literal remains.' }
 # Count-based: DisabledColor: =AppTheme.TextMuted already occurs once in the base,
 # so a plain presence check would pass even if neither card label were converted.
@@ -779,7 +811,7 @@ no new raw colour.
 - [ ] **Step 2: Run the integrated contract**
 
 ```powershell
-$rooms = Get-Content -Raw (Join-Path $workDir 'Rooms.pa.yaml')
+$rooms = [System.IO.File]::ReadAllText((Join-Path $workDir 'Rooms.pa.yaml'))
 $required = @(
   'TemplatePadding: =8',
   'AutoHeight: =false',
