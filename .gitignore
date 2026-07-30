@@ -10,3 +10,6 @@
 
 # Isolated feature worktrees
 .worktrees/
+
+# Canvas sync/work/publish scratch directories
+.scratch/
