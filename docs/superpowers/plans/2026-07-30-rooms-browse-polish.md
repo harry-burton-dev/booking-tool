@@ -290,7 +290,13 @@ Content now ends at 184, leaving a 16px bottom margin inside the 200px template.
 
 ```powershell
 $rooms = Get-Content -Raw (Join-Path $workDir 'Rooms.pa.yaml')
-if ($rooms -match [regex]::Escape('AutoHeight: =true')) { throw 'AutoHeight still true.' }
+# Count-based, NOT presence-based. AutoHeight: =true occurs 3x in the base: the
+# card's lbl_textID_Desc (the target) plus lblBookingTitle and lblBookedBy inside
+# con_timeline_view, which are out of scope and MUST survive. A plain -match would
+# fail here even when the edit is perfectly correct.
+$ah = ([regex]::Matches($rooms, [regex]::Escape('AutoHeight: =true'))).Count
+if ($ah -ne 2) { throw "Expected 2 AutoHeight: =true sites left (both in con_timeline_view), found $ah." }
+if ($rooms -notmatch [regex]::Escape('AutoHeight: =false')) { throw 'Card AutoHeight not set to false.' }
 if ($rooms -notmatch [regex]::Escape('Wrap: =false')) { throw 'Wrap: =false not added.' }
 if ($rooms -match '(?m)^\s*Height: =10\s*$') { throw 'lblRoomsStripEnd still has clipping height 10.' }
 if ($rooms -notmatch [regex]::Escape('TemplateSize: =200')) { throw 'Card template size must stay 200.' }
@@ -554,16 +560,19 @@ correctly today, and narrowing it would risk reintroducing exactly this bug in t
 $rooms = Get-Content -Raw (Join-Path $workDir 'Rooms.pa.yaml')
 $required = @(
   'Height: =If(App.Width < 768, 240, 48)',
-  'LayoutGap: =16',
   'FillPortions: =If(App.Width < 768, 0, 1)',
   'TemplateSize: =84'
 )
 $missing = $required | Where-Object { $rooms -notmatch [regex]::Escape($_) }
 if ($missing.Count -gt 0) { throw ('Missing: ' + ($missing -join ', ')) }
-# Count-based: con_timeline_view already contains one Width: =200, so a plain
-# -match would pass even if the toggle were never widened.
+# Count-based. Both of these values ALREADY occur in the base file, so a plain
+# presence check would pass even if neither edit were made:
+#   Width: =200    once, inside con_timeline_view
+#   LayoutGap: =16 once, on conRoomsEquipmentFilters
 $w200 = ([regex]::Matches($rooms, '(?m)^\s*Width: =200\s*$')).Count
 if ($w200 -ne 2) { throw "Expected 2 Width: =200 sites (1 pre-existing + the toggle), found $w200." }
+$gap = ([regex]::Matches($rooms, '(?m)^\s*LayoutGap: =16\s*$')).Count
+if ($gap -ne 2) { throw "Expected 2 LayoutGap: =16 sites (1 pre-existing + the toolbar), found $gap." }
 if ($rooms -match [regex]::Escape('Parent.Width - 480')) { throw 'Hardcoded 480 offset still present.' }
 if ($rooms -notmatch [regex]::Escape('TemplateSize: =98')) { throw 'Filter-row gallery must keep TemplateSize 98.' }
 if ((([regex]::Matches($rooms, [regex]::Escape('FillPortions: =0'))).Count) -lt 3) { throw 'Expected at least 3 FillPortions: =0 entries.' }
@@ -723,7 +732,10 @@ recorded as follow-up in the spec.
 ```powershell
 $rooms = Get-Content -Raw (Join-Path $workDir 'Rooms.pa.yaml')
 if ($rooms -match [regex]::Escape('DisabledColor: =RGBA(161, 159, 157, 1)')) { throw 'Card DisabledColor literal remains.' }
-if ($rooms -notmatch [regex]::Escape('DisabledColor: =AppTheme.TextMuted')) { throw 'Token replacement not applied.' }
+# Count-based: DisabledColor: =AppTheme.TextMuted already occurs once in the base,
+# so a plain presence check would pass even if neither card label were converted.
+$muted = ([regex]::Matches($rooms, [regex]::Escape('DisabledColor: =AppTheme.TextMuted'))).Count
+if ($muted -ne 3) { throw "Expected 3 DisabledColor: =AppTheme.TextMuted sites (1 pre-existing + 2 card labels), found $muted." }
 if ($rooms -notmatch [regex]::Escape('Fill: =RGBA(255, 255, 255, 1)')) { throw 'Screen Fill was changed - it is out of scope.' }
 'task 7 contract passed'
 ```
@@ -773,16 +785,23 @@ $required = @(
   'AutoHeight: =false',
   'lblRoomsCardStatusDot:',
   '"seats" in Lower(_d)',
-  'LayoutGap: =16',
-  'TemplateSize: =84',
-  'DisabledColor: =AppTheme.TextMuted'
+  'TemplateSize: =84'
 )
 $missing = $required | Where-Object { $rooms -notmatch [regex]::Escape($_) }
 if ($missing.Count -gt 0) { throw ('Integrated contract missing: ' + ($missing -join ', ')) }
-# The two count-based checks, repeated here because plain presence proves nothing
-# for these values - both already occur elsewhere in the file.
-if ((([regex]::Matches($rooms, '(?m)^\s*Fill: =AppTheme\.Surface\s*$')).Count) -ne 5) { throw 'Card fill not converted (expected 5 AppTheme.Surface sites).' }
-if ((([regex]::Matches($rooms, '(?m)^\s*Width: =200\s*$')).Count) -ne 2) { throw 'Available now toggle not widened (expected 2 Width: =200 sites).' }
+# Count-based checks. Every value below ALREADY occurs in the base file, so plain
+# presence proves nothing. Expected counts are (pre-existing + added by this change).
+$counts = @{
+  '(?m)^\s*Fill: =AppTheme\.Surface\s*$'                      = 5   # 4 pre-existing + card
+  '(?m)^\s*Width: =200\s*$'                                   = 2   # 1 pre-existing + toggle
+  '(?m)^\s*LayoutGap: =16\s*$'                                = 2   # 1 pre-existing + toolbar
+  '(?m)^\s*DisabledColor: =AppTheme\.TextMuted\s*$'           = 3   # 1 pre-existing + 2 labels
+  '(?m)^\s*AutoHeight: =true\s*$'                             = 2   # 2 timeline survivors
+}
+foreach ($pattern in $counts.Keys) {
+  $actual = ([regex]::Matches($rooms, $pattern)).Count
+  if ($actual -ne $counts[$pattern]) { throw "Count mismatch for /$pattern/: expected $($counts[$pattern]), found $actual." }
+}
 @('Font: =Font.Lato', 'Parent.Width - 480', 'Text: ="● " & ThisItem.StatusText', 'Step 1 of 3', 'Floor', 'Group by') |
   ForEach-Object { if ($rooms -match [regex]::Escape($_)) { throw "Forbidden content still present: $_" } }
 'integrated contract passed'
