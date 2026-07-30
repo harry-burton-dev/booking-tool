@@ -85,7 +85,7 @@ Screens:
                                   Properties:
                                     Color: =AppTheme.TextPrimary
                                     FillPortions: =1
-                                    Font: =Font.Lato
+                                    Font: ="IBM Plex Sans"
                                     FontWeight: =FontWeight.Semibold
                                     Size: =20
                                     Text: ="Choose a room"
@@ -94,7 +94,7 @@ Screens:
                                   Properties:
                                     Align: =Align.Right
                                     Color: =AppTheme.TextSecondary
-                                    Font: =Font.Lato
+                                    Font: ="IBM Plex Sans"
                                     Size: =11
                                     Text: =RoomsBrowseFilteredCount & " of " & RoomsBrowseTotalCount & " rooms · " & RoomsBrowseAvailableCount & " available now"
                                     Width: =300
@@ -103,9 +103,10 @@ Screens:
                             Variant: AutoLayout
                             Properties:
                               FillPortions: =0
-                              Height: =If(App.Width < 768, 208, 48)
+                              Height: =If(App.Width < 768, 240, 48)
                               LayoutAlignItems: =LayoutAlignItems.Center
                               LayoutDirection: =If(App.Width < 768, LayoutDirection.Vertical, LayoutDirection.Horizontal)
+                              LayoutGap: =16
                               Width: =Parent.Width
                             Children:
                               - txtRoomsSearch:
@@ -118,9 +119,10 @@ Screens:
                                     Default: =gblRoomsSearch
                                     DelayOutput: =true
                                     Fill: =AppTheme.layer01Bg
+                                    FillPortions: =If(App.Width < 768, 0, 1)
                                     FocusedBorderColor: =ColorValue(AppTheme.Primary)
                                     FocusedBorderThickness: =2
-                                    Font: =Font.Lato
+                                    Font: ="IBM Plex Sans"
                                     Height: =48
                                     HintText: ="Search rooms and equipment"
                                     HoverBorderColor: =AppTheme.TextSecondary
@@ -130,7 +132,7 @@ Screens:
                                     RadiusTopLeft: =0
                                     RadiusTopRight: =0
                                     Size: =11
-                                    Width: =If(App.Width < 768, Parent.Width, Parent.Width - 480)
+                                    Width: =Parent.Width
                               - drpRoomsCapacity:
                                   Control: Classic/DropDown
                                   Properties:
@@ -142,9 +144,10 @@ Screens:
                                     Color: =AppTheme.TextPrimary
                                     Default: ="Any size"
                                     Fill: =AppTheme.layer01Bg
+                                    FillPortions: =0
                                     FocusedBorderColor: =ColorValue(AppTheme.Primary)
                                     FocusedBorderThickness: =2
-                                    Font: =Font.Lato
+                                    Font: ="IBM Plex Sans"
                                     Height: =48
                                     Items: =["Any size","4+","8+","14+","20+"]
                                     Items.Value: =Value
@@ -162,9 +165,10 @@ Screens:
                                     Color: =AppTheme.TextPrimary
                                     Default: ="Name"
                                     Fill: =AppTheme.layer01Bg
+                                    FillPortions: =0
                                     FocusedBorderColor: =ColorValue(AppTheme.Primary)
                                     FocusedBorderThickness: =2
-                                    Font: =Font.Lato
+                                    Font: ="IBM Plex Sans"
                                     Height: =48
                                     Items: |-
                                       =["Name","Capacity: smallest","Capacity: largest"]
@@ -176,11 +180,12 @@ Screens:
                                   Control: Toggle
                                   Properties:
                                     Checked: =gblRoomsAvailableOnly
+                                    FillPortions: =0
                                     Height: =48
                                     Label: ="Available now"
                                     OnCheck: =Set(gblRoomsAvailableOnly, true)
                                     OnUncheck: =Set(gblRoomsAvailableOnly, false)
-                                    Width: =140
+                                    Width: =200
                         - conRoomsEquipmentFilters:
                             Control: GroupContainer
                             Variant: AutoLayout
@@ -197,7 +202,7 @@ Screens:
                                   Control: Label
                                   Properties:
                                     Color: =AppTheme.TextMuted
-                                    Font: =Font.Lato
+                                    Font: ="IBM Plex Sans"
                                     Height: =24
                                     Size: =9
                                     Text: ="Equipment"
@@ -228,7 +233,7 @@ Screens:
                                           Fill: =If(ThisItem.Value in colRoomsEquipmentFilter.Value, ColorValue(AppTheme.ButtonPrimary), AppTheme.SurfaceAlt)
                                           FocusedBorderColor: =ColorValue(AppTheme.Primary)
                                           FocusedBorderThickness: =2
-                                          Font: =Font.Lato
+                                          Font: ="IBM Plex Sans"
                                           Height: =24
                                           OnSelect: |-
                                             =If(
@@ -249,11 +254,10 @@ Screens:
                             Variant: Vertical
                             Properties:
                               AlignInContainer: =AlignInContainer.Start
-                              BorderColor: =RGBA(245, 245, 245, 1)
                               Height: =Parent.Height
                               Items: =RoomsBrowseData
-                              TemplatePadding: =0
-                              TemplateSize: =200
+                              TemplatePadding: =8
+                              TemplateSize: =216
                               Visible: =!IsEmpty(RoomsBrowseData)
                               Width: =Parent.Width
                               WrapCount: =If(App.Width >= 1200, 4, App.Width >= 768, 2, 1)
@@ -265,7 +269,7 @@ Screens:
                                     BorderColor: =If(!IsBlank(varSelectedRoom) && varSelectedRoom.ID = ThisItem.ID, ColorValue(AppTheme.Primary), AppTheme.Border)
                                     BorderThickness: =If(!IsBlank(varSelectedRoom) && varSelectedRoom.ID = ThisItem.ID, 2, 1)
                                     DropShadow: =DropShadow.None
-                                    Fill: =AppTheme.layer01Bg
+                                    Fill: =AppTheme.Surface
                                     Height: =Parent.TemplateHeight
                                     RadiusBottomLeft: =0
                                     RadiusBottomRight: =0
@@ -276,75 +280,91 @@ Screens:
                                     - lbl_textID_Card:
                                         Control: Label
                                         Properties:
-                                          BorderColor: =RGBA(0, 0, 0, 0)
+                                          BorderColor: =Color.Transparent
                                           BorderStyle: =BorderStyle.None
                                           BorderThickness: =2
                                           Color: =AppTheme.TextPrimary
                                           DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                                          DisabledColor: =RGBA(161, 159, 157, 1)
+                                          DisabledColor: =AppTheme.TextMuted
                                           FocusedBorderThickness: =4
-                                          Font: =Font.Lato
+                                          Font: ="IBM Plex Sans"
                                           FontWeight: =FontWeight.Semibold
                                           Height: =26
                                           Size: =14
                                           Text: =ThisItem.Title
                                           Width: =Parent.Width - 32
                                           X: =16
-                                          Y: =42
+                                          Y: =44
                                     - lblRoomsStripMid:
                                         Control: Label
                                         Properties:
                                           Align: =Align.Center
                                           Color: =AppTheme.TextMuted
-                                          Font: =Font.Lato
-                                          Height: =16
+                                          Font: ="IBM Plex Sans"
+                                          Height: =14
                                           Size: =9
                                           Text: =Text(DateAdd(TodayWindowStart, WorkingDayMinutes / 2, TimeUnit.Minutes), "HH:mm")
                                           Width: =Parent.Width - 32
                                           X: =16
-                                          Y: =126
+                                          Y: =124
                                     - lbl_textID_Desc:
                                         Control: Label
                                         Properties:
-                                          AutoHeight: =true
-                                          BorderColor: =RGBA(0, 0, 0, 0)
+                                          AutoHeight: =false
+                                          BorderColor: =Color.Transparent
                                           BorderStyle: =BorderStyle.None
                                           BorderThickness: =2
                                           Color: =AppTheme.TextSecondary
                                           DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                                          DisabledColor: =RGBA(161, 159, 157, 1)
+                                          DisabledColor: =AppTheme.TextMuted
                                           FocusedBorderThickness: =4
-                                          Font: =Font.Lato
-                                          Height: =20
+                                          Font: ="IBM Plex Sans"
+                                          Height: =18
                                           Size: =11
                                           Text: |-
                                             =With(
-                                                {_description: Coalesce(ThisItem.Description, "")},
-                                                _description &
-                                                If(!IsBlank(_description), " · ", "") &
-                                                "seats " & Text(ThisItem.Capacity)
+                                                {_d: Trim(Coalesce(ThisItem.Description, ""))},
+                                                If(
+                                                    IsBlank(_d),
+                                                    "seats " & Text(ThisItem.Capacity),
+                                                    "seats" in Lower(_d),
+                                                    _d,
+                                                    _d & " · seats " & Text(ThisItem.Capacity)
+                                                )
                                             )
+                                          Wrap: =false
                                           Width: =Parent.Width - 32
                                           X: =16
-                                          Y: =68
-                                    - lblRoomsCardStatus:
+                                          Y: =72
+                                    - lblRoomsCardStatusDot:
                                         Control: Label
                                         Properties:
                                           Color: =Switch(ThisItem.StatusKey, "Busy", AppTheme.TextMuted, "OutsideHours", AppTheme.TextMuted, AppTheme.StatusFreeText)
-                                          Font: =Font.Lato
-                                          Height: =20
+                                          Font: ="IBM Plex Sans"
+                                          Height: =18
                                           Size: =10
-                                          Text: ="● " & ThisItem.StatusText
-                                          Width: =Parent.Width - 64
+                                          Text: ="●"
+                                          Width: =12
                                           X: =16
-                                          Y: =14
+                                          Y: =16
+                                    - lblRoomsCardStatus:
+                                        Control: Label
+                                        Properties:
+                                          Color: =AppTheme.TextSecondary
+                                          Font: ="IBM Plex Sans"
+                                          Height: =18
+                                          Size: =10
+                                          Text: =ThisItem.StatusText
+                                          Width: =Parent.Width - 80
+                                          X: =32
+                                          Y: =16
                                     - lblRoomsSelectedCheck:
                                         Control: Label
                                         Properties:
                                           Align: =Align.Center
                                           Color: =ColorValue(AppTheme.PrimaryText)
                                           Fill: =ColorValue(AppTheme.ButtonPrimary)
-                                          Font: =Font.Lato
+                                          Font: ="IBM Plex Sans"
                                           FontWeight: =FontWeight.Semibold
                                           Height: =24
                                           Size: =11
@@ -394,7 +414,7 @@ Screens:
                                           TemplateSize: =(Self.Width / ((DayEndHour - DayStartHour) * 2))
                                           Width: =Parent.Width - 32
                                           X: =16
-                                          Y: =116
+                                          Y: =112
                                         Children:
                                           - rectRoomsAvailabilitySegment:
                                               Control: Rectangle
@@ -406,25 +426,25 @@ Screens:
                                         Control: Label
                                         Properties:
                                           Color: =AppTheme.TextMuted
-                                          Font: =Font.Lato
-                                          Height: =16
+                                          Font: ="IBM Plex Sans"
+                                          Height: =14
                                           Size: =9
                                           Text: =Text(TodayWindowStart, "HH:mm")
                                           Width: =59
                                           X: =16
-                                          Y: =126
+                                          Y: =124
                                     - lblRoomsStripEnd:
                                         Control: Label
                                         Properties:
                                           Align: =Align.Right
                                           Color: =AppTheme.TextMuted
-                                          Font: =Font.Lato
-                                          Height: =10
+                                          Font: ="IBM Plex Sans"
+                                          Height: =14
                                           Size: =9
                                           Text: =Text(TodayWindowEnd, "HH:mm")
                                           Width: =Parent.Width - 32
                                           X: =16
-                                          Y: =126
+                                          Y: =124
                                     - galRoomsCardEquipment:
                                         Control: Gallery
                                         Variant: Horizontal
@@ -445,10 +465,10 @@ Screens:
                                             )
                                           ShowScrollbar: =false
                                           TemplatePadding: =2
-                                          TemplateSize: =72
+                                          TemplateSize: =84
                                           Width: =Parent.Width - 32
                                           X: =16
-                                          Y: =156
+                                          Y: =160
                                         Children:
                                           - lblRoomsCardEquipmentTag:
                                               Control: Label
@@ -456,10 +476,11 @@ Screens:
                                                 Align: =Align.Center
                                                 Color: =AppTheme.TextSecondary
                                                 Fill: =AppTheme.SurfaceAlt
-                                                Font: =Font.Lato
+                                                Font: ="IBM Plex Sans"
                                                 Height: =20
                                                 Size: =9
                                                 Text: =ThisItem.Value
+                                                Wrap: =false
                                                 Width: =Parent.TemplateWidth - 4
                                     - btn_Card:
                                         Control: Classic/Button
@@ -474,7 +495,7 @@ Screens:
                                           Fill: =Color.Transparent
                                           FocusedBorderColor: =ColorValue(AppTheme.Primary)
                                           FocusedBorderThickness: =2
-                                          Font: =Font.Lato
+                                          Font: ="IBM Plex Sans"
                                           Height: =Parent.Height
                                           HoverBorderColor: =Color.Transparent
                                           HoverColor: =Color.Transparent
@@ -521,7 +542,7 @@ Screens:
                                   Properties:
                                     Align: =Align.Center
                                     Color: =AppTheme.TextSecondary
-                                    Font: =Font.Lato
+                                    Font: ="IBM Plex Sans"
                                     Height: =24
                                     Size: =12
                                     Text: ="No rooms match these filters"
@@ -535,7 +556,7 @@ Screens:
                                     Fill: =Color.Transparent
                                     FocusedBorderColor: =ColorValue(AppTheme.Primary)
                                     FocusedBorderThickness: =2
-                                    Font: =Font.Lato
+                                    Font: ="IBM Plex Sans"
                                     Height: =48
                                     OnSelect: |-
                                       =Set(gblRoomsSearch, "");
@@ -592,7 +613,7 @@ Screens:
                                     Fill: =RGBA(0,0,0,0)
                                     FocusedBorderColor: =RGBA(255,255,255,1)
                                     FocusedBorderThickness: =2
-                                    Font: =Font.Lato
+                                    Font: ="IBM Plex Sans"
                                     FontWeight: =FontWeight.Normal
                                     Height: =32
                                     HoverColor: =ColorValue(AppTheme.PrimaryText)
@@ -662,7 +683,7 @@ Screens:
                                     Fill: =RGBA(0,0,0,0)
                                     FocusedBorderColor: =RGBA(255,255,255,1)
                                     FocusedBorderThickness: =2
-                                    Font: =Font.Lato
+                                    Font: ="IBM Plex Sans"
                                     FontWeight: =FontWeight.Normal
                                     Height: =32
                                     HoverColor: =ColorValue(AppTheme.PrimaryText)
@@ -913,7 +934,7 @@ Screens:
                                                       Fill: =RGBA(0,0,0,0)
                                                       FocusedBorderColor: =RGBA(15,98,254,1)
                                                       FocusedBorderThickness: =2
-                                                      Font: =Font.Lato
+                                                      Font: ="IBM Plex Sans"
                                                       Height: =Parent.Height
                                                       HoverBorderColor: =RGBA(0,0,0,0)
                                                       HoverColor: =AppTheme.TextPrimary
@@ -990,7 +1011,7 @@ Screens:
                             Properties:
                               AlignInContainer: =AlignInContainer.Stretch
                               Color: =AppTheme.TextMuted
-                              Font: =Font.Lato
+                              Font: ="IBM Plex Sans"
                               Height: =24
                               LayoutMinHeight: =0
                               LayoutMinWidth: =0
@@ -1007,7 +1028,7 @@ Screens:
                               DisabledColor: =RGBA(161, 159, 157, 1)
                               DisabledFill: =RGBA(242, 242, 241, 0)
                               Fill: =RGBA(0, 120, 212, 1)
-                              Font: =Font.Lato
+                              Font: ="IBM Plex Sans"
                               HoverBorderColor: =RGBA(0, 0, 0, 0)
                               HoverColor: =RGBA(255, 255, 255, 1)
                               HoverFill: =RGBA(16, 110, 190, 1)
@@ -1142,7 +1163,7 @@ Screens:
                             Properties:
                               Color: =AppTheme.TextPrimary
                               FillPortions: =1
-                              Font: =CarbonFontFamily
+                              Font: ="IBM Plex Sans"
                               Size: =12
                               Text: |-
                                 =varSelectedRoom.Title &
@@ -1157,7 +1178,7 @@ Screens:
                               Fill: =Color.Transparent
                               FocusedBorderColor: =ColorValue(AppTheme.Primary)
                               FocusedBorderThickness: =2
-                              Font: =Font.Lato
+                              Font: ="IBM Plex Sans"
                               Height: =48
                               OnSelect: |-
                                 =Set(glbSelectedDate, Today());
@@ -1176,7 +1197,7 @@ Screens:
                               DisabledFill: =ColorValue(AppTheme.ButtonDisabled)
                               DisplayMode: =DisplayMode.Disabled
                               Fill: =ColorValue(AppTheme.ButtonDisabled)
-                              Font: =Font.Lato
+                              Font: ="IBM Plex Sans"
                               Height: =48
                               OnSelect: =Blank()
                               Text: ="View week"
@@ -1191,7 +1212,7 @@ Screens:
                               Fill: =ColorValue(AppTheme.ButtonPrimary)
                               FocusedBorderColor: =ColorValue(AppTheme.Primary)
                               FocusedBorderThickness: =2
-                              Font: =Font.Lato
+                              Font: ="IBM Plex Sans"
                               Height: =48
                               OnSelect: |-
                                 =Set(varSelectedDate, Blank());
