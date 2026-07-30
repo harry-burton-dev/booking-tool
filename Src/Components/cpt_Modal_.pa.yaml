@@ -832,6 +832,7 @@ ComponentDefinitions:
                                           HoverColor: =AppTheme.TextPrimary
                                           HoverFill: =AppTheme.SurfaceAlt
                                           Items: =["Doesn't repeat","Weekly","Every 2 weeks","Monthly"]
+                                          Items.Value: =Value
                                           LayoutMinHeight: =0
                                           LayoutMinWidth: =0
                                           OnChange: =
