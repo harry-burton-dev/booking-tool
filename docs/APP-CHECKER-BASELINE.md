@@ -16,3 +16,20 @@ node tools/sarif-diff/sarif-diff.js --baseline sarif-baseline.json --current App
 
 Recorded at install (toolkit 84cfd20, 2026-07-29) so the gap is visible rather than assumed
 covered. The first deploy should establish the baseline.
+
+## Phase 0 snapshot (2026-07-30, `get_appchecker_errors` via MCP — not a SARIF export)
+
+Post-publish state of the Phase 0 baseline (commit `aad0ea8`): **15 issues, all Medium /
+Performance, 0 High, 0 errors.**
+
+| Rule | Count | Sites |
+|---|---|---|
+| CollectDelegatableDataSource | 7 | App.OnStart ×2, btnConfirmCancel, cpt_Modal__book.OnSubmit, __book_detail.OnSubmitEdit, __book_find.OnSubmit, __book_rooms.OnSubmit |
+| ForAllWithMutation | 5 | btn_LoadTimeline, btnLoadFindBookings, cpt_Modal__book/__book_find/__book_rooms OnSubmit |
+| CollectingReadOnlyTable | 2 | App.OnStart (colRooms, colBookings) |
+| UnusedVariables | 1 | Rooms.varShowDatePicker |
+
+These are inherent to the snapshot-collection architecture (`ClearCollect(colBookings, …)`) and
+the per-occurrence `ForAll`+`Patch` create pattern — candidate refactors for a later phase, not
+Phase 0 defects. The SARIF-file baseline for `sarif-diff` still needs a Studio App Checker
+export on the first production pack; until then this table is the comparison reference.
