@@ -88,7 +88,8 @@
       "Bash(bash tools/pac-verify/pac-verify.sh *)",
       "Bash(node tools/session-close/session-close.js *)",
       "Bash(node tools/sarif-diff/sarif-diff.js *)",
-      "Bash(node tools/commit-msg-lint/commit-msg-lint.js *)"
+      "Bash(node tools/commit-msg-lint/commit-msg-lint.js *)",
+      "mcp__plugin_canvas-apps_canvas-authoring__compile_canvas"
     ]
   }
 }
