@@ -23,6 +23,7 @@ deliberately unwired (MS1/MS2). Do not run `--require-prod` until those manual s
 
 ## Entry format
 
+```markdown
 ### <id>
 
 One sentence: what this site does in dev and what it must become in prod.
@@ -34,37 +35,34 @@ One sentence: what this site does in dev and what it must become in prod.
 ```prod
 <literal substring(s) of the prod form>
 ```
+```
 
 ---
 
 ### booking-create-find
 
-Find screen series create: dev Collects into colBookings with minted IDs; prod Patches Book_Bookings and lets SharePoint assign IDs.
+Find screen series create: the marker sits directly above the reinstated `Refresh(Book_Bookings)` call; dev leaves that refresh commented out, prod reinstates it so SharePoint-assigned IDs land in colBookings.
 
 ```dev
-Collect(
-                                  colBookings,
+reinstate Refresh(Book_Bookings) here
 ```
 
 ```prod
-Patch(
-                                  Book_Bookings,
+Refresh(Book_Bookings);
 ```
 
 ---
 
 ### booking-create-rooms
 
-Rooms screen create: same dev/prod shapes as booking-create-find.
+Rooms screen create: same dev/prod shape as booking-create-find — the marker sits directly above the reinstated `Refresh(Book_Bookings)` call.
 
 ```dev
-Collect(
-                                  colBookings,
+reinstate Refresh(Book_Bookings) here
 ```
 
 ```prod
-Patch(
-                                  Book_Bookings,
+Refresh(Book_Bookings);
 ```
 
 ---
@@ -109,6 +107,20 @@ Patch(colUserSettings,
 
 ```prod
 Patch(Book_UserSettings,
+```
+
+---
+
+### people-picker-mock
+
+Book-for picker: dev feeds drpBookFor from MockPeopleSeed; prod feeds colPeople from Office365Users.SearchUserV2 (deferred with MS2).
+
+```dev
+MockPeopleSeed = Table(
+```
+
+```prod
+Office365Users.SearchUserV2(
 ```
 
 ---

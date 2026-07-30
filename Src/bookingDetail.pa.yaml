@@ -452,10 +452,12 @@ Screens:
                                                 HoverColor: =ColorValue(AppTheme.PrimaryText)
                                                 HoverFill: =ColorValue("#b81922")
                                                 OnSelect: |-
-                                                  =/* PROD-REVERT: Patch(Book_Bookings, ...) - soft delete; Remove() retired per WS4 */
+                                                  =// PROD-REVERT[booking-cancel] soft delete via Patch; Remove() retired per WS4
                                                   IfError(
-                                                      Patch(colBookings, LookUp(colBookings, ID = gblSelectedBooking.ID), {Status: "Cancelled"}),
+                                                      Patch(Book_Bookings, LookUp(Book_Bookings, ID = gblSelectedBooking.ID), {Status: "Cancelled"}),
                                                       Notify("Couldn't cancel this booking. Please try again.", NotificationType.Error),
+                                                      Refresh(Book_Bookings);
+                                                      ClearCollect(colBookings, Book_Bookings);
                                                       Set(gblSelectedBooking, Blank());
                                                       Notify("Booking cancelled", NotificationType.Success);
                                                       Navigate(myBookings, ScreenTransition.Fade)
@@ -492,25 +494,25 @@ Screens:
                               )
                           ),
                           Notify("That slot is no longer free. Your booking is unchanged.", NotificationType.Warning, 6000),
+                          // PROD-REVERT[booking-edit] prod form: Patch(Book_Bookings, ...) below
                           IfError(
                               Patch(
-                                  colBookings,
-                                  LookUp(colBookings, ID = gblEditingBookingID),
+                                  Book_Bookings,
+                                  LookUp(Book_Bookings, ID = gblEditingBookingID),
                                   {
                                       Title: _occ.Title,
                                       RoomID: {Id: _occ.RoomIdNumber, Value: _occ.RoomIdText},
-                                      'RoomID: Title': {Id: _occ.RoomIdNumber, Value: _occ.RoomTitle},
                                       StartDateTime: _occ.StartDateTime,
                                       EndDateTime: _occ.EndDateTime
                                   }
                               ),
                               Notify("Couldn't update this booking. Please try again.", NotificationType.Error),
+                              Refresh(Book_Bookings);
+                              ClearCollect(colBookings, Book_Bookings);
                               Notify("Booking updated", NotificationType.Success)
                           )
                       )
                   );
-
-                  /* PROD-REVERT: Patch(Book_Bookings, LookUp(Book_Bookings, ID = gblEditingBookingID), {...}) per MOCK_DATA.md */
 
                   Set(gblSelectedBooking, LookUp(colBookings, ID = gblEditingBookingID));
                   Set(gblEditingBookingID, 0);

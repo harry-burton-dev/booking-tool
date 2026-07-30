@@ -41,7 +41,7 @@ ComponentDefinitions:
       Height: =App.Height
       PatchPayload: |
         =/* One row per recurrence occurrence. The host does the write; OccIndex lets it
-           mint sequential mock IDs (SANDBOX ONLY - see PROD-REVERT in the host handler). */
+           order the occurrences; the host Patches Book_Bookings (SharePoint assigns IDs). */
         ForAll(
             Sequence(
                 If(

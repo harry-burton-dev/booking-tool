@@ -678,10 +678,6 @@ Screens:
             OnSubmit: |-
               =If(cpt_Modal__book_find.ValidPayload,
                   Clear(colFailedBookings);
-                  /* Snapshot the max ID once: Max() inside the ForAll re-reads a collection
-                     that has not yet settled, so a multi-week series can mint duplicate IDs.
-                     SANDBOX ONLY - vanishes on revert to Patch(), which lets SharePoint assign IDs. */
-                  Set(varSeriesBaseId, Max(colBookings, ID));
 
                   /* Loop through all occurrences emitted by the wizard */
                   ForAll(
@@ -709,29 +705,26 @@ Screens:
 
                           /* Create booking; record a write failure if it errors */
                           IfError(
-                              Collect(
-                                  colBookings,
+                              Patch(
+                                  Book_Bookings,
+                                  Defaults(Book_Bookings),
                                   {
-                                      ID: varSeriesBaseId + _occ.OccIndex,
                                       Title: _occ.Title,
                                       BookedByEmail: _occ.BookedByEmail,
                                       RoomID: {
                                           Id: _occ.RoomIdNumber,
                                           Value: _occ.RoomIdText
                                       },
-                                      'RoomID: Title': {
-                                          Id: _occ.RoomIdNumber,
-                                          Value: _occ.RoomTitle
-                                      },
                                       StartDateTime: _occ.StartDateTime,
                                       EndDateTime: _occ.EndDateTime,
                                       Status: "Active",
                                       IsPrivate: _occ.IsPrivate,
+                                      // PROD-REVERT[booked-by-actor] person = actor; mock claims don't resolve
                                       BookedBy: {
                                           '@odata.type': "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser",
-                                          Claims: $"i:0#.f|membership|{If(IsBlank(varBookForEmail), Lower(User().Email), varBookForEmail)}",
-                                          DisplayName: If(IsBlank(varBookForEmail), User().FullName, varBookForName),
-                                          Email: If(IsBlank(varBookForEmail), Lower(User().Email), varBookForEmail),
+                                          Claims: $"i:0#.f|membership|{Lower(User().Email)}",
+                                          DisplayName: User().FullName,
+                                          Email: Lower(User().Email),
                                           Department: "",
                                           JobTitle: "",
                                           Picture: ""
@@ -744,12 +737,15 @@ Screens:
                                       BookingDate: Text(_occ.StartDateTime, "dd mmm yyyy"),
                                       Reason: "error"
                                   }
-                              )
+                              );
+                              Blank()
                           )
                       )
                   );
 
-                  /* PROD-REVERT: reinstate Refresh(Book_Bookings) here per MOCK_DATA.md */
+                  // PROD-REVERT[booking-create-find] SharePoint round-trip after series create
+                  Refresh(Book_Bookings);
+                  ClearCollect(colBookings, Book_Bookings);
 
                   Set(varBookingError, !IsEmpty(Filter(colFailedBookings, Reason = "error")));
 

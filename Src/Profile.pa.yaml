@@ -217,7 +217,7 @@ Screens:
                                           LayoutMinHeight: =16
                                           LayoutMinWidth: =16
                                           OnCheck: |-
-                                            =/* PROD-REVERT: Patch(Book_UserSettings, ...) per MOCK_DATA.md */
+                                            =// PROD-REVERT[user-settings-writes] colUserSettings until Book_UserSettings is wired (MS1)
                                             Patch(colUserSettings, LookUp(colUserSettings, Email = Lower(User().Email)), {NotifyConfirm: true});
                                             Set(gblUserSettings, LookUp(colUserSettings, Email = Lower(User().Email)))
                                           OnUncheck: |-

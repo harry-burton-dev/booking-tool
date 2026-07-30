@@ -444,110 +444,6 @@ App:
                   //--- Sandbox mock data (mirrors Book_Rooms/Book_Bookings) ---
                   //--------------------------------------------------------
 
-                  MockRoomsSeed = Table(
-                      {ID: 1, Title: "Boardroom", Name: "Boardroom", description: "Large boardroom · seats 14 · screen + VC", RoomID: 1, Capacity: 14, Equipment: "Screen;VC"},
-                      {ID: 2, Title: "Meeting Room A", Name: "Meeting Room A", description: "Meeting room · seats 8 · screen", RoomID: 2, Capacity: 8, Equipment: "Screen"},
-                      {ID: 3, Title: "Meeting Room B", Name: "Meeting Room B", description: "Meeting room · seats 8 · whiteboard", RoomID: 3, Capacity: 8, Equipment: "Whiteboard"},
-                      {ID: 4, Title: "Huddle Space 1", Name: "Huddle Space 1", description: "Huddle space · seats 4", RoomID: 4, Capacity: 4, Equipment: ""},
-                      {ID: 5, Title: "Huddle Space 2", Name: "Huddle Space 2", description: "Huddle space · seats 4", RoomID: 5, Capacity: 4, Equipment: ""},
-                      {ID: 6, Title: "Training Room", Name: "Training Room", description: "Training room · seats 20 · projector", RoomID: 6, Capacity: 20, Equipment: "Projector"}
-                  );
-
-                  MockBookingsSeed = Table(
-                      {
-                          ID: 1, Title: "Team Standup", Name: "Team Standup",
-                          BookedByEmail: "",
-                          Status: "Active", IsPrivate: false,
-                          RoomID: {Id: 1, Value: "1"}, 'RoomID: Title': {Id: 1, Value: "Boardroom"},
-                          StartDateTime: DateAdd(Today(), 9 * 60, TimeUnit.Minutes),
-                          EndDateTime: DateAdd(Today(), 9 * 60 + 30, TimeUnit.Minutes),
-                          BookedBy: {'@odata.type': "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser", Claims: "", DisplayName: "", Email: "", Department: "", JobTitle: "", Picture: ""}
-                      },
-                      {
-                          ID: 2, Title: "Client Call", Name: "Client Call",
-                          BookedByEmail: "alex.morgan@example.com",
-                          /* hostile: private booking owned by someone else - title/owner must not leak */
-                          Status: "Active", IsPrivate: true,
-                          RoomID: {Id: 2, Value: "2"}, 'RoomID: Title': {Id: 2, Value: "Meeting Room A"},
-                          StartDateTime: DateAdd(Today(), 10 * 60, TimeUnit.Minutes),
-                          EndDateTime: DateAdd(Today(), 11 * 60, TimeUnit.Minutes),
-                          BookedBy: {'@odata.type': "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser", Claims: "i:0#.f|membership|alex.morgan@example.com", DisplayName: "Alex Morgan", Email: "alex.morgan@example.com", Department: "", JobTitle: "", Picture: ""}
-                      },
-                      {
-                          ID: 3, Title: "Design Review", Name: "Design Review",
-                          BookedByEmail: "priya.shah@example.com",
-                          Status: "Active", IsPrivate: false,
-                          RoomID: {Id: 3, Value: "3"}, 'RoomID: Title': {Id: 3, Value: "Meeting Room B"},
-                          StartDateTime: DateAdd(Today(), 13 * 60, TimeUnit.Minutes),
-                          EndDateTime: DateAdd(Today(), 14 * 60, TimeUnit.Minutes),
-                          BookedBy: {'@odata.type': "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser", Claims: "i:0#.f|membership|priya.shah@example.com", DisplayName: "Priya Shah", Email: "priya.shah@example.com", Department: "", JobTitle: "", Picture: ""}
-                      },
-                      {
-                          ID: 4, Title: "1:1", Name: "1:1",
-                          BookedByEmail: "sam.lee@example.com",
-                          Status: "Active", IsPrivate: false,
-                          RoomID: {Id: 4, Value: "4"}, 'RoomID: Title': {Id: 4, Value: "Huddle Space 1"},
-                          StartDateTime: DateAdd(Today(), 15 * 60, TimeUnit.Minutes),
-                          EndDateTime: DateAdd(Today(), 15 * 60 + 30, TimeUnit.Minutes),
-                          BookedBy: {'@odata.type': "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser", Claims: "i:0#.f|membership|sam.lee@example.com", DisplayName: "Sam Lee", Email: "sam.lee@example.com", Department: "", JobTitle: "", Picture: ""}
-                      },
-                      {
-                          ID: 5, Title: "Sprint Planning", Name: "Sprint Planning",
-                          BookedByEmail: "alex.morgan@example.com",
-                          Status: "Active", IsPrivate: false,
-                          RoomID: {Id: 1, Value: "1"}, 'RoomID: Title': {Id: 1, Value: "Boardroom"},
-                          StartDateTime: DateAdd(Today(), 24 * 60 + 9 * 60, TimeUnit.Minutes),
-                          EndDateTime: DateAdd(Today(), 24 * 60 + 10 * 60 + 30, TimeUnit.Minutes),
-                          BookedBy: {'@odata.type': "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser", Claims: "i:0#.f|membership|alex.morgan@example.com", DisplayName: "Alex Morgan", Email: "alex.morgan@example.com", Department: "", JobTitle: "", Picture: ""}
-                      },
-                      {
-                          ID: 6, Title: "Training Session", Name: "Training Session",
-                          BookedByEmail: "priya.shah@example.com",
-                          Status: "Active", IsPrivate: false,
-                          RoomID: {Id: 6, Value: "6"}, 'RoomID: Title': {Id: 6, Value: "Training Room"},
-                          StartDateTime: DateAdd(Today(), 2 * 24 * 60 + 9 * 60, TimeUnit.Minutes),
-                          EndDateTime: DateAdd(Today(), 2 * 24 * 60 + 11 * 60, TimeUnit.Minutes),
-                          BookedBy: {'@odata.type': "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser", Claims: "i:0#.f|membership|priya.shah@example.com", DisplayName: "Priya Shah", Email: "priya.shah@example.com", Department: "", JobTitle: "", Picture: ""}
-                      },
-                      {
-                          ID: 7, Title: "Past Review", Name: "Past Review",
-                          BookedByEmail: "",
-                          Status: "Active", IsPrivate: false,
-                          RoomID: {Id: 2, Value: "2"}, 'RoomID: Title': {Id: 2, Value: "Meeting Room A"},
-                          StartDateTime: DateAdd(Today(), -24 * 60 + 9 * 60, TimeUnit.Minutes),
-                          EndDateTime: DateAdd(Today(), -24 * 60 + 10 * 60, TimeUnit.Minutes),
-                          BookedBy: {'@odata.type': "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser", Claims: "", DisplayName: "", Email: "", Department: "", JobTitle: "", Picture: ""}
-                      },
-                      {
-                          ID: 8, Title: "Back-to-back", Name: "Back-to-back",
-                          BookedByEmail: "sam.lee@example.com",
-                          Status: "Active", IsPrivate: false,
-                          RoomID: {Id: 1, Value: "1"}, 'RoomID: Title': {Id: 1, Value: "Boardroom"},
-                          StartDateTime: DateAdd(Today(), 9 * 60 + 30, TimeUnit.Minutes),
-                          EndDateTime: DateAdd(Today(), 10 * 60, TimeUnit.Minutes),
-                          BookedBy: {'@odata.type': "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser", Claims: "i:0#.f|membership|sam.lee@example.com", DisplayName: "Sam Lee", Email: "sam.lee@example.com", Department: "", JobTitle: "", Picture: ""}
-                      },
-                      {
-                          ID: 9, Title: "Evening overrun", Name: "Evening overrun",
-                          BookedByEmail: "priya.shah@example.com",
-                          Status: "Active", IsPrivate: false,
-                          RoomID: {Id: 5, Value: "5"}, 'RoomID: Title': {Id: 5, Value: "Huddle Space 2"},
-                          StartDateTime: DateAdd(Today(), 17 * 60 + 30, TimeUnit.Minutes),
-                          EndDateTime: DateAdd(Today(), 18 * 60 + 30, TimeUnit.Minutes),
-                          BookedBy: {'@odata.type': "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser", Claims: "i:0#.f|membership|priya.shah@example.com", DisplayName: "Priya Shah", Email: "priya.shah@example.com", Department: "", JobTitle: "", Picture: ""}
-                      },
-                      {
-                          /* hostile: cancelled row overlapping ID 1 - must neither render nor block booking */
-                          ID: 10, Title: "Cancelled clash", Name: "Cancelled clash",
-                          BookedByEmail: "sam.patel@example.com",
-                          Status: "Cancelled", IsPrivate: false,
-                          RoomID: {Id: 1, Value: "1"}, 'RoomID: Title': {Id: 1, Value: "Boardroom"},
-                          StartDateTime: DateAdd(Today(), 9 * 60, TimeUnit.Minutes),
-                          EndDateTime: DateAdd(Today(), 9 * 60 + 30, TimeUnit.Minutes),
-                          BookedBy: {'@odata.type': "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser", Claims: "i:0#.f|membership|sam.patel@example.com", DisplayName: "Sam Patel", Email: "sam.patel@example.com", Department: "", JobTitle: "", Picture: ""}
-                      }
-                  );
-
                   /* Per-user settings - mirrors intended Book_UserSettings list (see MOCK_DATA.md).
                      Single blank-email row is bound to the signed-in user in App.OnStart. */
                   MockUserSettingsSeed = Table(
@@ -557,9 +453,8 @@ App:
                   /* Sandbox stand-in for Office365Users.SearchUserV2 (P-8/S-6).
                      First row is a select-prompt sentinel: blank Mail keeps the
                      Confirm gate closed until a real person is picked.
-                     PROD-REVERT: drpBookFor is replaced in Studio by a ComboBox wired
-                     to the connector (Classic/ComboBox cannot be authored via YAML -
-                     its internal SearchItems default breaks compile); see MOCK_DATA.md. */
+                     colPeople stays mock until Office365Users is wired. */
+                  // PROD-REVERT[people-picker-mock] mock people list; repoint to Office365Users (MS2)
                   MockPeopleSeed = Table(
                       {DisplayName: "Select a person...", Mail: ""},
                       {DisplayName: "Alex Morgan", Mail: "alex.morgan@example.com"},
