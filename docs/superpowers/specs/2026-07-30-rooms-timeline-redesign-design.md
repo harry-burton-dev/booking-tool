@@ -92,8 +92,10 @@ timeline control.
   muted stat reusing the existing `freeMin` calculation from `lblHeaderSummary`:
   `"{X}h {Y}m free · {N} booked"` (`fully booked` when free ≤ 0).
 - **Two-column body**: timeline card (`FillPortions: 1`) and sidebar (fixed 320px).
-  Below `App.Width < 1024` the body stacks vertically, **sidebar first**, so the composer
-  is reachable without scrolling the full day.
+  Below `App.Width < 1024` the body stacks vertically. Canvas AutoLayout cannot reorder
+  children responsively, so the timeline card stays first and the sidebar stacks below
+  it; the card keeps `FillPortions: 1` and its gallery scrolls internally, so the sidebar
+  sits at a fixed position below the card rather than at the end of a long page.
 
 ### 2. Timeline card
 
