@@ -173,7 +173,11 @@ template to improve that would risk the same wrap defect being fixed on the card
 
 ### 7. Typography
 
-Every `Font: =Font.Lato` in `Src/Rooms.pa.yaml` becomes `Font: ="IBM Plex Sans"` — 26 sites.
+Every `Font: =Font.Lato` in `Src/Rooms.pa.yaml` becomes `Font: ="IBM Plex Sans"` — 26 sites:
+18 in the browse container and 8 in `con_timeline_view`. The timeline sites are included
+even though the timeline is otherwise untouched, because a half-converted screen — Plex in
+browse, Lato in the Today view one click away — would look more broken than either
+extreme.
 
 This is the literal already used by `Src/Components/Shell_Header.pa.yaml`, not
 `=CarbonFontFamily`. `CarbonFontFamily` is `"'IBM Plex Sans', 'Segoe UI', Arial"`, a CSS
@@ -188,13 +192,23 @@ statically and must be confirmed in Studio.
 
 ### 8. Raw colour literals (RULES DS1)
 
-On `lbl_textID_Card` and `lbl_textID_Desc`:
+Five sites, all inside the browse container:
 
-- `DisabledColor: =RGBA(161, 159, 157, 1)` → `=AppTheme.TextMuted`
-- `BorderColor: =RGBA(0, 0, 0, 0)` → `=Color.Transparent`
+| Line | Control | From | To |
+|---|---|---|---|
+| 252 | `gal_rooms_view.BorderColor` | `=RGBA(245, 245, 245, 1)` | removed |
+| 279 | `lbl_textID_Card.BorderColor` | `=RGBA(0, 0, 0, 0)` | `=Color.Transparent` |
+| 284 | `lbl_textID_Card.DisabledColor` | `=RGBA(161, 159, 157, 1)` | `=AppTheme.TextMuted` |
+| 310 | `lbl_textID_Desc.BorderColor` | `=RGBA(0, 0, 0, 0)` | `=Color.Transparent` |
+| 315 | `lbl_textID_Desc.DisabledColor` | `=RGBA(161, 159, 157, 1)` | `=AppTheme.TextMuted` |
 
-`btn_Card` keeps its transparency values as `Color.Transparent`; these express
-transparency, not a themed colour, so no token applies.
+`btn_Card` keeps its transparency values; these express transparency, not a themed colour,
+so no token applies. `DisabledBorderColor: =RGBA(0, 0, 0, 0)` is likewise left as-is.
+
+**Explicitly out of scope.** `con_timeline_view` contains roughly 40 further `RGBA(...)`
+literals, and the screen itself sets `Fill: =RGBA(255, 255, 255, 1)` and
+`LoadingSpinnerColor: =RGBA(0, 120, 212, 1)`. All are pre-existing and none affect the
+browse surface. Converting them is separate work and is recorded as follow-up.
 
 ## Deliberately unchanged
 
@@ -222,7 +236,10 @@ transparency, not a themed colour, so no token applies.
 7. The toolbar does not clip below 768px.
 8. Rooms renders in IBM Plex Sans, confirmed visually in Studio rather than inferred from
    the YAML.
-9. No `RGBA(...)` literal remains in `Src/Rooms.pa.yaml` except deliberate transparency.
+9. The five `RGBA(...)` literals named in "Raw colour literals" below are replaced. The
+   ~40 other literals in the file — almost all inside `con_timeline_view`, plus the
+   screen-level `Fill` and `LoadingSpinnerColor` — are pre-existing, out of scope, and
+   deliberately left alone.
 10. Selection, Today, Week, and Book behaviour is unchanged from the parent spec.
 11. Light and dark themes both remain readable.
 12. `pa-lint` reports 0 errors and no increase over the 18-warning baseline;
