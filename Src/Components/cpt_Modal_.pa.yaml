@@ -40,34 +40,10 @@ ComponentDefinitions:
     Properties:
       Height: =App.Height
       PatchPayload: |
-        =/* One row per recurrence occurrence. The host does the write; OccIndex lets it
-           order the occurrences; the host Patches Book_Bookings (SharePoint assigns IDs). */
-        ForAll(
-            Sequence(
-                If(
-                    tglRecurring.Checked,
-                    Max(1, Coalesce(Value(drpWeeks.Selected.Value), 1)),
-                    1
-                )
-            ) As _occ,
-            With(
-                {
-                    vStart: DateAdd(varStartTime, (_occ.Value - 1) * 7, TimeUnit.Days),
-                    vEnd: DateAdd(varEndTime, (_occ.Value - 1) * 7, TimeUnit.Days)
-                },
-                {
-                    OccIndex: _occ.Value,
-                    Title: varTitle,
-                    BookedByEmail: If(IsBlank(varBookForEmail), Lower(User().Email), varBookForEmail),
-                    RoomIdNumber: Value(varSelectedRoom.ID),
-                    RoomIdText: Text(varSelectedRoom.RoomID),
-                    RoomTitle: varSelectedRoom.Title,
-                    StartDateTime: vStart,
-                    EndDateTime: vEnd,
-                    IsPrivate: tglPrivate.Checked
-                }
-            )
-        )
+        =/* Snapshot, not a live computation: colPayloadOut is materialized by
+           btnConfirm.OnSelect before OnSubmit/OnSubmitEdit fires, so the host always
+           reads a payload built before the wizard resets its controls. */
+        colPayloadOut
       ValidPayload: |
         =!IsBlank(varSelectedRoom) &&
         !IsBlank(varStartTime) &&
@@ -85,8 +61,8 @@ ComponentDefinitions:
             OnSelect: |-
               =If(
                   gbl_UI_Book_Modal_Step = WizardStep1,
-                  Reset(tglRecurring);
-                  Reset(drpWeeks);
+                  Reset(drpRepeats);
+                  Reset(drpOccurrences);
                   Reset(tglPrivate);
                   Reset(tglBookOnBehalf);
                   Reset(drpBookFor);
@@ -802,7 +778,7 @@ ComponentDefinitions:
                             Properties:
                               DropShadow: =DropShadow.None
                               FillPortions: =0
-                              Height: =tglRecurring.Height + lbl_textEndTimeLabel_2.Height
+                              Height: =drpRepeats.Height + lbl_textRepeatsLabel.Height
                               LayoutAlignItems: =LayoutAlignItems.Stretch
                               LayoutDirection: =LayoutDirection.Horizontal
                               LayoutGap: =16
@@ -815,7 +791,7 @@ ComponentDefinitions:
                                   Variant: AutoLayout
                                   Properties:
                                     DropShadow: =DropShadow.None
-                                    Height: =lbl_textEndTimeLabel_2.Height + 44 + 6
+                                    Height: =lbl_textRepeatsLabel.Height + 44 + 6
                                     LayoutAlignItems: =LayoutAlignItems.Stretch
                                     LayoutDirection: =LayoutDirection.Vertical
                                     LayoutMinHeight: =0
@@ -823,7 +799,7 @@ ComponentDefinitions:
                                     PaddingLeft: =2
                                     PaddingRight: =2
                                   Children:
-                                    - lbl_textEndTimeLabel_2:
+                                    - lbl_textRepeatsLabel:
                                         Control: Label
                                         Properties:
                                           AlignInContainer: =AlignInContainer.Stretch
@@ -833,42 +809,9 @@ ComponentDefinitions:
                                           LayoutMinHeight: =0
                                           LayoutMinWidth: =0
                                           Size: =11
-                                          Text: ="Book a Series"
+                                          Text: ="Repeats"
                                           Wrap: =false
-                                    - tglRecurring:
-                                        Control: Toggle
-                                        Properties:
-                                          Label: =
-                                          LayoutMinHeight: =16
-                                          LayoutMinWidth: =16
-                              - conEndTimeField_1:
-                                  Control: GroupContainer
-                                  Variant: AutoLayout
-                                  Properties:
-                                    DropShadow: =DropShadow.None
-                                    Height: =lbl_textEndTimeLabel_1.Height + 44 + 6
-                                    LayoutAlignItems: =LayoutAlignItems.Stretch
-                                    LayoutDirection: =LayoutDirection.Vertical
-                                    LayoutGap: =6
-                                    LayoutMinHeight: =0
-                                    LayoutMinWidth: =0
-                                    PaddingLeft: =2
-                                    PaddingRight: =2
-                                    Visible: =tglRecurring.Checked
-                                  Children:
-                                    - lbl_textEndTimeLabel_1:
-                                        Control: Label
-                                        Properties:
-                                          AlignInContainer: =AlignInContainer.Stretch
-                                          AutoHeight: =true
-                                          Color: =AppTheme.SideNavText
-                                          Font: =Font.Lato
-                                          LayoutMinHeight: =0
-                                          LayoutMinWidth: =0
-                                          Size: =11
-                                          Text: ="Weeks"
-                                          Wrap: =false
-                                    - drpWeeks:
+                                    - drpRepeats:
                                         Control: Classic/DropDown
                                         Properties:
                                           AlignInContainer: =AlignInContainer.Stretch
@@ -877,7 +820,7 @@ ComponentDefinitions:
                                           ChevronBackground: =AppTheme.HeaderBackground
                                           ChevronFill: =AppTheme.HeaderAccent
                                           Color: =AppTheme.SideNavText
-                                          Default: =1
+                                          Default: ="Doesn't repeat"
                                           DisabledBorderColor: =AppTheme.SurfaceAlt
                                           DisabledColor: =AppTheme.TextMuted
                                           DisabledFill: =AppTheme.SurfaceAlt
@@ -888,7 +831,61 @@ ComponentDefinitions:
                                           HoverBorderColor: =AppTheme.TextSecondary
                                           HoverColor: =AppTheme.TextPrimary
                                           HoverFill: =AppTheme.SurfaceAlt
-                                          Items: =Sequence(12)
+                                          Items: =["Doesn't repeat","Weekly","Every 2 weeks","Monthly"]
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          OnChange: =
+                                          PressedColor: =AppTheme.TextPrimary
+                                          PressedFill: =AppTheme.SurfaceAlt
+                                          Size: =11
+                              - conEndTimeField_1:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
+                                  Properties:
+                                    DropShadow: =DropShadow.None
+                                    Height: =lbl_textOccurrencesLabel.Height + 44 + 6
+                                    LayoutAlignItems: =LayoutAlignItems.Stretch
+                                    LayoutDirection: =LayoutDirection.Vertical
+                                    LayoutGap: =6
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    PaddingLeft: =2
+                                    PaddingRight: =2
+                                    Visible: =drpRepeats.Selected.Value <> "Doesn't repeat"
+                                  Children:
+                                    - lbl_textOccurrencesLabel:
+                                        Control: Label
+                                        Properties:
+                                          AlignInContainer: =AlignInContainer.Stretch
+                                          AutoHeight: =true
+                                          Color: =AppTheme.SideNavText
+                                          Font: =Font.Lato
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          Size: =11
+                                          Text: ="Occurrences"
+                                          Wrap: =false
+                                    - drpOccurrences:
+                                        Control: Classic/DropDown
+                                        Properties:
+                                          AlignInContainer: =AlignInContainer.Stretch
+                                          BorderColor: =AppTheme.Border
+                                          BorderThickness: =0
+                                          ChevronBackground: =AppTheme.HeaderBackground
+                                          ChevronFill: =AppTheme.HeaderAccent
+                                          Color: =AppTheme.SideNavText
+                                          Default: =2
+                                          DisabledBorderColor: =AppTheme.SurfaceAlt
+                                          DisabledColor: =AppTheme.TextMuted
+                                          DisabledFill: =AppTheme.SurfaceAlt
+                                          Fill: =AppTheme.layer01Bg
+                                          FocusedBorderColor: =RGBA(15, 98, 254, 1)
+                                          FocusedBorderThickness: =2
+                                          Font: =Font.Lato
+                                          HoverBorderColor: =AppTheme.TextSecondary
+                                          HoverColor: =AppTheme.TextPrimary
+                                          HoverFill: =AppTheme.SurfaceAlt
+                                          Items: =Sequence(11, 2)
                                           Items.Value: =Value
                                           LayoutMinHeight: =0
                                           LayoutMinWidth: =0
@@ -907,7 +904,23 @@ ComponentDefinitions:
                               LayoutMinHeight: =0
                               LayoutMinWidth: =0
                               Size: =11
-                              Text: =If(IsBlank(varStartTime) || IsBlank(varEndTime), "Select a start and end time to continue. Bookings are Monday to Friday only, up to 4 hours long.", If(tglRecurring.Checked, "Series bookings are limited to 12 weeks.", ""))
+                              Text: |-
+                                =If(
+                                    IsBlank(varStartTime) || IsBlank(varEndTime),
+                                    "Select a start and end time to continue. Bookings are Monday to Friday only, up to 4 hours long.",
+                                    drpRepeats.Selected.Value <> "Doesn't repeat",
+                                    drpOccurrences.Selected.Value & " bookings, " & Lower(drpRepeats.Selected.Value) & ", last on " & Text(
+                                        Switch(
+                                            drpRepeats.Selected.Value,
+                                            "Weekly", DateAdd(varStartTime, 7 * (Value(drpOccurrences.Selected.Value) - 1), TimeUnit.Days),
+                                            "Every 2 weeks", DateAdd(varStartTime, 14 * (Value(drpOccurrences.Selected.Value) - 1), TimeUnit.Days),
+                                            "Monthly", DateAdd(varStartTime, Value(drpOccurrences.Selected.Value) - 1, TimeUnit.Months),
+                                            varStartTime
+                                        ),
+                                        "dd mmm yyyy"
+                                    ),
+                                    ""
+                                )
                               Visible: =false
                         - conConflictPanel:
                             Control: GroupContainer
@@ -1417,7 +1430,7 @@ ComponentDefinitions:
                               BorderThickness: =1
                               Fill: =AppTheme.Background
                               FillPortions: =0
-                              Height: =16 + 16 + lbl_textSelectedRoomTitle.Height + lbl_textSelectedDate.Height + lbl_textSelectedTimeRange.Height + (2 * 8) + If(IsBlank(varBookForEmail), 0, 8 + lbl_textBookForSummary.Height)
+                              Height: =16 + 16 + lbl_textSelectedRoomTitle.Height + lbl_textSelectedDate.Height + lbl_textSelectedTimeRange.Height + (2 * 8) + If(IsBlank(varBookForEmail), 0, 8 + lbl_textBookForSummary.Height) + If(drpRepeats.Selected.Value <> "Doesn't repeat", 8 + lbl_textSeriesSummary.Height, 0)
                               LayoutAlignItems: =LayoutAlignItems.Stretch
                               LayoutDirection: =LayoutDirection.Vertical
                               LayoutGap: =8
@@ -1478,6 +1491,18 @@ ComponentDefinitions:
                                     Text: |-
                                       =$"Booking for: {varBookForName}"
                                     Visible: =!IsBlank(varBookForEmail)
+                                    Wrap: =false
+                              - lbl_textSeriesSummary:
+                                  Control: Label
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Stretch
+                                    Color: =AppTheme.SideNavText
+                                    Font: =Font.Lato
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Size: =11
+                                    Text: =drpRepeats.Selected.Value & " × " & drpOccurrences.Selected.Value
+                                    Visible: =drpRepeats.Selected.Value <> "Doesn't repeat"
                                     Wrap: =false
                         - lbl_textSlotTakenError:
                             Control: Label
@@ -1576,8 +1601,8 @@ ComponentDefinitions:
                               gbl_UI_Book_Modal_Step = WizardStep2,
                               Set(gbl_UI_Book_Modal_Step, WizardStep1),
                               /* step 1: close and reset transient wizard state */
-                              Reset(tglRecurring);
-                              Reset(drpWeeks);
+                              Reset(drpRepeats);
+                              Reset(drpOccurrences);
                               Reset(tglPrivate);
                               Reset(tglBookOnBehalf);
                               Reset(drpBookFor);
@@ -1622,8 +1647,8 @@ ComponentDefinitions:
                         OnSelect: |-
                           =If(
                               gbl_UI_Book_Modal_Step = WizardStep1,
-                              Reset(tglRecurring);
-                              Reset(drpWeeks);
+                              Reset(drpRepeats);
+                              Reset(drpOccurrences);
                               Reset(tglPrivate);
                               Reset(tglBookOnBehalf);
                               Reset(drpBookFor);
@@ -1749,13 +1774,66 @@ ComponentDefinitions:
                               )
                           );
                           If(!varConflict,
+                              /* Snapshot the payload BEFORE raising OnSubmit/OnSubmitEdit: the
+                                 resets below used to race the host's read of PatchPayload (it read
+                                 after the resets and always saw a single occurrence). PatchPayload
+                                 now just returns this collection. */
+                              ClearCollect(
+                                  colPayloadOut,
+                                  With(
+                                      {
+                                          _repeating: drpRepeats.Selected.Value <> "Doesn't repeat",
+                                          _recurrenceType: Switch(
+                                              drpRepeats.Selected.Value,
+                                              "Weekly", "Weekly",
+                                              "Every 2 weeks", "BiWeekly",
+                                              "Monthly", "Monthly",
+                                              ""
+                                          )
+                                      },
+                                      ForAll(
+                                          Sequence(If(_repeating, Value(drpOccurrences.Selected.Value), 1)) As _occ,
+                                          With(
+                                              {
+                                                  vStart: Switch(
+                                                      _recurrenceType,
+                                                      "Weekly", DateAdd(varStartTime, 7 * (_occ.Value - 1), TimeUnit.Days),
+                                                      "BiWeekly", DateAdd(varStartTime, 14 * (_occ.Value - 1), TimeUnit.Days),
+                                                      "Monthly", DateAdd(varStartTime, _occ.Value - 1, TimeUnit.Months),
+                                                      varStartTime
+                                                  ),
+                                                  vEnd: Switch(
+                                                      _recurrenceType,
+                                                      "Weekly", DateAdd(varEndTime, 7 * (_occ.Value - 1), TimeUnit.Days),
+                                                      "BiWeekly", DateAdd(varEndTime, 14 * (_occ.Value - 1), TimeUnit.Days),
+                                                      "Monthly", DateAdd(varEndTime, _occ.Value - 1, TimeUnit.Months),
+                                                      varEndTime
+                                                  )
+                                              },
+                                              {
+                                                  OccIndex: _occ.Value,
+                                                  Title: varTitle,
+                                                  BookedByEmail: If(IsBlank(varBookForEmail), Lower(User().Email), varBookForEmail),
+                                                  RoomIdNumber: Value(varSelectedRoom.ID),
+                                                  RoomIdText: Text(varSelectedRoom.RoomID),
+                                                  RoomTitle: varSelectedRoom.Title,
+                                                  StartDateTime: vStart,
+                                                  EndDateTime: vEnd,
+                                                  IsPrivate: tglPrivate.Checked,
+                                                  RecurrenceType: _recurrenceType
+                                              }
+                                          )
+                                      )
+                                  )
+                              );
+
                               /* Hand off to the host: the component validates and emits
                                  PatchPayload / ValidPayload, the host performs the write. */
                               If(gblEditingBookingID = 0, cpt_Modal_.OnSubmit(), cpt_Modal_.OnSubmitEdit());
 
                               /* Host closes the modal on both outcomes; clear transient wizard state. */
-                              Reset(tglRecurring);
-                              Reset(drpWeeks);
+                              Reset(drpRepeats);
+                              Reset(drpOccurrences);
                               Reset(tglPrivate);
                               Reset(tglBookOnBehalf);
                               Reset(drpBookFor);
@@ -1858,8 +1936,8 @@ ComponentDefinitions:
                               HoverFill: =RGBA(184, 25, 34, 1)
                               OnSelect: |-
                                 =Set(gbl_UI_Book_CancelConfirm, false);
-                                Reset(tglRecurring);
-                                Reset(drpWeeks);
+                                Reset(drpRepeats);
+                                Reset(drpOccurrences);
                                 Reset(tglPrivate);
                                 Reset(tglBookOnBehalf);
                                 Reset(drpBookFor);

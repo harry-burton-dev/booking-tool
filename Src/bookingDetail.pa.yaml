@@ -4,7 +4,8 @@ Screens:
       Fill: =RGBA(255, 255, 255, 1)
       LoadingSpinnerColor: =RGBA(0, 120, 212, 1)
       OnVisible: |-
-        =UpdateContext({varConfirmCancel: false})
+        =UpdateContext({varConfirmCancel: false});
+        Set(gbl_UI_ScopePrompt, "")
     Children:
       - con_shell_1:
           Control: GroupContainer
@@ -70,7 +71,10 @@ Screens:
                               FontWeight: =FontWeight.Normal
                               HoverColor: =AppTheme.TextPrimary
                               HoverFill: =AppTheme.Border
-                              OnSelect: =Navigate(myBookings, ScreenTransition.Fade)
+                              OnSelect: |-
+                                =Set(gbl_UI_ScopePrompt, "");
+                                Set(gbl_FixCycleSeriesID, "");
+                                Navigate(myBookings, ScreenTransition.Fade)
                               PressedColor: =AppTheme.TextPrimary
                               PressedFill: =AppTheme.Border
                               RadiusBottomLeft: =2
@@ -337,7 +341,7 @@ Screens:
                                     RadiusTopRight: =2
                                     Size: =11
                                     Text: ="Change time"
-                                    Visible: =!varConfirmCancel
+                                    Visible: =!varConfirmCancel && gbl_UI_ScopePrompt = ""
                               - btnCancelStart:
                                   Control: Classic/Button
                                   Properties:
@@ -362,7 +366,7 @@ Screens:
                                     RadiusTopRight: =2
                                     Size: =11
                                     Text: ="Cancel booking"
-                                    Visible: =!varConfirmCancel
+                                    Visible: =!varConfirmCancel && gbl_UI_ScopePrompt = ""
                               - conConfirmRow:
                                   Control: GroupContainer
                                   Variant: AutoLayout
@@ -384,7 +388,7 @@ Screens:
                                     RadiusBottomRight: =2
                                     RadiusTopLeft: =2
                                     RadiusTopRight: =2
-                                    Visible: =varConfirmCancel
+                                    Visible: =varConfirmCancel && gbl_UI_ScopePrompt = ""
                                   Children:
                                     - lblCancelConfirm:
                                         Control: Label
@@ -452,14 +456,20 @@ Screens:
                                                 HoverFill: =ColorValue("#b81922")
                                                 OnSelect: |-
                                                   =// PROD-REVERT[booking-cancel] soft delete via Patch; Remove() retired per WS4
-                                                  IfError(
-                                                      Patch(Book_Bookings, LookUp(Book_Bookings, ID = gblSelectedBooking.ID), {Status: "Cancelled"}),
-                                                      Notify("Couldn't cancel this booking. Please try again.", NotificationType.Error),
-                                                      Refresh(Book_Bookings);
-                                                      ClearCollect(colBookings, Book_Bookings);
-                                                      Set(gblSelectedBooking, Blank());
-                                                      Notify("Booking cancelled", NotificationType.Success);
-                                                      Navigate(myBookings, ScreenTransition.Fade)
+                                                  If(
+                                                      IsBlank(gblSelectedBooking.SeriesID),
+                                                      IfError(
+                                                          Patch(Book_Bookings, LookUp(Book_Bookings, ID = gblSelectedBooking.ID), {Status: "Cancelled"}),
+                                                          Notify("Couldn't cancel this booking. Please try again.", NotificationType.Error),
+                                                          Refresh(Book_Bookings);
+                                                          ClearCollect(colBookings, Book_Bookings);
+                                                          Set(gblSelectedBooking, Blank());
+                                                          Notify("Booking cancelled", NotificationType.Success);
+                                                          Navigate(myBookings, ScreenTransition.Fade)
+                                                      ),
+                                                      // Series member: ask for cancel scope instead of writing immediately
+                                                      UpdateContext({varConfirmCancel: false});
+                                                      Set(gbl_UI_ScopePrompt, "cancel")
                                                   )
                                                 PressedColor: =ColorValue(AppTheme.PrimaryText)
                                                 PressedFill: =ColorValue("#921620")
@@ -470,6 +480,310 @@ Screens:
                                                 Size: =11
                                                 Text: ="Yes, cancel"
                                                 Width: =140
+                              - con_ScopePrompt:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
+                                  Properties:
+                                    BorderColor: =AppTheme.StatusWarnText
+                                    BorderThickness: =1
+                                    DropShadow: =DropShadow.None
+                                    Fill: =AppTheme.StatusWarnBg
+                                    LayoutAlignItems: =LayoutAlignItems.Stretch
+                                    LayoutDirection: =LayoutDirection.Vertical
+                                    LayoutGap: =12
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    PaddingBottom: =16
+                                    PaddingLeft: =16
+                                    PaddingRight: =16
+                                    PaddingTop: =16
+                                    RadiusBottomLeft: =2
+                                    RadiusBottomRight: =2
+                                    RadiusTopLeft: =2
+                                    RadiusTopRight: =2
+                                    Visible: =gbl_UI_ScopePrompt = "edit" || gbl_UI_ScopePrompt = "cancel"
+                                  Children:
+                                    - lblScopePromptTitle:
+                                        Control: Label
+                                        Properties:
+                                          AlignInContainer: =AlignInContainer.Stretch
+                                          AutoHeight: =true
+                                          Color: =AppTheme.StatusWarnText
+                                          Font: =Font.Lato
+                                          Height: =24
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          Size: =12
+                                          Text: =If(gbl_UI_ScopePrompt = "edit", "This booking is part of a series. Apply the new time to:", "This booking is part of a series. Cancel:")
+                                    - conScopePromptButtons:
+                                        Control: GroupContainer
+                                        Variant: AutoLayout
+                                        Properties:
+                                          DropShadow: =DropShadow.None
+                                          Fill: =RGBA(0,0,0,0)
+                                          Height: =40
+                                          LayoutAlignItems: =LayoutAlignItems.Stretch
+                                          LayoutDirection: =LayoutDirection.Horizontal
+                                          LayoutGap: =8
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                        Children:
+                                          - btnScopeJust:
+                                              Control: Classic/Button
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.Center
+                                                BorderColor: =AppTheme.Border
+                                                BorderThickness: =1
+                                                Color: =AppTheme.TextPrimary
+                                                Fill: =AppTheme.Surface
+                                                FocusedBorderColor: =RGBA(15,98,254,1)
+                                                FocusedBorderThickness: =2
+                                                Font: =Font.Lato
+                                                FontWeight: =FontWeight.Normal
+                                                HoverColor: =AppTheme.TextPrimary
+                                                HoverFill: =AppTheme.Border
+                                                OnSelect: |-
+                                                  =If(
+                                                      gbl_UI_ScopePrompt = "edit",
+                                                      // EDIT — just this occurrence: apply the pending times, mark as an exception
+                                                      With(
+                                                          {
+                                                              _free: IsBlank(
+                                                                  LookUp(
+                                                                      Filter(
+                                                                          colBookings,
+                                                                          Status = "Active",
+                                                                          fnOverlaps(StartDateTime, EndDateTime, gbl_PendingStart, gbl_PendingEnd),
+                                                                          ID <> gblSelectedBooking.ID
+                                                                      ),
+                                                                      RoomID.Id = gblSelectedBooking.RoomID.Id
+                                                                  )
+                                                              )
+                                                          },
+                                                          IfError(
+                                                              Patch(
+                                                                  Book_Bookings,
+                                                                  LookUp(Book_Bookings, ID = gblSelectedBooking.ID),
+                                                                  {
+                                                                      StartDateTime: gbl_PendingStart,
+                                                                      EndDateTime: gbl_PendingEnd,
+                                                                      IsException: true,
+                                                                      Status: If(_free, "Active", gblSelectedBooking.Status)
+                                                                  }
+                                                              ),
+                                                              Notify("Couldn't update this booking. Please try again.", NotificationType.Error),
+                                                              Refresh(Book_Bookings);
+                                                              ClearCollect(colBookings, Book_Bookings);
+                                                              If(
+                                                                  _free,
+                                                                  Notify("Booking updated", NotificationType.Success),
+                                                                  Notify("Slot still busy — booking is still clashed", NotificationType.Warning)
+                                                              );
+                                                              // Fix cycling: advance to the next clash in this series, if any
+                                                              If(
+                                                                  gbl_FixCycleSeriesID <> "",
+                                                                  With(
+                                                                      {_next: First(SortByColumns(Filter(colBookings, SeriesID = gbl_FixCycleSeriesID, Status = "Clash", ID <> gblSelectedBooking.ID), "StartDateTime", SortOrder.Ascending))},
+                                                                      If(
+                                                                          IsBlank(_next),
+                                                                          Set(gbl_FixCycleSeriesID, "");
+                                                                          Notify("All clashes resolved", NotificationType.Success),
+                                                                          Set(gblSelectedBooking, _next);
+                                                                          Set(gblEditingBookingID, _next.ID);
+                                                                          Set(varConflict, false);
+                                                                          Set(varBookingError, false);
+                                                                          Set(varSubmitting, false);
+                                                                          Set(varTitleTouched, false);
+                                                                          Set(gbl_UI_Book_CancelConfirm, false);
+                                                                          Set(gbl_Book_SubmitResult, "");
+                                                                          Set(varConflictingBooking, Blank());
+                                                                          Set(varNextFreeSlot, Blank());
+                                                                          ClearCollect(varAlternativeRooms, Filter(colRooms, true = false));
+                                                                          Set(varSelectedRoom, LookUp(colRooms, ID = _next.RoomID.Id));
+                                                                          Set(varSelectedDate, DateValue(Text(_next.StartDateTime, "yyyy-mm-dd")));
+                                                                          Set(varStartTime, _next.StartDateTime);
+                                                                          Set(varEndTime, _next.EndDateTime);
+                                                                          Set(varTitle, _next.Title);
+                                                                          Set(gbl_UI_Book_Modal_Step, WizardStep2);
+                                                                          Set(gbl_UI_Book_Modal, true)
+                                                                      )
+                                                                  )
+                                                              )
+                                                          )
+                                                      ),
+                                                      // CANCEL — just this occurrence (current single-row cancel; works on Clash rows too)
+                                                      IfError(
+                                                          Patch(Book_Bookings, LookUp(Book_Bookings, ID = gblSelectedBooking.ID), {Status: "Cancelled"}),
+                                                          Notify("Couldn't cancel this booking. Please try again.", NotificationType.Error),
+                                                          Refresh(Book_Bookings);
+                                                          ClearCollect(colBookings, Book_Bookings);
+                                                          Set(gblSelectedBooking, Blank());
+                                                          Notify("Booking cancelled", NotificationType.Success);
+                                                          Set(gbl_FixCycleSeriesID, "");
+                                                          Navigate(myBookings, ScreenTransition.Fade)
+                                                      )
+                                                  );
+                                                  Set(gbl_UI_ScopePrompt, "");
+                                                  Set(gbl_PendingStart, Blank());
+                                                  Set(gbl_PendingEnd, Blank())
+                                                PressedColor: =AppTheme.TextPrimary
+                                                PressedFill: =AppTheme.Border
+                                                RadiusBottomLeft: =2
+                                                RadiusBottomRight: =2
+                                                RadiusTopLeft: =2
+                                                RadiusTopRight: =2
+                                                Size: =11
+                                                Text: ="Just this booking"
+                                                Width: =168
+                                          - btnScopeSeries:
+                                              Control: Classic/Button
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.Center
+                                                BorderColor: =ColorValue(AppTheme.ButtonPrimary)
+                                                BorderThickness: =1
+                                                Color: =ColorValue(AppTheme.PrimaryText)
+                                                Fill: =ColorValue(AppTheme.ButtonPrimary)
+                                                FocusedBorderColor: =RGBA(15,98,254,1)
+                                                FocusedBorderThickness: =2
+                                                Font: =Font.Lato
+                                                FontWeight: =FontWeight.Normal
+                                                HoverColor: =ColorValue(AppTheme.PrimaryText)
+                                                HoverFill: =RGBA(13,83,217,1)
+                                                OnSelect: |-
+                                                  =If(
+                                                      gbl_UI_ScopePrompt = "edit",
+                                                      // EDIT — whole series: re-time every future, non-cancelled, non-exception member
+                                                      With(
+                                                          {
+                                                              _sid: gblSelectedBooking.SeriesID,
+                                                              _startMinutes: Hour(gbl_PendingStart) * 60 + Minute(gbl_PendingStart),
+                                                              _endMinutes: Hour(gbl_PendingEnd) * 60 + Minute(gbl_PendingEnd)
+                                                          },
+                                                          ClearCollect(
+                                                              colSeriesEditPlan,
+                                                              ForAll(
+                                                                  Filter(colBookings, SeriesID = _sid, StartDateTime >= Now(), Status <> "Cancelled", !IsException),
+                                                                  With(
+                                                                      {
+                                                                          _memberId: ID,
+                                                                          _memberStatus: Status,
+                                                                          _memberRoomId: RoomID.Id,
+                                                                          _newStart: DateAdd(DateValue(Text(StartDateTime, "yyyy-mm-dd")), _startMinutes, TimeUnit.Minutes),
+                                                                          _newEnd: DateAdd(DateValue(Text(StartDateTime, "yyyy-mm-dd")), _endMinutes, TimeUnit.Minutes)
+                                                                      },
+                                                                      With(
+                                                                          {
+                                                                              _isWeekend: Weekday(_newStart, StartOfWeek.Monday) > 5,
+                                                                              _occupied: !IsBlank(
+                                                                                  LookUp(
+                                                                                      Filter(colBookings, Status = "Active", SeriesID <> _sid, fnOverlaps(StartDateTime, EndDateTime, _newStart, _newEnd)),
+                                                                                      RoomID.Id = _memberRoomId
+                                                                                  )
+                                                                              )
+                                                                          },
+                                                                          {
+                                                                              MemberID: _memberId,
+                                                                              PrevStatus: _memberStatus,
+                                                                              NewStart: _newStart,
+                                                                              NewEnd: _newEnd,
+                                                                              NewStatus: If(_isWeekend || _occupied, "Clash", "Active")
+                                                                          }
+                                                                      )
+                                                                  )
+                                                              )
+                                                          );
+
+                                                          ForAll(
+                                                              colSeriesEditPlan,
+                                                              IfError(
+                                                                  Patch(
+                                                                      Book_Bookings,
+                                                                      LookUp(Book_Bookings, ID = MemberID),
+                                                                      {StartDateTime: NewStart, EndDateTime: NewEnd, Status: NewStatus}
+                                                                  );
+                                                                  true,
+                                                                  Notify("Couldn't update one or more occurrences.", NotificationType.Error);
+                                                                  false
+                                                              )
+                                                          );
+
+                                                          Refresh(Book_Bookings);
+                                                          ClearCollect(colBookings, Book_Bookings);
+                                                          Set(gblSelectedBooking, LookUp(colBookings, ID = gblSelectedBooking.ID));
+
+                                                          With(
+                                                              {
+                                                                  _healed: CountRows(Filter(colSeriesEditPlan, PrevStatus = "Clash", NewStatus = "Active")),
+                                                                  _newClashes: CountRows(Filter(colSeriesEditPlan, PrevStatus <> "Clash", NewStatus = "Clash"))
+                                                              },
+                                                              Notify(
+                                                                  "Series updated" &
+                                                                  If(_healed > 0, " — " & _healed & " clash" & If(_healed = 1, "", "es") & " healed", "") &
+                                                                  If(_newClashes > 0, " — " & _newClashes & " now need" & If(_newClashes = 1, "s", "") & " rescheduling", ""),
+                                                                  NotificationType.Success
+                                                              )
+                                                          )
+                                                      ),
+                                                      // CANCEL — whole series (including exceptions; past occurrences untouched)
+                                                      With(
+                                                          {_sid: gblSelectedBooking.SeriesID},
+                                                          ForAll(
+                                                              Filter(colBookings, SeriesID = _sid, StartDateTime >= Now(), Status <> "Cancelled") As _m,
+                                                              IfError(
+                                                                  Patch(Book_Bookings, LookUp(Book_Bookings, ID = _m.ID), {Status: "Cancelled"});
+                                                                  true,
+                                                                  Notify("Couldn't cancel one or more occurrences.", NotificationType.Error);
+                                                                  false
+                                                              )
+                                                          );
+                                                          Refresh(Book_Bookings);
+                                                          ClearCollect(colBookings, Book_Bookings);
+                                                          Set(gblSelectedBooking, Blank());
+                                                          Notify("Series cancelled", NotificationType.Success);
+                                                          Set(gbl_FixCycleSeriesID, "");
+                                                          Navigate(myBookings, ScreenTransition.Fade)
+                                                      )
+                                                  );
+                                                  Set(gbl_UI_ScopePrompt, "");
+                                                  Set(gbl_PendingStart, Blank());
+                                                  Set(gbl_PendingEnd, Blank())
+                                                PressedColor: =ColorValue(AppTheme.PrimaryText)
+                                                PressedFill: =RGBA(11,69,182,1)
+                                                RadiusBottomLeft: =2
+                                                RadiusBottomRight: =2
+                                                RadiusTopLeft: =2
+                                                RadiusTopRight: =2
+                                                Size: =11
+                                                Text: ="Whole series"
+                                                Width: =168
+                                          - btnScopeBack:
+                                              Control: Classic/Button
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.Center
+                                                BorderColor: =AppTheme.Border
+                                                BorderThickness: =1
+                                                Color: =AppTheme.TextPrimary
+                                                Fill: =AppTheme.Surface
+                                                FocusedBorderColor: =RGBA(15,98,254,1)
+                                                FocusedBorderThickness: =2
+                                                Font: =Font.Lato
+                                                FontWeight: =FontWeight.Normal
+                                                HoverColor: =AppTheme.TextPrimary
+                                                HoverFill: =AppTheme.Border
+                                                OnSelect: |-
+                                                  =Set(gbl_UI_ScopePrompt, "");
+                                                  Set(gbl_PendingStart, Blank());
+                                                  Set(gbl_PendingEnd, Blank());
+                                                  Set(gbl_FixCycleSeriesID, "")
+                                                PressedColor: =AppTheme.TextPrimary
+                                                PressedFill: =AppTheme.Border
+                                                RadiusBottomLeft: =2
+                                                RadiusBottomRight: =2
+                                                RadiusTopLeft: =2
+                                                RadiusTopRight: =2
+                                                Size: =11
+                                                Text: ="Back"
+                                                Width: =168
       - cpt_Modal__book_detail:
           Control: CanvasComponent
           ComponentName: cpt_Modal_
@@ -481,34 +795,42 @@ Screens:
               =If(cpt_Modal__book_detail.ValidPayload && gblEditingBookingID > 0,
                   With({_occ: First(cpt_Modal__book_detail.PatchPayload)},
                       If(
-                          !IsBlank(
-                              LookUp(
-                                  Filter(
-                                      colBookings,
-                                      Status = "Active",
-                                      fnOverlaps(StartDateTime, EndDateTime, _occ.StartDateTime, _occ.EndDateTime),
-                                      ID <> gblEditingBookingID
-                                  ),
-                                  RoomID.Id = _occ.RoomIdNumber
-                              )
-                          ),
-                          Notify("That slot is no longer free. Your booking is unchanged.", NotificationType.Warning, 6000),
-                          // PROD-REVERT[booking-edit] prod form: Patch(Book_Bookings, ...) below
-                          IfError(
-                              Patch(
-                                  Book_Bookings,
-                                  LookUp(Book_Bookings, ID = gblEditingBookingID),
-                                  {
-                                      Title: _occ.Title,
-                                      RoomID: {Id: _occ.RoomIdNumber, Value: _occ.RoomIdText},
-                                      StartDateTime: _occ.StartDateTime,
-                                      EndDateTime: _occ.EndDateTime
-                                  }
+                          !IsBlank(gblSelectedBooking.SeriesID),
+                          // Series member: stash the pending times and ask for scope before writing anything
+                          Set(gbl_PendingStart, _occ.StartDateTime);
+                          Set(gbl_PendingEnd, _occ.EndDateTime);
+                          Set(gbl_UI_ScopePrompt, "edit"),
+                          // Standalone booking: unchanged single-row conflict check + Patch
+                          If(
+                              !IsBlank(
+                                  LookUp(
+                                      Filter(
+                                          colBookings,
+                                          Status = "Active",
+                                          fnOverlaps(StartDateTime, EndDateTime, _occ.StartDateTime, _occ.EndDateTime),
+                                          ID <> gblEditingBookingID
+                                      ),
+                                      RoomID.Id = _occ.RoomIdNumber
+                                  )
                               ),
-                              Notify("Couldn't update this booking. Please try again.", NotificationType.Error),
-                              Refresh(Book_Bookings);
-                              ClearCollect(colBookings, Book_Bookings);
-                              Notify("Booking updated", NotificationType.Success)
+                              Notify("That slot is no longer free. Your booking is unchanged.", NotificationType.Warning, 6000),
+                              // PROD-REVERT[booking-edit] prod form: Patch(Book_Bookings, ...) below
+                              IfError(
+                                  Patch(
+                                      Book_Bookings,
+                                      LookUp(Book_Bookings, ID = gblEditingBookingID),
+                                      {
+                                          Title: _occ.Title,
+                                          RoomID: {Id: _occ.RoomIdNumber, Value: _occ.RoomIdText},
+                                          StartDateTime: _occ.StartDateTime,
+                                          EndDateTime: _occ.EndDateTime
+                                      }
+                                  ),
+                                  Notify("Couldn't update this booking. Please try again.", NotificationType.Error),
+                                  Refresh(Book_Bookings);
+                                  ClearCollect(colBookings, Book_Bookings);
+                                  Notify("Booking updated", NotificationType.Success)
+                              )
                           )
                       )
                   );

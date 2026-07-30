@@ -5,6 +5,16 @@ Screens:
       LoadingSpinnerColor: =RGBA(0, 120, 212, 1)
       OnVisible: |+
         =UpdateContext({varShowTimeline: false});
+        Set(varSelectedRoom, Blank());
+        Set(varNowTick, Now());
+        Set(gblRoomsSearch, "");
+        Set(gblRoomsMinCapacity, 0);
+        Set(gblRoomsSort, "Name");
+        Set(gblRoomsAvailableOnly, false);
+        ClearCollect(
+            colRoomsEquipmentFilter,
+            Filter(Table({Value: ""}), !IsBlank(Value))
+        )
 
     Children:
       - con_shell_view:
@@ -59,23 +69,203 @@ Screens:
                         RadiusTopRight: =0
                         Visible: =!varShowTimeline
                       Children:
+                        - conRoomsHeading:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              DropShadow: =DropShadow.None
+                              FillPortions: =0
+                              Height: =64
+                              LayoutAlignItems: =LayoutAlignItems.Center
+                              LayoutDirection: =LayoutDirection.Horizontal
+                              Width: =Parent.Width
+                            Children:
+                              - lblRoomsHeading:
+                                  Control: Label
+                                  Properties:
+                                    Color: =AppTheme.TextPrimary
+                                    FillPortions: =1
+                                    Font: =Font.Lato
+                                    FontWeight: =FontWeight.Semibold
+                                    Size: =20
+                                    Text: ="Choose a room"
+                              - lblRoomsResultSummary:
+                                  Control: Label
+                                  Properties:
+                                    Align: =Align.Right
+                                    Color: =AppTheme.TextSecondary
+                                    Font: =Font.Lato
+                                    Size: =11
+                                    Text: =RoomsBrowseFilteredCount & " of " & RoomsBrowseTotalCount & " rooms · " & RoomsBrowseAvailableCount & " available now"
+                                    Width: =300
+                        - conRoomsToolbar:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              FillPortions: =0
+                              Height: =If(App.Width < 768, 208, 48)
+                              LayoutAlignItems: =LayoutAlignItems.Center
+                              LayoutDirection: =If(App.Width < 768, LayoutDirection.Vertical, LayoutDirection.Horizontal)
+                              Width: =Parent.Width
+                            Children:
+                              - txtRoomsSearch:
+                                  Control: Classic/TextInput
+                                  Properties:
+                                    AccessibleLabel: ="Search rooms and equipment"
+                                    BorderColor: =AppTheme.Border
+                                    BorderThickness: =0
+                                    Color: =AppTheme.TextPrimary
+                                    Default: =gblRoomsSearch
+                                    DelayOutput: =true
+                                    Fill: =AppTheme.layer01Bg
+                                    FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                    FocusedBorderThickness: =2
+                                    Font: =Font.Lato
+                                    Height: =48
+                                    HintText: ="Search rooms and equipment"
+                                    HoverBorderColor: =AppTheme.TextSecondary
+                                    OnChange: =Set(gblRoomsSearch, Self.Text)
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Size: =11
+                                    Width: =If(App.Width < 768, Parent.Width, Parent.Width - 480)
+                              - drpRoomsCapacity:
+                                  Control: Classic/DropDown
+                                  Properties:
+                                    AccessibleLabel: ="Filter by room capacity"
+                                    BorderColor: =AppTheme.Border
+                                    BorderThickness: =0
+                                    ChevronBackground: =AppTheme.layer01Bg
+                                    ChevronFill: =AppTheme.TextPrimary
+                                    Color: =AppTheme.TextPrimary
+                                    Default: ="Any size"
+                                    Fill: =AppTheme.layer01Bg
+                                    FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                    FocusedBorderThickness: =2
+                                    Font: =Font.Lato
+                                    Height: =48
+                                    Items: =["Any size","4+","8+","14+","20+"]
+                                    Items.Value: =Value
+                                    OnChange: =Set(gblRoomsMinCapacity, Switch(Self.Selected.Value, "4+", 4, "8+", 8, "14+", 14, "20+", 20, 0))
+                                    Size: =11
+                                    Width: =160
+                              - drpRoomsSort:
+                                  Control: Classic/DropDown
+                                  Properties:
+                                    AccessibleLabel: ="Sort rooms"
+                                    BorderColor: =AppTheme.Border
+                                    BorderThickness: =0
+                                    ChevronBackground: =AppTheme.layer01Bg
+                                    ChevronFill: =AppTheme.TextPrimary
+                                    Color: =AppTheme.TextPrimary
+                                    Default: ="Name"
+                                    Fill: =AppTheme.layer01Bg
+                                    FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                    FocusedBorderThickness: =2
+                                    Font: =Font.Lato
+                                    Height: =48
+                                    Items: |-
+                                      =["Name","Capacity: smallest","Capacity: largest"]
+                                    Items.Value: =Value
+                                    OnChange: =Set(gblRoomsSort, Self.Selected.Value)
+                                    Size: =11
+                                    Width: =180
+                              - tglRoomsAvailable:
+                                  Control: Toggle
+                                  Properties:
+                                    Checked: =gblRoomsAvailableOnly
+                                    Height: =48
+                                    Label: ="Available now"
+                                    OnCheck: =Set(gblRoomsAvailableOnly, true)
+                                    OnUncheck: =Set(gblRoomsAvailableOnly, false)
+                                    Width: =140
+                        - conRoomsEquipmentFilters:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              DropShadow: =DropShadow.None
+                              FillPortions: =0
+                              Height: =40
+                              LayoutAlignItems: =LayoutAlignItems.Center
+                              LayoutDirection: =LayoutDirection.Horizontal
+                              LayoutGap: =8
+                              Width: =Parent.Width
+                            Children:
+                              - lblRoomsEquipmentHeading:
+                                  Control: Label
+                                  Properties:
+                                    Color: =AppTheme.TextMuted
+                                    Font: =Font.Lato
+                                    Height: =24
+                                    Size: =9
+                                    Text: ="Equipment"
+                                    Width: =80
+                              - galRoomsEquipmentFilters:
+                                  Control: Gallery
+                                  Variant: Horizontal
+                                  Properties:
+                                    Height: =32
+                                    Items: |-
+                                      =Table(
+                                          {Value: "Screen"},
+                                          {Value: "VC"},
+                                          {Value: "Whiteboard"},
+                                          {Value: "Projector"}
+                                      )
+                                    LayoutMinHeight: =0
+                                    ShowScrollbar: =false
+                                    TemplatePadding: =2
+                                    TemplateSize: =98
+                                  Children:
+                                    - btnRoomsEquipmentFilter:
+                                        Control: Classic/Button
+                                        Properties:
+                                          BorderColor: =If(ThisItem.Value in colRoomsEquipmentFilter.Value, ColorValue(AppTheme.Primary), AppTheme.Border)
+                                          BorderThickness: =1
+                                          Color: =If(ThisItem.Value in colRoomsEquipmentFilter.Value, ColorValue(AppTheme.PrimaryText), AppTheme.TextPrimary)
+                                          Fill: =If(ThisItem.Value in colRoomsEquipmentFilter.Value, ColorValue(AppTheme.ButtonPrimary), AppTheme.SurfaceAlt)
+                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                          FocusedBorderThickness: =2
+                                          Font: =Font.Lato
+                                          Height: =24
+                                          OnSelect: |-
+                                            =If(
+                                                ThisItem.Value in colRoomsEquipmentFilter.Value,
+                                                RemoveIf(colRoomsEquipmentFilter, Value = ThisItem.Value),
+                                                Collect(colRoomsEquipmentFilter, {Value: ThisItem.Value})
+                                            )
+                                          RadiusBottomLeft: =12
+                                          RadiusBottomRight: =12
+                                          RadiusTopLeft: =12
+                                          RadiusTopRight: =12
+                                          Size: =10
+                                          Text: =ThisItem.Value
+                                          Width: =Parent.TemplateWidth - 4
+                                          Y: =8
                         - gal_rooms_view:
                             Control: Gallery
-                            Variant: Horizontal
+                            Variant: Vertical
                             Properties:
                               AlignInContainer: =AlignInContainer.Start
                               BorderColor: =RGBA(245, 245, 245, 1)
                               Height: =Parent.Height
-                              Items: =colRooms
+                              Items: =RoomsBrowseData
                               TemplatePadding: =0
+                              TemplateSize: =200
+                              Visible: =!IsEmpty(RoomsBrowseData)
                               Width: =Parent.Width
-                              WrapCount: =2
+                              WrapCount: =If(App.Width >= 1200, 4, App.Width >= 768, 2, 1)
                             Children:
                               - con_tile_view:
                                   Control: GroupContainer
                                   Variant: ManualLayout
                                   Properties:
+                                    BorderColor: =If(!IsBlank(varSelectedRoom) && varSelectedRoom.ID = ThisItem.ID, ColorValue(AppTheme.Primary), AppTheme.Border)
+                                    BorderThickness: =If(!IsBlank(varSelectedRoom) && varSelectedRoom.ID = ThisItem.ID, 2, 1)
                                     DropShadow: =DropShadow.None
+                                    Fill: =AppTheme.layer01Bg
                                     Height: =Parent.TemplateHeight
                                     RadiusBottomLeft: =0
                                     RadiusBottomRight: =0
@@ -83,113 +273,285 @@ Screens:
                                     RadiusTopRight: =0
                                     Width: =Parent.TemplateWidth
                                   Children:
-                                    - lbl_textID_Desc:
-                                        Control: Label
-                                        Properties:
-                                          BorderColor: =RGBA(0, 0, 0, 0)
-                                          BorderStyle: =BorderStyle.None
-                                          BorderThickness: =2
-                                          Color: =RGBA(50, 49, 48, 1)
-                                          DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                                          DisabledColor: =RGBA(161, 159, 157, 1)
-                                          FocusedBorderThickness: =4
-                                          Font: =Font.Lato
-                                          Height: =1
-                                          Text: =ThisItem.description
-                                          Visible: =false
-                                          Width: =200
-                                          X: =20
-                                          Y: =20
                                     - lbl_textID_Card:
                                         Control: Label
                                         Properties:
                                           BorderColor: =RGBA(0, 0, 0, 0)
                                           BorderStyle: =BorderStyle.None
                                           BorderThickness: =2
-                                          Color: =RGBA(50, 49, 48, 1)
+                                          Color: =AppTheme.TextPrimary
                                           DisabledBorderColor: =RGBA(0, 0, 0, 0)
                                           DisabledColor: =RGBA(161, 159, 157, 1)
                                           FocusedBorderThickness: =4
                                           Font: =Font.Lato
-                                          Height: =1
+                                          FontWeight: =FontWeight.Semibold
+                                          Height: =26
+                                          Size: =14
                                           Text: =ThisItem.Title
-                                          Visible: =false
-                                          Width: =200
-                                    - img_Card:
-                                        Control: Image
+                                          Width: =Parent.Width - 32
+                                          X: =16
+                                          Y: =42
+                                    - lblRoomsStripMid:
+                                        Control: Label
                                         Properties:
-                                          BorderColor: =AppTheme.FocusedBorder
+                                          Align: =Align.Center
+                                          Color: =AppTheme.TextMuted
+                                          Font: =Font.Lato
+                                          Height: =16
+                                          Size: =9
+                                          Text: =Text(DateAdd(TodayWindowStart, WorkingDayMinutes / 2, TimeUnit.Minutes), "HH:mm")
+                                          Width: =Parent.Width - 32
+                                          X: =16
+                                          Y: =126
+                                    - lbl_textID_Desc:
+                                        Control: Label
+                                        Properties:
+                                          AutoHeight: =true
+                                          BorderColor: =RGBA(0, 0, 0, 0)
+                                          BorderStyle: =BorderStyle.None
+                                          BorderThickness: =2
+                                          Color: =AppTheme.TextSecondary
                                           DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                                          DisabledFill: =RGBA(0, 0, 0, 0)
+                                          DisabledColor: =RGBA(161, 159, 157, 1)
                                           FocusedBorderThickness: =4
-                                          Height: =Parent.Height
-                                          HoverBorderColor: =RGBA(0, 0, 0, 0)
-                                          HoverFill: =
-                                          Image: |-
+                                          Font: =Font.Lato
+                                          Height: =20
+                                          Size: =11
+                                          Text: |-
                                             =With(
-                                                {
-                                                    _tileTitle: lbl_textID_Card.Text,
-                                                    _tileSubtitle: lbl_textID_Desc.Text,
-                                                    _isActive: varUI_ST_ActiveBtn = lbl_textID_Card.Text
-                                                },
-                                                TileProperties(
-                                                    "primary",
-                                                    _tileTitle,
-                                                    _tileSubtitle,
-                                                    Self.Width,
-                                                    Self.Height,
-                                                    _isActive,
-                                                    false,
-                                                    CarbonFontFamily,
-                                                    false
+                                                {_description: Coalesce(ThisItem.Description, "")},
+                                                _description &
+                                                If(!IsBlank(_description), " · ", "") &
+                                                "seats " & Text(ThisItem.Capacity)
+                                            )
+                                          Width: =Parent.Width - 32
+                                          X: =16
+                                          Y: =68
+                                    - lblRoomsCardStatus:
+                                        Control: Label
+                                        Properties:
+                                          Color: =Switch(ThisItem.StatusKey, "Busy", AppTheme.TextMuted, "OutsideHours", AppTheme.TextMuted, AppTheme.StatusFreeText)
+                                          Font: =Font.Lato
+                                          Height: =20
+                                          Size: =10
+                                          Text: ="● " & ThisItem.StatusText
+                                          Width: =Parent.Width - 64
+                                          X: =16
+                                          Y: =14
+                                    - lblRoomsSelectedCheck:
+                                        Control: Label
+                                        Properties:
+                                          Align: =Align.Center
+                                          Color: =ColorValue(AppTheme.PrimaryText)
+                                          Fill: =ColorValue(AppTheme.ButtonPrimary)
+                                          Font: =Font.Lato
+                                          FontWeight: =FontWeight.Semibold
+                                          Height: =24
+                                          Size: =11
+                                          Text: ="✓"
+                                          Visible: =!IsBlank(varSelectedRoom) && varSelectedRoom.ID = ThisItem.ID
+                                          Width: =24
+                                          X: =Parent.Width - 36
+                                          Y: =12
+                                    - galRoomsAvailabilitySegments:
+                                        Control: Gallery
+                                        Variant: Horizontal
+                                        Properties:
+                                          Height: =8
+                                          Items: |-
+                                            =With(
+                                                {_roomBookings: ThisItem.TodayRoomBookings},
+                                                ForAll(
+                                                    Sequence((DayEndHour - DayStartHour) * 2) As _slot,
+                                                    With(
+                                                        {
+                                                            _start: DateAdd(
+                                                                TodayWindowStart,
+                                                                (_slot.Value - 1) * 30,
+                                                                TimeUnit.Minutes
+                                                            )
+                                                        },
+                                                        {
+                                                            SlotStart: _start,
+                                                            SlotEnd: DateAdd(_start, 30, TimeUnit.Minutes),
+                                                            IsBooked: !IsBlank(
+                                                                LookUp(
+                                                                    _roomBookings,
+                                                                    fnOverlaps(
+                                                                        StartDateTime,
+                                                                        EndDateTime,
+                                                                        _start,
+                                                                        DateAdd(_start, 30, TimeUnit.Minutes)
+                                                                    )
+                                                                )
+                                                            )
+                                                        }
+                                                    )
                                                 )
                                             )
-                                          OnSelect: =Select(btn_Card)
-                                          PressedBorderColor: =RGBA(0, 0, 0, 0)
-                                          PressedFill: =RGBA(0, 0, 0, 0)
-                                          Width: =Parent.Width
+                                          ShowScrollbar: =false
+                                          TemplatePadding: =1
+                                          TemplateSize: =(Self.Width / ((DayEndHour - DayStartHour) * 2))
+                                          Width: =Parent.Width - 32
+                                          X: =16
+                                          Y: =116
+                                        Children:
+                                          - rectRoomsAvailabilitySegment:
+                                              Control: Rectangle
+                                              Properties:
+                                                Fill: =If(ThisItem.IsBooked, AppTheme.TextMuted, AppTheme.HeaderAccent)
+                                                Height: =6
+                                                Width: =Parent.TemplateWidth - 2
+                                    - lblRoomsStripStart:
+                                        Control: Label
+                                        Properties:
+                                          Color: =AppTheme.TextMuted
+                                          Font: =Font.Lato
+                                          Height: =16
+                                          Size: =9
+                                          Text: =Text(TodayWindowStart, "HH:mm")
+                                          Width: =59
+                                          X: =16
+                                          Y: =126
+                                    - lblRoomsStripEnd:
+                                        Control: Label
+                                        Properties:
+                                          Align: =Align.Right
+                                          Color: =AppTheme.TextMuted
+                                          Font: =Font.Lato
+                                          Height: =10
+                                          Size: =9
+                                          Text: =Text(TodayWindowEnd, "HH:mm")
+                                          Width: =Parent.Width - 32
+                                          X: =16
+                                          Y: =126
+                                    - galRoomsCardEquipment:
+                                        Control: Gallery
+                                        Variant: Horizontal
+                                        Properties:
+                                          Height: =24
+                                          Items: |-
+                                            =With(
+                                                {_equipmentText: ThisItem.Equipment},
+                                                Filter(
+                                                    Table(
+                                                        {Value: "Screen"},
+                                                        {Value: "VC"},
+                                                        {Value: "Whiteboard"},
+                                                        {Value: "Projector"}
+                                                    ),
+                                                    Lower(Value) in Lower(_equipmentText)
+                                                )
+                                            )
+                                          ShowScrollbar: =false
+                                          TemplatePadding: =2
+                                          TemplateSize: =72
+                                          Width: =Parent.Width - 32
+                                          X: =16
+                                          Y: =156
+                                        Children:
+                                          - lblRoomsCardEquipmentTag:
+                                              Control: Label
+                                              Properties:
+                                                Align: =Align.Center
+                                                Color: =AppTheme.TextSecondary
+                                                Fill: =AppTheme.SurfaceAlt
+                                                Font: =Font.Lato
+                                                Height: =20
+                                                Size: =9
+                                                Text: =ThisItem.Value
+                                                Width: =Parent.TemplateWidth - 4
                                     - btn_Card:
                                         Control: Classic/Button
                                         Properties:
-                                          BorderColor: =RGBA(0, 0, 0, 0)
+                                          BorderColor: =Color.Transparent
                                           BorderStyle: =BorderStyle.None
                                           BorderThickness: =0
                                           Color: =RGBA(0, 0, 0, 0)
                                           DisabledBorderColor: =RGBA(0, 0, 0, 0)
                                           DisabledColor: =RGBA(0, 0, 0, 0)
                                           DisabledFill: =RGBA(242, 242, 241, 0)
-                                          Fill: =RGBA(0, 0, 0, 0)
-                                          FocusedBorderColor: =RGBA(15, 98, 254, 1)
+                                          Fill: =Color.Transparent
+                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
                                           FocusedBorderThickness: =2
                                           Font: =Font.Lato
                                           Height: =Parent.Height
-                                          HoverBorderColor: =RGBA(0, 0, 0, 0)
-                                          HoverColor: =RGBA(0, 0, 0, 0)
-                                          HoverFill: =AppTheme.ButtonPrimaryHover
+                                          HoverBorderColor: =Color.Transparent
+                                          HoverColor: =Color.Transparent
+                                          HoverFill: =Color.Transparent
                                           OnSelect: |-
-                                            =UpdateContext({
-                                                varUI_ST_ActiveBtn: If(varUI_ST_ActiveBtn = lbl_textID_Card.Text, Blank(), lbl_textID_Card.Text)
-                                            });
-                                            /* varSelectedRoom is a GLOBAL (the booking wizard reads it from inside
-                                               cpt_Modal_, which cannot see screen context variables). It used to be
-                                               UpdateContext-ed here, which shadowed the global on this screen. */
-                                            Set(varSelectedRoom, ThisItem);
-                                            UpdateContext({varShowTimeline: true});
-                                            Set(glbSelectedDate, Today());
-                                            Select(btn_LoadTimeline);
+                                            =If(
+                                                !IsBlank(varSelectedRoom) && varSelectedRoom.ID = ThisItem.ID,
+                                                Set(varSelectedRoom, Blank()),
+                                                Set(varSelectedRoom, LookUp(colRooms, ID = ThisItem.ID))
+                                            )
                                           PaddingBottom: =0
                                           PaddingLeft: =0
                                           PaddingRight: =0
                                           PaddingTop: =0
-                                          PressedBorderColor: =RGBA(0, 69, 120, 1)
-                                          PressedColor: =RGBA(0, 0, 0, 0)
-                                          PressedFill: =AppTheme.ButtonPrimaryPressed
+                                          PressedBorderColor: =Color.Transparent
+                                          PressedColor: =Color.Transparent
+                                          PressedFill: =Color.Transparent
                                           RadiusBottomLeft: =0
                                           RadiusBottomRight: =0
                                           RadiusTopLeft: =0
                                           RadiusTopRight: =0
-                                          Text: ="View timeline for " & ThisItem.Title
+                                          Text: |-
+                                            =If(
+                                                !IsBlank(varSelectedRoom) && varSelectedRoom.ID = ThisItem.ID,
+                                                "Deselect ",
+                                                "Select "
+                                            ) &
+                                            ThisItem.Title &
+                                            ", capacity " & Text(ThisItem.Capacity) &
+                                            ", " & ThisItem.StatusText
                                           Width: =Parent.Width
+                        - conRoomsEmptyState:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              LayoutAlignItems: =LayoutAlignItems.Center
+                              LayoutDirection: =LayoutDirection.Vertical
+                              LayoutJustifyContent: =LayoutJustifyContent.Center
+                              Visible: =IsEmpty(RoomsBrowseData)
+                              Width: =Parent.Width
+                            Children:
+                              - lblRoomsNoMatches:
+                                  Control: Label
+                                  Properties:
+                                    Align: =Align.Center
+                                    Color: =AppTheme.TextSecondary
+                                    Font: =Font.Lato
+                                    Height: =24
+                                    Size: =12
+                                    Text: ="No rooms match these filters"
+                                    Width: =Parent.Width
+                              - btnRoomsClearFilters:
+                                  Control: Classic/Button
+                                  Properties:
+                                    BorderColor: =ColorValue(AppTheme.ButtonTertiary)
+                                    BorderThickness: =1
+                                    Color: =ColorValue(AppTheme.ButtonTertiary)
+                                    Fill: =Color.Transparent
+                                    FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                    FocusedBorderThickness: =2
+                                    Font: =Font.Lato
+                                    Height: =48
+                                    OnSelect: |-
+                                      =Set(gblRoomsSearch, "");
+                                      Set(gblRoomsMinCapacity, 0);
+                                      Set(gblRoomsSort, "Name");
+                                      Set(gblRoomsAvailableOnly, false);
+                                      ClearCollect(
+                                          colRoomsEquipmentFilter,
+                                          Filter(Table({Value: ""}), !IsBlank(Value))
+                                      );
+                                      Reset(txtRoomsSearch);
+                                      Reset(drpRoomsCapacity);
+                                      Reset(drpRoomsSort);
+                                      Reset(tglRoomsAvailable)
+                                    Text: ="Clear filters"
+                                    Width: =144
                   - con_timeline_view:
                       Control: GroupContainer
                       Variant: AutoLayout
@@ -236,7 +598,8 @@ Screens:
                                     HoverColor: =ColorValue(AppTheme.PrimaryText)
                                     HoverFill: =RGBA(255,255,255,0.16)
                                     OnSelect: |-
-                                      =UpdateContext({varShowTimeline: false})
+                                      =Set(varNowTick, Now());
+                                      UpdateContext({varShowTimeline: false})
                                     PressedColor: =ColorValue(AppTheme.PrimaryText)
                                     PressedFill: =RGBA(255,255,255,0.24)
                                     RadiusBottomLeft: =2
@@ -757,6 +1120,98 @@ Screens:
                               Visible: =false
                               X: =40
                               Y: =40
+                  - conRoomsSelectionBar:
+                      Control: GroupContainer
+                      Variant: AutoLayout
+                      Properties:
+                        BorderColor: =AppTheme.Border
+                        BorderThickness: =1
+                        DropShadow: =DropShadow.None
+                        Fill: =AppTheme.Surface
+                        FillPortions: =0
+                        Height: =If(App.Width < 768, 208, 64)
+                        LayoutAlignItems: =LayoutAlignItems.Center
+                        LayoutDirection: =If(App.Width < 768, LayoutDirection.Vertical, LayoutDirection.Horizontal)
+                        PaddingLeft: =32
+                        PaddingRight: =32
+                        Visible: =!varShowTimeline && !IsBlank(varSelectedRoom)
+                        Width: =Parent.Width
+                      Children:
+                        - lblRoomsSelectedSummary:
+                            Control: Label
+                            Properties:
+                              Color: =AppTheme.TextPrimary
+                              FillPortions: =1
+                              Font: =CarbonFontFamily
+                              Size: =12
+                              Text: |-
+                                =varSelectedRoom.Title &
+                                " · seats " & Text(varSelectedRoom.Capacity) &
+                                If(IsBlank(varSelectedRoom.description), "", " · " & varSelectedRoom.description)
+                        - btnRoomsViewToday:
+                            Control: Classic/Button
+                            Properties:
+                              BorderColor: =ColorValue(AppTheme.ButtonTertiary)
+                              BorderThickness: =1
+                              Color: =ColorValue(AppTheme.ButtonTertiary)
+                              Fill: =Color.Transparent
+                              FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                              FocusedBorderThickness: =2
+                              Font: =Font.Lato
+                              Height: =48
+                              OnSelect: |-
+                                =Set(glbSelectedDate, Today());
+                                UpdateContext({varShowTimeline: true});
+                                Select(btn_LoadTimeline)
+                              Text: ="View today"
+                              Width: =144
+                        - btnRoomsViewWeek:
+                            Control: Classic/Button
+                            Properties:
+                              BorderColor: =AppTheme.Border
+                              BorderThickness: =1
+                              Color: =ColorValue(AppTheme.ButtonDisabledText)
+                              DisabledBorderColor: =AppTheme.Border
+                              DisabledColor: =ColorValue(AppTheme.ButtonDisabledText)
+                              DisabledFill: =ColorValue(AppTheme.ButtonDisabled)
+                              DisplayMode: =DisplayMode.Disabled
+                              Fill: =ColorValue(AppTheme.ButtonDisabled)
+                              Font: =Font.Lato
+                              Height: =48
+                              OnSelect: =Blank()
+                              Text: ="View week"
+                              Tooltip: ="Week view is not available yet"
+                              Width: =144
+                        - btnRoomsBook:
+                            Control: Classic/Button
+                            Properties:
+                              BorderColor: =ColorValue(AppTheme.ButtonPrimary)
+                              BorderThickness: =1
+                              Color: =ColorValue(AppTheme.PrimaryText)
+                              Fill: =ColorValue(AppTheme.ButtonPrimary)
+                              FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                              FocusedBorderThickness: =2
+                              Font: =Font.Lato
+                              Height: =48
+                              OnSelect: |-
+                                =Set(varSelectedDate, Blank());
+                                Set(varStartTime, Blank());
+                                Set(varEndTime, Blank());
+                                Set(varTitle, Blank());
+                                Set(varConflict, false);
+                                Set(varBookingError, false);
+                                Set(varSubmitting, false);
+                                Set(varTitleTouched, false);
+                                Set(gbl_UI_Book_CancelConfirm, false);
+                                Set(gbl_Book_SubmitResult, "");
+                                Set(varConflictingBooking, Blank());
+                                Set(varNextFreeSlot, Blank());
+                                Set(gblEditingBookingID, 0);
+                                ClearCollect(varAlternativeRooms, Filter(colRooms, ID <> ID));
+                                Set(gbl_UI_Book_Modal_Step, WizardStep2);
+                                Set(gbl_UI_Book_Modal, true)
+                              Text: ="Book"
+                              Width: =144
       - cpt_Modal__book_rooms:
           Control: CanvasComponent
           ComponentName: cpt_Modal_
@@ -765,68 +1220,85 @@ Screens:
             ModalTitleText: =
             OnSubmit: |-
               =If(cpt_Modal__book_rooms.ValidPayload,
+                  ClearCollect(colPayloadSnapshot, cpt_Modal__book_rooms.PatchPayload);
                   Clear(colFailedBookings);
+                  Set(varNewSeriesID, If(First(colPayloadSnapshot).RecurrenceType <> "", GUID(), Blank()));
 
-                  /* Loop through all occurrences emitted by the wizard */
+                  /* Loop through all snapshot occurrences */
                   ForAll(
-                      cpt_Modal__book_rooms.PatchPayload As _occ,
-                      If(
-                          !IsBlank(
-                              LookUp(
-                                  Filter(
-                                      colBookings,
-                                      Status = "Active",
-                                      fnOverlaps(StartDateTime, EndDateTime, _occ.StartDateTime, _occ.EndDateTime)
-                                  ),
-                                  RoomID.Id = _occ.RoomIdNumber
+                      colPayloadSnapshot As _occ,
+                      With(
+                          {
+                              _isWeekend: Weekday(_occ.StartDateTime, StartOfWeek.Sunday) = 1 || Weekday(_occ.StartDateTime, StartOfWeek.Sunday) = 7,
+                              _hasClash: !IsBlank(
+                                  LookUp(
+                                      Filter(
+                                          colBookings,
+                                          Status = "Active",
+                                          fnOverlaps(StartDateTime, EndDateTime, _occ.StartDateTime, _occ.EndDateTime)
+                                      ),
+                                      RoomID.Id = _occ.RoomIdNumber
+                                  )
                               )
-                          ),
-
-                          /* Slot already taken — record as a conflict */
-                          Collect(
-                              colFailedBookings,
+                          },
+                          With(
                               {
-                                  BookingDate: Text(_occ.StartDateTime, "dd mmm yyyy"),
-                                  Reason: "conflict"
-                              }
-                          ),
+                                  /* Create booking; record a write failure if it errors */
+                                  _patchOk: IfError(
+                                      Patch(
+                                          Book_Bookings,
+                                          Defaults(Book_Bookings),
+                                          {
+                                              Title: _occ.Title,
+                                              BookedByEmail: _occ.BookedByEmail,
+                                              RoomID: {
+                                                  Id: _occ.RoomIdNumber,
+                                                  Value: _occ.RoomIdText
+                                              },
+                                              StartDateTime: _occ.StartDateTime,
+                                              EndDateTime: _occ.EndDateTime,
+                                              IsPrivate: _occ.IsPrivate,
+                                              // PROD-REVERT[booked-by-actor] person = actor; mock claims don't resolve
+                                              BookedBy: {
+                                                  '@odata.type': "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser",
+                                                  Claims: $"i:0#.f|membership|{Lower(User().Email)}",
+                                                  DisplayName: User().FullName,
+                                                  Email: Lower(User().Email),
+                                                  Department: "",
+                                                  JobTitle: "",
+                                                  Picture: ""
+                                              },
+                                              Status: If(_isWeekend || _hasClash, "Clash", "Active"),
+                                              SeriesID: If(IsBlank(varNewSeriesID), Blank(), Text(varNewSeriesID)),
+                                              RecurrenceType: _occ.RecurrenceType,
+                                              OccIndex: _occ.OccIndex,
+                                              IsException: false
+                                          }
+                                      );
+                                      true,
+                                      Collect(
+                                          colFailedBookings,
+                                          {
+                                              BookingDate: Text(_occ.StartDateTime, "dd mmm yyyy"),
+                                              Reason: "error"
+                                          }
+                                      );
+                                      false
+                                  )
+                              },
 
-                          /* Create booking; record a write failure if it errors */
-                          IfError(
-                              Patch(
-                                  Book_Bookings,
-                                  Defaults(Book_Bookings),
-                                  {
-                                      Title: _occ.Title,
-                                      BookedByEmail: _occ.BookedByEmail,
-                                      RoomID: {
-                                          Id: _occ.RoomIdNumber,
-                                          Value: _occ.RoomIdText
-                                      },
-                                      StartDateTime: _occ.StartDateTime,
-                                      EndDateTime: _occ.EndDateTime,
-                                      Status: "Active",
-                                      IsPrivate: _occ.IsPrivate,
-                                      // PROD-REVERT[booked-by-actor] person = actor; mock claims don't resolve
-                                      BookedBy: {
-                                          '@odata.type': "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser",
-                                          Claims: $"i:0#.f|membership|{Lower(User().Email)}",
-                                          DisplayName: User().FullName,
-                                          Email: Lower(User().Email),
-                                          Department: "",
-                                          JobTitle: "",
-                                          Picture: ""
+                              /* Slot already occupied or the occurrence lands on a weekend —
+                                 the row is still written, just as Clash instead of Active */
+                              If(
+                                  _patchOk && (_isWeekend || _hasClash),
+                                  Collect(
+                                      colFailedBookings,
+                                      {
+                                          BookingDate: Text(_occ.StartDateTime, "dd mmm yyyy"),
+                                          Reason: "clash"
                                       }
-                                  }
-                              ),
-                              Collect(
-                                  colFailedBookings,
-                                  {
-                                      BookingDate: Text(_occ.StartDateTime, "dd mmm yyyy"),
-                                      Reason: "error"
-                                  }
-                              );
-                              Blank()
+                                  )
+                              )
                           )
                       )
                   );
@@ -840,40 +1312,30 @@ Screens:
                   /* Report the outcome back to the wizard */
                   Set(
                       gbl_Book_SubmitResult,
-                      If(
-                          varBookingError,
-                          "error",
-                          CountRows(colFailedBookings) > 0,
-                          "conflict",
-                          "success"
-                      )
+                      If(varBookingError, "error", "success")
                   );
 
-                  /* Tell user what happened; close the modal on BOTH branches */
+                  /* Tell user what happened; close the modal on all branches */
                   If(
-                      CountRows(colFailedBookings) > 0,
-                      If(
-                          varBookingError,
-                          Notify(
-                              "Some bookings failed to save. Please try again. Not created: " &
-                              Concat(colFailedBookings, BookingDate, ", "),
-                              NotificationType.Error,
-                              10000
-                          ),
-                          Notify(
-                              "Some bookings could not be created (slot taken): " &
-                              Concat(colFailedBookings, BookingDate, ", "),
-                              NotificationType.Warning,
-                              10000
-                          )
-                      );
-                      Set(gbl_UI_Book_Modal, false),
+                      varBookingError,
+                      Notify(
+                          "Some bookings failed to save. Please try again. Not created: " &
+                          Concat(Filter(colFailedBookings, Reason = "error"), BookingDate, ", "),
+                          NotificationType.Error,
+                          10000
+                      ),
+                      CountRows(Filter(colFailedBookings, Reason = "clash")) > 0,
+                      Notify(
+                          $"Created {CountRows(colPayloadSnapshot)} bookings — {CountRows(Filter(colFailedBookings, Reason = "clash"))} clash and need rescheduling. See My Bookings → Series.",
+                          NotificationType.Warning,
+                          10000
+                      ),
                       Notify(
                           "Booking(s) created successfully",
                           NotificationType.Success
-                      );
-                      Set(gbl_UI_Book_Modal, false)
+                      )
                   );
+                  Set(gbl_UI_Book_Modal, false);
 
                   /* Stay on Rooms — rebuild the timeline so the new booking(s) show up.
                      (Home navigates back to Home here instead.) */

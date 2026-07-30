@@ -212,6 +212,73 @@ Screens:
                                           RadiusTopRight: =0
                                           Text: ="Show all bookings" & If(varMyBookingsFilter = "All", " (selected)", "")
                                           Width: =80
+                              - con_SegSeries:
+                                  Control: GroupContainer
+                                  Variant: ManualLayout
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Center
+                                    DropShadow: =DropShadow.None
+                                    Fill: =RGBA(0,0,0,0)
+                                    FillPortions: =0
+                                    Height: =32
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Width: =90
+                                  Children:
+                                    - lbl_SegSeriesText:
+                                        Control: Label
+                                        Properties:
+                                          Color: =RGBA(0,0,0,0)
+                                          Fill: =RGBA(0,0,0,0)
+                                          Font: =Font.Lato
+                                          Height: =Parent.Height
+                                          Size: =12
+                                          Text: ="Series"
+                                          Width: =Parent.Width
+                                          Wrap: =false
+                                    - img_SegSeries:
+                                        Control: Image
+                                        Properties:
+                                          BorderColor: =RGBA(0,0,0,0)
+                                          DisabledFill: =RGBA(0,0,0,0)
+                                          Fill: =RGBA(0,0,0,0)
+                                          Height: =32
+                                          HoverBorderColor: =RGBA(0,0,0,0)
+                                          HoverFill: =RGBA(0,0,0,0)
+                                          Image: =ContentSwitcherItem(lbl_SegSeriesText.Text, Self.Width, Self.Height, varMyBookingsFilter = "Series", CarbonFontFamily)
+                                          PressedBorderColor: =RGBA(0,0,0,0)
+                                          PressedFill: =RGBA(0,0,0,0)
+                                          Width: =90
+                                    - btn_SegSeries:
+                                        Control: Classic/Button
+                                        Properties:
+                                          BorderColor: =RGBA(0,0,0,0)
+                                          BorderStyle: =BorderStyle.None
+                                          Color: =RGBA(0,0,0,0)
+                                          DisabledBorderColor: =RGBA(0,0,0,0)
+                                          DisabledColor: =RGBA(0,0,0,0)
+                                          DisabledFill: =RGBA(0,0,0,0)
+                                          Fill: =RGBA(0,0,0,0)
+                                          FocusedBorderColor: =RGBA(15,98,254,1)
+                                          FocusedBorderThickness: =2
+                                          Height: =32
+                                          HoverBorderColor: =RGBA(0,0,0,0)
+                                          HoverColor: =RGBA(0,0,0,0)
+                                          HoverFill: =RGBA(0,0,0,0.06)
+                                          OnSelect: =Set(varMyBookingsFilter, "Series")
+                                          PressedBorderColor: =RGBA(0,0,0,0)
+                                          PressedColor: =RGBA(0,0,0,0)
+                                          PressedFill: =RGBA(0,0,0,0.12)
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                          Text: ="Show series bookings" & If(varMyBookingsFilter = "Series", " (selected)", "")
+                                          Width: =90
                         - galMyBookings:
                             Control: Gallery
                             Variant: Vertical
@@ -232,7 +299,7 @@ Screens:
                               LayoutMinWidth: =0
                               TemplatePadding: =0
                               TemplateSize: =88
-                              Visible: =If(Self.AllItemsCount = 0, false, true)
+                              Visible: =If(varMyBookingsFilter = "Series", false, If(Self.AllItemsCount = 0, false, true))
                             Children:
                               - rectCardBg:
                                   Control: Rectangle
@@ -313,6 +380,21 @@ Screens:
                                     Wrap: =false
                                     X: =Parent.Width - 60
                                     Y: =10
+                              - lblClashBadge:
+                                  Control: Label
+                                  Properties:
+                                    Align: =Align.Center
+                                    Color: =AppTheme.Background
+                                    Fill: =AppTheme.StatusWarnText
+                                    Font: =Font.Lato
+                                    Height: =20
+                                    Size: =10
+                                    Text: ="Clash — needs rescheduling"
+                                    Visible: =ThisItem.Status = "Clash"
+                                    Width: =176
+                                    Wrap: =false
+                                    X: =Parent.Width - 192
+                                    Y: =10
                               - btnCardOverlay:
                                   Control: Classic/Button
                                   Properties:
@@ -353,7 +435,7 @@ Screens:
                               LayoutJustifyContent: =LayoutJustifyContent.Center
                               LayoutMinHeight: =0
                               LayoutMinWidth: =0
-                              Visible: =IsEmpty(galMyBookings.AllItems)
+                              Visible: =varMyBookingsFilter <> "Series" && IsEmpty(galMyBookings.AllItems)
                               Width: =Parent.Width
                             Children:
                               - lblEmptyState:
@@ -424,3 +506,344 @@ Screens:
                                     RadiusTopRight: =2
                                     Size: =11
                                     Text: ="Book a room"
+                        - galSeriesList:
+                            Control: Gallery
+                            Variant: Vertical
+                            Properties:
+                              Fill: =AppTheme.Background
+                              Items: |-
+                                =Sort(
+                                    AddColumns(
+                                        GroupBy(
+                                            Filter(MyBookings, !IsBlank(SeriesID)),
+                                            SeriesID,
+                                            SeriesRows
+                                        ),
+                                        SeriesTitle, First(SeriesRows).Title,
+                                        SeriesRoom, First(SeriesRows).'RoomID: Title'.Value,
+                                        SeriesPattern, First(SeriesRows).RecurrenceType,
+                                        NextDate, Min(Filter(SeriesRows, !fnIsPast(EndDateTime) && Status <> "Cancelled"), StartDateTime),
+                                        ActiveCount, CountRows(Filter(SeriesRows, Status = "Active")),
+                                        ClashCount, CountRows(Filter(SeriesRows, Status = "Clash")),
+                                        EarliestClash, First(Sort(Filter(SeriesRows, Status = "Clash"), StartDateTime, SortOrder.Ascending))
+                                    ),
+                                    NextDate,
+                                    SortOrder.Ascending
+                                )
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              TemplatePadding: =0
+                              TemplateSize: =130
+                              Visible: =varMyBookingsFilter = "Series"
+                            Children:
+                              - rectSeriesCardBg:
+                                  Control: Rectangle
+                                  Properties:
+                                    BorderColor: =RGBA(0,0,0,0)
+                                    Fill: =If(ThisItem.ClashCount > 0, AppTheme.StatusWarnBg, AppTheme.SurfaceAlt)
+                                    Height: =Parent.TemplateHeight
+                                    Width: =Parent.Width
+                              - rectSeriesCardDivider:
+                                  Control: Rectangle
+                                  Properties:
+                                    BorderColor: =RGBA(0,0,0,0)
+                                    Fill: =AppTheme.Border
+                                    Height: =1
+                                    Width: =Parent.Width
+                                    Y: =Parent.TemplateHeight - 1
+                              - lblSeriesTitle:
+                                  Control: Label
+                                  Properties:
+                                    Color: =AppTheme.TextPrimary
+                                    Font: =Font.Lato
+                                    FontWeight: =FontWeight.Semibold
+                                    Height: =20
+                                    Text: =ThisItem.SeriesTitle & " · " & ThisItem.SeriesRoom
+                                    Width: =Parent.Width - 280
+                                    Wrap: =false
+                                    X: =16
+                                    Y: =10
+                              - lblSeriesPattern:
+                                  Control: Label
+                                  Properties:
+                                    Color: =AppTheme.TextMuted
+                                    Font: =Font.Lato
+                                    Height: =16
+                                    Size: =12
+                                    Text: =Switch(ThisItem.SeriesPattern, "Weekly", "Weekly", "BiWeekly", "Every 2 weeks", "Monthly", "Monthly", ThisItem.SeriesPattern) & " · Next " & If(IsBlank(ThisItem.NextDate), "—", Text(ThisItem.NextDate, "dd mmm yyyy"))
+                                    Width: =Parent.Width - 280
+                                    Wrap: =false
+                                    X: =16
+                                    Y: =32
+                              - lblSeriesCounts:
+                                  Control: Label
+                                  Properties:
+                                    Color: =If(ThisItem.ClashCount > 0, AppTheme.StatusWarnText, AppTheme.TextSecondary)
+                                    Font: =Font.Lato
+                                    Height: =16
+                                    Size: =12
+                                    Text: =ThisItem.ActiveCount & " active" & If(ThisItem.ClashCount > 0, " · " & ThisItem.ClashCount & " clash", "")
+                                    Width: =Parent.Width - 280
+                                    Wrap: =false
+                                    X: =16
+                                    Y: =49
+                              - btnSeriesRowOverlay:
+                                  Control: Classic/Button
+                                  Properties:
+                                    BorderColor: =RGBA(0,0,0,0)
+                                    BorderStyle: =BorderStyle.None
+                                    BorderThickness: =0
+                                    Color: =RGBA(0,0,0,0)
+                                    DisabledBorderColor: =RGBA(0,0,0,0)
+                                    DisabledColor: =RGBA(0,0,0,0)
+                                    DisabledFill: =RGBA(0,0,0,0)
+                                    Fill: =RGBA(0,0,0,0)
+                                    FocusedBorderColor: =RGBA(15,98,254,1)
+                                    FocusedBorderThickness: =2
+                                    Height: =Parent.TemplateHeight
+                                    HoverBorderColor: =RGBA(0,0,0,0)
+                                    HoverColor: =RGBA(0,0,0,0)
+                                    HoverFill: =RGBA(0,0,0,0.04)
+                                    OnSelect: =Set(gbl_SelectedSeriesID, If(gbl_SelectedSeriesID = ThisItem.SeriesID, Blank(), ThisItem.SeriesID))
+                                    PressedBorderColor: =RGBA(0,0,0,0)
+                                    PressedColor: =RGBA(0,0,0,0)
+                                    PressedFill: =RGBA(0,0,0,0.08)
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Text: =ThisItem.SeriesTitle & ", " & ThisItem.SeriesRoom & ". " & ThisItem.ActiveCount & " active" & If(ThisItem.ClashCount > 0, ", " & ThisItem.ClashCount & " clash", "") & ". Toggle occurrence list"
+                                    Width: =Parent.Width - 264
+                              - btnResolveClashes:
+                                  Control: Classic/Button
+                                  Properties:
+                                    BorderColor: =AppTheme.StatusWarnText
+                                    BorderThickness: =1
+                                    Color: =AppTheme.StatusWarnText
+                                    Fill: =AppTheme.Surface
+                                    FocusedBorderColor: =RGBA(15,98,254,1)
+                                    FocusedBorderThickness: =2
+                                    Font: =Font.Lato
+                                    FontWeight: =FontWeight.Normal
+                                    Height: =28
+                                    HoverColor: =AppTheme.StatusWarnText
+                                    HoverFill: =AppTheme.StatusWarnBg
+                                    OnSelect: =Set(gbl_FixCycleSeriesID, ThisItem.SeriesID); Set(gblSelectedBooking, ThisItem.EarliestClash); Navigate(bookingDetail, ScreenTransition.Fade)
+                                    PressedColor: =AppTheme.StatusWarnText
+                                    PressedFill: =AppTheme.StatusWarnBg
+                                    RadiusBottomLeft: =2
+                                    RadiusBottomRight: =2
+                                    RadiusTopLeft: =2
+                                    RadiusTopRight: =2
+                                    Size: =11
+                                    Text: ="Resolve clashes"
+                                    Visible: =ThisItem.ClashCount > 0 && gbl_UI_CancelSeriesConfirmID <> ThisItem.SeriesID
+                                    Width: =130
+                                    X: =Parent.Width - 264
+                                    Y: =72
+                              - btnCancelSeriesStart:
+                                  Control: Classic/Button
+                                  Properties:
+                                    BorderColor: =AppTheme.StatusBusyText
+                                    BorderThickness: =1
+                                    Color: =AppTheme.StatusBusyText
+                                    Fill: =AppTheme.Surface
+                                    FocusedBorderColor: =RGBA(15,98,254,1)
+                                    FocusedBorderThickness: =2
+                                    Font: =Font.Lato
+                                    FontWeight: =FontWeight.Normal
+                                    Height: =28
+                                    HoverColor: =AppTheme.StatusBusyText
+                                    HoverFill: =AppTheme.StatusBusyBg
+                                    OnSelect: =Set(gbl_UI_CancelSeriesConfirmID, ThisItem.SeriesID)
+                                    PressedColor: =AppTheme.StatusBusyText
+                                    PressedFill: =AppTheme.StatusBusyBg
+                                    RadiusBottomLeft: =2
+                                    RadiusBottomRight: =2
+                                    RadiusTopLeft: =2
+                                    RadiusTopRight: =2
+                                    Size: =11
+                                    Text: ="Cancel series"
+                                    Visible: =gbl_UI_CancelSeriesConfirmID <> ThisItem.SeriesID
+                                    Width: =120
+                                    X: =Parent.Width - 128
+                                    Y: =72
+                              - btnKeepSeries:
+                                  Control: Classic/Button
+                                  Properties:
+                                    BorderColor: =AppTheme.Border
+                                    BorderThickness: =1
+                                    Color: =AppTheme.TextPrimary
+                                    Fill: =AppTheme.Surface
+                                    FocusedBorderColor: =RGBA(15,98,254,1)
+                                    FocusedBorderThickness: =2
+                                    Font: =Font.Lato
+                                    FontWeight: =FontWeight.Normal
+                                    Height: =28
+                                    HoverColor: =AppTheme.TextPrimary
+                                    HoverFill: =AppTheme.Border
+                                    OnSelect: =Set(gbl_UI_CancelSeriesConfirmID, Blank())
+                                    PressedColor: =AppTheme.TextPrimary
+                                    PressedFill: =AppTheme.Border
+                                    RadiusBottomLeft: =2
+                                    RadiusBottomRight: =2
+                                    RadiusTopLeft: =2
+                                    RadiusTopRight: =2
+                                    Size: =11
+                                    Text: ="Keep series"
+                                    Visible: =gbl_UI_CancelSeriesConfirmID = ThisItem.SeriesID
+                                    Width: =110
+                                    X: =Parent.Width - 264
+                                    Y: =72
+                              - btnConfirmCancelSeries:
+                                  Control: Classic/Button
+                                  Properties:
+                                    BorderColor: =AppTheme.StatusBusyText
+                                    BorderThickness: =0
+                                    Color: =ColorValue(AppTheme.PrimaryText)
+                                    Fill: =AppTheme.StatusBusyText
+                                    FocusedBorderColor: =RGBA(15,98,254,1)
+                                    FocusedBorderThickness: =2
+                                    Font: =Font.Lato
+                                    FontWeight: =FontWeight.Normal
+                                    Height: =28
+                                    HoverColor: =ColorValue(AppTheme.PrimaryText)
+                                    HoverFill: =ColorValue("#b81922")
+                                    OnSelect: |-
+                                      =// PROD-REVERT[booking-cancel] soft delete via per-row Patch; matches single-cancel pattern in bookingDetail.
+                                      // UpdateIf's <> and Now() predicates aren't delegable to SharePoint, so this iterates the
+                                      // client-side colBookings copy (series capped at 12 rows) and patches each row by ID instead.
+                                      IfError(
+                                          ForAll(
+                                              Filter(colBookings, SeriesID = gbl_UI_CancelSeriesConfirmID, StartDateTime >= Now(), Status <> "Cancelled") As _m,
+                                              Patch(Book_Bookings, LookUp(Book_Bookings, ID = _m.ID), {Status: "Cancelled"})
+                                          ),
+                                          Notify("Couldn't cancel this series. Please try again.", NotificationType.Error),
+                                          Refresh(Book_Bookings);
+                                          ClearCollect(colBookings, Book_Bookings);
+                                          Set(gbl_UI_CancelSeriesConfirmID, Blank());
+                                          Notify("Series cancelled", NotificationType.Success)
+                                      )
+                                    PressedColor: =ColorValue(AppTheme.PrimaryText)
+                                    PressedFill: =ColorValue("#921620")
+                                    RadiusBottomLeft: =2
+                                    RadiusBottomRight: =2
+                                    RadiusTopLeft: =2
+                                    RadiusTopRight: =2
+                                    Size: =11
+                                    Text: ="Yes, cancel series"
+                                    Visible: =gbl_UI_CancelSeriesConfirmID = ThisItem.SeriesID
+                                    Width: =130
+                                    X: =Parent.Width - 144
+                                    Y: =72
+                        - conEmptyStateSeries:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              AlignInContainer: =AlignInContainer.Center
+                              DropShadow: =DropShadow.None
+                              Fill: =RGBA(0,0,0,0)
+                              LayoutAlignItems: =LayoutAlignItems.Center
+                              LayoutDirection: =LayoutDirection.Vertical
+                              LayoutGap: =16
+                              LayoutJustifyContent: =LayoutJustifyContent.Center
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              Visible: =varMyBookingsFilter = "Series" && IsEmpty(galSeriesList.AllItems)
+                              Width: =Parent.Width
+                            Children:
+                              - lblEmptyStateSeries:
+                                  Control: Label
+                                  Properties:
+                                    Align: =Align.Center
+                                    AlignInContainer: =AlignInContainer.Center
+                                    Color: =AppTheme.TextMuted
+                                    Fill: =RGBA(0,0,0,0)
+                                    Font: =Font.Lato
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Text: ="No series bookings yet."
+                                    Width: =Parent.Width
+                                    Wrap: =false
+                        - galSeriesOccurrences:
+                            Control: Gallery
+                            Variant: Vertical
+                            Properties:
+                              Fill: =AppTheme.Background
+                              Items: |-
+                                =Sort(
+                                    Filter(MyBookings, SeriesID = gbl_SelectedSeriesID),
+                                    StartDateTime,
+                                    SortOrder.Ascending
+                                )
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              TemplatePadding: =0
+                              TemplateSize: =56
+                              Visible: =varMyBookingsFilter = "Series" && !IsBlank(gbl_SelectedSeriesID)
+                            Children:
+                              - rectOccBg:
+                                  Control: Rectangle
+                                  Properties:
+                                    BorderColor: =RGBA(0,0,0,0)
+                                    Fill: =If(ThisItem.Status = "Clash", AppTheme.StatusWarnBg, If(fnIsPast(ThisItem.EndDateTime), AppTheme.Background, AppTheme.Surface))
+                                    Height: =Parent.TemplateHeight
+                                    Width: =Parent.Width
+                              - rectOccDivider:
+                                  Control: Rectangle
+                                  Properties:
+                                    BorderColor: =RGBA(0,0,0,0)
+                                    Fill: =AppTheme.Border
+                                    Height: =1
+                                    Width: =Parent.Width
+                                    Y: =Parent.TemplateHeight - 1
+                              - lblOccDateTime:
+                                  Control: Label
+                                  Properties:
+                                    Color: =If(ThisItem.Status = "Clash", AppTheme.StatusWarnText, AppTheme.TextPrimary)
+                                    Font: =Font.Lato
+                                    Height: =Parent.TemplateHeight
+                                    Size: =12
+                                    Text: ="Occ " & ThisItem.OccIndex & " · " & Text(ThisItem.StartDateTime, "ddd dd mmm yyyy") & "  " & Text(ThisItem.StartDateTime, "HH:mm") & "-" & Text(ThisItem.EndDateTime, "HH:mm")
+                                    Width: =Parent.Width - 160
+                                    Wrap: =false
+                                    X: =16
+                              - lblOccStatus:
+                                  Control: Label
+                                  Properties:
+                                    Align: =Align.Right
+                                    Color: =If(ThisItem.Status = "Clash", AppTheme.StatusWarnText, AppTheme.TextMuted)
+                                    Font: =Font.Lato
+                                    Height: =Parent.TemplateHeight
+                                    Size: =12
+                                    Text: =If(ThisItem.Status = "Clash", "Clash — needs rescheduling", ThisItem.Status)
+                                    Width: =128
+                                    Wrap: =false
+                                    X: =Parent.Width - 144
+                              - btnOccOverlay:
+                                  Control: Classic/Button
+                                  Properties:
+                                    BorderColor: =RGBA(0,0,0,0)
+                                    BorderStyle: =BorderStyle.None
+                                    BorderThickness: =0
+                                    Color: =RGBA(0,0,0,0)
+                                    DisabledBorderColor: =RGBA(0,0,0,0)
+                                    DisabledColor: =RGBA(0,0,0,0)
+                                    DisabledFill: =RGBA(0,0,0,0)
+                                    Fill: =RGBA(0,0,0,0)
+                                    FocusedBorderColor: =RGBA(15,98,254,1)
+                                    FocusedBorderThickness: =2
+                                    Height: =Parent.TemplateHeight
+                                    HoverBorderColor: =RGBA(0,0,0,0)
+                                    HoverColor: =RGBA(0,0,0,0)
+                                    HoverFill: =RGBA(0,0,0,0.04)
+                                    OnSelect: =Set(gblSelectedBooking, ThisItem); Navigate(bookingDetail, ScreenTransition.Fade)
+                                    PressedBorderColor: =RGBA(0,0,0,0)
+                                    PressedColor: =RGBA(0,0,0,0)
+                                    PressedFill: =RGBA(0,0,0,0.08)
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Text: =ThisItem.Title & ", occurrence " & ThisItem.OccIndex & ", " & Text(ThisItem.StartDateTime, "ddd dd mmm HH:mm") & ", " & ThisItem.Status & ". Open booking details"
+                                    Width: =Parent.Width

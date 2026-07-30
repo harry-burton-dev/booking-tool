@@ -677,68 +677,85 @@ Screens:
             ModalTitleText: =
             OnSubmit: |-
               =If(cpt_Modal__book_find.ValidPayload,
+                  ClearCollect(colPayloadSnapshot, cpt_Modal__book_find.PatchPayload);
                   Clear(colFailedBookings);
+                  Set(varNewSeriesID, If(First(colPayloadSnapshot).RecurrenceType <> "", GUID(), Blank()));
 
-                  /* Loop through all occurrences emitted by the wizard */
+                  /* Loop through all snapshot occurrences */
                   ForAll(
-                      cpt_Modal__book_find.PatchPayload As _occ,
-                      If(
-                          !IsBlank(
-                              LookUp(
-                                  Filter(
-                                      colBookings,
-                                      Status = "Active",
-                                      fnOverlaps(StartDateTime, EndDateTime, _occ.StartDateTime, _occ.EndDateTime)
-                                  ),
-                                  RoomID.Id = _occ.RoomIdNumber
+                      colPayloadSnapshot As _occ,
+                      With(
+                          {
+                              _isWeekend: Weekday(_occ.StartDateTime, StartOfWeek.Sunday) = 1 || Weekday(_occ.StartDateTime, StartOfWeek.Sunday) = 7,
+                              _hasClash: !IsBlank(
+                                  LookUp(
+                                      Filter(
+                                          colBookings,
+                                          Status = "Active",
+                                          fnOverlaps(StartDateTime, EndDateTime, _occ.StartDateTime, _occ.EndDateTime)
+                                      ),
+                                      RoomID.Id = _occ.RoomIdNumber
+                                  )
                               )
-                          ),
-
-                          /* Slot already taken — record as a conflict */
-                          Collect(
-                              colFailedBookings,
+                          },
+                          With(
                               {
-                                  BookingDate: Text(_occ.StartDateTime, "dd mmm yyyy"),
-                                  Reason: "conflict"
-                              }
-                          ),
+                                  /* Create booking; record a write failure if it errors */
+                                  _patchOk: IfError(
+                                      Patch(
+                                          Book_Bookings,
+                                          Defaults(Book_Bookings),
+                                          {
+                                              Title: _occ.Title,
+                                              BookedByEmail: _occ.BookedByEmail,
+                                              RoomID: {
+                                                  Id: _occ.RoomIdNumber,
+                                                  Value: _occ.RoomIdText
+                                              },
+                                              StartDateTime: _occ.StartDateTime,
+                                              EndDateTime: _occ.EndDateTime,
+                                              IsPrivate: _occ.IsPrivate,
+                                              // PROD-REVERT[booked-by-actor] person = actor; mock claims don't resolve
+                                              BookedBy: {
+                                                  '@odata.type': "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser",
+                                                  Claims: $"i:0#.f|membership|{Lower(User().Email)}",
+                                                  DisplayName: User().FullName,
+                                                  Email: Lower(User().Email),
+                                                  Department: "",
+                                                  JobTitle: "",
+                                                  Picture: ""
+                                              },
+                                              Status: If(_isWeekend || _hasClash, "Clash", "Active"),
+                                              SeriesID: If(IsBlank(varNewSeriesID), Blank(), Text(varNewSeriesID)),
+                                              RecurrenceType: _occ.RecurrenceType,
+                                              OccIndex: _occ.OccIndex,
+                                              IsException: false
+                                          }
+                                      );
+                                      true,
+                                      Collect(
+                                          colFailedBookings,
+                                          {
+                                              BookingDate: Text(_occ.StartDateTime, "dd mmm yyyy"),
+                                              Reason: "error"
+                                          }
+                                      );
+                                      false
+                                  )
+                              },
 
-                          /* Create booking; record a write failure if it errors */
-                          IfError(
-                              Patch(
-                                  Book_Bookings,
-                                  Defaults(Book_Bookings),
-                                  {
-                                      Title: _occ.Title,
-                                      BookedByEmail: _occ.BookedByEmail,
-                                      RoomID: {
-                                          Id: _occ.RoomIdNumber,
-                                          Value: _occ.RoomIdText
-                                      },
-                                      StartDateTime: _occ.StartDateTime,
-                                      EndDateTime: _occ.EndDateTime,
-                                      Status: "Active",
-                                      IsPrivate: _occ.IsPrivate,
-                                      // PROD-REVERT[booked-by-actor] person = actor; mock claims don't resolve
-                                      BookedBy: {
-                                          '@odata.type': "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser",
-                                          Claims: $"i:0#.f|membership|{Lower(User().Email)}",
-                                          DisplayName: User().FullName,
-                                          Email: Lower(User().Email),
-                                          Department: "",
-                                          JobTitle: "",
-                                          Picture: ""
+                              /* Slot already occupied or the occurrence lands on a weekend —
+                                 the row is still written, just as Clash instead of Active */
+                              If(
+                                  _patchOk && (_isWeekend || _hasClash),
+                                  Collect(
+                                      colFailedBookings,
+                                      {
+                                          BookingDate: Text(_occ.StartDateTime, "dd mmm yyyy"),
+                                          Reason: "clash"
                                       }
-                                  }
-                              ),
-                              Collect(
-                                  colFailedBookings,
-                                  {
-                                      BookingDate: Text(_occ.StartDateTime, "dd mmm yyyy"),
-                                      Reason: "error"
-                                  }
-                              );
-                              Blank()
+                                  )
+                              )
                           )
                       )
                   );
@@ -752,40 +769,30 @@ Screens:
                   /* Report the outcome back to the wizard */
                   Set(
                       gbl_Book_SubmitResult,
-                      If(
-                          varBookingError,
-                          "error",
-                          CountRows(colFailedBookings) > 0,
-                          "conflict",
-                          "success"
-                      )
+                      If(varBookingError, "error", "success")
                   );
 
-                  /* Tell user what happened; close the modal on BOTH branches */
+                  /* Tell user what happened; close the modal on all branches */
                   If(
-                      CountRows(colFailedBookings) > 0,
-                      If(
-                          varBookingError,
-                          Notify(
-                              "Some bookings failed to save. Please try again. Not created: " &
-                              Concat(colFailedBookings, BookingDate, ", "),
-                              NotificationType.Error,
-                              10000
-                          ),
-                          Notify(
-                              "Some bookings could not be created (slot taken): " &
-                              Concat(colFailedBookings, BookingDate, ", "),
-                              NotificationType.Warning,
-                              10000
-                          )
-                      );
-                      Set(gbl_UI_Book_Modal, false),
+                      varBookingError,
+                      Notify(
+                          "Some bookings failed to save. Please try again. Not created: " &
+                          Concat(Filter(colFailedBookings, Reason = "error"), BookingDate, ", "),
+                          NotificationType.Error,
+                          10000
+                      ),
+                      CountRows(Filter(colFailedBookings, Reason = "clash")) > 0,
+                      Notify(
+                          $"Created {CountRows(colPayloadSnapshot)} bookings — {CountRows(Filter(colFailedBookings, Reason = "clash"))} clash and need rescheduling. See My Bookings → Series.",
+                          NotificationType.Warning,
+                          10000
+                      ),
                       Notify(
                           "Booking(s) created successfully",
                           NotificationType.Success
-                      );
-                      Set(gbl_UI_Book_Modal, false)
+                      )
                   );
+                  Set(gbl_UI_Book_Modal, false);
 
                   /* Stay on Rooms — rebuild the timeline so the new booking(s) show up.
                      (Home navigates back to Home here instead.) */
