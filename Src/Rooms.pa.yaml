@@ -144,7 +144,6 @@ Screens:
                                     Color: =AppTheme.TextPrimary
                                     Default: ="Any size"
                                     Fill: =AppTheme.layer01Bg
-                                    FillPortions: =0
                                     FocusedBorderColor: =ColorValue(AppTheme.Primary)
                                     FocusedBorderThickness: =2
                                     Font: ="IBM Plex Sans"
@@ -165,7 +164,6 @@ Screens:
                                     Color: =AppTheme.TextPrimary
                                     Default: ="Name"
                                     Fill: =AppTheme.layer01Bg
-                                    FillPortions: =0
                                     FocusedBorderColor: =ColorValue(AppTheme.Primary)
                                     FocusedBorderThickness: =2
                                     Font: ="IBM Plex Sans"
@@ -180,7 +178,6 @@ Screens:
                                   Control: Toggle
                                   Properties:
                                     Checked: =gblRoomsAvailableOnly
-                                    FillPortions: =0
                                     Height: =48
                                     Label: ="Available now"
                                     OnCheck: =Set(gblRoomsAvailableOnly, true)
@@ -310,7 +307,6 @@ Screens:
                                     - lbl_textID_Desc:
                                         Control: Label
                                         Properties:
-                                          AutoHeight: =false
                                           BorderColor: =Color.Transparent
                                           BorderStyle: =BorderStyle.None
                                           BorderThickness: =2
@@ -332,21 +328,10 @@ Screens:
                                                     _d & " · seats " & Text(ThisItem.Capacity)
                                                 )
                                             )
-                                          Wrap: =false
                                           Width: =Parent.Width - 32
+                                          Wrap: =false
                                           X: =16
                                           Y: =72
-                                    - lblRoomsCardStatusDot:
-                                        Control: Label
-                                        Properties:
-                                          Color: =Switch(ThisItem.StatusKey, "Busy", AppTheme.TextMuted, "OutsideHours", AppTheme.TextMuted, AppTheme.StatusFreeText)
-                                          Font: ="IBM Plex Sans"
-                                          Height: =18
-                                          Size: =10
-                                          Text: ="●"
-                                          Width: =12
-                                          X: =16
-                                          Y: =16
                                     - lblRoomsCardStatus:
                                         Control: Label
                                         Properties:
@@ -480,8 +465,8 @@ Screens:
                                                 Height: =20
                                                 Size: =9
                                                 Text: =ThisItem.Value
-                                                Wrap: =false
                                                 Width: =Parent.TemplateWidth - 4
+                                                Wrap: =false
                                     - btn_Card:
                                         Control: Classic/Button
                                         Properties:
@@ -527,6 +512,17 @@ Screens:
                                             ", capacity " & Text(ThisItem.Capacity) &
                                             ", " & ThisItem.StatusText
                                           Width: =Parent.Width
+                                    - lblRoomsCardStatusDot:
+                                        Control: Label
+                                        Properties:
+                                          Color: =Switch(ThisItem.StatusKey, "Busy", AppTheme.TextMuted, "OutsideHours", AppTheme.TextMuted, AppTheme.StatusFreeText)
+                                          Font: ="IBM Plex Sans"
+                                          Height: =18
+                                          Size: =10
+                                          Text: ="●"
+                                          Width: =12
+                                          X: =16
+                                          Y: =16
                         - conRoomsEmptyState:
                             Control: GroupContainer
                             Variant: AutoLayout
