@@ -44,7 +44,7 @@ ComponentDefinitions:
                   DropShadow: =DropShadow.None
                   Fill: =AppTheme.Surface
                   FillPortions: =0
-                  Height: =108
+                  Height: =132
                   LayoutAlignItems: =LayoutAlignItems.Start
                   LayoutDirection: =LayoutDirection.Horizontal
                   LayoutGap: =8
@@ -87,7 +87,7 @@ ComponentDefinitions:
                               Color: =AppTheme.TextPrimary
                               Font: ="IBM Plex Sans"
                               FontWeight: =FontWeight.Semibold
-                              Height: =32
+                              Height: =40
                               LayoutMinHeight: =0
                               LayoutMinWidth: =0
                               Size: =24
@@ -95,9 +95,10 @@ ComponentDefinitions:
                         - bdmSubtitle:
                             Control: Label
                             Properties:
+                              AutoHeight: =true
                               Color: =AppTheme.TextSecondary
                               Font: ="IBM Plex Sans"
-                              Height: =20
+                              Height: =22
                               LayoutMinHeight: =0
                               LayoutMinWidth: =0
                               Size: =12
