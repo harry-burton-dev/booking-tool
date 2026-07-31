@@ -108,6 +108,7 @@ Screens:
                             Control: GroupContainer
                             Variant: AutoLayout
                             Properties:
+                              DropShadow: =DropShadow.None
                               FillPortions: =0
                               Height: =If(App.Width < 768, 240, 48)
                               LayoutAlignItems: =LayoutAlignItems.Center
@@ -718,7 +719,7 @@ Screens:
                                                 FontWeight: =FontWeight.Semibold
                                                 Text: =Text(glbSelectedDate, "ddd dd mmmm")
                                                 Width: =140
-                                          - imgDateBack:
+                                          - imgTLPrev:
                                               Control: Image
                                               Properties:
                                                 AccessibleLabel: ="Previous day"
@@ -731,7 +732,7 @@ Screens:
                                                   Select(btn_LoadTimeline)
                                                 TabIndex: =0
                                                 Width: =32
-                                          - imgDateForward:
+                                          - imgTLNext:
                                               Control: Image
                                               Properties:
                                                 AccessibleLabel: ="Next day"
@@ -744,7 +745,7 @@ Screens:
                                                   Select(btn_LoadTimeline)
                                                 TabIndex: =0
                                                 Width: =32
-                                          - btnToday:
+                                          - btnTLToday:
                                               Control: Classic/Button
                                               Properties:
                                                 BorderColor: =AppTheme.Border
@@ -771,7 +772,7 @@ Screens:
                                                 Size: =11
                                                 Text: ="Today"
                                                 Width: =64
-                                          - DatePicker2:
+                                          - dtpTLDate:
                                               Control: ModernDatePicker
                                               Properties:
                                                 Color: =AppTheme.TextPrimary
@@ -781,7 +782,7 @@ Screens:
                                                 LayoutMinHeight: =16
                                                 LayoutMinWidth: =16
                                                 OnChange: |-
-                                                  =Set(glbSelectedDate, DatePicker2.SelectedDate);
+                                                  =Set(glbSelectedDate, dtpTLDate.SelectedDate);
                                                   UpdateContext({varTLSelStart: Blank()});
                                                   Select(btn_LoadTimeline)
                                                 Width: =180
@@ -841,17 +842,18 @@ Screens:
                                           LayoutDirection: =LayoutDirection.Horizontal
                                           LayoutMinHeight: =0
                                           LayoutMinWidth: =0
-                                    - galTimeline:
+                                    - galTLSlots:
                                         Control: Gallery
                                         Variant: BrowseLayout_Flexible_SocialFeed_ver5.0
                                         Properties:
+                                          Height: =Parent.Height - 57
                                           Items: =colTimelineRows
                                           LayoutMinHeight: =0
                                           LayoutMinWidth: =0
                                           TemplatePadding: =0
                                           Width: =Parent.Width
                                         Children:
-                                          - conSlotRow:
+                                          - conTLRow:
                                               Control: GroupContainer
                                               Variant: AutoLayout
                                               Properties:
@@ -865,7 +867,7 @@ Screens:
                                                 RadiusTopRight: =0
                                                 Width: =Parent.TemplateWidth
                                               Children:
-                                                - conTimeLabel:
+                                                - conTLGutter:
                                                     Control: GroupContainer
                                                     Variant: AutoLayout
                                                     Properties:
@@ -880,7 +882,7 @@ Screens:
                                                       RadiusTopLeft: =0
                                                       RadiusTopRight: =0
                                                     Children:
-                                                      - lblSlotTime:
+                                                      - lblTLSlotTime:
                                                           Control: Label
                                                           Properties:
                                                             Align: =Align.Right
@@ -896,7 +898,7 @@ Screens:
                                                             Text: =If(Mod(DateDiff(Timeline_DayStart, ThisItem.RowStart, TimeUnit.Minutes), 60) = 0, Text(ThisItem.RowStart, "HH:mm"), "")
                                                             VerticalAlign: =VerticalAlign.Top
                                                             Width: =Parent.Width
-                                                      - lblTLNowBadge:
+                                                      - lblTLNowTag:
                                                           Control: Label
                                                           Properties:
                                                             Align: =Align.Center
@@ -910,7 +912,7 @@ Screens:
                                                             Text: =Text(varNowTick, "HH:mm")
                                                             Visible: =varNowTick >= ThisItem.RowStart && varNowTick < ThisItem.RowEnd
                                                             Width: =44
-                                                      - lblSlotEndTime:
+                                                      - lblTLSlotEnd:
                                                           Control: Label
                                                           Properties:
                                                             Align: =Align.Right
@@ -928,7 +930,7 @@ Screens:
                                                               =If(Mod(DateDiff(Timeline_DayStart, ThisItem.RowEnd, TimeUnit.Minutes), 60) <> 0, Text(ThisItem.RowEnd, "HH:mm"), "")
                                                             VerticalAlign: =VerticalAlign.Bottom
                                                             Width: =Parent.Width
-                                                - conSlotBlock:
+                                                - conTLSlot:
                                                     Control: GroupContainer
                                                     Variant: ManualLayout
                                                     Properties:
@@ -936,7 +938,7 @@ Screens:
                                                       LayoutMinHeight: =0
                                                       LayoutMinWidth: =0
                                                     Children:
-                                                      - conBookedCard:
+                                                      - conTLBooked:
                                                           Control: GroupContainer
                                                           Variant: AutoLayout
                                                           Properties:
@@ -948,7 +950,7 @@ Screens:
                                                             Width: =Parent.Width - 16
                                                             Y: =2
                                                           Children:
-                                                            - recAccentBar:
+                                                            - recTLAccent:
                                                                 Control: GroupContainer
                                                                 Variant: AutoLayout
                                                                 Properties:
@@ -958,7 +960,7 @@ Screens:
                                                                   LayoutMaxWidth: =3
                                                                   LayoutMinWidth: =3
                                                                   Width: =3
-                                                            - conBookedText:
+                                                            - conTLBookedText:
                                                                 Control: GroupContainer
                                                                 Variant: AutoLayout
                                                                 Properties:
@@ -969,7 +971,7 @@ Screens:
                                                                   PaddingLeft: =12
                                                                   PaddingTop: =4
                                                                 Children:
-                                                                  - lblBookingTitle:
+                                                                  - lblTLBookingTitle:
                                                                       Control: Label
                                                                       Properties:
                                                                         AutoHeight: =true
@@ -986,7 +988,7 @@ Screens:
                                                                         Size: =12
                                                                         Text: =If(ThisItem.RowHeight < 48, ThisItem.Title & "  ·  " & Text(ThisItem.RowStart, "HH:mm") & " – " & Text(ThisItem.RowEnd, "HH:mm"), ThisItem.Title)
                                                                         VerticalAlign: =VerticalAlign.Top
-                                                                  - lblBookedBy:
+                                                                  - lblTLBookedBy:
                                                                       Control: Label
                                                                       Properties:
                                                                         AutoHeight: =true
@@ -998,7 +1000,7 @@ Screens:
                                                                         Text: =ThisItem.BookedBy & "  ·  " & Text(ThisItem.RowStart, "HH:mm") & " – " & Text(ThisItem.RowEnd, "HH:mm")
                                                                         VerticalAlign: =VerticalAlign.Top
                                                                         Visible: =ThisItem.RowHeight >= 48
-                                                      - btnTLBookedTap:
+                                                      - btnTLOpenBooking:
                                                           Control: Classic/Button
                                                           Properties:
                                                             BorderColor: =Color.Transparent
@@ -1022,7 +1024,7 @@ Screens:
                                                             Visible: =ThisItem.RowType = "booked" && !ThisItem.IsMasked
                                                             Width: =Parent.Width - 16
                                                             Y: =2
-                                                      - conFreeSlot:
+                                                      - conTLFree:
                                                           Control: GroupContainer
                                                           Variant: ManualLayout
                                                           Properties:
@@ -1032,7 +1034,7 @@ Screens:
                                                             Width: =Parent.Width - 16
                                                             Y: =2
                                                           Children:
-                                                            - btnFreeSlot:
+                                                            - btnTLFree:
                                                                 Control: Classic/Button
                                                                 Properties:
                                                                   BorderColor: =Color.Transparent
@@ -1090,7 +1092,7 @@ Screens:
                                                                         )
                                                                     )
                                                                   Width: =Parent.Width
-                                                            - conTLGhost:
+                                                            - conTLPick:
                                                                 Control: GroupContainer
                                                                 Variant: ManualLayout
                                                                 Properties:
@@ -1100,26 +1102,26 @@ Screens:
                                                                   Width: =Parent.Width
                                                                   Y: =DateDiff(ThisItem.RowStart, varTLSelStart, TimeUnit.Minutes) * 2
                                                                 Children:
-                                                                  - lblTLGhostTitle:
+                                                                  - lblTLPickTitle:
                                                                       Control: Label
                                                                       Properties:
                                                                         Color: =ColorValue(AppTheme.PrimaryText)
                                                                         Font: ="IBM Plex Sans"
                                                                         FontWeight: =FontWeight.Semibold
                                                                         Height: =18
-                                                                        OnSelect: =Select(btnFreeSlot)
+                                                                        OnSelect: =Select(btnTLFree)
                                                                         Size: =12
                                                                         Text: ="Your booking"
                                                                         Width: =Parent.Width - 24
                                                                         X: =12
                                                                         Y: =6
-                                                                  - lblTLGhostTime:
+                                                                  - lblTLPickTime:
                                                                       Control: Label
                                                                       Properties:
                                                                         Color: =ColorValue(AppTheme.PrimaryText)
                                                                         Font: ="IBM Plex Sans"
                                                                         Height: =16
-                                                                        OnSelect: =Select(btnFreeSlot)
+                                                                        OnSelect: =Select(btnTLFree)
                                                                         Size: =11
                                                                         Text: |-
                                                                           =Text(varTLSelStart, "HH:mm") & " – " & Text(DateAdd(varTLSelStart, varTLSelMinutes, TimeUnit.Minutes), "HH:mm") & " · " &
@@ -1132,14 +1134,14 @@ Screens:
                                                                         Width: =Parent.Width - 24
                                                                         X: =12
                                                                         Y: =26
-                                                            - lblTLFreeResidue:
+                                                            - lblTLRemain:
                                                                 Control: Label
                                                                 Properties:
                                                                   Align: =Align.Center
                                                                   Color: =AppTheme.TextMuted
                                                                   Font: ="IBM Plex Sans"
                                                                   Height: =Max(Parent.Height - (DateDiff(ThisItem.RowStart, varTLSelStart, TimeUnit.Minutes) * 2 + varTLSelMinutes * 2), 0)
-                                                                  OnSelect: =Select(btnFreeSlot)
+                                                                  OnSelect: =Select(btnTLFree)
                                                                   Size: =11
                                                                   Text: |-
                                                                     =With(
@@ -1158,15 +1160,15 @@ Screens:
                                                                   Visible: =!IsBlank(varTLSelStart) && ThisItem.RowStart = varTLSelRunStart
                                                                   Width: =Parent.Width
                                                                   Y: =DateDiff(ThisItem.RowStart, varTLSelStart, TimeUnit.Minutes) * 2 + varTLSelMinutes * 2
-                                                      - recTLNowLine:
+                                                      - recTLNowRule:
                                                           Control: Rectangle
                                                           Properties:
                                                             Fill: =AppTheme.StatusBusyText
                                                             Height: =2
                                                             Visible: =varNowTick >= ThisItem.RowStart && varNowTick < ThisItem.RowEnd
                                                             Width: =Parent.Width - 16
-                                                            Y: =DateDiff(ThisItem.RowStart, varNowTick, TimeUnit.Minutes) * 2
-                                    - lbl_textRoomsEmptyState:
+                                                            Y: =118
+                                    - lblTLEmpty:
                                         Control: Label
                                         Properties:
                                           AlignInContainer: =AlignInContainer.Stretch
