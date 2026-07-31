@@ -268,12 +268,12 @@ App:
                           SideNavFooterText:    "#8d8d8d"
                       },
                       Dark: {
-                          BorderSubtle: "#ffffff",
-                          Background: "#ffffff",
+                          BorderSubtle: "#393939",
+                          Background: "#161616",
                           Primary: "#0f62fe",
                           PrimaryText: "#ffffff",
                           Accent: "#d0e2ff",
-                          layer01Bg: "#f4f4f4",
+                          layer01Bg: "#262626",
                           SideNavBg:            "#161616",
                           SideNavItemHover:     "#2d2d2d80",
                           SideNavItemActive:    "#393939",

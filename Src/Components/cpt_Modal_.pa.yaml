@@ -922,7 +922,7 @@ ComponentDefinitions:
                                     ),
                                     ""
                                 )
-                              Visible: =false
+                              Visible: =btnNext.DisplayMode = DisplayMode.Disabled
                         - conConflictPanel:
                             Control: GroupContainer
                             Variant: AutoLayout

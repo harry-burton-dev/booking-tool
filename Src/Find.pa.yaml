@@ -590,7 +590,7 @@ Screens:
                                                       - lblWeekCount_v2:
                                                           Control: Label
                                                           Properties:
-                                                            Color: =ColorValue(AppTheme.PrimaryText)
+                                                            Color: =AppTheme.TextPrimary
                                                             FontWeight: =FontWeight.Semibold
                                                             LayoutMinHeight: =20
                                                             LayoutMinWidth: =0
