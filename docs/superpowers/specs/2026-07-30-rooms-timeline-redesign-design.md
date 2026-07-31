@@ -41,9 +41,15 @@ timeline control.
 
 ## Decisions (confirmed with the requester, 2026-07-30)
 
-1. **Book CTA opens the wizard at step 3.** The timeline + sidebar *is* the time-picking
-   step; the modal opens at details/confirm (`WizardStep3`) with times already set. No
-   duplicate time picking.
+1. **Book CTA opens the wizard with times preset.** *(Amended during implementation,
+   2026-07-31.)* The original decision was to open at `WizardStep3`, but final review
+   found the wizard's step 3 is confirm-only: the title input lives on step 2, and
+   step 3's Confirm requires a non-blank title — a direct jump dead-ends with Confirm
+   disabled and no field to satisfy it. Since wizard internals are out of scope and
+   fabricating a default title was rejected, the CTA opens `WizardStep2` with
+   `varStartTime`/`varEndTime` preset from the composer; the user enters a title there
+   and proceeds. Follow-up (not in this change): add a title field to the sidebar
+   composer, after which the direct `WizardStep3` jump becomes viable.
 2. **Mockup page header, without the stepper.** The `STEP 2 OF 3` eyebrow in the
    reference is dropped, consistent with the parent spec's no-stepper ruling.
 3. **Oversize duration chips are disabled**, never capped or warned. The range shown is
@@ -194,9 +200,9 @@ Fixed 320px column of two `Surface` cards (1px `Border`).
   text `Select a time`. With selection → `ButtonPrimary` fill, white text,
   `"Book " & HH:mm & " – " & HH:mm`. `OnSelect` runs the current `btnFreeSlot`
   initialisation block (wizard state resets, `varSelectedDate`, alternative-rooms clear)
-  with `Set(varStartTime, varTLSelStart)`,
-  `Set(varEndTime, DateAdd(varTLSelStart, varTLSelMinutes, TimeUnit.Minutes))`, and
-  `Set(gbl_UI_Book_Modal_Step, WizardStep3)` instead of `WizardStep2`.
+  with `Set(varStartTime, varTLSelStart)` and
+  `Set(varEndTime, DateAdd(varTLSelStart, varTLSelMinutes, TimeUnit.Minutes))`; the step
+  stays `WizardStep2` (see amended Decision 1 — step 3 has no title input).
 
 ### 5. Booked-block details
 
@@ -245,9 +251,9 @@ Transparency-only values (`RGBA(0,0,0,0)`) become `Color.Transparent`. The scree
    the blue ghost block appears at the right position and height on the timeline.
 6. With no selection, the sidebar shows `-- : --`, the prompt caption, all chips
    disabled, and a disabled `Select a time` CTA.
-7. The CTA opens the wizard at step 3 with `varStartTime`/`varEndTime` equal to the
-   sidebar range; completing the booking refreshes the timeline, shows the new booking,
-   and clears the selection; cancelling keeps the selection.
+7. The CTA opens the wizard at step 2 with `varStartTime`/`varEndTime` equal to the
+   sidebar range (amended Decision 1); completing the booking refreshes the timeline,
+   shows the new booking, and clears the selection; cancelling keeps the selection.
 8. Day navigation, Today, date-picker change, `← All rooms`, and timeline entry all
    clear the selection.
 9. On today, the gutter shows the red `HH:mm` badge and the row containing now shows the
@@ -264,8 +270,16 @@ Transparency-only values (`RGBA(0,0,0,0)`) become `Color.Transparent`. The scree
     issue against `docs/APP-CHECKER-BASELINE.md`.
 15. Browse state behaviour (selection, filters, Book, Week) is unchanged.
 
+## Known cosmetic limitation (accepted)
+
+When a selection's start is clamped past the run start (an in-progress run), the band
+between the run start and the ghost renders empty — no `Available` label. Cosmetic,
+today-only, accepted.
+
 ## Follow-up work (not in this change)
 
+- Title field in the sidebar composer, enabling the direct `WizardStep3` jump
+  (amended Decision 1).
 - Week view (the disabled `View week` action remains a placeholder).
 - Font migration for the remaining screens (carried from the browse polish spec).
 - Equipment text cleanup in `Book_Rooms` descriptions (carried from the browse polish

@@ -637,7 +637,7 @@ except the property changes below) and the `- lbl_textRoomsEmptyState:` block in
             DropShadow: =DropShadow.None
             Fill: =Color.Transparent
             FillPortions: =0
-            Height: =If(App.Width < 1024, 560, Parent.Height)
+            Height: =If(App.Width < 1024, 448, Parent.Height)
             LayoutAlignItems: =LayoutAlignItems.Stretch
             LayoutDirection: =LayoutDirection.Vertical
             LayoutGap: =16
@@ -860,7 +860,6 @@ restyled fills and the new short-row text; the free slot is rebuilt around selec
       - btnTLBookedTap:
           Control: Classic/Button
           Properties:
-            AccessibleLabel: ="Open booking details: " & ThisItem.Title
             BorderColor: =Color.Transparent
             BorderStyle: =BorderStyle.None
             BorderThickness: =0
@@ -877,7 +876,8 @@ restyled fills and the new short-row text; the free slot is rebuilt around selec
               Navigate(bookingDetail, ScreenTransition.Fade)
             PressedColor: =Color.Transparent
             PressedFill: =RGBA(0, 0, 0, 0.08)
-            Text: =""
+            Text: |-
+              ="Open booking details: " & ThisItem.Title
             Visible: =ThisItem.RowType = "booked" && !ThisItem.IsMasked
             Width: =Parent.Width - 16
             X: =0
@@ -896,7 +896,6 @@ restyled fills and the new short-row text; the free slot is rebuilt around selec
             - btnFreeSlot:
                 Control: Classic/Button
                 Properties:
-                  AccessibleLabel: ="Select start time " & Text(ThisItem.RowStart, "HH:mm")
                   BorderColor: =Color.Transparent
                   BorderStyle: =BorderStyle.None
                   BorderThickness: =0
@@ -927,7 +926,11 @@ restyled fills and the new short-row text; the free slot is rebuilt around selec
                                         varTLSelStart: _start,
                                         varTLSelRunStart: ThisItem.RowStart,
                                         varTLSelRunEnd: _slotEnd,
-                                        varTLSelMinutes: If(_fit >= 60, 60, _fit >= 30, 30, _fit)
+                                        varTLSelMinutes: If(
+                                            !IsBlank(varTLSelStart) && ThisItem.RowStart = varTLSelRunStart && varTLSelMinutes <= _fit,
+                                            varTLSelMinutes,
+                                            If(_fit >= 60, 60, _fit >= 30, 30, _fit)
+                                        )
                                     })
                                 )
                             )
@@ -1439,15 +1442,17 @@ Children:
           ClearCollect(varAlternativeRooms, Filter(colRooms, true = false));
           Set(varStartTime, varTLSelStart);
           Set(varEndTime, DateAdd(varTLSelStart, varTLSelMinutes, TimeUnit.Minutes));
-          Set(gbl_UI_Book_Modal_Step, WizardStep3);
+          Set(gbl_UI_Book_Modal_Step, WizardStep2);
           Set(gbl_UI_Book_Modal, true)
         Size: =12
         Text: =If(IsBlank(varTLSelStart), "Select a time", "Book " & Text(varTLSelStart, "HH:mm") & " – " & Text(DateAdd(varTLSelStart, varTLSelMinutes, TimeUnit.Minutes), "HH:mm"))
 ```
 
 The CTA's `OnSelect` is the old `btnFreeSlot` initialisation block with the time
-computation replaced by the selection variables and the step changed from `WizardStep2`
-to `WizardStep3`.
+computation replaced by the selection variables. The step stays `WizardStep2` —
+*amended after final review*: the wizard's step 3 is confirm-only (no title input) and
+its Confirm gate requires a non-blank `varTitle`, so a direct `WizardStep3` jump
+dead-ends. See the spec's amended Decision 1.
 
 - [ ] **Step 3: Assert the fix**
 
@@ -1457,9 +1462,9 @@ $new = @('lblTLComposerEyebrow:', 'lblTLComposerTime:', 'lblTLComposerCaption:',
 $missing = $new | Where-Object { $rooms -notmatch [regex]::Escape($_) }
 if ($missing.Count -gt 0) { throw ('Missing: ' + ($missing -join ', ')) }
 $step3 = ([regex]::Matches($rooms, [regex]::Escape('Set(gbl_UI_Book_Modal_Step, WizardStep3)'))).Count
-if ($step3 -ne 1) { throw "Expected exactly 1 WizardStep3 open (the CTA), found $step3." }
+if ($step3 -ne 0) { throw "Expected 0 WizardStep3 opens (amended Decision 1), found $step3." }
 $step2 = ([regex]::Matches($rooms, [regex]::Escape('Set(gbl_UI_Book_Modal_Step, WizardStep2)'))).Count
-if ($step2 -ne 1) { throw "Expected exactly 1 WizardStep2 open left (browse-bar Book button), found $step2." }
+if ($step2 -ne 2) { throw "Expected exactly 2 WizardStep2 opens (browse-bar Book + composer CTA), found $step2." }
 'task 6 contract passed'
 ```
 
