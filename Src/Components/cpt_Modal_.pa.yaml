@@ -1736,12 +1736,19 @@ ComponentDefinitions:
                         LayoutMinWidth: =0
                         OnSelect: |-
                           =Set(varSubmitting, true);
+                          /* Final gate before the host writes: read Book_Bookings, not the
+                             colBookings snapshot, so a booking made by someone else since
+                             App.OnStart is seen. Filter is fnOverlaps written out
+                             (s1 < e2 && e1 > s2) so the window narrows on the server; the
+                             room match stays below, because the alternative-rooms panel
+                             needs the other rooms' overlaps too. */
                           ClearCollect(
                               colOverlappingBookings,
                               Filter(
-                                  colBookings,
+                                  Book_Bookings,
                                   Status = "Active",
-                                  fnOverlaps(StartDateTime, EndDateTime, varStartTime, varEndTime),
+                                  StartDateTime < varEndTime,
+                                  EndDateTime > varStartTime,
                                   ID <> gblEditingBookingID
                               )
                           );
@@ -1750,8 +1757,9 @@ ComponentDefinitions:
                           Set(
                               varNextFreeSlot,
                               LookUp(
+                                  /* Same server read as above — the hint has to agree with the gate */
                                   Filter(
-                                      colBookings,
+                                      Book_Bookings,
                                       Status = "Active",
                                       StartDateTime >= varStartTime,
                                       StartDateTime < DateAdd(varSelectedDate, 1, TimeUnit.Days),
@@ -1842,7 +1850,15 @@ ComponentDefinitions:
                               Set(varBookForName, "");
                               Reset(txtBookingTitle);
                               Set(varTitleTouched, false);
-                              Set(gbl_UI_Book_CancelConfirm, false)
+                              Set(gbl_UI_Book_CancelConfirm, false),
+
+                              /* The server says the slot went while the wizard was open. Nothing
+                                 is written; stay on the conflict panel (varConflictingBooking /
+                                 varNextFreeSlot / varAlternativeRooms above are all server-fresh)
+                                 and re-sync the snapshot so the screens behind show it too. */
+                              Refresh(Book_Bookings);
+                              ClearCollect(colBookings, Book_Bookings);
+                              Notify("That slot was just booked by someone else. Pick another time or room.", NotificationType.Warning, 6000)
                           );
                           Set(varSubmitting, false)
                         PressedBorderColor: =RGBA(11, 69, 182, 1)
