@@ -549,18 +549,31 @@ Screens:
                                                       // EDIT — just this occurrence: apply the pending times, mark as an exception
                                                       With(
                                                           {
+                                                              /* Server re-read, not colBookings: the snapshot cannot
+                                                                 see a booking another user made since. Filter is
+                                                                 fnOverlaps written out (s1 < e2 && e1 > s2) so the
+                                                                 room/date window narrows on the server. */
                                                               _free: IsBlank(
                                                                   LookUp(
                                                                       Filter(
-                                                                          colBookings,
+                                                                          Book_Bookings,
                                                                           Status = "Active",
-                                                                          fnOverlaps(StartDateTime, EndDateTime, gbl_PendingStart, gbl_PendingEnd),
+                                                                          StartDateTime < gbl_PendingEnd,
+                                                                          EndDateTime > gbl_PendingStart,
                                                                           ID <> gblSelectedBooking.ID
                                                                       ),
                                                                       RoomID.Id = gblSelectedBooking.RoomID.Id
                                                                   )
                                                               )
                                                           },
+                                                          If(
+                                                              !_free,
+
+                                                              /* Slot went while the scope prompt was open — write nothing */
+                                                              Refresh(Book_Bookings);
+                                                              ClearCollect(colBookings, Book_Bookings);
+                                                              Notify("That slot is no longer free. Your booking is unchanged.", NotificationType.Warning, 6000),
+
                                                           IfError(
                                                               Patch(
                                                                   Book_Bookings,
@@ -569,17 +582,13 @@ Screens:
                                                                       StartDateTime: gbl_PendingStart,
                                                                       EndDateTime: gbl_PendingEnd,
                                                                       IsException: true,
-                                                                      Status: If(_free, "Active", gblSelectedBooking.Status)
+                                                                      Status: "Active"
                                                                   }
                                                               ),
                                                               Notify("Couldn't update this booking. Please try again.", NotificationType.Error),
                                                               Refresh(Book_Bookings);
                                                               ClearCollect(colBookings, Book_Bookings);
-                                                              If(
-                                                                  _free,
-                                                                  Notify("Booking updated", NotificationType.Success),
-                                                                  Notify("Slot still busy — booking is still clashed", NotificationType.Warning)
-                                                              );
+                                                              Notify("Booking updated", NotificationType.Success);
                                                               // Fix cycling: advance to the next clash in this series, if any
                                                               If(
                                                                   gbl_FixCycleSeriesID <> "",
@@ -611,6 +620,7 @@ Screens:
                                                                       )
                                                                   )
                                                               )
+                                                          )
                                                           )
                                                       ),
                                                       // CANCEL — just this occurrence (current single-row cancel; works on Clash rows too)
@@ -676,9 +686,13 @@ Screens:
                                                                       With(
                                                                           {
                                                                               _isWeekend: Weekday(_newStart, StartOfWeek.Monday) > 5,
+                                                                              /* Server re-read, not colBookings: the snapshot cannot see a
+                                                                                 booking another user made since. Filter is fnOverlaps
+                                                                                 written out (s1 < e2 && e1 > s2) so the room/date window
+                                                                                 narrows on the server. */
                                                                               _occupied: !IsBlank(
                                                                                   LookUp(
-                                                                                      Filter(colBookings, Status = "Active", SeriesID <> _sid, fnOverlaps(StartDateTime, EndDateTime, _newStart, _newEnd)),
+                                                                                      Filter(Book_Bookings, Status = "Active", SeriesID <> _sid, StartDateTime < _newEnd, EndDateTime > _newStart),
                                                                                       RoomID.Id = _memberRoomId
                                                                                   )
                                                                               )
@@ -688,7 +702,9 @@ Screens:
                                                                               PrevStatus: _memberStatus,
                                                                               NewStart: _newStart,
                                                                               NewEnd: _newEnd,
-                                                                              NewStatus: If(_isWeekend || _occupied, "Clash", "Active")
+                                                                              /* Blocked occurrences are planned but never written */
+                                                                              Blocked: _occupied,
+                                                                              NewStatus: If(_isWeekend, "Clash", "Active")
                                                                           }
                                                                       )
                                                                   )
@@ -696,7 +712,8 @@ Screens:
                                                           );
 
                                                           ForAll(
-                                                              colSeriesEditPlan,
+                                                              /* Someone else holds the new slot for these occurrences — leave them where they are */
+                                                              Filter(colSeriesEditPlan, !Blocked),
                                                               IfError(
                                                                   Patch(
                                                                       Book_Bookings,
@@ -715,14 +732,16 @@ Screens:
 
                                                           With(
                                                               {
-                                                                  _healed: CountRows(Filter(colSeriesEditPlan, PrevStatus = "Clash", NewStatus = "Active")),
-                                                                  _newClashes: CountRows(Filter(colSeriesEditPlan, PrevStatus <> "Clash", NewStatus = "Clash"))
+                                                                  _healed: CountRows(Filter(colSeriesEditPlan, !Blocked, PrevStatus = "Clash", NewStatus = "Active")),
+                                                                  _newClashes: CountRows(Filter(colSeriesEditPlan, !Blocked, PrevStatus <> "Clash", NewStatus = "Clash")),
+                                                                  _blocked: CountRows(Filter(colSeriesEditPlan, Blocked))
                                                               },
                                                               Notify(
                                                                   "Series updated" &
                                                                   If(_healed > 0, " — " & _healed & " clash" & If(_healed = 1, "", "es") & " healed", "") &
-                                                                  If(_newClashes > 0, " — " & _newClashes & " now need" & If(_newClashes = 1, "s", "") & " rescheduling", ""),
-                                                                  NotificationType.Success
+                                                                  If(_newClashes > 0, " — " & _newClashes & " now need" & If(_newClashes = 1, "s", "") & " rescheduling", "") &
+                                                                  If(_blocked > 0, " — " & _blocked & " left unchanged, someone else booked that slot", ""),
+                                                                  If(_blocked > 0, NotificationType.Warning, NotificationType.Success)
                                                               )
                                                           )
                                                       ),
@@ -806,15 +825,22 @@ Screens:
                           If(
                               !IsBlank(
                                   LookUp(
+                                      /* Server re-read, not colBookings: the snapshot cannot see a
+                                         booking another user made since. Filter is fnOverlaps
+                                         written out (s1 < e2 && e1 > s2) so the room/date window
+                                         narrows on the server. */
                                       Filter(
-                                          colBookings,
+                                          Book_Bookings,
                                           Status = "Active",
-                                          fnOverlaps(StartDateTime, EndDateTime, _occ.StartDateTime, _occ.EndDateTime),
+                                          StartDateTime < _occ.EndDateTime,
+                                          EndDateTime > _occ.StartDateTime,
                                           ID <> gblEditingBookingID
                                       ),
                                       RoomID.Id = _occ.RoomIdNumber
                                   )
                               ),
+                              Refresh(Book_Bookings);
+                              ClearCollect(colBookings, Book_Bookings);
                               Notify("That slot is no longer free. Your booking is unchanged.", NotificationType.Warning, 6000),
                               // PROD-REVERT[booking-edit] prod form: Patch(Book_Bookings, ...) below
                               IfError(
