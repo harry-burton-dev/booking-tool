@@ -112,6 +112,40 @@ App:
                   SlotMinutes = 15;
                   MaxBookingMinutes = 240;
 
+                  /* Furthest ahead a NEW booking may start. Enforced by the wizard date validation in
+                     cpt_Modal_ (dtpBookingDate error copy + both submit gates), alongside the existing
+                     no-past and weekdays-only rules. Edit mode (gblEditingBookingID > 0) caps at
+                     BookingWindowLookaheadDays instead: a series created at the limit already has
+                     occurrences past +365, and holding those to the create cap would permanently disable
+                     Save on them and strand the clash fix-cycle mid-repair. The snapshot window below is
+                     sized from this cap, so the two must move together. */
+                  BookingStartMaxDays = 365;
+
+                  /* colBookings snapshot window. ClearCollect from SharePoint returns at most the
+                     data-row limit (500 default / 2000 max) and truncates silently, so every
+                     ClearCollect(colBookings, ...) site collects BookingWindow instead of the whole list.
+                     Lookback 90 is a PRODUCT DECISION, not a derived bound. It covers the one consumer
+                     with a declared lower bound - MyBookings ("All" tab), EndDateTime >= Today() - 90.
+                     The Find and Rooms timelines (WeekBookings, FindBookings, the Rooms browse) read at
+                     a user-chosen date with no lower bound, so browsing further back now renders empty;
+                     pre-change it rendered an arbitrary truncated slice, which was not more correct.
+                     Lookahead 730 = the furthest forward a row can be reached, derived from the enforced
+                     BookingStartMaxDays cap: latest permitted start = Today() + 365, and the longest
+                     series tail is Monthly at the drpOccurrences maximum (12) = ~337 days past its first
+                     occurrence, so the furthest reachable row is ~Today() + 702. 730 leaves slack, and
+                     the edit-mode cap is this bound minus one day: BookingWindowEnd is midnight of day +730, so a start ON day +730 (with any time-of-day) would already sit past the filter edge and vanish from colBookings.
+                     Bounds are plain >= / <= on the DateTime columns with the column alone on the left,
+                     so SharePoint delegates both. Retention assumption: fewer than 2000 booking rows
+                     overlap any 820-day window. */
+                  BookingWindowLookbackDays = 90;
+                  BookingWindowLookaheadDays = 730;
+                  BookingWindowStart = DateAdd(Today(), -BookingWindowLookbackDays, TimeUnit.Days);
+                  BookingWindowEnd = DateAdd(Today(), BookingWindowLookaheadDays, TimeUnit.Days);
+                  BookingWindow = Filter(Book_Bookings,
+                      EndDateTime >= BookingWindowStart,
+                      StartDateTime <= BookingWindowEnd
+                  );
+
                   WizardStep1 = "1";
                   WizardStep2 = "2";
                   WizardStep3 = "3";
@@ -608,7 +642,7 @@ App:
                   Set(gblEditingBookingID, 0);
 
                   ClearCollect(colRooms, Book_Rooms);
-                  ClearCollect(colBookings, Book_Bookings);
+                  ClearCollect(colBookings, BookingWindow);
 
 
                   Set(gblUserInitials, Upper(Left(User().FullName, 1) & If(CountRows(Split(User().FullName, " ")) > 1, Left(Last(Split(User().FullName, " ")).Value, 1), "")));

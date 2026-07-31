@@ -762,7 +762,7 @@ Screens:
 
                   // PROD-REVERT[booking-create-find] SharePoint round-trip after series create
                   Refresh(Book_Bookings);
-                  ClearCollect(colBookings, Book_Bookings);
+                  ClearCollect(colBookings, BookingWindow);
 
                   Set(varBookingError, !IsEmpty(Filter(colFailedBookings, Reason = "error")));
 

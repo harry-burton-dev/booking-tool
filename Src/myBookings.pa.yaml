@@ -720,7 +720,7 @@ Screens:
                                           ),
                                           Notify("Couldn't cancel this series. Please try again.", NotificationType.Error),
                                           Refresh(Book_Bookings);
-                                          ClearCollect(colBookings, Book_Bookings);
+                                          ClearCollect(colBookings, BookingWindow);
                                           Set(gbl_UI_CancelSeriesConfirmID, Blank());
                                           Notify("Series cancelled", NotificationType.Success)
                                       )
