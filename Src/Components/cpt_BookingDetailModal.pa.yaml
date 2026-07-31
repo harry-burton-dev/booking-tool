@@ -1,0 +1,977 @@
+ComponentDefinitions:
+  cpt_BookingDetailModal:
+    DefinitionType: CanvasComponent
+    AccessAppScope: true
+    Properties:
+      Height: =App.Height
+      Width: =App.Width
+    Children:
+      - bdmScrim:
+          Control: Rectangle
+          Properties:
+            Fill: =AppTheme.ModalScrim
+            Height: =Parent.Height
+            OnSelect: |-
+              =// RESET-SITE[detail-modal-close] scrim dismiss clears confirm state before hiding
+              Set(gbl_UI_Detail_ConfirmMode, "");
+              Set(gbl_UI_Detail_Modal, false)
+            Width: =Parent.Width
+      - bdmCard:
+          Control: GroupContainer
+          Variant: AutoLayout
+          Properties:
+            BorderColor: =AppTheme.Border
+            BorderThickness: =1
+            DropShadow: =DropShadow.Regular
+            Fill: =AppTheme.Surface
+            Height: =Min(Parent.Height - 64, 520)
+            LayoutAlignItems: =LayoutAlignItems.Stretch
+            LayoutDirection: =LayoutDirection.Vertical
+            LayoutMinHeight: =0
+            LayoutMinWidth: =0
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Width: =Min(Parent.Width - 32, 640)
+            X: =(Parent.Width - Self.Width) / 2
+            Y: =(Parent.Height - Self.Height) / 2
+          Children:
+            - bdmHeader:
+                Control: GroupContainer
+                Variant: AutoLayout
+                Properties:
+                  DropShadow: =DropShadow.None
+                  Fill: =AppTheme.Surface
+                  FillPortions: =0
+                  Height: =108
+                  LayoutAlignItems: =LayoutAlignItems.Start
+                  LayoutDirection: =LayoutDirection.Horizontal
+                  LayoutGap: =8
+                  LayoutMinHeight: =0
+                  LayoutMinWidth: =0
+                  PaddingBottom: =12
+                  PaddingLeft: =24
+                  PaddingRight: =8
+                  PaddingTop: =16
+                Children:
+                  - bdmHeaderText:
+                      Control: GroupContainer
+                      Variant: AutoLayout
+                      Properties:
+                        DropShadow: =DropShadow.None
+                        Fill: =RGBA(0,0,0,0) /* DS-EXEMPT transparent layout container, no painted surface */
+                        FillPortions: =1
+                        LayoutAlignItems: =LayoutAlignItems.Stretch
+                        LayoutDirection: =LayoutDirection.Vertical
+                        LayoutGap: =4
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                      Children:
+                        - bdmEyebrow:
+                            Control: Label
+                            Properties:
+                              Color: =AppTheme.TextMuted
+                              Font: ="IBM Plex Sans"
+                              FontWeight: =FontWeight.Semibold
+                              Height: =16
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              Size: =10
+                              Text: ="BOOKING DETAIL"
+                              Wrap: =false
+                        - bdmTitle:
+                            Control: Label
+                            Properties:
+                              AutoHeight: =true
+                              Color: =AppTheme.TextPrimary
+                              Font: ="IBM Plex Sans"
+                              FontWeight: =FontWeight.Semibold
+                              Height: =32
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              Size: =24
+                              Text: =If(IsBlank(gblSelectedBooking), "No booking selected", gblSelectedBooking.Title)
+                        - bdmSubtitle:
+                            Control: Label
+                            Properties:
+                              Color: =AppTheme.TextSecondary
+                              Font: ="IBM Plex Sans"
+                              Height: =20
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              Size: =12
+                              Text: |-
+                                =With(
+                                    {_room: LookUp(colRooms, ID = gblSelectedBooking.RoomID.Id)},
+                                    gblSelectedBooking.'RoomID: Title'.Value &
+                                    If(IsBlank(_room) || IsBlank(_room.Capacity), "", " · seats " & _room.Capacity)
+                                )
+                              Wrap: =false
+                  - bdmBtnClose:
+                      Control: Classic/Button
+                      Properties:
+                        AlignInContainer: =AlignInContainer.Start
+                        BorderColor: =AppTheme.Border
+                        BorderThickness: =0
+                        Color: =AppTheme.TextSecondary
+                        Fill: =RGBA(0,0,0,0) /* DS-EXEMPT Carbon ghost icon button, no resting fill */
+                        FillPortions: =0
+                        FocusedBorderColor: =ColorValue(AppTheme.ButtonPrimary)
+                        FocusedBorderThickness: =2
+                        Font: ="IBM Plex Sans"
+                        FontWeight: =FontWeight.Normal
+                        Height: =40
+                        HoverColor: =AppTheme.TextPrimary
+                        HoverFill: =AppTheme.SurfaceAlt
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        OnSelect: |-
+                          =// RESET-SITE[detail-modal-close] X dismiss clears confirm state before hiding
+                          Set(gbl_UI_Detail_ConfirmMode, "");
+                          Set(gbl_UI_Detail_Modal, false)
+                        PressedColor: =AppTheme.TextPrimary
+                        PressedFill: =AppTheme.Border
+                        RadiusBottomLeft: =0
+                        RadiusBottomRight: =0
+                        RadiusTopLeft: =0
+                        RadiusTopRight: =0
+                        Size: =14
+                        Text: ="✕"
+                        Width: =40
+            - bdmStatusRow:
+                Control: GroupContainer
+                Variant: AutoLayout
+                Properties:
+                  DropShadow: =DropShadow.None
+                  Fill: =AppTheme.Surface
+                  FillPortions: =0
+                  Height: =36
+                  LayoutAlignItems: =LayoutAlignItems.Center
+                  LayoutDirection: =LayoutDirection.Horizontal
+                  LayoutGap: =12
+                  LayoutMinHeight: =0
+                  LayoutMinWidth: =0
+                  PaddingLeft: =24
+                  PaddingRight: =24
+                  Visible: =!IsBlank(gblSelectedBooking)
+                Children:
+                  - bdmTag:
+                      Control: Label
+                      Properties:
+                        Align: =Align.Center
+                        Color: |-
+                          =If(
+                              fnIsPast(gblSelectedBooking.EndDateTime), AppTheme.TextMuted,
+                              gblSelectedBooking.Status = "Clash", AppTheme.StatusWarnText,
+                              ColorValue(AppTheme.PrimaryText)
+                          )
+                        Fill: |-
+                          =If(
+                              fnIsPast(gblSelectedBooking.EndDateTime), AppTheme.Border,
+                              gblSelectedBooking.Status = "Clash", AppTheme.StatusWarnBg,
+                              ColorValue(AppTheme.ButtonPrimary)
+                          )
+                        FillPortions: =0
+                        Font: ="IBM Plex Sans"
+                        Height: =24
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        Size: =11
+                        Text: |-
+                          =If(
+                              fnIsPast(gblSelectedBooking.EndDateTime), "Past",
+                              gblSelectedBooking.Status = "Clash", "Clash",
+                              "Upcoming"
+                          )
+                        Width: =88
+                        Wrap: =false
+                  - bdmStartsIn:
+                      Control: Label
+                      Properties:
+                        Color: =AppTheme.TextMuted
+                        Font: ="IBM Plex Sans"
+                        FillPortions: =1
+                        Height: =20
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        Size: =11
+                        Text: |-
+                          =With(
+                              {_mins: DateDiff(varNowTick, gblSelectedBooking.StartDateTime, TimeUnit.Minutes)},
+                              If(
+                                  _mins <= 0,
+                                  "",
+                                  "Starts in " &
+                                  If(_mins >= 60, Int(_mins / 60) & "h ", "") &
+                                  Mod(_mins, 60) & "m"
+                              )
+                          )
+                        Visible: =!fnIsPast(gblSelectedBooking.EndDateTime)
+                        Wrap: =false
+            - bdmGrid:
+                Control: GroupContainer
+                Variant: AutoLayout
+                Properties:
+                  DropShadow: =DropShadow.None
+                  Fill: =AppTheme.Surface
+                  FillPortions: =1
+                  LayoutAlignItems: =LayoutAlignItems.Stretch
+                  LayoutDirection: =LayoutDirection.Vertical
+                  LayoutGap: =1
+                  LayoutMinHeight: =0
+                  LayoutMinWidth: =0
+                  LayoutOverflowY: =LayoutOverflow.Scroll
+                  PaddingBottom: =16
+                  PaddingLeft: =24
+                  PaddingRight: =24
+                  PaddingTop: =12
+                  Visible: =!IsBlank(gblSelectedBooking)
+                Children:
+                  - bdmGridRow1:
+                      Control: GroupContainer
+                      Variant: AutoLayout
+                      Properties:
+                        DropShadow: =DropShadow.None
+                        Fill: =RGBA(0,0,0,0) /* DS-EXEMPT transparent layout container, no painted surface */
+                        FillPortions: =0
+                        Height: =72
+                        LayoutAlignItems: =LayoutAlignItems.Stretch
+                        LayoutDirection: =LayoutDirection.Horizontal
+                        LayoutGap: =1
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                      Children:
+                        - bdmCellDate:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              BorderColor: =AppTheme.Border
+                              BorderThickness: =1
+                              DropShadow: =DropShadow.None
+                              Fill: =AppTheme.SurfaceAlt
+                              FillPortions: =1
+                              LayoutAlignItems: =LayoutAlignItems.Stretch
+                              LayoutDirection: =LayoutDirection.Vertical
+                              LayoutGap: =4
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              PaddingBottom: =12
+                              PaddingLeft: =16
+                              PaddingRight: =16
+                              PaddingTop: =12
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
+                            Children:
+                              - bdmCapDate:
+                                  Control: Label
+                                  Properties:
+                                    Color: =AppTheme.TextMuted
+                                    Font: ="IBM Plex Sans"
+                                    Height: =16
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Size: =11
+                                    Text: ="Date"
+                                    Wrap: =false
+                              - bdmValDate:
+                                  Control: Label
+                                  Properties:
+                                    Color: =AppTheme.TextPrimary
+                                    Font: ="IBM Plex Sans"
+                                    FontWeight: =FontWeight.Semibold
+                                    Height: =20
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Size: =14
+                                    Text: =Text(gblSelectedBooking.StartDateTime, "dddd dd mmmm yyyy")
+                                    Wrap: =false
+                        - bdmCellTime:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              BorderColor: =AppTheme.Border
+                              BorderThickness: =1
+                              DropShadow: =DropShadow.None
+                              Fill: =AppTheme.SurfaceAlt
+                              FillPortions: =1
+                              LayoutAlignItems: =LayoutAlignItems.Stretch
+                              LayoutDirection: =LayoutDirection.Vertical
+                              LayoutGap: =4
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              PaddingBottom: =12
+                              PaddingLeft: =16
+                              PaddingRight: =16
+                              PaddingTop: =12
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
+                            Children:
+                              - bdmCapTime:
+                                  Control: Label
+                                  Properties:
+                                    Color: =AppTheme.TextMuted
+                                    Font: ="IBM Plex Sans"
+                                    Height: =16
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Size: =11
+                                    Text: ="Time"
+                                    Wrap: =false
+                              - bdmValTime:
+                                  Control: Label
+                                  Properties:
+                                    Color: =AppTheme.TextPrimary
+                                    Font: ="IBM Plex Sans"
+                                    FontWeight: =FontWeight.Semibold
+                                    Height: =20
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Size: =14
+                                    Text: =Text(gblSelectedBooking.StartDateTime, "HH:mm") & " – " & Text(gblSelectedBooking.EndDateTime, "HH:mm")
+                                    Wrap: =false
+                  - bdmGridRow2:
+                      Control: GroupContainer
+                      Variant: AutoLayout
+                      Properties:
+                        DropShadow: =DropShadow.None
+                        Fill: =RGBA(0,0,0,0) /* DS-EXEMPT transparent layout container, no painted surface */
+                        FillPortions: =0
+                        Height: =72
+                        LayoutAlignItems: =LayoutAlignItems.Stretch
+                        LayoutDirection: =LayoutDirection.Horizontal
+                        LayoutGap: =1
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                      Children:
+                        - bdmCellDuration:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              BorderColor: =AppTheme.Border
+                              BorderThickness: =1
+                              DropShadow: =DropShadow.None
+                              Fill: =AppTheme.SurfaceAlt
+                              FillPortions: =1
+                              LayoutAlignItems: =LayoutAlignItems.Stretch
+                              LayoutDirection: =LayoutDirection.Vertical
+                              LayoutGap: =4
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              PaddingBottom: =12
+                              PaddingLeft: =16
+                              PaddingRight: =16
+                              PaddingTop: =12
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
+                            Children:
+                              - bdmCapDuration:
+                                  Control: Label
+                                  Properties:
+                                    Color: =AppTheme.TextMuted
+                                    Font: ="IBM Plex Sans"
+                                    Height: =16
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Size: =11
+                                    Text: ="Duration"
+                                    Wrap: =false
+                              - bdmValDuration:
+                                  Control: Label
+                                  Properties:
+                                    Color: =AppTheme.TextPrimary
+                                    Font: ="IBM Plex Sans"
+                                    FontWeight: =FontWeight.Semibold
+                                    Height: =20
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Size: =14
+                                    Text: |-
+                                      =With(
+                                          {_mins: DateDiff(gblSelectedBooking.StartDateTime, gblSelectedBooking.EndDateTime, TimeUnit.Minutes)},
+                                          If(
+                                              Mod(_mins, 60) = 0,
+                                              _mins / 60 & If(_mins = 60, " hour", " hours"),
+                                              _mins & " min"
+                                          )
+                                      )
+                                    Wrap: =false
+                        - bdmCellBy:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              BorderColor: =AppTheme.Border
+                              BorderThickness: =1
+                              DropShadow: =DropShadow.None
+                              Fill: =AppTheme.SurfaceAlt
+                              FillPortions: =1
+                              LayoutAlignItems: =LayoutAlignItems.Stretch
+                              LayoutDirection: =LayoutDirection.Vertical
+                              LayoutGap: =4
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              PaddingBottom: =12
+                              PaddingLeft: =16
+                              PaddingRight: =16
+                              PaddingTop: =12
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
+                            Children:
+                              - bdmCapBy:
+                                  Control: Label
+                                  Properties:
+                                    Color: =AppTheme.TextMuted
+                                    Font: ="IBM Plex Sans"
+                                    Height: =16
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Size: =11
+                                    Text: ="Booked by"
+                                    Wrap: =false
+                              - bdmValBy:
+                                  Control: Label
+                                  Properties:
+                                    Color: =AppTheme.TextPrimary
+                                    Font: ="IBM Plex Sans"
+                                    FontWeight: =FontWeight.Semibold
+                                    Height: =20
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Size: =14
+                                    Text: =gblSelectedBooking.BookedBy.DisplayName
+                                    Wrap: =false
+                  - bdmGridRow3:
+                      Control: GroupContainer
+                      Variant: AutoLayout
+                      Properties:
+                        DropShadow: =DropShadow.None
+                        Fill: =RGBA(0,0,0,0) /* DS-EXEMPT transparent layout container, no painted surface */
+                        FillPortions: =0
+                        Height: =72
+                        LayoutAlignItems: =LayoutAlignItems.Stretch
+                        LayoutDirection: =LayoutDirection.Horizontal
+                        LayoutGap: =1
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                      Children:
+                        - bdmCellRoom:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              BorderColor: =AppTheme.Border
+                              BorderThickness: =1
+                              DropShadow: =DropShadow.None
+                              Fill: =AppTheme.SurfaceAlt
+                              FillPortions: =1
+                              LayoutAlignItems: =LayoutAlignItems.Stretch
+                              LayoutDirection: =LayoutDirection.Vertical
+                              LayoutGap: =4
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              PaddingBottom: =12
+                              PaddingLeft: =16
+                              PaddingRight: =16
+                              PaddingTop: =12
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
+                            Children:
+                              - bdmCapRoom:
+                                  Control: Label
+                                  Properties:
+                                    Color: =AppTheme.TextMuted
+                                    Font: ="IBM Plex Sans"
+                                    Height: =16
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Size: =11
+                                    Text: ="Room"
+                                    Wrap: =false
+                              - bdmValRoom:
+                                  Control: Label
+                                  Properties:
+                                    Color: =AppTheme.TextPrimary
+                                    Font: ="IBM Plex Sans"
+                                    FontWeight: =FontWeight.Semibold
+                                    Height: =20
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Size: =14
+                                    Text: |-
+                                      =gblSelectedBooking.'RoomID: Title'.Value
+                                    Wrap: =false
+                        - bdmCellSeries:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              BorderColor: =AppTheme.Border
+                              BorderThickness: =1
+                              DropShadow: =DropShadow.None
+                              Fill: =AppTheme.SurfaceAlt
+                              FillPortions: =1
+                              LayoutAlignItems: =LayoutAlignItems.Stretch
+                              LayoutDirection: =LayoutDirection.Vertical
+                              LayoutGap: =4
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              PaddingBottom: =12
+                              PaddingLeft: =16
+                              PaddingRight: =16
+                              PaddingTop: =12
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
+                              Visible: =!IsBlank(gblSelectedBooking.SeriesID)
+                            Children:
+                              - bdmCapSeries:
+                                  Control: Label
+                                  Properties:
+                                    Color: =AppTheme.TextMuted
+                                    Font: ="IBM Plex Sans"
+                                    Height: =16
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Size: =11
+                                    Text: ="Series"
+                                    Wrap: =false
+                              - bdmValSeries:
+                                  Control: Label
+                                  Properties:
+                                    Color: =AppTheme.TextPrimary
+                                    Font: ="IBM Plex Sans"
+                                    FontWeight: =FontWeight.Semibold
+                                    Height: =20
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Size: =14
+                                    Text: =If(IsBlank(gblSelectedBooking.RecurrenceType), "Repeats", gblSelectedBooking.RecurrenceType)
+                                    Wrap: =false
+            - bdmFooter:
+                Control: GroupContainer
+                Variant: AutoLayout
+                Properties:
+                  BorderColor: =AppTheme.Border
+                  BorderThickness: =0
+                  DropShadow: =DropShadow.None
+                  Fill: =AppTheme.SurfaceAlt
+                  FillPortions: =0
+                  Height: =If(gbl_UI_Detail_ConfirmMode = "", 64, 124)
+                  LayoutAlignItems: =LayoutAlignItems.Stretch
+                  LayoutDirection: =LayoutDirection.Vertical
+                  LayoutMinHeight: =0
+                  LayoutMinWidth: =0
+                  PaddingBottom: =12
+                  PaddingLeft: =16
+                  PaddingRight: =16
+                  PaddingTop: =12
+                  Visible: =!IsBlank(gblSelectedBooking) && !fnIsPast(gblSelectedBooking.EndDateTime)
+                Children:
+                  - bdmFooterActions:
+                      Control: GroupContainer
+                      Variant: AutoLayout
+                      Properties:
+                        DropShadow: =DropShadow.None
+                        Fill: =RGBA(0,0,0,0) /* DS-EXEMPT transparent layout container, no painted surface */
+                        Height: =40
+                        LayoutAlignItems: =LayoutAlignItems.Stretch
+                        LayoutDirection: =LayoutDirection.Horizontal
+                        LayoutGap: =8
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        Visible: =gbl_UI_Detail_ConfirmMode = ""
+                      Children:
+                        - bdmFooterLeft:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              DropShadow: =DropShadow.None
+                              Fill: =RGBA(0,0,0,0) /* DS-EXEMPT transparent layout container, no painted surface */
+                              FillPortions: =1
+                              LayoutAlignItems: =LayoutAlignItems.Stretch
+                              LayoutDirection: =LayoutDirection.Horizontal
+                              LayoutJustifyContent: =LayoutJustifyContent.Start
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                            Children:
+                              - bdmBtnCancelStart:
+                                  Control: Classic/Button
+                                  Properties:
+                                    BorderColor: =AppTheme.Border
+                                    BorderThickness: =0
+                                    Color: =ColorValue(AppTheme.ButtonDangerPrimary)
+                                    Fill: =RGBA(0,0,0,0) /* DS-EXEMPT Carbon danger-ghost button, no resting fill */
+                                    FillPortions: =0
+                                    FocusedBorderColor: =ColorValue(AppTheme.ButtonPrimary)
+                                    FocusedBorderThickness: =2
+                                    Font: ="IBM Plex Sans"
+                                    FontWeight: =FontWeight.Normal
+                                    HoverColor: =ColorValue(AppTheme.PrimaryText)
+                                    HoverFill: =ColorValue(AppTheme.ButtonDangerPrimary)
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    OnSelect: |-
+                                      =Set(
+                                          gbl_UI_Detail_ConfirmMode,
+                                          If(IsBlank(gblSelectedBooking.SeriesID), "confirm", "scope")
+                                      )
+                                    PressedColor: =ColorValue(AppTheme.PrimaryText)
+                                    PressedFill: =ColorValue(AppTheme.ButtonDangerActive)
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Size: =11
+                                    Text: ="Cancel booking"
+                                    Width: =160
+                        - bdmFooterRight:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              DropShadow: =DropShadow.None
+                              Fill: =RGBA(0,0,0,0) /* DS-EXEMPT transparent layout container, no painted surface */
+                              FillPortions: =1
+                              LayoutAlignItems: =LayoutAlignItems.Stretch
+                              LayoutDirection: =LayoutDirection.Horizontal
+                              LayoutJustifyContent: =LayoutJustifyContent.End
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                            Children:
+                              - bdmBtnChangeTime:
+                                  Control: Classic/Button
+                                  Properties:
+                                    BorderColor: =ColorValue(AppTheme.ButtonPrimary)
+                                    BorderThickness: =1
+                                    Color: =ColorValue(AppTheme.PrimaryText)
+                                    Fill: =ColorValue(AppTheme.ButtonPrimary)
+                                    FillPortions: =0
+                                    FocusedBorderColor: =ColorValue(AppTheme.ButtonPrimary)
+                                    FocusedBorderThickness: =2
+                                    Font: ="IBM Plex Sans"
+                                    FontWeight: =FontWeight.Normal
+                                    HoverColor: =ColorValue(AppTheme.PrimaryText)
+                                    HoverFill: =ColorValue(AppTheme.ButtonPrimaryActive)
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    OnSelect: |-
+                                      =Set(varConflict, false);
+                                      // RESET-SITE[detail-modal-change-time] wizard state reset before opening step 2 (times-only)
+                                      Set(varBookingError, false);
+                                      Set(varSubmitting, false);
+                                      Set(varTitleTouched, false);
+                                      Set(gbl_UI_Book_CancelConfirm, false);
+                                      Set(gbl_Book_SubmitResult, "");
+                                      Set(varConflictingBooking, Blank());
+                                      Set(varNextFreeSlot, Blank());
+                                      ClearCollect(varAlternativeRooms, Filter(colRooms, true = false));
+
+                                      /* Times-only edit: no series controls in this flow.
+                                         tglRecurring/drpWeeks live inside cpt_Modal_ and cannot be
+                                         Reset() from here; that component resets them on close. */
+
+                                      /* Prefill the wizard from the booking being edited */
+                                      Set(gblEditingBookingID, gblSelectedBooking.ID);
+                                      Set(varSelectedRoom, LookUp(colRooms, ID = gblSelectedBooking.RoomID.Id));
+                                      Set(varSelectedDate, DateValue(Text(gblSelectedBooking.StartDateTime, "yyyy-mm-dd")));
+                                      Set(varStartTime, gblSelectedBooking.StartDateTime);
+                                      Set(varEndTime, gblSelectedBooking.EndDateTime);
+                                      Set(varTitle, gblSelectedBooking.Title);
+
+                                      // RESET-SITE[detail-modal-close] close this modal before handing off to the wizard
+                                      Set(gbl_UI_Detail_ConfirmMode, "");
+                                      Set(gbl_UI_Detail_Modal, false);
+
+                                      Set(gbl_UI_Book_Modal_Step, WizardStep2);
+                                      Set(gbl_UI_Book_Modal, true);
+                                      Navigate(bookingDetail, ScreenTransition.Fade)
+                                    PressedColor: =ColorValue(AppTheme.PrimaryText)
+                                    PressedFill: =ColorValue(AppTheme.ButtonPrimaryActive)
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Size: =11
+                                    Text: ="Change time"
+                                    Width: =160
+                  - bdmConfirmRow:
+                      Control: GroupContainer
+                      Variant: AutoLayout
+                      Properties:
+                        BorderColor: =AppTheme.StatusBusyText
+                        BorderThickness: =1
+                        DropShadow: =DropShadow.None
+                        Fill: =AppTheme.StatusBusyBg
+                        LayoutAlignItems: =LayoutAlignItems.Stretch
+                        LayoutDirection: =LayoutDirection.Vertical
+                        LayoutGap: =12
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        PaddingBottom: =12
+                        PaddingLeft: =12
+                        PaddingRight: =12
+                        PaddingTop: =12
+                        RadiusBottomLeft: =0
+                        RadiusBottomRight: =0
+                        RadiusTopLeft: =0
+                        RadiusTopRight: =0
+                        Visible: =gbl_UI_Detail_ConfirmMode = "confirm"
+                      Children:
+                        - bdmLblConfirm:
+                            Control: Label
+                            Properties:
+                              AutoHeight: =true
+                              Color: =AppTheme.StatusBusyText
+                              Font: ="IBM Plex Sans"
+                              Height: =20
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              Size: =12
+                              Text: ="Cancel this booking? This can't be undone."
+                        - bdmConfirmButtons:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              DropShadow: =DropShadow.None
+                              Fill: =RGBA(0,0,0,0) /* DS-EXEMPT transparent layout container, no painted surface */
+                              Height: =40
+                              LayoutAlignItems: =LayoutAlignItems.Stretch
+                              LayoutDirection: =LayoutDirection.Horizontal
+                              LayoutGap: =8
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                            Children:
+                              - bdmBtnKeep:
+                                  Control: Classic/Button
+                                  Properties:
+                                    BorderColor: =AppTheme.Border
+                                    BorderThickness: =1
+                                    Color: =AppTheme.TextPrimary
+                                    Fill: =AppTheme.Surface
+                                    FillPortions: =0
+                                    FocusedBorderColor: =ColorValue(AppTheme.ButtonPrimary)
+                                    FocusedBorderThickness: =2
+                                    Font: ="IBM Plex Sans"
+                                    FontWeight: =FontWeight.Normal
+                                    HoverColor: =AppTheme.TextPrimary
+                                    HoverFill: =AppTheme.SurfaceAlt
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    OnSelect: =Set(gbl_UI_Detail_ConfirmMode, "")
+                                    PressedColor: =AppTheme.TextPrimary
+                                    PressedFill: =AppTheme.Border
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Size: =11
+                                    Text: ="Keep booking"
+                                    Width: =150
+                              - bdmBtnYesCancel:
+                                  Control: Classic/Button
+                                  Properties:
+                                    BorderColor: =AppTheme.StatusBusyText
+                                    BorderThickness: =0
+                                    Color: =ColorValue(AppTheme.PrimaryText)
+                                    Fill: =AppTheme.StatusBusyText
+                                    FillPortions: =0
+                                    FocusedBorderColor: =ColorValue(AppTheme.ButtonPrimary)
+                                    FocusedBorderThickness: =2
+                                    Font: ="IBM Plex Sans"
+                                    FontWeight: =FontWeight.Normal
+                                    HoverColor: =ColorValue(AppTheme.PrimaryText)
+                                    HoverFill: =ColorValue(AppTheme.ButtonDangerActive)
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    OnSelect: |-
+                                      =// PROD-REVERT[booking-cancel] soft delete via Patch; Remove() retired per WS4
+                                      IfError(
+                                          Patch(Book_Bookings, LookUp(Book_Bookings, ID = gblSelectedBooking.ID), {Status: "Cancelled"}),
+                                          Notify("Couldn't cancel this booking. Please try again.", NotificationType.Error),
+                                          Refresh(Book_Bookings);
+                                          ClearCollect(colBookings, Book_Bookings);
+                                          Set(gblSelectedBooking, Blank());
+                                          Notify("Booking cancelled", NotificationType.Success);
+                                          Set(gbl_FixCycleSeriesID, "");
+                                          // RESET-SITE[detail-modal-close] cancel completed, dismiss the modal
+                                          Set(gbl_UI_Detail_ConfirmMode, "");
+                                          Set(gbl_UI_Detail_Modal, false)
+                                      )
+                                    PressedColor: =ColorValue(AppTheme.PrimaryText)
+                                    PressedFill: =ColorValue(AppTheme.ButtonDangerActive)
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Size: =11
+                                    Text: ="Yes, cancel"
+                                    Width: =150
+                  - bdmScopeRow:
+                      Control: GroupContainer
+                      Variant: AutoLayout
+                      Properties:
+                        BorderColor: =AppTheme.StatusWarnText
+                        BorderThickness: =1
+                        DropShadow: =DropShadow.None
+                        Fill: =AppTheme.StatusWarnBg
+                        LayoutAlignItems: =LayoutAlignItems.Stretch
+                        LayoutDirection: =LayoutDirection.Vertical
+                        LayoutGap: =12
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        PaddingBottom: =12
+                        PaddingLeft: =12
+                        PaddingRight: =12
+                        PaddingTop: =12
+                        RadiusBottomLeft: =0
+                        RadiusBottomRight: =0
+                        RadiusTopLeft: =0
+                        RadiusTopRight: =0
+                        Visible: =gbl_UI_Detail_ConfirmMode = "scope"
+                      Children:
+                        - bdmLblScope:
+                            Control: Label
+                            Properties:
+                              AutoHeight: =true
+                              Color: =AppTheme.StatusWarnText
+                              Font: ="IBM Plex Sans"
+                              Height: =20
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              Size: =12
+                              Text: ="This booking is part of a series. Cancel:"
+                        - bdmScopeButtons:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              DropShadow: =DropShadow.None
+                              Fill: =RGBA(0,0,0,0) /* DS-EXEMPT transparent layout container, no painted surface */
+                              Height: =40
+                              LayoutAlignItems: =LayoutAlignItems.Stretch
+                              LayoutDirection: =LayoutDirection.Horizontal
+                              LayoutGap: =8
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                            Children:
+                              - bdmBtnScopeJust:
+                                  Control: Classic/Button
+                                  Properties:
+                                    BorderColor: =AppTheme.Border
+                                    BorderThickness: =1
+                                    Color: =AppTheme.TextPrimary
+                                    Fill: =AppTheme.Surface
+                                    FillPortions: =0
+                                    FocusedBorderColor: =ColorValue(AppTheme.ButtonPrimary)
+                                    FocusedBorderThickness: =2
+                                    Font: ="IBM Plex Sans"
+                                    FontWeight: =FontWeight.Normal
+                                    HoverColor: =AppTheme.TextPrimary
+                                    HoverFill: =AppTheme.SurfaceAlt
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    OnSelect: |-
+                                      =// PROD-REVERT[booking-cancel] soft delete via Patch; Remove() retired per WS4
+                                      IfError(
+                                          Patch(Book_Bookings, LookUp(Book_Bookings, ID = gblSelectedBooking.ID), {Status: "Cancelled"}),
+                                          Notify("Couldn't cancel this booking. Please try again.", NotificationType.Error),
+                                          Refresh(Book_Bookings);
+                                          ClearCollect(colBookings, Book_Bookings);
+                                          Set(gblSelectedBooking, Blank());
+                                          Notify("Booking cancelled", NotificationType.Success);
+                                          Set(gbl_FixCycleSeriesID, "");
+                                          // RESET-SITE[detail-modal-close] cancel completed, dismiss the modal
+                                          Set(gbl_UI_Detail_ConfirmMode, "");
+                                          Set(gbl_UI_Detail_Modal, false)
+                                      )
+                                    PressedColor: =AppTheme.TextPrimary
+                                    PressedFill: =AppTheme.Border
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Size: =11
+                                    Text: ="Just this booking"
+                                    Width: =168
+                              - bdmBtnScopeSeries:
+                                  Control: Classic/Button
+                                  Properties:
+                                    BorderColor: =ColorValue(AppTheme.ButtonPrimary)
+                                    BorderThickness: =1
+                                    Color: =ColorValue(AppTheme.PrimaryText)
+                                    Fill: =ColorValue(AppTheme.ButtonPrimary)
+                                    FillPortions: =0
+                                    FocusedBorderColor: =ColorValue(AppTheme.ButtonPrimary)
+                                    FocusedBorderThickness: =2
+                                    Font: ="IBM Plex Sans"
+                                    FontWeight: =FontWeight.Normal
+                                    HoverColor: =ColorValue(AppTheme.PrimaryText)
+                                    HoverFill: =ColorValue(AppTheme.ButtonPrimaryActive)
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    OnSelect: |-
+                                      =// PROD-REVERT[booking-cancel] soft delete via Patch; Remove() retired per WS4
+                                      /* Whole series: future, non-cancelled members (exceptions included;
+                                         past occurrences untouched) - mirrors bookingDetail.btnScopeSeries. */
+                                      With(
+                                          {_sid: gblSelectedBooking.SeriesID},
+                                          ForAll(
+                                              Filter(colBookings, SeriesID = _sid, StartDateTime >= Now(), Status <> "Cancelled") As _m,
+                                              IfError(
+                                                  Patch(Book_Bookings, LookUp(Book_Bookings, ID = _m.ID), {Status: "Cancelled"});
+                                                  true,
+                                                  Notify("Couldn't cancel one or more occurrences.", NotificationType.Error);
+                                                  false
+                                              )
+                                          );
+                                          Refresh(Book_Bookings);
+                                          ClearCollect(colBookings, Book_Bookings);
+                                          Set(gblSelectedBooking, Blank());
+                                          Notify("Series cancelled", NotificationType.Success);
+                                          Set(gbl_FixCycleSeriesID, "");
+                                          // RESET-SITE[detail-modal-close] cancel completed, dismiss the modal
+                                          Set(gbl_UI_Detail_ConfirmMode, "");
+                                          Set(gbl_UI_Detail_Modal, false)
+                                      )
+                                    PressedColor: =ColorValue(AppTheme.PrimaryText)
+                                    PressedFill: =ColorValue(AppTheme.ButtonPrimaryActive)
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Size: =11
+                                    Text: ="Whole series"
+                                    Width: =168
+                              - bdmBtnScopeBack:
+                                  Control: Classic/Button
+                                  Properties:
+                                    BorderColor: =AppTheme.Border
+                                    BorderThickness: =1
+                                    Color: =AppTheme.TextPrimary
+                                    Fill: =AppTheme.Surface
+                                    FillPortions: =0
+                                    FocusedBorderColor: =ColorValue(AppTheme.ButtonPrimary)
+                                    FocusedBorderThickness: =2
+                                    Font: ="IBM Plex Sans"
+                                    FontWeight: =FontWeight.Normal
+                                    HoverColor: =AppTheme.TextPrimary
+                                    HoverFill: =AppTheme.SurfaceAlt
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    OnSelect: =Set(gbl_UI_Detail_ConfirmMode, "")
+                                    PressedColor: =AppTheme.TextPrimary
+                                    PressedFill: =AppTheme.Border
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Size: =11
+                                    Text: ="Back"
+                                    Width: =120

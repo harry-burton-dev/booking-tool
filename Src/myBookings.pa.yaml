@@ -1,15 +1,15 @@
 Screens:
   myBookings:
     Properties:
-      Fill: =RGBA(255, 255, 255, 1)
-      LoadingSpinnerColor: =RGBA(0, 120, 212, 1)
+      Fill: =AppTheme.Background
+      LoadingSpinnerColor: =ColorValue(AppTheme.Primary)
       OnVisible: |-
         =Refresh(Book_Bookings);
         /* Re-pull the shared bookings snapshot so colleagues' writes since App.OnStart
            (or since this session's last write) show up without requiring a write of our own */
-        ClearCollect(colBookings, BookingWindow)
+        ClearCollect(colBookings, Book_Bookings)
     Children:
-      - con_shell_mybook:
+      - mb2ConShell:
           Control: GroupContainer
           Variant: ManualLayout
           Properties:
@@ -21,7 +21,7 @@ Screens:
             RadiusTopRight: =0
             Width: =Parent.Width
           Children:
-            - cpt_header_mybook:
+            - mb2CptHeader:
                 Control: CanvasComponent
                 ComponentName: Shell_Header
                 Properties:
@@ -30,7 +30,7 @@ Screens:
                   InstanceScreenName: =""
                   ShellIcons: =ShellIconSet
                   Width: =App.Width
-            - con_body_mybookings:
+            - mb2ConBody:
                 Control: GroupContainer
                 Variant: AutoLayout
                 Properties:
@@ -44,7 +44,7 @@ Screens:
                   Width: =Parent.Width
                   Y: =48
                 Children:
-                  - conMyBookingsBody:
+                  - mb2ConPage:
                       Control: GroupContainer
                       Variant: AutoLayout
                       Properties:
@@ -53,423 +53,584 @@ Screens:
                         Height: =Parent.Height
                         LayoutAlignItems: =LayoutAlignItems.Stretch
                         LayoutDirection: =LayoutDirection.Vertical
+                        LayoutGap: =16
                         LayoutMinHeight: =0
                         LayoutMinWidth: =0
+                        PaddingBottom: =16
+                        PaddingLeft: =16
+                        PaddingRight: =16
+                        PaddingTop: =16
                         RadiusBottomLeft: =0
                         RadiusBottomRight: =0
                         RadiusTopLeft: =0
                         RadiusTopRight: =0
                         Width: =Parent.Width
                       Children:
-                        - conContentSwitcher:
+                        - mb2ConPageHeader:
                             Control: GroupContainer
                             Variant: AutoLayout
                             Properties:
-                              BorderColor: =AppTheme.Border
                               DropShadow: =DropShadow.None
-                              Fill: =AppTheme.Background
+                              Fill: =Color.Transparent
                               FillPortions: =0
-                              Height: =48
+                              Height: =72
                               LayoutAlignItems: =LayoutAlignItems.Center
                               LayoutDirection: =LayoutDirection.Horizontal
+                              LayoutGap: =16
                               LayoutMinHeight: =0
                               LayoutMinWidth: =0
-                              PaddingBottom: =8
-                              PaddingLeft: =16
-                              PaddingTop: =8
                               RadiusBottomLeft: =0
                               RadiusBottomRight: =0
                               RadiusTopLeft: =0
                               RadiusTopRight: =0
-                              Width: =Parent.Width
                             Children:
-                              - con_SegUpcoming:
+                              - mb2ConTitleStack:
                                   Control: GroupContainer
-                                  Variant: ManualLayout
+                                  Variant: AutoLayout
                                   Properties:
-                                    AlignInContainer: =AlignInContainer.Center
                                     DropShadow: =DropShadow.None
-                                    Fill: =RGBA(0,0,0,0)
-                                    FillPortions: =0
-                                    Height: =32
+                                    Fill: =Color.Transparent
+                                    FillPortions: =1
+                                    LayoutAlignItems: =LayoutAlignItems.Stretch
+                                    LayoutDirection: =LayoutDirection.Vertical
+                                    LayoutGap: =2
                                     LayoutMinHeight: =0
                                     LayoutMinWidth: =0
                                     RadiusBottomLeft: =0
                                     RadiusBottomRight: =0
                                     RadiusTopLeft: =0
                                     RadiusTopRight: =0
-                                    Width: =120
                                   Children:
-                                    - lbl_SegUpcomingText:
-                                        Control: Label
+                                    - mb2ConBreadcrumb:
+                                        Control: GroupContainer
+                                        Variant: AutoLayout
                                         Properties:
-                                          Color: =RGBA(0,0,0,0)
-                                          Fill: =RGBA(0,0,0,0)
-                                          Font: =Font.Lato
-                                          Height: =Parent.Height
-                                          Size: =12
-                                          Text: ="Upcoming"
-                                          Width: =Parent.Width
-                                          Wrap: =false
-                                    - img_SegUpcoming:
-                                        Control: Image
-                                        Properties:
-                                          BorderColor: =RGBA(0,0,0,0)
-                                          DisabledFill: =RGBA(0,0,0,0)
-                                          Fill: =RGBA(0,0,0,0)
-                                          Height: =32
-                                          HoverBorderColor: =RGBA(0,0,0,0)
-                                          HoverFill: =RGBA(0,0,0,0)
-                                          Image: =ContentSwitcherItem(lbl_SegUpcomingText.Text, Self.Width, Self.Height, varMyBookingsFilter = "Upcoming", CarbonFontFamily)
-                                          PressedBorderColor: =RGBA(0,0,0,0)
-                                          PressedFill: =RGBA(0,0,0,0)
-                                          Width: =120
-                                    - btn_SegUpcoming:
-                                        Control: Classic/Button
-                                        Properties:
-                                          BorderColor: =RGBA(0,0,0,0)
-                                          BorderStyle: =BorderStyle.None
-                                          Color: =RGBA(0,0,0,0)
-                                          DisabledBorderColor: =RGBA(0,0,0,0)
-                                          DisabledColor: =RGBA(0,0,0,0)
-                                          DisabledFill: =RGBA(0,0,0,0)
-                                          Fill: =RGBA(0,0,0,0)
-                                          FocusedBorderColor: =RGBA(15,98,254,1)
-                                          FocusedBorderThickness: =2
-                                          Height: =32
-                                          HoverBorderColor: =RGBA(0,0,0,0)
-                                          HoverColor: =RGBA(0,0,0,0)
-                                          HoverFill: =RGBA(0,0,0,0.06)
-                                          OnSelect: =Set(varMyBookingsFilter, "Upcoming")
-                                          PressedBorderColor: =RGBA(0,0,0,0)
-                                          PressedColor: =RGBA(0,0,0,0)
-                                          PressedFill: =RGBA(0,0,0,0.12)
+                                          DropShadow: =DropShadow.None
+                                          Fill: =Color.Transparent
+                                          FillPortions: =0
+                                          Height: =16
+                                          LayoutAlignItems: =LayoutAlignItems.Center
+                                          LayoutDirection: =LayoutDirection.Horizontal
+                                          LayoutGap: =4
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
                                           RadiusBottomLeft: =0
                                           RadiusBottomRight: =0
                                           RadiusTopLeft: =0
                                           RadiusTopRight: =0
-                                          Text: ="Show upcoming bookings" & If(varMyBookingsFilter = "Upcoming", " (selected)", "")
-                                          Width: =120
-                              - con_SegAll:
-                                  Control: GroupContainer
-                                  Variant: ManualLayout
-                                  Properties:
-                                    AlignInContainer: =AlignInContainer.Center
-                                    DropShadow: =DropShadow.None
-                                    Fill: =RGBA(0,0,0,0)
-                                    FillPortions: =0
-                                    Height: =32
-                                    LayoutMinHeight: =0
-                                    LayoutMinWidth: =0
-                                    RadiusBottomLeft: =0
-                                    RadiusBottomRight: =0
-                                    RadiusTopLeft: =0
-                                    RadiusTopRight: =0
-                                    Width: =80
-                                  Children:
-                                    - lbl_SegAllText:
+                                        Children:
+                                          - mb2BtnCrumbHome:
+                                              Control: Classic/Button
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.Center
+                                                BorderColor: =Color.Transparent
+                                                BorderStyle: =BorderStyle.None
+                                                BorderThickness: =0
+                                                Color: =ColorValue(AppTheme.Primary)
+                                                DisabledBorderColor: =Color.Transparent
+                                                DisabledColor: =AppTheme.TextMuted
+                                                DisabledFill: =Color.Transparent
+                                                Fill: =Color.Transparent
+                                                FillPortions: =0
+                                                FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                                FocusedBorderThickness: =2
+                                                Font: ="IBM Plex Sans"
+                                                FontWeight: =FontWeight.Normal
+                                                Height: =16
+                                                HoverBorderColor: =Color.Transparent
+                                                HoverColor: =ColorValue(AppTheme.ButtonPrimaryActive)
+                                                HoverFill: =Color.Transparent
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                OnSelect: =Navigate(Home, ScreenTransition.Fade)
+                                                PaddingBottom: =0
+                                                PaddingLeft: =0
+                                                PaddingRight: =0
+                                                PaddingTop: =0
+                                                PressedBorderColor: =Color.Transparent
+                                                PressedColor: =ColorValue(AppTheme.ButtonPrimaryActive)
+                                                PressedFill: =Color.Transparent
+                                                RadiusBottomLeft: =0
+                                                RadiusBottomRight: =0
+                                                RadiusTopLeft: =0
+                                                RadiusTopRight: =0
+                                                Size: =11
+                                                Text: ="Home"
+                                                Width: =40
+                                          - mb2LblCrumbSep:
+                                              Control: Label
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.Center
+                                                Color: =AppTheme.TextMuted
+                                                Fill: =Color.Transparent
+                                                FillPortions: =0
+                                                Font: ="IBM Plex Sans"
+                                                Height: =16
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                PaddingBottom: =0
+                                                PaddingLeft: =0
+                                                PaddingRight: =0
+                                                PaddingTop: =0
+                                                Size: =11
+                                                Text: ="/"
+                                                Width: =8
+                                                Wrap: =false
+                                          - mb2LblCrumbCurrent:
+                                              Control: Label
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.Center
+                                                Color: =AppTheme.TextSecondary
+                                                Fill: =Color.Transparent
+                                                FillPortions: =0
+                                                Font: ="IBM Plex Sans"
+                                                Height: =16
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                PaddingBottom: =0
+                                                PaddingLeft: =0
+                                                PaddingRight: =0
+                                                PaddingTop: =0
+                                                Size: =11
+                                                Text: ="My bookings"
+                                                Width: =120
+                                                Wrap: =false
+                                    - mb2LblPageTitle:
                                         Control: Label
                                         Properties:
-                                          Color: =RGBA(0,0,0,0)
-                                          Fill: =RGBA(0,0,0,0)
-                                          Font: =Font.Lato
-                                          Height: =Parent.Height
-                                          Size: =12
-                                          Text: ="All"
-                                          Width: =Parent.Width
+                                          AlignInContainer: =AlignInContainer.Stretch
+                                          Color: =AppTheme.TextPrimary
+                                          Fill: =Color.Transparent
+                                          Font: ="IBM Plex Sans"
+                                          FontWeight: =FontWeight.Semibold
+                                          Height: =36
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          Size: =28
+                                          Text: ="My bookings"
                                           Wrap: =false
-                                    - img_SegAll:
-                                        Control: Image
-                                        Properties:
-                                          BorderColor: =RGBA(0,0,0,0)
-                                          DisabledFill: =RGBA(0,0,0,0)
-                                          Fill: =RGBA(0,0,0,0)
-                                          Height: =32
-                                          HoverBorderColor: =RGBA(0,0,0,0)
-                                          HoverFill: =RGBA(0,0,0,0)
-                                          Image: =ContentSwitcherItem(lbl_SegAllText.Text, Self.Width, Self.Height, varMyBookingsFilter = "All", CarbonFontFamily)
-                                          PressedBorderColor: =RGBA(0,0,0,0)
-                                          PressedFill: =RGBA(0,0,0,0)
-                                          Width: =80
-                                    - btn_SegAll:
-                                        Control: Classic/Button
-                                        Properties:
-                                          BorderColor: =RGBA(0,0,0,0)
-                                          BorderStyle: =BorderStyle.None
-                                          Color: =RGBA(0,0,0,0)
-                                          DisabledBorderColor: =RGBA(0,0,0,0)
-                                          DisabledColor: =RGBA(0,0,0,0)
-                                          DisabledFill: =RGBA(0,0,0,0)
-                                          Fill: =RGBA(0,0,0,0)
-                                          FocusedBorderColor: =RGBA(15,98,254,1)
-                                          FocusedBorderThickness: =2
-                                          Height: =32
-                                          HoverBorderColor: =RGBA(0,0,0,0)
-                                          HoverColor: =RGBA(0,0,0,0)
-                                          HoverFill: =RGBA(0,0,0,0.06)
-                                          OnSelect: =Set(varMyBookingsFilter, "All")
-                                          PressedBorderColor: =RGBA(0,0,0,0)
-                                          PressedColor: =RGBA(0,0,0,0)
-                                          PressedFill: =RGBA(0,0,0,0.12)
-                                          RadiusBottomLeft: =0
-                                          RadiusBottomRight: =0
-                                          RadiusTopLeft: =0
-                                          RadiusTopRight: =0
-                                          Text: ="Show all bookings" & If(varMyBookingsFilter = "All", " (selected)", "")
-                                          Width: =80
-                              - con_SegSeries:
-                                  Control: GroupContainer
-                                  Variant: ManualLayout
-                                  Properties:
-                                    AlignInContainer: =AlignInContainer.Center
-                                    DropShadow: =DropShadow.None
-                                    Fill: =RGBA(0,0,0,0)
-                                    FillPortions: =0
-                                    Height: =32
-                                    LayoutMinHeight: =0
-                                    LayoutMinWidth: =0
-                                    RadiusBottomLeft: =0
-                                    RadiusBottomRight: =0
-                                    RadiusTopLeft: =0
-                                    RadiusTopRight: =0
-                                    Width: =90
-                                  Children:
-                                    - lbl_SegSeriesText:
-                                        Control: Label
-                                        Properties:
-                                          Color: =RGBA(0,0,0,0)
-                                          Fill: =RGBA(0,0,0,0)
-                                          Font: =Font.Lato
-                                          Height: =Parent.Height
-                                          Size: =12
-                                          Text: ="Series"
-                                          Width: =Parent.Width
-                                          Wrap: =false
-                                    - img_SegSeries:
-                                        Control: Image
-                                        Properties:
-                                          BorderColor: =RGBA(0,0,0,0)
-                                          DisabledFill: =RGBA(0,0,0,0)
-                                          Fill: =RGBA(0,0,0,0)
-                                          Height: =32
-                                          HoverBorderColor: =RGBA(0,0,0,0)
-                                          HoverFill: =RGBA(0,0,0,0)
-                                          Image: =ContentSwitcherItem(lbl_SegSeriesText.Text, Self.Width, Self.Height, varMyBookingsFilter = "Series", CarbonFontFamily)
-                                          PressedBorderColor: =RGBA(0,0,0,0)
-                                          PressedFill: =RGBA(0,0,0,0)
-                                          Width: =90
-                                    - btn_SegSeries:
-                                        Control: Classic/Button
-                                        Properties:
-                                          BorderColor: =RGBA(0,0,0,0)
-                                          BorderStyle: =BorderStyle.None
-                                          Color: =RGBA(0,0,0,0)
-                                          DisabledBorderColor: =RGBA(0,0,0,0)
-                                          DisabledColor: =RGBA(0,0,0,0)
-                                          DisabledFill: =RGBA(0,0,0,0)
-                                          Fill: =RGBA(0,0,0,0)
-                                          FocusedBorderColor: =RGBA(15,98,254,1)
-                                          FocusedBorderThickness: =2
-                                          Height: =32
-                                          HoverBorderColor: =RGBA(0,0,0,0)
-                                          HoverColor: =RGBA(0,0,0,0)
-                                          HoverFill: =RGBA(0,0,0,0.06)
-                                          OnSelect: =Set(varMyBookingsFilter, "Series")
-                                          PressedBorderColor: =RGBA(0,0,0,0)
-                                          PressedColor: =RGBA(0,0,0,0)
-                                          PressedFill: =RGBA(0,0,0,0.12)
-                                          RadiusBottomLeft: =0
-                                          RadiusBottomRight: =0
-                                          RadiusTopLeft: =0
-                                          RadiusTopRight: =0
-                                          Text: ="Show series bookings" & If(varMyBookingsFilter = "Series", " (selected)", "")
-                                          Width: =90
-                        - galMyBookings:
-                            Control: Gallery
-                            Variant: Vertical
-                            Properties:
-                              Fill: =AppTheme.Background
-                              Items: |-
-                                =Sort(
-                                    Filter(MyBookings,
-                                        If(varMyBookingsFilter = "Upcoming",
-                                            !fnIsPast(EndDateTime),
-                                            true
-                                        )
-                                    ),
-                                    StartDateTime,
-                                    If(varMyBookingsFilter = "Upcoming", SortOrder.Ascending, SortOrder.Descending)
-                                )
-                              LayoutMinHeight: =0
-                              LayoutMinWidth: =0
-                              TemplatePadding: =0
-                              TemplateSize: =88
-                              Visible: =If(varMyBookingsFilter = "Series", false, If(Self.AllItemsCount = 0, false, true))
-                            Children:
-                              - rectCardBg:
-                                  Control: Rectangle
-                                  Properties:
-                                    BorderColor: =RGBA(0,0,0,0)
-                                    Fill: =If(fnIsPast(ThisItem.EndDateTime), AppTheme.Background, AppTheme.SurfaceAlt)
-                                    Height: =Parent.TemplateHeight
-                                    Width: =Parent.Width
-                              - rectCardDivider:
-                                  Control: Rectangle
-                                  Properties:
-                                    BorderColor: =RGBA(0,0,0,0)
-                                    Fill: =AppTheme.Border
-                                    Height: =1
-                                    Width: =Parent.Width
-                                    Y: =Parent.TemplateHeight - 1
-                              - lblCardTitle:
+                              - mb2LblPageMeta:
                                   Control: Label
                                   Properties:
-                                    Color: =If(fnIsPast(ThisItem.EndDateTime), AppTheme.TextSecondary, AppTheme.TextPrimary)
-                                    Font: =Font.Lato
-                                    FontWeight: =FontWeight.Semibold
+                                    Align: =Align.Right
+                                    AlignInContainer: =AlignInContainer.Center
+                                    Color: =AppTheme.TextSecondary
+                                    Fill: =Color.Transparent
+                                    FillPortions: =0
+                                    Font: ="IBM Plex Sans"
                                     Height: =20
-                                    Text: =ThisItem.Title
-                                    Width: =Parent.Width - 80
-                                    Wrap: =false
-                                    X: =16
-                                    Y: =10
-                              - lblCardDate:
-                                  Control: Label
-                                  Properties:
-                                    Color: =If(fnIsPast(ThisItem.EndDateTime), AppTheme.TextSecondary, AppTheme.TextMuted)
-                                    Font: =Font.Lato
-                                    Height: =16
-                                    Size: =12
-                                    Text: =Text(ThisItem.StartDateTime, "ddd dd mmm yyyy")
-                                    Width: =Parent.Width - 32
-                                    Wrap: =false
-                                    X: =16
-                                    Y: =32
-                              - lblCardTime:
-                                  Control: Label
-                                  Properties:
-                                    Color: =If(fnIsPast(ThisItem.EndDateTime), AppTheme.TextSecondary, AppTheme.TextMuted)
-                                    Font: =Font.Lato
-                                    Height: =16
-                                    Size: =12
-                                    Text: =Text(ThisItem.StartDateTime, "HH:mm") & " - " & Text(ThisItem.EndDateTime, "HH:mm")
-                                    Width: =Parent.Width - 32
-                                    Wrap: =false
-                                    X: =16
-                                    Y: =49
-                              - lblCardRoom:
-                                  Control: Label
-                                  Properties:
-                                    Color: =If(fnIsPast(ThisItem.EndDateTime), AppTheme.TextSecondary, AppTheme.TextSecondary)
-                                    Font: =Font.Lato
-                                    Height: =16
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
                                     Size: =12
                                     Text: |-
-                                      =ThisItem.'RoomID: Title'.Value
-                                    Width: =Parent.Width - 32
+                                      =Text(CountRows(Filter(MyBookings, !fnIsPast(EndDateTime))), "[$-en-US]0") & " upcoming · Austin HQ"
+                                    Width: =260
                                     Wrap: =false
-                                    X: =16
-                                    Y: =66
-                              - lblPastBadge:
-                                  Control: Label
-                                  Properties:
-                                    Align: =Align.Center
-                                    Color: =AppTheme.Background
-                                    Fill: =AppTheme.TextMuted
-                                    Font: =Font.Lato
-                                    Height: =20
-                                    Size: =11
-                                    Text: ="Past"
-                                    Visible: =fnIsPast(ThisItem.EndDateTime)
-                                    Width: =44
-                                    Wrap: =false
-                                    X: =Parent.Width - 60
-                                    Y: =10
-                              - lblClashBadge:
-                                  Control: Label
-                                  Properties:
-                                    Align: =Align.Center
-                                    Color: =AppTheme.Background
-                                    Fill: =AppTheme.StatusWarnText
-                                    Font: =Font.Lato
-                                    Height: =20
-                                    Size: =10
-                                    Text: ="Clash — needs rescheduling"
-                                    Visible: =ThisItem.Status = "Clash"
-                                    Width: =176
-                                    Wrap: =false
-                                    X: =Parent.Width - 192
-                                    Y: =10
-                              - btnCardOverlay:
-                                  Control: Classic/Button
-                                  Properties:
-                                    BorderColor: =RGBA(0,0,0,0)
-                                    BorderStyle: =BorderStyle.None
-                                    BorderThickness: =0
-                                    Color: =RGBA(0,0,0,0)
-                                    DisabledBorderColor: =RGBA(0,0,0,0)
-                                    DisabledColor: =RGBA(0,0,0,0)
-                                    DisabledFill: =RGBA(0,0,0,0)
-                                    Fill: =RGBA(0,0,0,0)
-                                    FocusedBorderColor: =RGBA(15,98,254,1)
-                                    FocusedBorderThickness: =2
-                                    Height: =Parent.TemplateHeight
-                                    HoverBorderColor: =RGBA(0,0,0,0)
-                                    HoverColor: =RGBA(0,0,0,0)
-                                    HoverFill: =RGBA(0,0,0,0.04)
-                                    OnSelect: =Set(gblSelectedBooking, ThisItem); Navigate(bookingDetail, ScreenTransition.Fade)
-                                    PressedBorderColor: =RGBA(0,0,0,0)
-                                    PressedColor: =RGBA(0,0,0,0)
-                                    PressedFill: =RGBA(0,0,0,0.08)
-                                    RadiusBottomLeft: =0
-                                    RadiusBottomRight: =0
-                                    RadiusTopLeft: =0
-                                    RadiusTopRight: =0
-                                    Text: =ThisItem.Title & ", " & lblCardRoom.Text & ", " & Text(ThisItem.StartDateTime, "ddd dd mmm HH:mm") & ". Open booking details"
-                                    Width: =Parent.Width
-                        - conEmptyState:
+                        - mb2ConNextUp:
                             Control: GroupContainer
                             Variant: AutoLayout
                             Properties:
-                              AlignInContainer: =AlignInContainer.Center
+                              BorderColor: =AppTheme.Border
+                              BorderThickness: =1
                               DropShadow: =DropShadow.None
-                              Fill: =RGBA(0,0,0,0)
-                              LayoutAlignItems: =LayoutAlignItems.Center
-                              LayoutDirection: =LayoutDirection.Vertical
-                              LayoutGap: =16
-                              LayoutJustifyContent: =LayoutJustifyContent.Center
+                              Fill: =AppTheme.layer01Bg
+                              FillPortions: =0
+                              Height: =72
+                              LayoutAlignItems: =LayoutAlignItems.Stretch
+                              LayoutDirection: =LayoutDirection.Horizontal
+                              LayoutGap: =0
                               LayoutMinHeight: =0
                               LayoutMinWidth: =0
-                              Visible: =varMyBookingsFilter <> "Series" && IsEmpty(galMyBookings.AllItems)
-                              Width: =Parent.Width
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
+                              Visible: =!IsBlank(NextBookingRecord)
                             Children:
-                              - lblEmptyState:
-                                  Control: Label
+                              - mb2RectNextAccent:
+                                  Control: Rectangle
                                   Properties:
-                                    Align: =Align.Center
-                                    AlignInContainer: =AlignInContainer.Center
-                                    Color: =AppTheme.TextMuted
-                                    Fill: =RGBA(0,0,0,0)
-                                    Font: =Font.Lato
+                                    AlignInContainer: =AlignInContainer.Stretch
+                                    BorderColor: =Color.Transparent
+                                    Fill: =ColorValue(AppTheme.Primary)
+                                    Height: =70
                                     LayoutMinHeight: =0
                                     LayoutMinWidth: =0
-                                    Text: =If(varMyBookingsFilter = "Upcoming", "No upcoming bookings yet.", "No bookings found.")
-                                    Width: =Parent.Width
+                                    Width: =3
+                              - mb2ConNextText:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
+                                  Properties:
+                                    DropShadow: =DropShadow.None
+                                    Fill: =Color.Transparent
+                                    FillPortions: =1
+                                    LayoutAlignItems: =LayoutAlignItems.Stretch
+                                    LayoutDirection: =LayoutDirection.Vertical
+                                    LayoutGap: =2
+                                    LayoutJustifyContent: =LayoutJustifyContent.Center
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    PaddingBottom: =8
+                                    PaddingLeft: =16
+                                    PaddingRight: =16
+                                    PaddingTop: =8
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                  Children:
+                                    - mb2LblNextEyebrow:
+                                        Control: Label
+                                        Properties:
+                                          AlignInContainer: =AlignInContainer.Stretch
+                                          Color: =AppTheme.TextMuted
+                                          Fill: =Color.Transparent
+                                          FillPortions: =0
+                                          Font: ="IBM Plex Sans"
+                                          Height: =14
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          PaddingBottom: =0
+                                          PaddingLeft: =0
+                                          PaddingRight: =0
+                                          PaddingTop: =0
+                                          Size: =10
+                                          Text: ="NEXT UP"
+                                          Wrap: =false
+                                    - mb2LblNextTitle:
+                                        Control: Label
+                                        Properties:
+                                          AlignInContainer: =AlignInContainer.Stretch
+                                          Color: =AppTheme.TextPrimary
+                                          Fill: =Color.Transparent
+                                          FillPortions: =0
+                                          Font: ="IBM Plex Sans"
+                                          FontWeight: =FontWeight.Semibold
+                                          Height: =20
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          PaddingBottom: =0
+                                          PaddingLeft: =0
+                                          PaddingRight: =0
+                                          PaddingTop: =0
+                                          Size: =14
+                                          Text: =NextBookingRecord.Title
+                                          Wrap: =false
+                                    - mb2LblNextSub:
+                                        Control: Label
+                                        Properties:
+                                          AlignInContainer: =AlignInContainer.Stretch
+                                          Color: =AppTheme.TextSecondary
+                                          Fill: =Color.Transparent
+                                          FillPortions: =0
+                                          Font: ="IBM Plex Sans"
+                                          Height: =16
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          PaddingBottom: =0
+                                          PaddingLeft: =0
+                                          PaddingRight: =0
+                                          PaddingTop: =0
+                                          Size: =12
+                                          Text: |-
+                                            =NextBookingRecord.'RoomID: Title'.Value & " · " & Text(NextBookingRecord.StartDateTime, "HH:mm") & " – " & Text(NextBookingRecord.EndDateTime, "HH:mm")
+                                          Wrap: =false
+                              - mb2LblNextCountdown:
+                                  Control: Label
+                                  Properties:
+                                    Align: =Align.Right
+                                    AlignInContainer: =AlignInContainer.Center
+                                    Color: =ColorValue(AppTheme.Primary)
+                                    Fill: =Color.Transparent
+                                    FillPortions: =0
+                                    Font: ="IBM Plex Sans"
+                                    FontWeight: =FontWeight.Semibold
+                                    Height: =20
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    PaddingRight: =16
+                                    Size: =12
+                                    Text: |-
+                                      =With(
+                                          {_mins: DateDiff(varNowTick, NextBookingRecord.StartDateTime, TimeUnit.Minutes)},
+                                          If(_mins <= 0, "In progress", "Starts in " & Text(_mins, "[$-en-US]0") & "m")
+                                      )
+                                    Width: =160
                                     Wrap: =false
-                              - btnEmptyBook:
+                        - mb2ConToolbar:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              DropShadow: =DropShadow.None
+                              Fill: =Color.Transparent
+                              FillPortions: =0
+                              Height: =48
+                              LayoutAlignItems: =LayoutAlignItems.Stretch
+                              LayoutDirection: =LayoutDirection.Horizontal
+                              LayoutGap: =16
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
+                            Children:
+                              - mb2ConTabs:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
+                                  Properties:
+                                    DropShadow: =DropShadow.None
+                                    Fill: =Color.Transparent
+                                    FillPortions: =0
+                                    Height: =48
+                                    LayoutAlignItems: =LayoutAlignItems.Stretch
+                                    LayoutDirection: =LayoutDirection.Horizontal
+                                    LayoutGap: =0
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Width: =480
+                                  Children:
+                                    - mb2ConTabUpcoming:
+                                        Control: GroupContainer
+                                        Variant: AutoLayout
+                                        Properties:
+                                          DropShadow: =DropShadow.None
+                                          Fill: =Color.Transparent
+                                          FillPortions: =0
+                                          Height: =48
+                                          LayoutAlignItems: =LayoutAlignItems.Stretch
+                                          LayoutDirection: =LayoutDirection.Vertical
+                                          LayoutGap: =0
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                          Width: =160
+                                        Children:
+                                          - mb2BtnTabUpcoming:
+                                              Control: Classic/Button
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.Stretch
+                                                BorderColor: =Color.Transparent
+                                                BorderStyle: =BorderStyle.None
+                                                BorderThickness: =0
+                                                Color: =If(varMyBookingsFilter = "Upcoming", AppTheme.TextPrimary, AppTheme.TextSecondary)
+                                                DisabledBorderColor: =Color.Transparent
+                                                DisabledColor: =AppTheme.TextMuted
+                                                DisabledFill: =AppTheme.SurfaceAlt
+                                                Fill: =If(varMyBookingsFilter = "Upcoming", AppTheme.Background, AppTheme.SurfaceAlt)
+                                                FillPortions: =0
+                                                FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                                FocusedBorderThickness: =2
+                                                Font: ="IBM Plex Sans"
+                                                FontWeight: =FontWeight.Normal
+                                                Height: =46
+                                                HoverBorderColor: =Color.Transparent
+                                                HoverColor: =AppTheme.TextPrimary
+                                                HoverFill: =AppTheme.Border
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                OnSelect: =Set(varMyBookingsFilter, "Upcoming")
+                                                PressedBorderColor: =Color.Transparent
+                                                PressedColor: =AppTheme.TextPrimary
+                                                PressedFill: =AppTheme.Border
+                                                RadiusBottomLeft: =0
+                                                RadiusBottomRight: =0
+                                                RadiusTopLeft: =0
+                                                RadiusTopRight: =0
+                                                Size: =12
+                                                Text: |-
+                                                  ="Upcoming " & Text(CountRows(Filter(MyBookings, !fnIsPast(EndDateTime))), "[$-en-US]0")
+                                                Width: =Parent.Width
+                                          - mb2RectTabUpcomingBar:
+                                              Control: Rectangle
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.Stretch
+                                                BorderColor: =Color.Transparent
+                                                Fill: =If(varMyBookingsFilter = "Upcoming", ColorValue(AppTheme.Primary), AppTheme.Border)
+                                                Height: =2
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                Width: =Parent.Width
+                                    - mb2ConTabPast:
+                                        Control: GroupContainer
+                                        Variant: AutoLayout
+                                        Properties:
+                                          DropShadow: =DropShadow.None
+                                          Fill: =Color.Transparent
+                                          FillPortions: =0
+                                          Height: =48
+                                          LayoutAlignItems: =LayoutAlignItems.Stretch
+                                          LayoutDirection: =LayoutDirection.Vertical
+                                          LayoutGap: =0
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                          Width: =160
+                                        Children:
+                                          - mb2BtnTabPast:
+                                              Control: Classic/Button
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.Stretch
+                                                BorderColor: =Color.Transparent
+                                                BorderStyle: =BorderStyle.None
+                                                BorderThickness: =0
+                                                Color: =If(varMyBookingsFilter = "Past", AppTheme.TextPrimary, AppTheme.TextSecondary)
+                                                DisabledBorderColor: =Color.Transparent
+                                                DisabledColor: =AppTheme.TextMuted
+                                                DisabledFill: =AppTheme.SurfaceAlt
+                                                Fill: =If(varMyBookingsFilter = "Past", AppTheme.Background, AppTheme.SurfaceAlt)
+                                                FillPortions: =0
+                                                FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                                FocusedBorderThickness: =2
+                                                Font: ="IBM Plex Sans"
+                                                FontWeight: =FontWeight.Normal
+                                                Height: =46
+                                                HoverBorderColor: =Color.Transparent
+                                                HoverColor: =AppTheme.TextPrimary
+                                                HoverFill: =AppTheme.Border
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                OnSelect: =Set(varMyBookingsFilter, "Past")
+                                                PressedBorderColor: =Color.Transparent
+                                                PressedColor: =AppTheme.TextPrimary
+                                                PressedFill: =AppTheme.Border
+                                                RadiusBottomLeft: =0
+                                                RadiusBottomRight: =0
+                                                RadiusTopLeft: =0
+                                                RadiusTopRight: =0
+                                                Size: =12
+                                                Text: |-
+                                                  ="Past " & Text(CountRows(Filter(MyBookings, fnIsPast(EndDateTime))), "[$-en-US]0")
+                                                Width: =Parent.Width
+                                          - mb2RectTabPastBar:
+                                              Control: Rectangle
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.Stretch
+                                                BorderColor: =Color.Transparent
+                                                Fill: =If(varMyBookingsFilter = "Past", ColorValue(AppTheme.Primary), AppTheme.Border)
+                                                Height: =2
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                Width: =Parent.Width
+                                    - mb2ConTabSeries:
+                                        Control: GroupContainer
+                                        Variant: AutoLayout
+                                        Properties:
+                                          DropShadow: =DropShadow.None
+                                          Fill: =Color.Transparent
+                                          FillPortions: =0
+                                          Height: =48
+                                          LayoutAlignItems: =LayoutAlignItems.Stretch
+                                          LayoutDirection: =LayoutDirection.Vertical
+                                          LayoutGap: =0
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                          Width: =160
+                                        Children:
+                                          - mb2BtnTabSeries:
+                                              Control: Classic/Button
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.Stretch
+                                                BorderColor: =Color.Transparent
+                                                BorderStyle: =BorderStyle.None
+                                                BorderThickness: =0
+                                                Color: =If(varMyBookingsFilter = "Series", AppTheme.TextPrimary, AppTheme.TextSecondary)
+                                                DisabledBorderColor: =Color.Transparent
+                                                DisabledColor: =AppTheme.TextMuted
+                                                DisabledFill: =AppTheme.SurfaceAlt
+                                                Fill: =If(varMyBookingsFilter = "Series", AppTheme.Background, AppTheme.SurfaceAlt)
+                                                FillPortions: =0
+                                                FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                                FocusedBorderThickness: =2
+                                                Font: ="IBM Plex Sans"
+                                                FontWeight: =FontWeight.Normal
+                                                Height: =46
+                                                HoverBorderColor: =Color.Transparent
+                                                HoverColor: =AppTheme.TextPrimary
+                                                HoverFill: =AppTheme.Border
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                OnSelect: =Set(varMyBookingsFilter, "Series")
+                                                PressedBorderColor: =Color.Transparent
+                                                PressedColor: =AppTheme.TextPrimary
+                                                PressedFill: =AppTheme.Border
+                                                RadiusBottomLeft: =0
+                                                RadiusBottomRight: =0
+                                                RadiusTopLeft: =0
+                                                RadiusTopRight: =0
+                                                Size: =12
+                                                Text: |-
+                                                  ="Series " & Text(CountRows(GroupBy(Filter(MyBookings, !IsBlank(SeriesID)), SeriesID, SeriesRows)), "[$-en-US]0")
+                                                Width: =Parent.Width
+                                          - mb2RectTabSeriesBar:
+                                              Control: Rectangle
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.Stretch
+                                                BorderColor: =Color.Transparent
+                                                Fill: =If(varMyBookingsFilter = "Series", ColorValue(AppTheme.Primary), AppTheme.Border)
+                                                Height: =2
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                Width: =Parent.Width
+                              - mb2TxtSearch:
+                                  Control: Classic/TextInput
+                                  Properties:
+                                    AccessibleLabel: ="Search meetings or rooms"
+                                    AlignInContainer: =AlignInContainer.Center
+                                    BorderColor: =AppTheme.Border
+                                    BorderThickness: =1
+                                    Color: =AppTheme.TextPrimary
+                                    Default: =""
+                                    DelayOutput: =true
+                                    Fill: =AppTheme.layer01Bg
+                                    FillPortions: =1
+                                    FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                    FocusedBorderThickness: =2
+                                    Font: ="IBM Plex Sans"
+                                    Height: =48
+                                    HintText: ="Search meetings or rooms"
+                                    HoverBorderColor: =AppTheme.TextSecondary
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Size: =11
+                              - mb2BtnBookRoom:
                                   Control: Classic/Button
                                   Properties:
                                     AlignInContainer: =AlignInContainer.Center
-                                    BorderColor: =RGBA(15,98,254,1)
+                                    BorderColor: =ColorValue(AppTheme.ButtonPrimary)
                                     BorderThickness: =0
                                     Color: =ColorValue(AppTheme.PrimaryText)
+                                    DisabledColor: =ColorValue(AppTheme.ButtonDisabledText)
+                                    DisabledFill: =ColorValue(AppTheme.ButtonDisabled)
                                     Fill: =ColorValue(AppTheme.ButtonPrimary)
-                                    FocusedBorderColor: =RGBA(15,98,254,1)
+                                    FillPortions: =0
+                                    FocusedBorderColor: =ColorValue(AppTheme.Primary)
                                     FocusedBorderThickness: =2
-                                    Font: =Font.Lato
+                                    Font: ="IBM Plex Sans"
                                     FontWeight: =FontWeight.Normal
+                                    Height: =48
                                     HoverColor: =ColorValue(AppTheme.PrimaryText)
-                                    HoverFill: =RGBA(13,83,217,1)
+                                    HoverFill: =ColorValue(AppTheme.ButtonPrimaryActive)
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
                                     OnSelect: |-
                                       =Set(gbl_UI_Book_Modal_Step, WizardStep1);
                                       // RESET-SITE[mybookings-empty-book] wizard state reset before opening step 1
@@ -506,14 +667,485 @@ Screens:
                                       Set(gblUI_Nav_currentTab, "Home");
                                       Navigate(Home, ScreenTransition.Fade)
                                     PressedColor: =ColorValue(AppTheme.PrimaryText)
-                                    PressedFill: =RGBA(11,69,182,1)
-                                    RadiusBottomLeft: =2
-                                    RadiusBottomRight: =2
-                                    RadiusTopLeft: =2
-                                    RadiusTopRight: =2
-                                    Size: =11
+                                    PressedFill: =ColorValue(AppTheme.ButtonPrimaryActive)
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Size: =12
                                     Text: ="Book a room"
-                        - galSeriesList:
+                                    Width: =160
+                        - mb2ConTableHeadWrap:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              DropShadow: =DropShadow.None
+                              Fill: =Color.Transparent
+                              FillPortions: =0
+                              Height: =33
+                              LayoutAlignItems: =LayoutAlignItems.Stretch
+                              LayoutDirection: =LayoutDirection.Vertical
+                              LayoutGap: =0
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
+                              Visible: =varMyBookingsFilter <> "Series"
+                            Children:
+                              - mb2ConTableHead:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
+                                  Properties:
+                                    DropShadow: =DropShadow.None
+                                    Fill: =Color.Transparent
+                                    FillPortions: =0
+                                    Height: =32
+                                    LayoutAlignItems: =LayoutAlignItems.Center
+                                    LayoutDirection: =LayoutDirection.Horizontal
+                                    LayoutGap: =0
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    PaddingLeft: =32
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                  Children:
+                                    - mb2LblHeadMeeting:
+                                        Control: Label
+                                        Properties:
+                                          AlignInContainer: =AlignInContainer.Center
+                                          Color: =AppTheme.TextMuted
+                                          Fill: =Color.Transparent
+                                          FillPortions: =1
+                                          Font: ="IBM Plex Sans"
+                                          Height: =16
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          PaddingBottom: =0
+                                          PaddingLeft: =0
+                                          PaddingRight: =0
+                                          PaddingTop: =0
+                                          Size: =10
+                                          Text: ="MEETING"
+                                          Wrap: =false
+                                    - mb2LblHeadRoom:
+                                        Control: Label
+                                        Properties:
+                                          AlignInContainer: =AlignInContainer.Center
+                                          Color: =AppTheme.TextMuted
+                                          Fill: =Color.Transparent
+                                          FillPortions: =0
+                                          Font: ="IBM Plex Sans"
+                                          Height: =16
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          PaddingBottom: =0
+                                          PaddingLeft: =0
+                                          PaddingRight: =0
+                                          PaddingTop: =0
+                                          Size: =10
+                                          Text: ="ROOM"
+                                          Width: =200
+                                          Wrap: =false
+                                    - mb2LblHeadDate:
+                                        Control: Label
+                                        Properties:
+                                          AlignInContainer: =AlignInContainer.Center
+                                          Color: =AppTheme.TextMuted
+                                          Fill: =Color.Transparent
+                                          FillPortions: =0
+                                          Font: ="IBM Plex Sans"
+                                          Height: =16
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          PaddingBottom: =0
+                                          PaddingLeft: =0
+                                          PaddingRight: =0
+                                          PaddingTop: =0
+                                          Size: =10
+                                          Text: ="DATE"
+                                          Width: =110
+                                          Wrap: =false
+                                    - mb2LblHeadTime:
+                                        Control: Label
+                                        Properties:
+                                          AlignInContainer: =AlignInContainer.Center
+                                          Color: =AppTheme.TextMuted
+                                          Fill: =Color.Transparent
+                                          FillPortions: =0
+                                          Font: ="IBM Plex Sans"
+                                          Height: =16
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          PaddingBottom: =0
+                                          PaddingLeft: =0
+                                          PaddingRight: =0
+                                          PaddingTop: =0
+                                          Size: =10
+                                          Text: ="TIME"
+                                          Width: =120
+                                          Wrap: =false
+                                    - mb2LblHeadStatus:
+                                        Control: Label
+                                        Properties:
+                                          AlignInContainer: =AlignInContainer.Center
+                                          Color: =AppTheme.TextMuted
+                                          Fill: =Color.Transparent
+                                          FillPortions: =0
+                                          Font: ="IBM Plex Sans"
+                                          Height: =16
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          PaddingBottom: =0
+                                          PaddingLeft: =0
+                                          PaddingRight: =0
+                                          PaddingTop: =0
+                                          Size: =10
+                                          Text: ="STATUS"
+                                          Width: =120
+                                          Wrap: =false
+                                    - mb2LblHeadAction:
+                                        Control: Label
+                                        Properties:
+                                          AlignInContainer: =AlignInContainer.Center
+                                          Color: =AppTheme.TextMuted
+                                          Fill: =Color.Transparent
+                                          FillPortions: =0
+                                          Font: ="IBM Plex Sans"
+                                          Height: =16
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          PaddingBottom: =0
+                                          PaddingLeft: =0
+                                          PaddingRight: =0
+                                          PaddingTop: =0
+                                          Size: =10
+                                          Text: =""
+                                          Width: =110
+                                          Wrap: =false
+                              - mb2RectHeadRule:
+                                  Control: Rectangle
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Stretch
+                                    BorderColor: =Color.Transparent
+                                    Fill: =AppTheme.Border
+                                    Height: =1
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Width: =Parent.Width
+                        - mb2GalBookings:
+                            Control: Gallery
+                            Variant: Vertical
+                            Properties:
+                              Fill: =AppTheme.Background
+                              Items: |-
+                                =Sort(
+                                    Filter(MyBookings,
+                                        If(varMyBookingsFilter = "Past",
+                                            fnIsPast(EndDateTime),
+                                            !fnIsPast(EndDateTime)
+                                        ),
+                                        IsBlank(mb2TxtSearch.Text)
+                                            || mb2TxtSearch.Text in Title
+                                            || mb2TxtSearch.Text in 'RoomID: Title'.Value
+                                    ),
+                                    StartDateTime,
+                                    If(varMyBookingsFilter = "Past", SortOrder.Descending, SortOrder.Ascending)
+                                )
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              TemplatePadding: =0
+                              TemplateSize: =56
+                              Visible: =varMyBookingsFilter <> "Series" && Self.AllItemsCount > 0
+                            Children:
+                              - mb2RectRowBg:
+                                  Control: Rectangle
+                                  Properties:
+                                    BorderColor: =Color.Transparent
+                                    Fill: =AppTheme.Surface
+                                    Height: =Parent.TemplateHeight
+                                    Width: =Parent.Width
+                              - mb2RectRowDivider:
+                                  Control: Rectangle
+                                  Properties:
+                                    BorderColor: =Color.Transparent
+                                    Fill: =AppTheme.Border
+                                    Height: =1
+                                    Width: =Parent.Width
+                                    Y: =Parent.TemplateHeight - 1
+                              - mb2RectRowDot:
+                                  Control: Rectangle
+                                  Properties:
+                                    BorderColor: =Color.Transparent
+                                    Fill: |-
+                                      =If(
+                                          ThisItem.Status = "Clash", AppTheme.StatusWarnText,
+                                          fnIsPast(ThisItem.EndDateTime), AppTheme.TextMuted,
+                                          ColorValue(AppTheme.Primary)
+                                      )
+                                    Height: =8
+                                    Width: =8
+                                    X: =16
+                                    Y: =24
+                              - mb2LblRowTitle:
+                                  Control: Label
+                                  Properties:
+                                    Color: =If(fnIsPast(ThisItem.EndDateTime), AppTheme.TextSecondary, AppTheme.TextPrimary)
+                                    Font: ="IBM Plex Sans"
+                                    FontWeight: =FontWeight.Semibold
+                                    Height: =20
+                                    Size: =12
+                                    Text: =ThisItem.Title
+                                    Width: =Max(Parent.Width - 710, 80)
+                                    Wrap: =false
+                                    X: =32
+                                    Y: =18
+                              - mb2LblRowRepeat:
+                                  Control: Label
+                                  Properties:
+                                    Color: =AppTheme.TextMuted
+                                    Font: ="IBM Plex Sans"
+                                    Height: =20
+                                    Size: =12
+                                    Text: ="↻"
+                                    Visible: =!IsBlank(ThisItem.SeriesID)
+                                    Width: =18
+                                    Wrap: =false
+                                    X: =Parent.Width - 678
+                                    Y: =18
+                              - mb2LblRowRoom:
+                                  Control: Label
+                                  Properties:
+                                    Color: =If(fnIsPast(ThisItem.EndDateTime), AppTheme.TextSecondary, ColorValue(AppTheme.Primary))
+                                    Font: ="IBM Plex Sans"
+                                    Height: =20
+                                    Size: =12
+                                    Text: |-
+                                      =ThisItem.'RoomID: Title'.Value
+                                    Width: =190
+                                    Wrap: =false
+                                    X: =Parent.Width - 660
+                                    Y: =18
+                              - mb2LblRowDate:
+                                  Control: Label
+                                  Properties:
+                                    Color: =If(fnIsPast(ThisItem.EndDateTime), AppTheme.TextSecondary, AppTheme.TextPrimary)
+                                    Font: ="IBM Plex Sans"
+                                    Height: =20
+                                    Size: =12
+                                    Text: |-
+                                      =If(
+                                          Year(ThisItem.StartDateTime) = Year(Today())
+                                              && Month(ThisItem.StartDateTime) = Month(Today())
+                                              && Day(ThisItem.StartDateTime) = Day(Today()),
+                                          "Today",
+                                          Text(ThisItem.StartDateTime, "[$-en-US]d mmm")
+                                      )
+                                    Width: =100
+                                    Wrap: =false
+                                    X: =Parent.Width - 460
+                                    Y: =18
+                              - mb2LblRowTime:
+                                  Control: Label
+                                  Properties:
+                                    Color: =If(fnIsPast(ThisItem.EndDateTime), AppTheme.TextSecondary, AppTheme.TextPrimary)
+                                    Font: ="IBM Plex Sans"
+                                    Height: =20
+                                    Size: =12
+                                    Text: =Text(ThisItem.StartDateTime, "HH:mm") & " – " & Text(ThisItem.EndDateTime, "HH:mm")
+                                    Width: =110
+                                    Wrap: =false
+                                    X: =Parent.Width - 350
+                                    Y: =18
+                              - mb2LblRowStatus:
+                                  Control: Label
+                                  Properties:
+                                    Color: |-
+                                      =If(
+                                          ThisItem.Status = "Clash", AppTheme.StatusWarnText,
+                                          fnIsPast(ThisItem.EndDateTime), AppTheme.TextMuted,
+                                          ColorValue(AppTheme.Primary)
+                                      )
+                                    Font: ="IBM Plex Sans"
+                                    Height: =20
+                                    Size: =12
+                                    Text: |-
+                                      =If(
+                                          ThisItem.Status = "Clash", "Clash",
+                                          fnIsPast(ThisItem.EndDateTime), "Past",
+                                          ThisItem.StartDateTime > varNowTick
+                                              && ThisItem.StartDateTime <= DateAdd(varNowTick, 15, TimeUnit.Minutes), "Starting soon",
+                                          "Upcoming"
+                                      )
+                                    Width: =110
+                                    Wrap: =false
+                                    X: =Parent.Width - 230
+                                    Y: =18
+                              - mb2BtnRowOverlay:
+                                  Control: Classic/Button
+                                  Properties:
+                                    BorderColor: =Color.Transparent
+                                    BorderStyle: =BorderStyle.None
+                                    BorderThickness: =0
+                                    Color: =Color.Transparent
+                                    DisabledBorderColor: =Color.Transparent
+                                    DisabledColor: =Color.Transparent
+                                    DisabledFill: =Color.Transparent
+                                    Fill: =Color.Transparent
+                                    FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                    FocusedBorderThickness: =2
+                                    Height: =Parent.TemplateHeight
+                                    HoverBorderColor: =Color.Transparent
+                                    HoverColor: =Color.Transparent
+                                    HoverFill: =RGBA(0, 0, 0, 0.04) // DS-EXEMPT hover tint on a transparent full-row overlay; no theme token exists for an alpha wash
+                                    OnSelect: =Set(gblSelectedBooking, ThisItem); Set(gbl_UI_Detail_Modal, true)
+                                    PressedBorderColor: =Color.Transparent
+                                    PressedColor: =Color.Transparent
+                                    PressedFill: =RGBA(0, 0, 0, 0.08) // DS-EXEMPT pressed tint on a transparent full-row overlay; no theme token exists for an alpha wash
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Text: |-
+                                      =ThisItem.Title & ", " & mb2LblRowRoom.Text & ", " & Text(ThisItem.StartDateTime, "ddd dd mmm HH:mm") & ". Open booking details"
+                                    Width: =Parent.Width - 120
+                              - mb2BtnRowCancel:
+                                  Control: Classic/Button
+                                  Properties:
+                                    BorderColor: =ColorValue(AppTheme.ButtonDangerPrimary)
+                                    BorderThickness: =1
+                                    Color: =ColorValue(AppTheme.ButtonDangerPrimary)
+                                    DisabledBorderColor: =AppTheme.Border
+                                    DisabledColor: =AppTheme.TextMuted
+                                    DisabledFill: =Color.Transparent
+                                    Fill: =Color.Transparent
+                                    FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                    FocusedBorderThickness: =2
+                                    Font: ="IBM Plex Sans"
+                                    FontWeight: =FontWeight.Normal
+                                    Height: =32
+                                    HoverBorderColor: =ColorValue(AppTheme.ButtonDangerActive)
+                                    HoverColor: =ColorValue(AppTheme.ButtonDangerActive)
+                                    HoverFill: =AppTheme.StatusBusyBg
+                                    OnSelect: =Set(gblSelectedBooking, ThisItem); Set(gbl_UI_Detail_Modal, true)
+                                    PressedBorderColor: =ColorValue(AppTheme.ButtonDangerActive)
+                                    PressedColor: =ColorValue(AppTheme.ButtonDangerActive)
+                                    PressedFill: =AppTheme.StatusBusyBg
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Size: =11
+                                    Text: ="Cancel"
+                                    Visible: =!fnIsPast(ThisItem.EndDateTime)
+                                    Width: =94
+                                    X: =Parent.Width - 110
+                                    Y: =12
+                        - mb2ConEmpty:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              AlignInContainer: =AlignInContainer.Center
+                              DropShadow: =DropShadow.None
+                              Fill: =Color.Transparent
+                              LayoutAlignItems: =LayoutAlignItems.Center
+                              LayoutDirection: =LayoutDirection.Vertical
+                              LayoutGap: =16
+                              LayoutJustifyContent: =LayoutJustifyContent.Center
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
+                              Visible: =varMyBookingsFilter <> "Series" && IsEmpty(mb2GalBookings.AllItems)
+                              Width: =Parent.Width
+                            Children:
+                              - mb2LblEmpty:
+                                  Control: Label
+                                  Properties:
+                                    Align: =Align.Center
+                                    AlignInContainer: =AlignInContainer.Center
+                                    Color: =AppTheme.TextMuted
+                                    Fill: =Color.Transparent
+                                    FillPortions: =0
+                                    Font: ="IBM Plex Sans"
+                                    Height: =20
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Size: =12
+                                    Text: |-
+                                      =If(varMyBookingsFilter = "Upcoming", "No upcoming bookings yet.", "No bookings found.")
+                                    Width: =Parent.Width
+                                    Wrap: =false
+                              - mb2BtnEmptyBook:
+                                  Control: Classic/Button
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Center
+                                    BorderColor: =ColorValue(AppTheme.ButtonPrimary)
+                                    BorderThickness: =0
+                                    Color: =ColorValue(AppTheme.PrimaryText)
+                                    DisabledColor: =ColorValue(AppTheme.ButtonDisabledText)
+                                    DisabledFill: =ColorValue(AppTheme.ButtonDisabled)
+                                    Fill: =ColorValue(AppTheme.ButtonPrimary)
+                                    FillPortions: =0
+                                    FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                    FocusedBorderThickness: =2
+                                    Font: ="IBM Plex Sans"
+                                    FontWeight: =FontWeight.Normal
+                                    Height: =48
+                                    HoverColor: =ColorValue(AppTheme.PrimaryText)
+                                    HoverFill: =ColorValue(AppTheme.ButtonPrimaryActive)
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    OnSelect: |-
+                                      =Set(gbl_UI_Book_Modal_Step, WizardStep1);
+                                      // RESET-SITE[mybookings-empty-book] wizard state reset before opening step 1
+                                      Set(varSelectedRoom, Blank());
+                                      Set(varSelectedDate, Today());
+                                      Set(varStartTime, Blank());
+                                      Set(varEndTime, Blank());
+                                      Set(varTitle, Blank());
+                                      Set(varConflict, false);
+                                      Set(varBookingError, false);
+                                      Set(varSubmitting, false);
+                                      Set(varTitleTouched, false);
+                                      Set(gbl_UI_Book_CancelConfirm, false);
+                                      Set(gbl_Book_SubmitResult, "");
+                                      Set(varConflictingBooking, Blank());
+                                      Set(varNextFreeSlot, Blank());
+                                      Set(gblEditingBookingID, 0);
+                                      ClearCollect(varAlternativeRooms, Filter(colRooms, true = false));
+                                      With(
+                                          {_now: Now(), _todayStart: DateAdd(Today(), DayStartHour * 60, TimeUnit.Minutes)},
+                                          With(
+                                              {_next: DateAdd(_now, Mod(15 - Mod(DateDiff(_todayStart, _now, TimeUnit.Minutes), 15), 15), TimeUnit.Minutes)},
+                                              With(
+                                                  {_start: If(_next < _todayStart, _todayStart, _next)},
+                                                  If(
+                                                      _start <= DateAdd(_todayStart, 540, TimeUnit.Minutes),
+                                                      Set(varStartTime, _start);
+                                                      Set(varEndTime, DateAdd(_start, 60, TimeUnit.Minutes))
+                                                  )
+                                              )
+                                          )
+                                      );
+                                      Set(gbl_UI_Book_Modal, true);
+                                      Set(gblUI_Nav_currentTab, "Home");
+                                      Navigate(Home, ScreenTransition.Fade)
+                                    PressedColor: =ColorValue(AppTheme.PrimaryText)
+                                    PressedFill: =ColorValue(AppTheme.ButtonPrimaryActive)
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Size: =12
+                                    Text: ="Book a room"
+                                    Width: =160
+                        - mb2GalSeries:
                             Control: Gallery
                             Variant: Vertical
                             Properties:
@@ -543,179 +1175,192 @@ Screens:
                               TemplateSize: =130
                               Visible: =varMyBookingsFilter = "Series"
                             Children:
-                              - rectSeriesCardBg:
+                              - mb2RectSeriesBg:
                                   Control: Rectangle
                                   Properties:
-                                    BorderColor: =RGBA(0,0,0,0)
-                                    Fill: =If(ThisItem.ClashCount > 0, AppTheme.StatusWarnBg, AppTheme.SurfaceAlt)
+                                    BorderColor: =Color.Transparent
+                                    Fill: =If(ThisItem.ClashCount > 0, AppTheme.StatusWarnBg, AppTheme.Surface)
                                     Height: =Parent.TemplateHeight
                                     Width: =Parent.Width
-                              - rectSeriesCardDivider:
+                              - mb2RectSeriesDivider:
                                   Control: Rectangle
                                   Properties:
-                                    BorderColor: =RGBA(0,0,0,0)
+                                    BorderColor: =Color.Transparent
                                     Fill: =AppTheme.Border
                                     Height: =1
                                     Width: =Parent.Width
                                     Y: =Parent.TemplateHeight - 1
-                              - lblSeriesTitle:
+                              - mb2RectSeriesDot:
+                                  Control: Rectangle
+                                  Properties:
+                                    BorderColor: =Color.Transparent
+                                    Fill: =If(ThisItem.ClashCount > 0, AppTheme.StatusWarnText, ColorValue(AppTheme.Primary))
+                                    Height: =8
+                                    Width: =8
+                                    X: =16
+                                    Y: =16
+                              - mb2LblSeriesTitle:
                                   Control: Label
                                   Properties:
                                     Color: =AppTheme.TextPrimary
-                                    Font: =Font.Lato
+                                    Font: ="IBM Plex Sans"
                                     FontWeight: =FontWeight.Semibold
                                     Height: =20
+                                    Size: =12
                                     Text: =ThisItem.SeriesTitle & " · " & ThisItem.SeriesRoom
-                                    Width: =Parent.Width - 280
+                                    Width: =Max(Parent.Width - 312, 120)
                                     Wrap: =false
-                                    X: =16
+                                    X: =32
                                     Y: =10
-                              - lblSeriesPattern:
+                              - mb2LblSeriesPattern:
                                   Control: Label
                                   Properties:
                                     Color: =AppTheme.TextMuted
-                                    Font: =Font.Lato
+                                    Font: ="IBM Plex Sans"
                                     Height: =16
                                     Size: =12
-                                    Text: =Switch(ThisItem.SeriesPattern, "Weekly", "Weekly", "BiWeekly", "Every 2 weeks", "Monthly", "Monthly", ThisItem.SeriesPattern) & " · Next " & If(IsBlank(ThisItem.NextDate), "—", Text(ThisItem.NextDate, "dd mmm yyyy"))
-                                    Width: =Parent.Width - 280
+                                    Text: |-
+                                      =Switch(ThisItem.SeriesPattern, "Weekly", "Weekly", "BiWeekly", "Every 2 weeks", "Monthly", "Monthly", ThisItem.SeriesPattern) & " · Next " & If(IsBlank(ThisItem.NextDate), "—", Text(ThisItem.NextDate, "[$-en-US]d mmm yyyy"))
+                                    Width: =Max(Parent.Width - 312, 120)
                                     Wrap: =false
-                                    X: =16
+                                    X: =32
                                     Y: =32
-                              - lblSeriesCounts:
+                              - mb2LblSeriesCounts:
                                   Control: Label
                                   Properties:
                                     Color: =If(ThisItem.ClashCount > 0, AppTheme.StatusWarnText, AppTheme.TextSecondary)
-                                    Font: =Font.Lato
+                                    Font: ="IBM Plex Sans"
                                     Height: =16
                                     Size: =12
-                                    Text: =ThisItem.ActiveCount & " active" & If(ThisItem.ClashCount > 0, " · " & ThisItem.ClashCount & " clash", "")
-                                    Width: =Parent.Width - 280
+                                    Text: |-
+                                      =ThisItem.ActiveCount & " active" & If(ThisItem.ClashCount > 0, " · " & ThisItem.ClashCount & " clash", "")
+                                    Width: =Max(Parent.Width - 312, 120)
                                     Wrap: =false
-                                    X: =16
+                                    X: =32
                                     Y: =49
-                              - btnSeriesRowOverlay:
+                              - mb2BtnSeriesOverlay:
                                   Control: Classic/Button
                                   Properties:
-                                    BorderColor: =RGBA(0,0,0,0)
+                                    BorderColor: =Color.Transparent
                                     BorderStyle: =BorderStyle.None
                                     BorderThickness: =0
-                                    Color: =RGBA(0,0,0,0)
-                                    DisabledBorderColor: =RGBA(0,0,0,0)
-                                    DisabledColor: =RGBA(0,0,0,0)
-                                    DisabledFill: =RGBA(0,0,0,0)
-                                    Fill: =RGBA(0,0,0,0)
-                                    FocusedBorderColor: =RGBA(15,98,254,1)
+                                    Color: =Color.Transparent
+                                    DisabledBorderColor: =Color.Transparent
+                                    DisabledColor: =Color.Transparent
+                                    DisabledFill: =Color.Transparent
+                                    Fill: =Color.Transparent
+                                    FocusedBorderColor: =ColorValue(AppTheme.Primary)
                                     FocusedBorderThickness: =2
                                     Height: =Parent.TemplateHeight
-                                    HoverBorderColor: =RGBA(0,0,0,0)
-                                    HoverColor: =RGBA(0,0,0,0)
-                                    HoverFill: =RGBA(0,0,0,0.04)
+                                    HoverBorderColor: =Color.Transparent
+                                    HoverColor: =Color.Transparent
+                                    HoverFill: =RGBA(0, 0, 0, 0.04) // DS-EXEMPT hover tint on a transparent full-row overlay; no theme token exists for an alpha wash
                                     OnSelect: =Set(gbl_SelectedSeriesID, If(gbl_SelectedSeriesID = ThisItem.SeriesID, Blank(), ThisItem.SeriesID))
-                                    PressedBorderColor: =RGBA(0,0,0,0)
-                                    PressedColor: =RGBA(0,0,0,0)
-                                    PressedFill: =RGBA(0,0,0,0.08)
+                                    PressedBorderColor: =Color.Transparent
+                                    PressedColor: =Color.Transparent
+                                    PressedFill: =RGBA(0, 0, 0, 0.08) // DS-EXEMPT pressed tint on a transparent full-row overlay; no theme token exists for an alpha wash
                                     RadiusBottomLeft: =0
                                     RadiusBottomRight: =0
                                     RadiusTopLeft: =0
                                     RadiusTopRight: =0
-                                    Text: =ThisItem.SeriesTitle & ", " & ThisItem.SeriesRoom & ". " & ThisItem.ActiveCount & " active" & If(ThisItem.ClashCount > 0, ", " & ThisItem.ClashCount & " clash", "") & ". Toggle occurrence list"
+                                    Text: |-
+                                      =ThisItem.SeriesTitle & ", " & ThisItem.SeriesRoom & ". " & ThisItem.ActiveCount & " active" & If(ThisItem.ClashCount > 0, ", " & ThisItem.ClashCount & " clash", "") & ". Toggle occurrence list"
                                     Width: =Parent.Width - 264
-                              - btnResolveClashes:
+                              - mb2BtnSeriesResolve:
                                   Control: Classic/Button
                                   Properties:
                                     BorderColor: =AppTheme.StatusWarnText
                                     BorderThickness: =1
                                     Color: =AppTheme.StatusWarnText
                                     Fill: =AppTheme.Surface
-                                    FocusedBorderColor: =RGBA(15,98,254,1)
+                                    FocusedBorderColor: =ColorValue(AppTheme.Primary)
                                     FocusedBorderThickness: =2
-                                    Font: =Font.Lato
+                                    Font: ="IBM Plex Sans"
                                     FontWeight: =FontWeight.Normal
-                                    Height: =28
+                                    Height: =32
                                     HoverColor: =AppTheme.StatusWarnText
                                     HoverFill: =AppTheme.StatusWarnBg
                                     OnSelect: =Set(gbl_FixCycleSeriesID, ThisItem.SeriesID); Set(gblSelectedBooking, ThisItem.EarliestClash); Navigate(bookingDetail, ScreenTransition.Fade)
                                     PressedColor: =AppTheme.StatusWarnText
                                     PressedFill: =AppTheme.StatusWarnBg
-                                    RadiusBottomLeft: =2
-                                    RadiusBottomRight: =2
-                                    RadiusTopLeft: =2
-                                    RadiusTopRight: =2
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
                                     Size: =11
                                     Text: ="Resolve clashes"
                                     Visible: =ThisItem.ClashCount > 0 && gbl_UI_CancelSeriesConfirmID <> ThisItem.SeriesID
                                     Width: =130
                                     X: =Parent.Width - 264
                                     Y: =72
-                              - btnCancelSeriesStart:
+                              - mb2BtnSeriesCancelStart:
                                   Control: Classic/Button
                                   Properties:
-                                    BorderColor: =AppTheme.StatusBusyText
+                                    BorderColor: =ColorValue(AppTheme.ButtonDangerPrimary)
                                     BorderThickness: =1
-                                    Color: =AppTheme.StatusBusyText
+                                    Color: =ColorValue(AppTheme.ButtonDangerPrimary)
                                     Fill: =AppTheme.Surface
-                                    FocusedBorderColor: =RGBA(15,98,254,1)
+                                    FocusedBorderColor: =ColorValue(AppTheme.Primary)
                                     FocusedBorderThickness: =2
-                                    Font: =Font.Lato
+                                    Font: ="IBM Plex Sans"
                                     FontWeight: =FontWeight.Normal
-                                    Height: =28
-                                    HoverColor: =AppTheme.StatusBusyText
+                                    Height: =32
+                                    HoverColor: =ColorValue(AppTheme.ButtonDangerActive)
                                     HoverFill: =AppTheme.StatusBusyBg
                                     OnSelect: =Set(gbl_UI_CancelSeriesConfirmID, ThisItem.SeriesID)
-                                    PressedColor: =AppTheme.StatusBusyText
+                                    PressedColor: =ColorValue(AppTheme.ButtonDangerActive)
                                     PressedFill: =AppTheme.StatusBusyBg
-                                    RadiusBottomLeft: =2
-                                    RadiusBottomRight: =2
-                                    RadiusTopLeft: =2
-                                    RadiusTopRight: =2
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
                                     Size: =11
                                     Text: ="Cancel series"
                                     Visible: =gbl_UI_CancelSeriesConfirmID <> ThisItem.SeriesID
                                     Width: =120
                                     X: =Parent.Width - 128
                                     Y: =72
-                              - btnKeepSeries:
+                              - mb2BtnSeriesKeep:
                                   Control: Classic/Button
                                   Properties:
                                     BorderColor: =AppTheme.Border
                                     BorderThickness: =1
                                     Color: =AppTheme.TextPrimary
                                     Fill: =AppTheme.Surface
-                                    FocusedBorderColor: =RGBA(15,98,254,1)
+                                    FocusedBorderColor: =ColorValue(AppTheme.Primary)
                                     FocusedBorderThickness: =2
-                                    Font: =Font.Lato
+                                    Font: ="IBM Plex Sans"
                                     FontWeight: =FontWeight.Normal
-                                    Height: =28
+                                    Height: =32
                                     HoverColor: =AppTheme.TextPrimary
                                     HoverFill: =AppTheme.Border
                                     OnSelect: =Set(gbl_UI_CancelSeriesConfirmID, Blank())
                                     PressedColor: =AppTheme.TextPrimary
                                     PressedFill: =AppTheme.Border
-                                    RadiusBottomLeft: =2
-                                    RadiusBottomRight: =2
-                                    RadiusTopLeft: =2
-                                    RadiusTopRight: =2
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
                                     Size: =11
                                     Text: ="Keep series"
                                     Visible: =gbl_UI_CancelSeriesConfirmID = ThisItem.SeriesID
                                     Width: =110
                                     X: =Parent.Width - 264
                                     Y: =72
-                              - btnConfirmCancelSeries:
+                              - mb2BtnSeriesConfirmCancel:
                                   Control: Classic/Button
                                   Properties:
-                                    BorderColor: =AppTheme.StatusBusyText
+                                    BorderColor: =ColorValue(AppTheme.ButtonDangerPrimary)
                                     BorderThickness: =0
                                     Color: =ColorValue(AppTheme.PrimaryText)
-                                    Fill: =AppTheme.StatusBusyText
-                                    FocusedBorderColor: =RGBA(15,98,254,1)
+                                    Fill: =ColorValue(AppTheme.ButtonDangerPrimary)
+                                    FocusedBorderColor: =ColorValue(AppTheme.Primary)
                                     FocusedBorderThickness: =2
-                                    Font: =Font.Lato
+                                    Font: ="IBM Plex Sans"
                                     FontWeight: =FontWeight.Normal
-                                    Height: =28
+                                    Height: =32
                                     HoverColor: =ColorValue(AppTheme.PrimaryText)
-                                    HoverFill: =ColorValue("#b81922")
+                                    HoverFill: =ColorValue(AppTheme.ButtonDangerActive)
                                     OnSelect: |-
                                       =// PROD-REVERT[booking-cancel] soft delete via per-row Patch; matches single-cancel pattern in bookingDetail.
                                       // UpdateIf's <> and Now() predicates aren't delegable to SharePoint, so this iterates the
@@ -730,51 +1375,58 @@ Screens:
                                           )
                                       );
                                       Refresh(Book_Bookings);
-                                      ClearCollect(colBookings, BookingWindow);
+                                      ClearCollect(colBookings, Book_Bookings);
                                       Set(gbl_UI_CancelSeriesConfirmID, Blank());
                                       Notify("Series cancelled", NotificationType.Success)
                                     PressedColor: =ColorValue(AppTheme.PrimaryText)
-                                    PressedFill: =ColorValue("#921620")
-                                    RadiusBottomLeft: =2
-                                    RadiusBottomRight: =2
-                                    RadiusTopLeft: =2
-                                    RadiusTopRight: =2
+                                    PressedFill: =ColorValue(AppTheme.ButtonDangerActive)
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
                                     Size: =11
                                     Text: ="Yes, cancel series"
                                     Visible: =gbl_UI_CancelSeriesConfirmID = ThisItem.SeriesID
                                     Width: =130
                                     X: =Parent.Width - 144
                                     Y: =72
-                        - conEmptyStateSeries:
+                        - mb2ConEmptySeries:
                             Control: GroupContainer
                             Variant: AutoLayout
                             Properties:
                               AlignInContainer: =AlignInContainer.Center
                               DropShadow: =DropShadow.None
-                              Fill: =RGBA(0,0,0,0)
+                              Fill: =Color.Transparent
                               LayoutAlignItems: =LayoutAlignItems.Center
                               LayoutDirection: =LayoutDirection.Vertical
                               LayoutGap: =16
                               LayoutJustifyContent: =LayoutJustifyContent.Center
                               LayoutMinHeight: =0
                               LayoutMinWidth: =0
-                              Visible: =varMyBookingsFilter = "Series" && IsEmpty(galSeriesList.AllItems)
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
+                              Visible: =varMyBookingsFilter = "Series" && IsEmpty(mb2GalSeries.AllItems)
                               Width: =Parent.Width
                             Children:
-                              - lblEmptyStateSeries:
+                              - mb2LblEmptySeries:
                                   Control: Label
                                   Properties:
                                     Align: =Align.Center
                                     AlignInContainer: =AlignInContainer.Center
                                     Color: =AppTheme.TextMuted
-                                    Fill: =RGBA(0,0,0,0)
-                                    Font: =Font.Lato
+                                    Fill: =Color.Transparent
+                                    FillPortions: =0
+                                    Font: ="IBM Plex Sans"
+                                    Height: =20
                                     LayoutMinHeight: =0
                                     LayoutMinWidth: =0
+                                    Size: =12
                                     Text: ="No series bookings yet."
                                     Width: =Parent.Width
                                     Wrap: =false
-                        - galSeriesOccurrences:
+                        - mb2GalSeriesOcc:
                             Control: Gallery
                             Variant: Vertical
                             Properties:
@@ -791,68 +1443,112 @@ Screens:
                               TemplateSize: =56
                               Visible: =varMyBookingsFilter = "Series" && !IsBlank(gbl_SelectedSeriesID)
                             Children:
-                              - rectOccBg:
+                              - mb2RectOccBg:
                                   Control: Rectangle
                                   Properties:
-                                    BorderColor: =RGBA(0,0,0,0)
-                                    Fill: =If(ThisItem.Status = "Clash", AppTheme.StatusWarnBg, If(fnIsPast(ThisItem.EndDateTime), AppTheme.Background, AppTheme.Surface))
+                                    BorderColor: =Color.Transparent
+                                    Fill: |-
+                                      =If(
+                                          ThisItem.Status = "Clash", AppTheme.StatusWarnBg,
+                                          fnIsPast(ThisItem.EndDateTime), AppTheme.SurfaceAlt,
+                                          AppTheme.Surface
+                                      )
                                     Height: =Parent.TemplateHeight
                                     Width: =Parent.Width
-                              - rectOccDivider:
+                              - mb2RectOccDivider:
                                   Control: Rectangle
                                   Properties:
-                                    BorderColor: =RGBA(0,0,0,0)
+                                    BorderColor: =Color.Transparent
                                     Fill: =AppTheme.Border
                                     Height: =1
                                     Width: =Parent.Width
                                     Y: =Parent.TemplateHeight - 1
-                              - lblOccDateTime:
+                              - mb2RectOccDot:
+                                  Control: Rectangle
+                                  Properties:
+                                    BorderColor: =Color.Transparent
+                                    Fill: |-
+                                      =If(
+                                          ThisItem.Status = "Clash", AppTheme.StatusWarnText,
+                                          fnIsPast(ThisItem.EndDateTime), AppTheme.TextMuted,
+                                          ColorValue(AppTheme.Primary)
+                                      )
+                                    Height: =8
+                                    Width: =8
+                                    X: =16
+                                    Y: =24
+                              - mb2LblOccDateTime:
                                   Control: Label
                                   Properties:
                                     Color: =If(ThisItem.Status = "Clash", AppTheme.StatusWarnText, AppTheme.TextPrimary)
-                                    Font: =Font.Lato
+                                    Font: ="IBM Plex Sans"
                                     Height: =Parent.TemplateHeight
                                     Size: =12
-                                    Text: ="Occ " & ThisItem.OccIndex & " · " & Text(ThisItem.StartDateTime, "ddd dd mmm yyyy") & "  " & Text(ThisItem.StartDateTime, "HH:mm") & "-" & Text(ThisItem.EndDateTime, "HH:mm")
-                                    Width: =Parent.Width - 160
+                                    Text: |-
+                                      ="Occ " & ThisItem.OccIndex & " · " & Text(ThisItem.StartDateTime, "[$-en-US]ddd d mmm yyyy") & "  " & Text(ThisItem.StartDateTime, "HH:mm") & " – " & Text(ThisItem.EndDateTime, "HH:mm")
+                                    Width: =Max(Parent.Width - 192, 120)
                                     Wrap: =false
-                                    X: =16
-                              - lblOccStatus:
+                                    X: =32
+                              - mb2LblOccStatus:
                                   Control: Label
                                   Properties:
                                     Align: =Align.Right
                                     Color: =If(ThisItem.Status = "Clash", AppTheme.StatusWarnText, AppTheme.TextMuted)
-                                    Font: =Font.Lato
+                                    Font: ="IBM Plex Sans"
                                     Height: =Parent.TemplateHeight
                                     Size: =12
-                                    Text: =If(ThisItem.Status = "Clash", "Clash — needs rescheduling", ThisItem.Status)
+                                    Text: =If(ThisItem.Status = "Clash", "Clash", ThisItem.Status)
                                     Width: =128
                                     Wrap: =false
                                     X: =Parent.Width - 144
-                              - btnOccOverlay:
+                              - mb2BtnOccOverlay:
                                   Control: Classic/Button
                                   Properties:
-                                    BorderColor: =RGBA(0,0,0,0)
+                                    BorderColor: =Color.Transparent
                                     BorderStyle: =BorderStyle.None
                                     BorderThickness: =0
-                                    Color: =RGBA(0,0,0,0)
-                                    DisabledBorderColor: =RGBA(0,0,0,0)
-                                    DisabledColor: =RGBA(0,0,0,0)
-                                    DisabledFill: =RGBA(0,0,0,0)
-                                    Fill: =RGBA(0,0,0,0)
-                                    FocusedBorderColor: =RGBA(15,98,254,1)
+                                    Color: =Color.Transparent
+                                    DisabledBorderColor: =Color.Transparent
+                                    DisabledColor: =Color.Transparent
+                                    DisabledFill: =Color.Transparent
+                                    Fill: =Color.Transparent
+                                    FocusedBorderColor: =ColorValue(AppTheme.Primary)
                                     FocusedBorderThickness: =2
                                     Height: =Parent.TemplateHeight
-                                    HoverBorderColor: =RGBA(0,0,0,0)
-                                    HoverColor: =RGBA(0,0,0,0)
-                                    HoverFill: =RGBA(0,0,0,0.04)
-                                    OnSelect: =Set(gblSelectedBooking, ThisItem); Navigate(bookingDetail, ScreenTransition.Fade)
-                                    PressedBorderColor: =RGBA(0,0,0,0)
-                                    PressedColor: =RGBA(0,0,0,0)
-                                    PressedFill: =RGBA(0,0,0,0.08)
+                                    HoverBorderColor: =Color.Transparent
+                                    HoverColor: =Color.Transparent
+                                    HoverFill: =RGBA(0, 0, 0, 0.04) // DS-EXEMPT hover tint on a transparent full-row overlay; no theme token exists for an alpha wash
+                                    OnSelect: =Set(gblSelectedBooking, ThisItem); Set(gbl_UI_Detail_Modal, true)
+                                    PressedBorderColor: =Color.Transparent
+                                    PressedColor: =Color.Transparent
+                                    PressedFill: =RGBA(0, 0, 0, 0.08) // DS-EXEMPT pressed tint on a transparent full-row overlay; no theme token exists for an alpha wash
                                     RadiusBottomLeft: =0
                                     RadiusBottomRight: =0
                                     RadiusTopLeft: =0
                                     RadiusTopRight: =0
-                                    Text: =ThisItem.Title & ", occurrence " & ThisItem.OccIndex & ", " & Text(ThisItem.StartDateTime, "ddd dd mmm HH:mm") & ", " & ThisItem.Status & ". Open booking details"
+                                    Text: |-
+                                      =ThisItem.Title & ", occurrence " & ThisItem.OccIndex & ", " & Text(ThisItem.StartDateTime, "ddd dd mmm HH:mm") & ", " & ThisItem.Status & ". Open booking details"
                                     Width: =Parent.Width
+                        - mb2LblFooterHint:
+                            Control: Label
+                            Properties:
+                              AlignInContainer: =AlignInContainer.Stretch
+                              Color: =AppTheme.TextMuted
+                              Fill: =Color.Transparent
+                              FillPortions: =0
+                              Font: ="IBM Plex Sans"
+                              Height: =20
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              Size: =11
+                              Text: ="Select a booking to view details."
+                              Wrap: =false
+      - cpt_BookingDetailModal_myb:
+          Control: CanvasComponent
+          ComponentName: cpt_BookingDetailModal
+          Properties:
+            Height: =App.Height
+            Visible: =gbl_UI_Detail_Modal = true
+            Width: =App.Width
+            X: =0
+            Y: =0
