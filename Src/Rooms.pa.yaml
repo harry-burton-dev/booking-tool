@@ -675,7 +675,6 @@ Screens:
                             Properties:
                               DropShadow: =DropShadow.None
                               Fill: =Color.Transparent
-                              FillPortions: =1
                               LayoutAlignItems: =LayoutAlignItems.Stretch
                               LayoutDirection: =If(App.Width < 1024, LayoutDirection.Vertical, LayoutDirection.Horizontal)
                               LayoutGap: =16
@@ -690,7 +689,6 @@ Screens:
                                     BorderThickness: =1
                                     DropShadow: =DropShadow.None
                                     Fill: =AppTheme.Surface
-                                    FillPortions: =1
                                     LayoutAlignItems: =LayoutAlignItems.Stretch
                                     LayoutDirection: =LayoutDirection.Vertical
                                     LayoutMinHeight: =0
@@ -718,7 +716,6 @@ Screens:
                                                 Color: =AppTheme.TextPrimary
                                                 Font: ="IBM Plex Sans"
                                                 FontWeight: =FontWeight.Semibold
-                                                Size: =13
                                                 Text: =Text(glbSelectedDate, "ddd dd mmmm")
                                                 Width: =140
                                           - imgDateBack:
@@ -794,7 +791,7 @@ Screens:
                                               Properties:
                                                 DropShadow: =DropShadow.None
                                                 Fill: =Color.Transparent
-                                                FillPortions: =1
+                                                LayoutDirection: =LayoutDirection.Horizontal
                                                 LayoutMinHeight: =0
                                                 LayoutMinWidth: =0
                                           - lblTLLegendFreeSwatch:
@@ -802,7 +799,6 @@ Screens:
                                               Properties:
                                                 AlignInContainer: =AlignInContainer.Center
                                                 BorderColor: =AppTheme.Border
-                                                BorderStyle: =BorderStyle.Solid
                                                 BorderThickness: =1
                                                 Fill: =AppTheme.Surface
                                                 Height: =12
@@ -842,13 +838,13 @@ Screens:
                                           Fill: =AppTheme.Border
                                           FillPortions: =0
                                           Height: =1
+                                          LayoutDirection: =LayoutDirection.Horizontal
                                           LayoutMinHeight: =0
                                           LayoutMinWidth: =0
                                     - galTimeline:
                                         Control: Gallery
                                         Variant: BrowseLayout_Flexible_SocialFeed_ver5.0
                                         Properties:
-                                          FillPortions: =1
                                           Items: =colTimelineRows
                                           LayoutMinHeight: =0
                                           LayoutMinWidth: =0
@@ -936,7 +932,6 @@ Screens:
                                                     Control: GroupContainer
                                                     Variant: ManualLayout
                                                     Properties:
-                                                      FillPortions: =1
                                                       Height: =Parent.Height
                                                       LayoutMinHeight: =0
                                                       LayoutMinWidth: =0
@@ -951,7 +946,6 @@ Screens:
                                                             LayoutDirection: =LayoutDirection.Horizontal
                                                             Visible: =ThisItem.RowType = "booked"
                                                             Width: =Parent.Width - 16
-                                                            X: =0
                                                             Y: =2
                                                           Children:
                                                             - recAccentBar:
@@ -1027,7 +1021,6 @@ Screens:
                                                               ="Open booking details: " & ThisItem.Title
                                                             Visible: =ThisItem.RowType = "booked" && !ThisItem.IsMasked
                                                             Width: =Parent.Width - 16
-                                                            X: =0
                                                             Y: =2
                                                       - conFreeSlot:
                                                           Control: GroupContainer
@@ -1037,7 +1030,6 @@ Screens:
                                                             Height: =Parent.Height - 4
                                                             Visible: =ThisItem.RowType = "free"
                                                             Width: =Parent.Width - 16
-                                                            X: =0
                                                             Y: =2
                                                           Children:
                                                             - btnFreeSlot:
@@ -1098,8 +1090,6 @@ Screens:
                                                                         )
                                                                     )
                                                                   Width: =Parent.Width
-                                                                  X: =0
-                                                                  Y: =0
                                                             - conTLGhost:
                                                                 Control: GroupContainer
                                                                 Variant: ManualLayout
@@ -1108,7 +1098,6 @@ Screens:
                                                                   Height: =varTLSelMinutes * 2
                                                                   Visible: =!IsBlank(varTLSelStart) && ThisItem.RowStart = varTLSelRunStart
                                                                   Width: =Parent.Width
-                                                                  X: =0
                                                                   Y: =DateDiff(ThisItem.RowStart, varTLSelStart, TimeUnit.Minutes) * 2
                                                                 Children:
                                                                   - lblTLGhostTitle:
@@ -1166,10 +1155,8 @@ Screens:
                                                                             )
                                                                         )
                                                                     )
-                                                                  VerticalAlign: =VerticalAlign.Middle
                                                                   Visible: =!IsBlank(varTLSelStart) && ThisItem.RowStart = varTLSelRunStart
                                                                   Width: =Parent.Width
-                                                                  X: =0
                                                                   Y: =DateDiff(ThisItem.RowStart, varTLSelStart, TimeUnit.Minutes) * 2 + varTLSelMinutes * 2
                                                       - recTLNowLine:
                                                           Control: Rectangle
@@ -1178,7 +1165,6 @@ Screens:
                                                             Height: =2
                                                             Visible: =varNowTick >= ThisItem.RowStart && varNowTick < ThisItem.RowEnd
                                                             Width: =Parent.Width - 16
-                                                            X: =0
                                                             Y: =DateDiff(ThisItem.RowStart, varNowTick, TimeUnit.Minutes) * 2
                                     - lbl_textRoomsEmptyState:
                                         Control: Label
@@ -1196,7 +1182,6 @@ Screens:
                                   Control: GroupContainer
                                   Variant: AutoLayout
                                   Properties:
-                                    AlignInContainer: =AlignInContainer.Stretch
                                     DropShadow: =DropShadow.None
                                     Fill: =Color.Transparent
                                     FillPortions: =0
@@ -1205,8 +1190,8 @@ Screens:
                                     LayoutDirection: =LayoutDirection.Vertical
                                     LayoutGap: =16
                                     LayoutMaxWidth: =If(App.Width < 1024, App.Width, 320)
-                                    LayoutMinWidth: =0
                                     LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
                                     Width: =320
                                   Children:
                                     - conTLRoomCard:
@@ -1421,7 +1406,6 @@ Screens:
                                                       FocusedBorderColor: =ColorValue(AppTheme.Primary)
                                                       FocusedBorderThickness: =2
                                                       Font: ="IBM Plex Sans"
-                                                      Height: =40
                                                       HoverColor: =If(varTLSelMinutes = 30, AppTheme.Surface, AppTheme.TextPrimary)
                                                       HoverFill: =If(varTLSelMinutes = 30, AppTheme.TextPrimary, AppTheme.SurfaceAlt)
                                                       OnSelect: |-
@@ -1445,7 +1429,6 @@ Screens:
                                                       FocusedBorderColor: =ColorValue(AppTheme.Primary)
                                                       FocusedBorderThickness: =2
                                                       Font: ="IBM Plex Sans"
-                                                      Height: =40
                                                       HoverColor: =If(varTLSelMinutes = 60, AppTheme.Surface, AppTheme.TextPrimary)
                                                       HoverFill: =If(varTLSelMinutes = 60, AppTheme.TextPrimary, AppTheme.SurfaceAlt)
                                                       OnSelect: |-
@@ -1469,7 +1452,6 @@ Screens:
                                                       FocusedBorderColor: =ColorValue(AppTheme.Primary)
                                                       FocusedBorderThickness: =2
                                                       Font: ="IBM Plex Sans"
-                                                      Height: =40
                                                       HoverColor: =If(varTLSelMinutes = 90, AppTheme.Surface, AppTheme.TextPrimary)
                                                       HoverFill: =If(varTLSelMinutes = 90, AppTheme.TextPrimary, AppTheme.SurfaceAlt)
                                                       OnSelect: |-
@@ -1493,7 +1475,6 @@ Screens:
                                                       FocusedBorderColor: =ColorValue(AppTheme.Primary)
                                                       FocusedBorderThickness: =2
                                                       Font: ="IBM Plex Sans"
-                                                      Height: =40
                                                       HoverColor: =If(varTLSelMinutes = 120, AppTheme.Surface, AppTheme.TextPrimary)
                                                       HoverFill: =If(varTLSelMinutes = 120, AppTheme.TextPrimary, AppTheme.SurfaceAlt)
                                                       OnSelect: |-
