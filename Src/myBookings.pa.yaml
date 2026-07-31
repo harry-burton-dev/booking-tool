@@ -498,6 +498,7 @@ Screens:
                                           )
                                       );
                                       Set(gbl_UI_Book_Modal, true);
+                                      Set(gblUI_Nav_currentTab, "Home");
                                       Navigate(Home, ScreenTransition.Fade)
                                     PressedColor: =ColorValue(AppTheme.PrimaryText)
                                     PressedFill: =RGBA(11,69,182,1)
