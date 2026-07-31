@@ -3,6 +3,11 @@ Screens:
     Properties:
       Fill: =RGBA(255, 255, 255, 1)
       LoadingSpinnerColor: =RGBA(0, 120, 212, 1)
+      OnVisible: |-
+        =Refresh(Book_Bookings);
+        /* Re-pull the shared bookings snapshot so colleagues' writes since App.OnStart
+           (or since this session's last write) show up without requiring a write of our own */
+        ClearCollect(colBookings, Book_Bookings)
     Children:
       - con_shell_mybook:
           Control: GroupContainer

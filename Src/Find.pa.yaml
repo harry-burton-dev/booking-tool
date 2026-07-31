@@ -6,6 +6,12 @@ Screens:
       OnVisible: |
         =Set(varFindViewMode, "Day");
         Set(varFindSelectedDate, Today());
+
+        /* Re-pull the shared bookings snapshot so colleagues' writes since App.OnStart
+           (or since this session's last write) show up without requiring a write of our own */
+        Refresh(Book_Bookings);
+        ClearCollect(colBookings, Book_Bookings);
+
         Select(btnLoadFindBookings)
     Children:
       - con_shell_find:

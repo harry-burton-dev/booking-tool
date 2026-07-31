@@ -7,6 +7,12 @@ Screens:
         =UpdateContext({varShowTimeline: false});
         Set(varSelectedRoom, Blank());
         Set(varNowTick, Now());
+
+        /* Re-pull the shared bookings snapshot so colleagues' writes since App.OnStart
+           (or since this session's last write) show up without requiring a write of our own */
+        Refresh(Book_Bookings);
+        ClearCollect(colBookings, Book_Bookings);
+
         Set(gblRoomsSearch, "");
         Set(gblRoomsMinCapacity, 0);
         Set(gblRoomsSort, "Name");
