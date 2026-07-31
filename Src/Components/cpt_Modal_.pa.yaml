@@ -464,7 +464,7 @@ ComponentDefinitions:
                             Properties:
                               DropShadow: =DropShadow.None
                               FillPortions: =0
-                              Height: =40 + If(!IsBlank(varSelectedDate) && (Weekday(varSelectedDate, StartOfWeek.Sunday) in [1,7] || varSelectedDate < Today()), 6 + lbl_textDateError.Height, 0)
+                              Height: =40 + If(!IsBlank(varSelectedDate) && (Weekday(varSelectedDate, StartOfWeek.Sunday) in [1,7] || varSelectedDate < Today() || varSelectedDate > DateAdd(Today(), If(gblEditingBookingID > 0, BookingWindowLookaheadDays - 1, BookingStartMaxDays), TimeUnit.Days)), 6 + lbl_textDateError.Height, 0)
                               LayoutAlignItems: =LayoutAlignItems.Stretch
                               LayoutDirection: =LayoutDirection.Vertical
                               LayoutGap: =6
@@ -506,8 +506,8 @@ ComponentDefinitions:
                                     LayoutMinHeight: =0
                                     LayoutMinWidth: =0
                                     Size: =11
-                                    Text: =If(!IsBlank(varSelectedDate) && Weekday(varSelectedDate, StartOfWeek.Sunday) in [1,7], "Bookings are only available Monday to Friday.", "Date cannot be in the past.")
-                                    Visible: =!IsBlank(varSelectedDate) && (Weekday(varSelectedDate, StartOfWeek.Sunday) in [1,7] || varSelectedDate < Today())
+                                    Text: =If(!IsBlank(varSelectedDate) && Weekday(varSelectedDate, StartOfWeek.Sunday) in [1,7], "Bookings are only available Monday to Friday.", varSelectedDate > DateAdd(Today(), If(gblEditingBookingID > 0, BookingWindowLookaheadDays - 1, BookingStartMaxDays), TimeUnit.Days), "That date is too far ahead.", "Date cannot be in the past.")
+                                    Visible: =!IsBlank(varSelectedDate) && (Weekday(varSelectedDate, StartOfWeek.Sunday) in [1,7] || varSelectedDate < Today() || varSelectedDate > DateAdd(Today(), If(gblEditingBookingID > 0, BookingWindowLookaheadDays - 1, BookingStartMaxDays), TimeUnit.Days))
                                     Wrap: =false
                         - conTimeRow:
                             Control: GroupContainer
@@ -1690,7 +1690,7 @@ ComponentDefinitions:
                         DisabledBorderColor: =AppTheme.SurfaceAlt
                         DisabledColor: =ColorValue(AppTheme.ButtonDisabledText)
                         DisabledFill: =ColorValue(AppTheme.ButtonDisabled)
-                        DisplayMode: =If(IsBlank(varSelectedRoom) || IsBlank(varStartTime) || IsBlank(varEndTime) || varEndTime <= varStartTime || IsBlank(varTitle) || varConflict || (!IsBlank(varSelectedDate) && (Weekday(varSelectedDate, StartOfWeek.Sunday) in [1,7] || varSelectedDate < Today())) || DateDiff(varStartTime, varEndTime, TimeUnit.Minutes) > MaxBookingMinutes, DisplayMode.Disabled, DisplayMode.Edit)
+                        DisplayMode: =If(IsBlank(varSelectedRoom) || IsBlank(varStartTime) || IsBlank(varEndTime) || varEndTime <= varStartTime || IsBlank(varTitle) || varConflict || (!IsBlank(varSelectedDate) && (Weekday(varSelectedDate, StartOfWeek.Sunday) in [1,7] || varSelectedDate < Today() || varSelectedDate > DateAdd(Today(), If(gblEditingBookingID > 0, BookingWindowLookaheadDays - 1, BookingStartMaxDays), TimeUnit.Days))) || DateDiff(varStartTime, varEndTime, TimeUnit.Minutes) > MaxBookingMinutes, DisplayMode.Disabled, DisplayMode.Edit)
                         Fill: =ColorValue(AppTheme.ButtonPrimary)
                         FocusedBorderColor: =RGBA(15, 98, 254, 1)
                         FocusedBorderThickness: =2
@@ -1723,7 +1723,7 @@ ComponentDefinitions:
                         DisabledBorderColor: =AppTheme.SurfaceAlt
                         DisabledColor: =AppTheme.TextMuted
                         DisabledFill: =AppTheme.SurfaceAlt
-                        DisplayMode: =If(IsBlank(varSelectedRoom) || IsBlank(varStartTime) || IsBlank(varEndTime) || varEndTime <= varStartTime || IsBlank(varTitle) || (tglBookOnBehalf.Checked && IsBlank(varBookForEmail)) || varConflict || fnIsPast(varStartTime) || varSubmitting || (!IsBlank(varSelectedDate) && (Weekday(varSelectedDate, StartOfWeek.Sunday) in [1,7] || varSelectedDate < Today())) || DateDiff(varStartTime, varEndTime, TimeUnit.Minutes) > MaxBookingMinutes, DisplayMode.Disabled, DisplayMode.Edit)
+                        DisplayMode: =If(IsBlank(varSelectedRoom) || IsBlank(varStartTime) || IsBlank(varEndTime) || varEndTime <= varStartTime || IsBlank(varTitle) || (tglBookOnBehalf.Checked && IsBlank(varBookForEmail)) || varConflict || fnIsPast(varStartTime) || varSubmitting || (!IsBlank(varSelectedDate) && (Weekday(varSelectedDate, StartOfWeek.Sunday) in [1,7] || varSelectedDate < Today() || varSelectedDate > DateAdd(Today(), If(gblEditingBookingID > 0, BookingWindowLookaheadDays - 1, BookingStartMaxDays), TimeUnit.Days))) || DateDiff(varStartTime, varEndTime, TimeUnit.Minutes) > MaxBookingMinutes, DisplayMode.Disabled, DisplayMode.Edit)
                         Fill: =ColorValue(AppTheme.ButtonPrimary)
                         FocusedBorderColor: =RGBA(15, 98, 254, 1)
                         FocusedBorderThickness: =2
@@ -1857,7 +1857,7 @@ ComponentDefinitions:
                                  varNextFreeSlot / varAlternativeRooms above are all server-fresh)
                                  and re-sync the snapshot so the screens behind show it too. */
                               Refresh(Book_Bookings);
-                              ClearCollect(colBookings, Book_Bookings);
+                              ClearCollect(colBookings, BookingWindow);
                               Notify("That slot was just booked by someone else. Pick another time or room.", NotificationType.Warning, 6000)
                           );
                           Set(varSubmitting, false)

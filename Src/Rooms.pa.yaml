@@ -11,7 +11,7 @@ Screens:
         /* Re-pull the shared bookings snapshot so colleagues' writes since App.OnStart
            (or since this session's last write) show up without requiring a write of our own */
         Refresh(Book_Bookings);
-        ClearCollect(colBookings, Book_Bookings);
+        ClearCollect(colBookings, BookingWindow);
 
         Set(gblRoomsSearch, "");
         Set(gblRoomsMinCapacity, 0);
@@ -48,10 +48,11 @@ Screens:
                 Control: GroupContainer
                 Variant: AutoLayout
                 Properties:
+                  Fill: =AppTheme.layer01Bg
                   Height: =Parent.Height - 48
                   LayoutAlignItems: =LayoutAlignItems.Center
                   LayoutDirection: =LayoutDirection.Vertical
-                  PaddingBottom: =32
+                  PaddingBottom: =28
                   PaddingLeft: =32
                   PaddingRight: =32
                   PaddingTop: =32
@@ -65,7 +66,7 @@ Screens:
                         DropShadow: =DropShadow.None
                         LayoutAlignItems: =LayoutAlignItems.Center
                         LayoutDirection: =LayoutDirection.Vertical
-                        LayoutGap: =16
+                        LayoutGap: =12
                         LayoutMinHeight: =16
                         LayoutMinWidth: =16
                         PaddingTop: =16
@@ -113,7 +114,6 @@ Screens:
                               Height: =If(App.Width < 768, 240, 48)
                               LayoutAlignItems: =LayoutAlignItems.Center
                               LayoutDirection: =If(App.Width < 768, LayoutDirection.Vertical, LayoutDirection.Horizontal)
-                              LayoutGap: =16
                               Width: =Parent.Width
                             Children:
                               - txtRoomsSearch:
@@ -121,7 +121,7 @@ Screens:
                                   Properties:
                                     AccessibleLabel: ="Search rooms and equipment"
                                     BorderColor: =AppTheme.Border
-                                    BorderThickness: =0
+                                    BorderThickness: =1
                                     Color: =AppTheme.TextPrimary
                                     Default: =gblRoomsSearch
                                     DelayOutput: =true
@@ -145,7 +145,7 @@ Screens:
                                   Properties:
                                     AccessibleLabel: ="Filter by room capacity"
                                     BorderColor: =AppTheme.Border
-                                    BorderThickness: =0
+                                    BorderThickness: =1
                                     ChevronBackground: =AppTheme.layer01Bg
                                     ChevronFill: =AppTheme.TextPrimary
                                     ChevronHoverBackground: =Color.Transparent
@@ -167,7 +167,7 @@ Screens:
                                   Properties:
                                     AccessibleLabel: ="Sort rooms"
                                     BorderColor: =AppTheme.Border
-                                    BorderThickness: =0
+                                    BorderThickness: =1
                                     ChevronBackground: =AppTheme.layer01Bg
                                     ChevronFill: =AppTheme.TextPrimary
                                     Color: =AppTheme.TextPrimary
@@ -312,10 +312,11 @@ Screens:
                                           Text: =Text(DateAdd(TodayWindowStart, WorkingDayMinutes / 2, TimeUnit.Minutes), "HH:mm")
                                           Width: =Parent.Width - 32
                                           X: =16
-                                          Y: =124
+                                          Y: =132
                                     - lbl_textID_Desc:
                                         Control: Label
                                         Properties:
+                                          AutoHeight: =true
                                           BorderColor: =Color.Transparent
                                           BorderStyle: =BorderStyle.None
                                           BorderThickness: =2
@@ -338,7 +339,6 @@ Screens:
                                                 )
                                             )
                                           Width: =Parent.Width - 32
-                                          Wrap: =false
                                           X: =16
                                           Y: =72
                                     - lblRoomsCardStatus:
@@ -408,7 +408,7 @@ Screens:
                                           TemplateSize: =(Self.Width / ((DayEndHour - DayStartHour) * 2))
                                           Width: =Parent.Width - 32
                                           X: =16
-                                          Y: =112
+                                          Y: =124
                                         Children:
                                           - rectRoomsAvailabilitySegment:
                                               Control: Rectangle
@@ -426,7 +426,7 @@ Screens:
                                           Text: =Text(TodayWindowStart, "HH:mm")
                                           Width: =59
                                           X: =16
-                                          Y: =124
+                                          Y: =132
                                     - lblRoomsStripEnd:
                                         Control: Label
                                         Properties:
@@ -436,9 +436,9 @@ Screens:
                                           Height: =14
                                           Size: =9
                                           Text: =Text(TodayWindowEnd, "HH:mm")
-                                          Width: =Parent.Width - 32
-                                          X: =16
-                                          Y: =124
+                                          Width: =81
+                                          X: =217
+                                          Y: =132
                                     - galRoomsCardEquipment:
                                         Control: Gallery
                                         Variant: Horizontal
@@ -589,10 +589,6 @@ Screens:
                         LayoutGap: =16
                         LayoutMinHeight: =0
                         LayoutMinWidth: =0
-                        PaddingBottom: =24
-                        PaddingLeft: =32
-                        PaddingRight: =32
-                        PaddingTop: =16
                         Visible: =varShowTimeline
                         Width: =Parent.Width
                       Children:
@@ -681,6 +677,10 @@ Screens:
                               LayoutGap: =16
                               LayoutMinHeight: =0
                               LayoutMinWidth: =0
+                              PaddingBottom: =2
+                              PaddingLeft: =2
+                              PaddingRight: =2
+                              PaddingTop: =2
                             Children:
                               - conTLCard:
                                   Control: GroupContainer
@@ -699,6 +699,7 @@ Screens:
                                         Control: GroupContainer
                                         Variant: AutoLayout
                                         Properties:
+                                          AlignInContainer: =AlignInContainer.SetByContainer
                                           DropShadow: =DropShadow.None
                                           Fill: =Color.Transparent
                                           FillPortions: =0
@@ -715,53 +716,56 @@ Screens:
                                               Control: Label
                                               Properties:
                                                 Color: =AppTheme.TextPrimary
+                                                FillPortions: =1
                                                 Font: ="IBM Plex Sans"
                                                 FontWeight: =FontWeight.Semibold
+                                                LayoutMaxWidth: =148
+                                                LayoutMinWidth: =96
                                                 Text: =Text(glbSelectedDate, "ddd dd mmmm")
-                                                Width: =140
+                                                Width: =96
                                           - imgTLPrev:
                                               Control: Image
                                               Properties:
                                                 AccessibleLabel: ="Previous day"
                                                 AlignInContainer: =AlignInContainer.Center
-                                                Height: =32
+                                                Height: =24
                                                 Image: ="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAzMiAzMic+PHBhdGggZD0nTTIwIDI0TDEyIDE2IDIwIDgnIHN0cm9rZT0nIzUyNTI1Micgc3Ryb2tlLXdpZHRoPScyJyBmaWxsPSdub25lJyBzdHJva2UtbGluZWNhcD0ncm91bmQnIHN0cm9rZS1saW5lam9pbj0ncm91bmQnLz48L3N2Zz4="
                                                 OnSelect: |-
                                                   =Set(glbSelectedDate, DateAdd(glbSelectedDate, -1, TimeUnit.Days));
                                                   UpdateContext({varTLSelStart: Blank()});
                                                   Select(btn_LoadTimeline)
                                                 TabIndex: =0
-                                                Width: =32
+                                                Width: =24
                                           - imgTLNext:
                                               Control: Image
                                               Properties:
                                                 AccessibleLabel: ="Next day"
                                                 AlignInContainer: =AlignInContainer.Center
-                                                Height: =32
+                                                Height: =24
                                                 Image: ="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAzMiAzMic+PHBhdGggZD0nTTEyIDI0TDIwIDE2IDEyIDgnIHN0cm9rZT0nIzUyNTI1Micgc3Ryb2tlLXdpZHRoPScyJyBmaWxsPSdub25lJyBzdHJva2UtbGluZWNhcD0ncm91bmQnIHN0cm9rZS1saW5lam9pbj0ncm91bmQnLz48L3N2Zz4="
                                                 OnSelect: |-
                                                   =Set(glbSelectedDate, DateAdd(glbSelectedDate, 1, TimeUnit.Days));
                                                   UpdateContext({varTLSelStart: Blank()});
                                                   Select(btn_LoadTimeline)
                                                 TabIndex: =0
-                                                Width: =32
+                                                Width: =24
                                           - btnTLToday:
                                               Control: Classic/Button
                                               Properties:
                                                 BorderColor: =AppTheme.Border
-                                                BorderThickness: =1
-                                                Color: =AppTheme.TextPrimary
+                                                BorderThickness: =0
+                                                Color: =If(glbSelectedDate = Today(), AppTheme.TextPrimary, ColorValue(AppTheme.Primary))
                                                 DisabledBorderColor: =AppTheme.Border
                                                 DisabledColor: =AppTheme.TextMuted
                                                 DisabledFill: =AppTheme.SurfaceAlt
                                                 DisplayMode: =If(glbSelectedDate = Today(), DisplayMode.Disabled, DisplayMode.Edit)
-                                                Fill: =AppTheme.Surface
+                                                Fill: =If(glbSelectedDate = Today(), AppTheme.SurfaceAlt, Color.Transparent)
                                                 FocusedBorderColor: =ColorValue(AppTheme.Primary)
                                                 FocusedBorderThickness: =2
                                                 Font: ="IBM Plex Sans"
                                                 FontWeight: =FontWeight.Normal
-                                                Height: =32
-                                                HoverColor: =AppTheme.TextPrimary
+                                                Height: =42
+                                                HoverColor: =If(glbSelectedDate = Today(), AppTheme.TextPrimary, ColorValue(AppTheme.Primary))
                                                 HoverFill: =AppTheme.SurfaceAlt
                                                 OnSelect: |-
                                                   =Set(glbSelectedDate, Today());
@@ -769,6 +773,10 @@ Screens:
                                                   Select(btn_LoadTimeline)
                                                 PressedColor: =AppTheme.TextPrimary
                                                 PressedFill: =AppTheme.SurfaceAlt
+                                                RadiusBottomLeft: =0
+                                                RadiusBottomRight: =0
+                                                RadiusTopLeft: =0
+                                                RadiusTopRight: =0
                                                 Size: =11
                                                 Text: ="Today"
                                                 Width: =64
@@ -785,6 +793,7 @@ Screens:
                                                   =Set(glbSelectedDate, dtpTLDate.SelectedDate);
                                                   UpdateContext({varTLSelStart: Blank()});
                                                   Select(btn_LoadTimeline)
+                                                Visible: =false
                                                 Width: =180
                                           - conTLHeaderSpacer:
                                               Control: GroupContainer
@@ -813,7 +822,7 @@ Screens:
                                                 Font: ="IBM Plex Sans"
                                                 Size: =10
                                                 Text: ="Free"
-                                                Width: =34
+                                                Width: =48
                                           - lblTLLegendBookedSwatch:
                                               Control: Label
                                               Properties:
@@ -830,11 +839,12 @@ Screens:
                                                 Font: ="IBM Plex Sans"
                                                 Size: =10
                                                 Text: ="Booked"
-                                                Width: =52
+                                                Width: =64
                                     - conTLCardDivider:
                                         Control: GroupContainer
                                         Variant: AutoLayout
                                         Properties:
+                                          AlignInContainer: =AlignInContainer.SetByContainer
                                           DropShadow: =DropShadow.None
                                           Fill: =AppTheme.Border
                                           FillPortions: =0
@@ -846,6 +856,7 @@ Screens:
                                         Control: Gallery
                                         Variant: BrowseLayout_Flexible_SocialFeed_ver5.0
                                         Properties:
+                                          AlignInContainer: =AlignInContainer.SetByContainer
                                           Height: =Parent.Height - 57
                                           Items: =colTimelineRows
                                           LayoutMinHeight: =0
@@ -911,7 +922,7 @@ Screens:
                                                             Size: =10
                                                             Text: =Text(varNowTick, "HH:mm")
                                                             Visible: =varNowTick >= ThisItem.RowStart && varNowTick < ThisItem.RowEnd
-                                                            Width: =44
+                                                            Width: =64
                                                       - lblTLSlotEnd:
                                                           Control: Label
                                                           Properties:
@@ -937,6 +948,10 @@ Screens:
                                                       Height: =Parent.Height
                                                       LayoutMinHeight: =0
                                                       LayoutMinWidth: =0
+                                                      RadiusBottomLeft: =0
+                                                      RadiusBottomRight: =0
+                                                      RadiusTopLeft: =0
+                                                      RadiusTopRight: =0
                                                     Children:
                                                       - conTLBooked:
                                                           Control: GroupContainer
@@ -959,6 +974,10 @@ Screens:
                                                                   LayoutDirection: =LayoutDirection.Horizontal
                                                                   LayoutMaxWidth: =3
                                                                   LayoutMinWidth: =3
+                                                                  RadiusBottomLeft: =0
+                                                                  RadiusBottomRight: =0
+                                                                  RadiusTopLeft: =0
+                                                                  RadiusTopRight: =0
                                                                   Width: =3
                                                             - conTLBookedText:
                                                                 Control: GroupContainer
@@ -970,6 +989,10 @@ Screens:
                                                                   PaddingBottom: =2
                                                                   PaddingLeft: =12
                                                                   PaddingTop: =4
+                                                                  RadiusBottomLeft: =0
+                                                                  RadiusBottomRight: =0
+                                                                  RadiusTopLeft: =0
+                                                                  RadiusTopRight: =0
                                                                 Children:
                                                                   - lblTLBookingTitle:
                                                                       Control: Label
@@ -1019,6 +1042,10 @@ Screens:
                                                               Navigate(bookingDetail, ScreenTransition.Fade)
                                                             PressedColor: =Color.Transparent
                                                             PressedFill: =RGBA(0, 0, 0, 0.08)
+                                                            RadiusBottomLeft: =0
+                                                            RadiusBottomRight: =0
+                                                            RadiusTopLeft: =0
+                                                            RadiusTopRight: =0
                                                             Text: |-
                                                               ="Open booking details: " & ThisItem.Title
                                                             Visible: =ThisItem.RowType = "booked" && !ThisItem.IsMasked
@@ -1030,6 +1057,10 @@ Screens:
                                                           Properties:
                                                             Fill: =AppTheme.Surface
                                                             Height: =Parent.Height - 4
+                                                            RadiusBottomLeft: =0
+                                                            RadiusBottomRight: =0
+                                                            RadiusTopLeft: =0
+                                                            RadiusTopRight: =0
                                                             Visible: =ThisItem.RowType = "free"
                                                             Width: =Parent.Width - 16
                                                             Y: =2
@@ -1079,6 +1110,10 @@ Screens:
                                                                     )
                                                                   PressedColor: =AppTheme.TextPrimary
                                                                   PressedFill: =RGBA(0, 0, 0, 0.08)
+                                                                  RadiusBottomLeft: =0
+                                                                  RadiusBottomRight: =0
+                                                                  RadiusTopLeft: =0
+                                                                  RadiusTopRight: =0
                                                                   Size: =11
                                                                   Text: |-
                                                                     =If(
@@ -1098,6 +1133,10 @@ Screens:
                                                                 Properties:
                                                                   Fill: =ColorValue(AppTheme.Primary)
                                                                   Height: =varTLSelMinutes * 2
+                                                                  RadiusBottomLeft: =0
+                                                                  RadiusBottomRight: =0
+                                                                  RadiusTopLeft: =0
+                                                                  RadiusTopRight: =0
                                                                   Visible: =!IsBlank(varTLSelStart) && ThisItem.RowStart = varTLSelRunStart
                                                                   Width: =Parent.Width
                                                                   Y: =DateDiff(ThisItem.RowStart, varTLSelStart, TimeUnit.Minutes) * 2
@@ -1171,7 +1210,6 @@ Screens:
                                     - lblTLEmpty:
                                         Control: Label
                                         Properties:
-                                          AlignInContainer: =AlignInContainer.Stretch
                                           Color: =AppTheme.TextMuted
                                           Font: ="IBM Plex Sans"
                                           Height: =24
@@ -1194,6 +1232,7 @@ Screens:
                                     LayoutMaxWidth: =If(App.Width < 1024, App.Width, 320)
                                     LayoutMinHeight: =0
                                     LayoutMinWidth: =0
+                                    PaddingRight: =2
                                     Width: =320
                                   Children:
                                     - conTLRoomCard:
@@ -1275,6 +1314,7 @@ Screens:
                                           - lblTLRoomDesc:
                                               Control: Label
                                               Properties:
+                                                AutoHeight: =true
                                                 Color: =AppTheme.TextSecondary
                                                 Font: ="IBM Plex Sans"
                                                 Height: =18
@@ -1290,7 +1330,6 @@ Screens:
                                                           _d & " · seats " & Text(varSelectedRoom.Capacity)
                                                       )
                                                   )
-                                                Wrap: =false
                                           - galTLRoomEquipment:
                                               Control: Gallery
                                               Variant: Horizontal
@@ -1386,18 +1425,22 @@ Screens:
                                                 DropShadow: =DropShadow.None
                                                 Fill: =Color.Transparent
                                                 FillPortions: =0
-                                                Height: =40
+                                                Height: =48
                                                 LayoutAlignItems: =LayoutAlignItems.Stretch
                                                 LayoutDirection: =LayoutDirection.Horizontal
                                                 LayoutGap: =8
                                                 LayoutMinHeight: =0
                                                 LayoutMinWidth: =0
+                                                PaddingBottom: =4
+                                                PaddingLeft: =4
+                                                PaddingRight: =4
+                                                PaddingTop: =4
                                               Children:
                                                 - btnTLChip30:
                                                     Control: Classic/Button
                                                     Properties:
                                                       BorderColor: =AppTheme.Border
-                                                      BorderThickness: =1
+                                                      BorderThickness: =0
                                                       Color: =If(varTLSelMinutes = 30, AppTheme.Surface, AppTheme.TextPrimary)
                                                       DisabledBorderColor: =AppTheme.Border
                                                       DisabledColor: =AppTheme.TextMuted
@@ -1410,17 +1453,22 @@ Screens:
                                                       Font: ="IBM Plex Sans"
                                                       HoverColor: =If(varTLSelMinutes = 30, AppTheme.Surface, AppTheme.TextPrimary)
                                                       HoverFill: =If(varTLSelMinutes = 30, AppTheme.TextPrimary, AppTheme.SurfaceAlt)
+                                                      LayoutMinWidth: =0
                                                       OnSelect: |-
                                                         =UpdateContext({varTLSelMinutes: 30})
                                                       PressedColor: =If(varTLSelMinutes = 30, AppTheme.Surface, AppTheme.TextPrimary)
                                                       PressedFill: =If(varTLSelMinutes = 30, AppTheme.TextPrimary, AppTheme.SurfaceAlt)
+                                                      RadiusBottomLeft: =0
+                                                      RadiusBottomRight: =0
+                                                      RadiusTopLeft: =0
+                                                      RadiusTopRight: =0
                                                       Size: =11
                                                       Text: ="30m"
                                                 - btnTLChip60:
                                                     Control: Classic/Button
                                                     Properties:
                                                       BorderColor: =AppTheme.Border
-                                                      BorderThickness: =1
+                                                      BorderThickness: =0
                                                       Color: =If(varTLSelMinutes = 60, AppTheme.Surface, AppTheme.TextPrimary)
                                                       DisabledBorderColor: =AppTheme.Border
                                                       DisabledColor: =AppTheme.TextMuted
@@ -1433,17 +1481,22 @@ Screens:
                                                       Font: ="IBM Plex Sans"
                                                       HoverColor: =If(varTLSelMinutes = 60, AppTheme.Surface, AppTheme.TextPrimary)
                                                       HoverFill: =If(varTLSelMinutes = 60, AppTheme.TextPrimary, AppTheme.SurfaceAlt)
+                                                      LayoutMinWidth: =0
                                                       OnSelect: |-
                                                         =UpdateContext({varTLSelMinutes: 60})
                                                       PressedColor: =If(varTLSelMinutes = 60, AppTheme.Surface, AppTheme.TextPrimary)
                                                       PressedFill: =If(varTLSelMinutes = 60, AppTheme.TextPrimary, AppTheme.SurfaceAlt)
+                                                      RadiusBottomLeft: =0
+                                                      RadiusBottomRight: =0
+                                                      RadiusTopLeft: =0
+                                                      RadiusTopRight: =0
                                                       Size: =11
                                                       Text: ="1h"
                                                 - btnTLChip90:
                                                     Control: Classic/Button
                                                     Properties:
                                                       BorderColor: =AppTheme.Border
-                                                      BorderThickness: =1
+                                                      BorderThickness: =0
                                                       Color: =If(varTLSelMinutes = 90, AppTheme.Surface, AppTheme.TextPrimary)
                                                       DisabledBorderColor: =AppTheme.Border
                                                       DisabledColor: =AppTheme.TextMuted
@@ -1456,10 +1509,15 @@ Screens:
                                                       Font: ="IBM Plex Sans"
                                                       HoverColor: =If(varTLSelMinutes = 90, AppTheme.Surface, AppTheme.TextPrimary)
                                                       HoverFill: =If(varTLSelMinutes = 90, AppTheme.TextPrimary, AppTheme.SurfaceAlt)
+                                                      LayoutMinWidth: =0
                                                       OnSelect: |-
                                                         =UpdateContext({varTLSelMinutes: 90})
                                                       PressedColor: =If(varTLSelMinutes = 90, AppTheme.Surface, AppTheme.TextPrimary)
                                                       PressedFill: =If(varTLSelMinutes = 90, AppTheme.TextPrimary, AppTheme.SurfaceAlt)
+                                                      RadiusBottomLeft: =0
+                                                      RadiusBottomRight: =0
+                                                      RadiusTopLeft: =0
+                                                      RadiusTopRight: =0
                                                       Size: =11
                                                       Text: ="1h 30m"
                                                 - btnTLChip120:
@@ -1479,10 +1537,15 @@ Screens:
                                                       Font: ="IBM Plex Sans"
                                                       HoverColor: =If(varTLSelMinutes = 120, AppTheme.Surface, AppTheme.TextPrimary)
                                                       HoverFill: =If(varTLSelMinutes = 120, AppTheme.TextPrimary, AppTheme.SurfaceAlt)
+                                                      LayoutMinWidth: =0
                                                       OnSelect: |-
                                                         =UpdateContext({varTLSelMinutes: 120})
                                                       PressedColor: =If(varTLSelMinutes = 120, AppTheme.Surface, AppTheme.TextPrimary)
                                                       PressedFill: =If(varTLSelMinutes = 120, AppTheme.TextPrimary, AppTheme.SurfaceAlt)
+                                                      RadiusBottomLeft: =0
+                                                      RadiusBottomRight: =0
+                                                      RadiusTopLeft: =0
+                                                      RadiusTopRight: =0
                                                       Size: =11
                                                       Text: ="2h"
                                           - btnTLBookCta:
@@ -1518,11 +1581,16 @@ Screens:
                                                   Set(varEndTime, DateAdd(varTLSelStart, varTLSelMinutes, TimeUnit.Minutes));
                                                   Set(gbl_UI_Book_Modal_Step, WizardStep2);
                                                   Set(gbl_UI_Book_Modal, true)
+                                                RadiusBottomLeft: =0
+                                                RadiusBottomRight: =0
+                                                RadiusTopLeft: =0
+                                                RadiusTopRight: =0
                                                 Size: =12
                                                 Text: =If(IsBlank(varTLSelStart), "Select a time", "Book " & Text(varTLSelStart, "HH:mm") & " – " & Text(DateAdd(varTLSelStart, varTLSelMinutes, TimeUnit.Minutes), "HH:mm"))
                         - btn_LoadTimeline:
                             Control: Classic/Button
                             Properties:
+                              AlignInContainer: =AlignInContainer.Stretch
                               BorderColor: =Color.Transparent
                               BorderStyle: =BorderStyle.None
                               Color: =ColorValue(AppTheme.PrimaryText)
@@ -1857,7 +1925,7 @@ Screens:
 
                   // PROD-REVERT[booking-create-rooms] SharePoint round-trip after series create
                   Refresh(Book_Bookings);
-                  ClearCollect(colBookings, Book_Bookings);
+                  ClearCollect(colBookings, BookingWindow);
 
                   Set(varBookingError, !IsEmpty(Filter(colFailedBookings, Reason = "error")));
 

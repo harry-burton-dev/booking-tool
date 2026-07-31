@@ -7,7 +7,7 @@ Screens:
         =Refresh(Book_Bookings);
         /* Re-pull the shared bookings snapshot so colleagues' writes since App.OnStart
            (or since this session's last write) show up without requiring a write of our own */
-        ClearCollect(colBookings, Book_Bookings)
+        ClearCollect(colBookings, BookingWindow)
     Children:
       - con_shell_mybook:
           Control: GroupContainer
@@ -730,7 +730,7 @@ Screens:
                                           )
                                       );
                                       Refresh(Book_Bookings);
-                                      ClearCollect(colBookings, Book_Bookings);
+                                      ClearCollect(colBookings, BookingWindow);
                                       Set(gbl_UI_CancelSeriesConfirmID, Blank());
                                       Notify("Series cancelled", NotificationType.Success)
                                     PressedColor: =ColorValue(AppTheme.PrimaryText)

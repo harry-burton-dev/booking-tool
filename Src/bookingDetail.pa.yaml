@@ -463,7 +463,7 @@ Screens:
                                                           Patch(Book_Bookings, LookUp(Book_Bookings, ID = gblSelectedBooking.ID), {Status: "Cancelled"}),
                                                           Notify("Couldn't cancel this booking. Please try again.", NotificationType.Error),
                                                           Refresh(Book_Bookings);
-                                                          ClearCollect(colBookings, Book_Bookings);
+                                                          ClearCollect(colBookings, BookingWindow);
                                                           Set(gblSelectedBooking, Blank());
                                                           Notify("Booking cancelled", NotificationType.Success);
                                                           Navigate(myBookings, ScreenTransition.Fade)
@@ -571,7 +571,7 @@ Screens:
 
                                                               /* Slot went while the scope prompt was open — write nothing */
                                                               Refresh(Book_Bookings);
-                                                              ClearCollect(colBookings, Book_Bookings);
+                                                              ClearCollect(colBookings, BookingWindow);
                                                               Notify("That slot is no longer free. Your booking is unchanged.", NotificationType.Warning, 6000),
 
                                                           IfError(
@@ -587,7 +587,7 @@ Screens:
                                                               ),
                                                               Notify("Couldn't update this booking. Please try again.", NotificationType.Error),
                                                               Refresh(Book_Bookings);
-                                                              ClearCollect(colBookings, Book_Bookings);
+                                                              ClearCollect(colBookings, BookingWindow);
                                                               Notify("Booking updated", NotificationType.Success);
                                                               // Fix cycling: advance to the next clash in this series, if any
                                                               If(
@@ -628,7 +628,7 @@ Screens:
                                                           Patch(Book_Bookings, LookUp(Book_Bookings, ID = gblSelectedBooking.ID), {Status: "Cancelled"}),
                                                           Notify("Couldn't cancel this booking. Please try again.", NotificationType.Error),
                                                           Refresh(Book_Bookings);
-                                                          ClearCollect(colBookings, Book_Bookings);
+                                                          ClearCollect(colBookings, BookingWindow);
                                                           Set(gblSelectedBooking, Blank());
                                                           Notify("Booking cancelled", NotificationType.Success);
                                                           Set(gbl_FixCycleSeriesID, "");
@@ -727,7 +727,7 @@ Screens:
                                                           );
 
                                                           Refresh(Book_Bookings);
-                                                          ClearCollect(colBookings, Book_Bookings);
+                                                          ClearCollect(colBookings, BookingWindow);
                                                           Set(gblSelectedBooking, LookUp(colBookings, ID = gblSelectedBooking.ID));
 
                                                           With(
@@ -758,7 +758,7 @@ Screens:
                                                               )
                                                           );
                                                           Refresh(Book_Bookings);
-                                                          ClearCollect(colBookings, Book_Bookings);
+                                                          ClearCollect(colBookings, BookingWindow);
                                                           Set(gblSelectedBooking, Blank());
                                                           Notify("Series cancelled", NotificationType.Success);
                                                           Set(gbl_FixCycleSeriesID, "");
@@ -840,7 +840,7 @@ Screens:
                                   )
                               ),
                               Refresh(Book_Bookings);
-                              ClearCollect(colBookings, Book_Bookings);
+                              ClearCollect(colBookings, BookingWindow);
                               Notify("That slot is no longer free. Your booking is unchanged.", NotificationType.Warning, 6000),
                               // PROD-REVERT[booking-edit] prod form: Patch(Book_Bookings, ...) below
                               IfError(
@@ -856,7 +856,7 @@ Screens:
                                   ),
                                   Notify("Couldn't update this booking. Please try again.", NotificationType.Error),
                                   Refresh(Book_Bookings);
-                                  ClearCollect(colBookings, Book_Bookings);
+                                  ClearCollect(colBookings, BookingWindow);
                                   Notify("Booking updated", NotificationType.Success)
                               )
                           )
