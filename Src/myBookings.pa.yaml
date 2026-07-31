@@ -467,6 +467,7 @@ Screens:
                                     HoverFill: =RGBA(13,83,217,1)
                                     OnSelect: |-
                                       =Set(gbl_UI_Book_Modal_Step, WizardStep1);
+                                      // RESET-SITE[mybookings-empty-book] wizard state reset before opening step 1
                                       Set(varSelectedRoom, Blank());
                                       Set(varSelectedDate, Today());
                                       Set(varStartTime, Blank());

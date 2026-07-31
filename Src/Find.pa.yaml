@@ -503,6 +503,7 @@ Screens:
                                                             HoverFill: =RGBA(0,0,0,0.06)
                                                             OnSelect: |-
                                                               =Set(varSelectedDate, varFindSelectedDate);
+                                                              // RESET-SITE[find-free-slot] wizard state reset before opening step 2
                                                               Set(varSelectedRoom, LookUp(colRooms, ID = ThisItem.RoomKey));
                                                               Set(varTitle, Blank());
                                                               Set(varConflict, false);

@@ -939,6 +939,7 @@ Screens:
                                                       HoverFill: =RGBA(0,0,0,0.06)
                                                       OnSelect: |-
                                                         =Set(varSelectedDate, glbSelectedDate);
+                                                        // RESET-SITE[rooms-free-slot] wizard state reset before opening step 2
                                                         Set(varTitle, Blank());
                                                         Set(varConflict, false);
                                                         Set(varBookingError, false);
@@ -1214,6 +1215,7 @@ Screens:
                               Height: =48
                               OnSelect: |-
                                 =Set(varSelectedDate, Blank());
+                                // RESET-SITE[rooms-book-bar] wizard state reset before opening step 2
                                 Set(varStartTime, Blank());
                                 Set(varEndTime, Blank());
                                 Set(varTitle, Blank());

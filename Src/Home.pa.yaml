@@ -150,6 +150,7 @@ Screens:
                                           HoverFill: =RGBA(0,0,0,0.08)
                                           OnSelect: |-
                                             =Set(gbl_UI_Book_Modal_Step, WizardStep1);
+                                            // RESET-SITE[home-book-tile] wizard state reset before opening step 1
                                             Set(varSelectedRoom, Blank());
                                             Set(varSelectedDate, Today());
                                             Set(varStartTime, Blank());
@@ -1040,6 +1041,7 @@ Screens:
                       )
                   );
 
+                  // PROD-REVERT[booking-create-home] SharePoint round-trip after series create
                   Refresh(Book_Bookings);
                   ClearCollect(colBookings, Book_Bookings);
 

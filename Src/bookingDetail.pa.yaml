@@ -310,6 +310,7 @@ Screens:
                                     HoverFill: =RGBA(13,83,217,1)
                                     OnSelect: |-
                                       =Set(varConflict, false);
+                                      // RESET-SITE[bookingdetail-change-time] wizard state reset before opening step 2 (times-only)
                                       Set(varBookingError, false);
                                       Set(varSubmitting, false);
                                       Set(varTitleTouched, false);
@@ -588,6 +589,7 @@ Screens:
                                                                           IsBlank(_next),
                                                                           Set(gbl_FixCycleSeriesID, "");
                                                                           Notify("All clashes resolved", NotificationType.Success),
+                                                                          // RESET-SITE[bookingdetail-fix-cycle-advance] wizard state reset before opening the next clash
                                                                           Set(gblSelectedBooking, _next);
                                                                           Set(gblEditingBookingID, _next.ID);
                                                                           Set(varConflict, false);
