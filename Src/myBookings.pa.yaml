@@ -720,17 +720,19 @@ Screens:
                                       =// PROD-REVERT[booking-cancel] soft delete via per-row Patch; matches single-cancel pattern in bookingDetail.
                                       // UpdateIf's <> and Now() predicates aren't delegable to SharePoint, so this iterates the
                                       // client-side colBookings copy (series capped at 12 rows) and patches each row by ID instead.
-                                      IfError(
-                                          ForAll(
-                                              Filter(colBookings, SeriesID = gbl_UI_CancelSeriesConfirmID, StartDateTime >= Now(), Status <> "Cancelled") As _m,
-                                              Patch(Book_Bookings, LookUp(Book_Bookings, ID = _m.ID), {Status: "Cancelled"})
-                                          ),
-                                          Notify("Couldn't cancel this series. Please try again.", NotificationType.Error),
-                                          Refresh(Book_Bookings);
-                                          ClearCollect(colBookings, Book_Bookings);
-                                          Set(gbl_UI_CancelSeriesConfirmID, Blank());
-                                          Notify("Series cancelled", NotificationType.Success)
-                                      )
+                                      ForAll(
+                                          Filter(colBookings, SeriesID = gbl_UI_CancelSeriesConfirmID, StartDateTime >= Now(), Status <> "Cancelled") As _m,
+                                          IfError(
+                                              Patch(Book_Bookings, LookUp(Book_Bookings, ID = _m.ID), {Status: "Cancelled"});
+                                              true,
+                                              Notify("Couldn't cancel one or more occurrences.", NotificationType.Error);
+                                              false
+                                          )
+                                      );
+                                      Refresh(Book_Bookings);
+                                      ClearCollect(colBookings, Book_Bookings);
+                                      Set(gbl_UI_CancelSeriesConfirmID, Blank());
+                                      Notify("Series cancelled", NotificationType.Success)
                                     PressedColor: =ColorValue(AppTheme.PrimaryText)
                                     PressedFill: =ColorValue("#921620")
                                     RadiusBottomLeft: =2
