@@ -1429,7 +1429,7 @@ ComponentDefinitions:
                       Properties:
                         DropShadow: =DropShadow.None
                         FillPortions: =0
-                        Height: =16 + lbl_textStep4_confirmBooking.Height + 12 + conSummaryCard.Height + 12 + lbl_textSlotTakenError.Height + 12 + lbl_textBookingFailedError.Height + If(IsBlank(lbl_textConfirmDisabledReason.Text), 0, 12 + lbl_textConfirmDisabledReason.Height) + 16
+                        Height: =16 + lbl_textStep4_confirmBooking.Height + 12 + conSummaryCard.Height + 12 + htxStep3Errors.Height + 16
                         LayoutAlignItems: =LayoutAlignItems.Stretch
                         LayoutDirection: =LayoutDirection.Vertical
                         LayoutGap: =12
@@ -1461,7 +1461,7 @@ ComponentDefinitions:
                               BorderThickness: =1
                               Fill: =AppTheme.Background
                               FillPortions: =0
-                              Height: =16 + 16 + lbl_textSelectedRoomTitle.Height + lbl_textSelectedDate.Height + lbl_textSelectedTimeRange.Height + (2 * 8) + If(IsBlank(varBookForEmail), 0, 8 + lbl_textBookForSummary.Height) + If(drpRepeats.Selected.Value <> "Doesn't repeat", 8 + lbl_textSeriesSummary.Height, 0)
+                              Height: =16 + 16 + htxSummaryCard.Height
                               LayoutAlignItems: =LayoutAlignItems.Stretch
                               LayoutDirection: =LayoutDirection.Vertical
                               LayoutGap: =8
@@ -1476,111 +1476,69 @@ ComponentDefinitions:
                               RadiusTopLeft: =2
                               RadiusTopRight: =2
                             Children:
-                              - lbl_textSelectedRoomTitle:
-                                  Control: Label
+                              - htxSummaryCard:
+                                  Control: HtmlViewer
                                   Properties:
                                     AlignInContainer: =AlignInContainer.Stretch
-                                    Color: =AppTheme.SideNavText
-                                    Font: =Font.Lato
-                                    FontWeight: =FontWeight.Bold
+                                    AutoHeight: =true
+                                    DisplayMode: =DisplayMode.View
+                                    HtmlText: |-
+                                      =CarbonTextSecondary(CarbonHtmlType.HeadingCompact01, varSelectedRoom.Title) &
+                                      CarbonTextSecondary(CarbonHtmlType.Label01, Text(varSelectedDate, "dd mmm yyyy")) &
+                                      CarbonTextSecondary(CarbonHtmlType.Label01, Text(varStartTime, "HH:mm") & " - " & Text(varEndTime, "HH:mm")) &
+                                      If(
+                                          !IsBlank(varBookForEmail),
+                                          CarbonTextSecondary(CarbonHtmlType.Label01, $"Booking for: {varBookForName}"),
+                                          ""
+                                      ) &
+                                      If(
+                                          drpRepeats.Selected.Value <> "Doesn't repeat",
+                                          CarbonTextSecondary(CarbonHtmlType.Label01, drpRepeats.Selected.Value & " × " & drpOccurrences.Selected.Value),
+                                          ""
+                                      )
                                     LayoutMinHeight: =0
                                     LayoutMinWidth: =0
-                                    Size: =11
-                                    Text: =varSelectedRoom.Title
-                                    Wrap: =false
-                              - lbl_textSelectedDate:
-                                  Control: Label
-                                  Properties:
-                                    AlignInContainer: =AlignInContainer.Stretch
-                                    Color: =AppTheme.SideNavText
-                                    Font: =Font.Lato
-                                    LayoutMinHeight: =0
-                                    LayoutMinWidth: =0
-                                    Size: =11
-                                    Text: =Text(varSelectedDate, "dd mmm yyyy")
-                                    Wrap: =false
-                              - lbl_textSelectedTimeRange:
-                                  Control: Label
-                                  Properties:
-                                    AlignInContainer: =AlignInContainer.Stretch
-                                    Color: =AppTheme.SideNavText
-                                    Font: =Font.Lato
-                                    LayoutMinHeight: =0
-                                    LayoutMinWidth: =0
-                                    Size: =11
-                                    Text: =Text(varStartTime, "HH:mm") & " - " & Text(varEndTime, "HH:mm")
-                                    Wrap: =false
-                              - lbl_textBookForSummary:
-                                  Control: Label
-                                  Properties:
-                                    AlignInContainer: =AlignInContainer.Stretch
-                                    Color: =AppTheme.SideNavText
-                                    Font: =Font.Lato
-                                    LayoutMinHeight: =0
-                                    LayoutMinWidth: =0
-                                    Size: =11
-                                    Text: |-
-                                      =$"Booking for: {varBookForName}"
-                                    Visible: =!IsBlank(varBookForEmail)
-                                    Wrap: =false
-                              - lbl_textSeriesSummary:
-                                  Control: Label
-                                  Properties:
-                                    AlignInContainer: =AlignInContainer.Stretch
-                                    Color: =AppTheme.SideNavText
-                                    Font: =Font.Lato
-                                    LayoutMinHeight: =0
-                                    LayoutMinWidth: =0
-                                    Size: =11
-                                    Text: =drpRepeats.Selected.Value & " × " & drpOccurrences.Selected.Value
-                                    Visible: =drpRepeats.Selected.Value <> "Doesn't repeat"
-                                    Wrap: =false
-                        - lbl_textSlotTakenError:
-                            Control: Label
+                                    PaddingBottom: =0
+                                    PaddingLeft: =0
+                                    PaddingRight: =0
+                                    PaddingTop: =0
+                        - htxStep3Errors:
+                            Control: HtmlViewer
                             Properties:
                               AlignInContainer: =AlignInContainer.Stretch
                               AutoHeight: =true
-                              Color: =AppTheme.StatusBusyText
-                              Font: =Font.Lato
-                              LayoutMinHeight: =0
-                              LayoutMinWidth: =0
-                              Size: =11
-                              Text: ="This slot was just taken. Please go back and choose a different time."
-                              Visible: =varConflict || gbl_Book_SubmitResult = "conflict"
-                        - lbl_textBookingFailedError:
-                            Control: Label
-                            Properties:
-                              AlignInContainer: =AlignInContainer.Stretch
-                              AutoHeight: =true
-                              Color: =AppTheme.StatusBusyText
-                              Font: =Font.Lato
-                              LayoutMinHeight: =0
-                              LayoutMinWidth: =0
-                              Size: =11
-                              Text: ="Booking failed. Please try again."
-                              Visible: =varBookingError || gbl_Book_SubmitResult = "error"
-                        - lbl_textConfirmDisabledReason:
-                            Control: Label
-                            Properties:
-                              AlignInContainer: =AlignInContainer.Stretch
-                              AutoHeight: =true
-                              Color: =AppTheme.TextMuted
-                              Font: =Font.Lato
-                              LayoutMinHeight: =0
-                              LayoutMinWidth: =0
-                              Size: =11
-                              Text: |-
-                                =If(varConflict, "Resolve the scheduling conflict above before confirming.",
-                                    !IsBlank(varStartTime) && fnIsPast(varStartTime), "Start time is in the past — choose a new time.",
-                                    !IsBlank(varStartTime) && !IsBlank(varEndTime) && varEndTime <= varStartTime, "End time must be after the start time.",
-                                    IsBlank(varTitle), "Enter a booking title to continue.",
-                                    tglBookOnBehalf.Checked && IsBlank(varBookForEmail), "Choose who the booking is for.",
-                                    IsBlank(varSelectedRoom) || IsBlank(varStartTime) || IsBlank(varEndTime), "Choose a room, date and time to continue.",
-                                    varSubmitting, "Submitting your booking…",
+                              DisplayMode: =DisplayMode.View
+                              HtmlText: |-
+                                =If(
+                                    varConflict || gbl_Book_SubmitResult = "conflict",
+                                    CarbonTextColored(CarbonHtmlType.Label01, "This slot was just taken. Please go back and choose a different time.", AppThemeHex.StatusBusyText),
                                     ""
+                                ) &
+                                If(
+                                    varBookingError || gbl_Book_SubmitResult = "error",
+                                    CarbonTextColored(CarbonHtmlType.Label01, "Booking failed. Please try again.", AppThemeHex.StatusBusyText),
+                                    ""
+                                ) &
+                                With(
+                                    {
+                                        _reason: If(varConflict, "Resolve the scheduling conflict above before confirming.",
+                                            !IsBlank(varStartTime) && fnIsPast(varStartTime), "Start time is in the past — choose a new time.",
+                                            !IsBlank(varStartTime) && !IsBlank(varEndTime) && varEndTime <= varStartTime, "End time must be after the start time.",
+                                            IsBlank(varTitle), "Enter a booking title to continue.",
+                                            tglBookOnBehalf.Checked && IsBlank(varBookForEmail), "Choose who the booking is for.",
+                                            IsBlank(varSelectedRoom) || IsBlank(varStartTime) || IsBlank(varEndTime), "Choose a room, date and time to continue.",
+                                            varSubmitting, "Submitting your booking…",
+                                            ""
+                                        )
+                                    },
+                                    If(_reason = "", "", CarbonTextColored(CarbonHtmlType.Label01, _reason, AppThemeHex.TextMuted))
                                 )
-                              Visible: =!IsBlank(Self.Text)
-                              Wrap: =false
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              PaddingBottom: =0
+                              PaddingLeft: =0
+                              PaddingRight: =0
+                              PaddingTop: =0
             - conWizardFooter:
                 Control: GroupContainer
                 Variant: AutoLayout
