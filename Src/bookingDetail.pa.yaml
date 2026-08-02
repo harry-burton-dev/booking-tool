@@ -717,16 +717,20 @@ Screens:
                                                           ClearCollect(colBookings, BookingsWindow);
                                                           Set(gblSelectedBooking, LookUp(colBookings, ID = gblSelectedBooking.ID));
 
-                                                          With(
-                                                              {
-                                                                  _healed: CountRows(Filter(colSeriesEditPlan, PrevStatus = "Clash", NewStatus = "Active")),
-                                                                  _newClashes: CountRows(Filter(colSeriesEditPlan, PrevStatus <> "Clash", NewStatus = "Clash"))
-                                                              },
-                                                              Notify(
-                                                                  "Series updated" &
-                                                                  If(_healed > 0, " — " & _healed & " clash" & If(_healed = 1, "", "es") & " healed", "") &
-                                                                  If(_newClashes > 0, " — " & _newClashes & " now need" & If(_newClashes = 1, "s", "") & " rescheduling", ""),
-                                                                  NotificationType.Success
+                                                          If(
+                                                              CountRows(colSeriesEditPlan) = 0,
+                                                              Notify("Nothing to update — no upcoming occurrences you own in this series.", NotificationType.Warning),
+                                                              With(
+                                                                  {
+                                                                      _healed: CountRows(Filter(colSeriesEditPlan, PrevStatus = "Clash", NewStatus = "Active")),
+                                                                      _newClashes: CountRows(Filter(colSeriesEditPlan, PrevStatus <> "Clash", NewStatus = "Clash"))
+                                                                  },
+                                                                  Notify(
+                                                                      "Series updated" &
+                                                                      If(_healed > 0, " — " & _healed & " clash" & If(_healed = 1, "", "es") & " healed", "") &
+                                                                      If(_newClashes > 0, " — " & _newClashes & " now need" & If(_newClashes = 1, "s", "") & " rescheduling", ""),
+                                                                      NotificationType.Success
+                                                                  )
                                                               )
                                                           )
                                                       ),
@@ -754,6 +758,8 @@ Screens:
                                                               ClearCollect(colBookings, BookingsWindow);
                                                               Set(gblSelectedBooking, Blank());
                                                               If(
+                                                                  CountRows(_results) = 0,
+                                                                  Notify("Nothing to cancel — no upcoming occurrences you own in this series.", NotificationType.Warning),
                                                                   CountRows(Filter(_results, !Value)) = 0,
                                                                   Notify("Series cancelled", NotificationType.Success),
                                                                   Notify(

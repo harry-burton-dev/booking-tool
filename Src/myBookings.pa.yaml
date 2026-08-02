@@ -1348,6 +1348,8 @@ Screens:
                                           ClearCollect(colBookings, BookingsWindow);
                                           Set(gbl_UI_CancelSeriesConfirmID, Blank());
                                           If(
+                                              CountRows(_results) = 0,
+                                              Notify("Nothing to cancel — no upcoming occurrences you own in this series.", NotificationType.Warning),
                                               CountRows(Filter(_results, !Value)) = 0,
                                               Notify("Series cancelled", NotificationType.Success),
                                               Notify(
