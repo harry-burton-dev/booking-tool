@@ -95,6 +95,21 @@ App:
                           "<svg width='" & w & "' height='" & h & "' xmlns='http://www.w3.org/2000/svg'><rect width='100%' height='100%' fill='" & BgColor & "' stroke='" & BorderColor & "' stroke-width='1'/><text x='50%' y='50%' dominant-baseline='central' text-anchor='middle' fill='" & TextColor & "' font-family=""" & font & """ font-size='12px'>" & text & "</text></svg>"
                       ));
 
+                  CarbonHtmlType = {
+                      Label01:          "font-size: 12px; font-family: " & CarbonFontFamily & "; font-weight: 400; line-height: 1.33333; letter-spacing: 0.32px;",
+                      Body01:           "font-size: 14px; font-family: " & CarbonFontFamily & "; font-weight: 400; line-height: 1.42857; letter-spacing: 0.16px;",
+                      BodyCompact01:    "font-size: 14px; font-family: " & CarbonFontFamily & "; font-weight: 400; line-height: 1.28572; letter-spacing: 0.16px;",
+                      HeadingCompact01: "font-size: 14px; font-family: " & CarbonFontFamily & "; font-weight: 600; line-height: 1.28572; letter-spacing: 0.16px;",
+                      Heading02:        "font-size: 16px; font-family: " & CarbonFontFamily & "; font-weight: 600; line-height: 1.5; letter-spacing: 0px;",
+                      Heading03:        "font-size: 20px; font-family: " & CarbonFontFamily & "; font-weight: 400; line-height: 1.4; letter-spacing: 0px;",
+                      Heading04:        "font-size: 28px; font-family: " & CarbonFontFamily & "; font-weight: 400; line-height: 1.28572; letter-spacing: 0px;",
+                      Eyebrow:          "font-size: 11px; font-family: " & CarbonFontFamily & "; font-weight: 400; letter-spacing: 0.6px; text-transform: uppercase;"
+                  };
+
+                  CarbonText(css:Text, content:Text):Text          = "<div style='" & css & " color: " & AppThemeHex.TextPrimary & ";'>" & content & "</div>";
+                  CarbonTextSecondary(css:Text, content:Text):Text = "<div style='" & css & " color: " & AppThemeHex.TextSecondary & ";'>" & content & "</div>";
+                  CarbonTextColored(css:Text, content:Text, hex:Text):Text = "<div style='" & css & " color: " & hex & ";'>" & content & "</div>";
+
                   //------------------------------------------------------------
                   //--- Shared predicates, policy constants, wizard step keys ---
                   //------------------------------------------------------------
@@ -139,15 +154,15 @@ App:
                   ThemeMap = {
                       Light: {
                           PrimaryText: ColourTokens.Light.PrimaryText,
-                          TextPrimary: ColorValue("#161616"),
-                          TextSecondary: ColorValue("#525252"),
-                          TextMuted: ColorValue("#6f6f6f"),
+                          TextPrimary: ColorValue(AppThemeHex.TextPrimary),
+                          TextSecondary: ColorValue(AppThemeHex.TextSecondary),
+                          TextMuted: ColorValue(AppThemeHex.TextMuted),
                           Border: ColorValue("#e0e0e0"),
                           Surface: ColorValue("#ffffff"),
                           SurfaceAlt: ColorValue("#f4f4f4"),
-                          StatusBusyText: ColorValue("#da1e28"),
+                          StatusBusyText: ColorValue(AppThemeHex.StatusBusyText),
                           StatusBusyBg: ColorValue("#fff1f1"),
-                          StatusFreeText: ColorValue("#198038"),
+                          StatusFreeText: ColorValue(AppThemeHex.StatusFreeText),
                           StatusFreeBg: ColorValue("#defbe6"),
                           StatusWarnText: ColorValue("#684e00"),
                           StatusWarnBg: ColorValue("#fcf4d6"),
@@ -201,15 +216,15 @@ App:
                       },
                       Dark: {
                           PrimaryText: ColourTokens.Dark.PrimaryText,
-                          TextPrimary: ColorValue("#f4f4f4"),
-                          TextSecondary: ColorValue("#c6c6c6"),
-                          TextMuted: ColorValue("#8d8d8d"),
+                          TextPrimary: ColorValue(AppThemeHex.TextPrimary),
+                          TextSecondary: ColorValue(AppThemeHex.TextSecondary),
+                          TextMuted: ColorValue(AppThemeHex.TextMuted),
                           Border: ColorValue("#393939"),
                           Surface: ColorValue("#161616"),
                           SurfaceAlt: ColorValue("#262626"),
-                          StatusBusyText: ColorValue("#ff8389"),
+                          StatusBusyText: ColorValue(AppThemeHex.StatusBusyText),
                           StatusBusyBg: ColorValue("#2d1515"),
-                          StatusFreeText: ColorValue("#42be65"),
+                          StatusFreeText: ColorValue(AppThemeHex.StatusFreeText),
                           StatusFreeBg: ColorValue("#152a17"),
                           StatusWarnText: ColorValue("#f1c21b"),
                           StatusWarnBg: ColorValue("#2d2200"),
@@ -303,6 +318,26 @@ App:
                           SideNavFooterText:    "#6f6f6f"
                       }
                   };
+
+                  /* Hex-string mirror of the lifted text-color tokens (source of truth for
+                     CSS strings, which cannot embed a Color value). Same light/dark branch
+                     shape as ThemeMap - KEEP IN SYNC with the corresponding ThemeMap entries. */
+                  AppThemeHex = If(glbIsDarkMode,
+                      {
+                          TextPrimary: "#f4f4f4",
+                          TextSecondary: "#c6c6c6",
+                          TextMuted: "#8d8d8d",
+                          StatusBusyText: "#ff8389",
+                          StatusFreeText: "#42be65"
+                      },
+                      {
+                          TextPrimary: "#161616",
+                          TextSecondary: "#525252",
+                          TextMuted: "#6f6f6f",
+                          StatusBusyText: "#da1e28",
+                          StatusFreeText: "#198038"
+                      }
+                  );
 
                   AppTheme = If(glbIsDarkMode, ThemeMap.Dark, ThemeMap.Light);
 
