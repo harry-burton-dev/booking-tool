@@ -74,7 +74,6 @@ ComponentDefinitions:
                   Set(gblEditingBookingID, 0);
                   // RESET-SITE[wizard-scrim-close] full wizard-state clear on close (BUG-13)
                   Set(varTitle, Blank());
-                  Set(varSelectedRoom, Blank());
                   Set(varSelectedDate, Blank());
                   Set(varStartTime, Blank());
                   Set(varEndTime, Blank());
@@ -84,6 +83,7 @@ ComponentDefinitions:
                   Set(varBookingError, false);
                   Set(varSubmitting, false);
                   Set(gbl_Book_SubmitResult, "");
+                  Set(gbl_FixCycleSeriesID, "");
                   Set(gbl_UI_Book_Modal_Step, WizardStep1);
                   ClearCollect(varAlternativeRooms, Filter(colRooms, true = false));
                   Set(gbl_UI_Book_Modal, false),
@@ -1645,7 +1645,6 @@ ComponentDefinitions:
                               Set(gblEditingBookingID, 0);
                               // RESET-SITE[wizard-btnback-cancel] full wizard-state clear on close (BUG-13)
                               Set(varTitle, Blank());
-                              Set(varSelectedRoom, Blank());
                               Set(varSelectedDate, Blank());
                               Set(varStartTime, Blank());
                               Set(varEndTime, Blank());
@@ -1655,6 +1654,7 @@ ComponentDefinitions:
                               Set(varBookingError, false);
                               Set(varSubmitting, false);
                               Set(gbl_Book_SubmitResult, "");
+                              Set(gbl_FixCycleSeriesID, "");
                               Set(gbl_UI_Book_Modal_Step, WizardStep1);
                               ClearCollect(varAlternativeRooms, Filter(colRooms, true = false));
                               Set(gbl_UI_Book_Modal, false)
@@ -1705,7 +1705,6 @@ ComponentDefinitions:
                               Set(gblEditingBookingID, 0);
                               // RESET-SITE[wizard-btnclose] full wizard-state clear on close (BUG-13)
                               Set(varTitle, Blank());
-                              Set(varSelectedRoom, Blank());
                               Set(varSelectedDate, Blank());
                               Set(varStartTime, Blank());
                               Set(varEndTime, Blank());
@@ -1715,6 +1714,7 @@ ComponentDefinitions:
                               Set(varBookingError, false);
                               Set(varSubmitting, false);
                               Set(gbl_Book_SubmitResult, "");
+                              Set(gbl_FixCycleSeriesID, "");
                               Set(gbl_UI_Book_Modal_Step, WizardStep1);
                               ClearCollect(varAlternativeRooms, Filter(colRooms, true = false));
                               Set(gbl_UI_Book_Modal, false),
@@ -2035,7 +2035,6 @@ ComponentDefinitions:
                                 Set(gblEditingBookingID, 0);
                                 // RESET-SITE[wizard-discard] full wizard-state clear on close (BUG-13)
                                 Set(varTitle, Blank());
-                                Set(varSelectedRoom, Blank());
                                 Set(varSelectedDate, Blank());
                                 Set(varStartTime, Blank());
                                 Set(varEndTime, Blank());
@@ -2045,6 +2044,7 @@ ComponentDefinitions:
                                 Set(varBookingError, false);
                                 Set(varSubmitting, false);
                                 Set(gbl_Book_SubmitResult, "");
+                                Set(gbl_FixCycleSeriesID, "");
                                 Set(gbl_UI_Book_Modal_Step, WizardStep1);
                                 ClearCollect(varAlternativeRooms, Filter(colRooms, true = false));
                                 Set(gbl_UI_Book_Modal, false)
