@@ -89,36 +89,27 @@ Screens:
                                     LayoutMinHeight: =0
                                     LayoutMinWidth: =0
                                   Children:
-                                    - lblHDEyebrow:
-                                        Control: Label
-                                        Properties:
-                                          AlignInContainer: =AlignInContainer.Stretch
-                                          Color: =AppTheme.TextSecondary
-                                          Font: ="IBM Plex Sans"
-                                          Height: =16
-                                          LayoutMinHeight: =0
-                                          LayoutMinWidth: =0
-                                          Size: =11
-                                          Text: ="AUSTIN HQ"
-                                          Wrap: =false
-                                    - lblHDGreeting:
-                                        Control: Label
+                                    - htxHDHeader:
+                                        Control: HtmlViewer
                                         Properties:
                                           AlignInContainer: =AlignInContainer.Stretch
                                           AutoHeight: =true
-                                          Color: =AppTheme.TextPrimary
-                                          Font: ="IBM Plex Sans"
-                                          FontWeight: =FontWeight.Semibold
-                                          Height: =36
+                                          DisplayMode: =DisplayMode.View
+                                          HtmlText: |-
+                                            =CarbonTextColored(CarbonHtmlType.Eyebrow, "AUSTIN HQ", AppThemeHex.TextSecondary) &
+                                            CarbonText(
+                                                CarbonHtmlType.Heading04,
+                                                With(
+                                                    {_greet: If(Hour(varNowTick) < 12, "Good morning", Hour(varNowTick) < 18, "Good afternoon", "Good evening")},
+                                                    _greet & ", " & fnHtmlEscape(First(Split(User().FullName, " ")).Value)
+                                                )
+                                            )
                                           LayoutMinHeight: =0
                                           LayoutMinWidth: =0
-                                          Size: =28
-                                          Text: |-
-                                            =With(
-                                                {_greet: If(Hour(varNowTick) < 12, "Good morning", Hour(varNowTick) < 18, "Good afternoon", "Good evening")},
-                                                _greet & ", " & First(Split(User().FullName, " ")).Value
-                                            )
-                                          Wrap: =false
+                                          PaddingBottom: =0
+                                          PaddingLeft: =0
+                                          PaddingRight: =0
+                                          PaddingTop: =0
                               - lblHDStatLine:
                                   Control: Label
                                   Properties:
@@ -197,31 +188,21 @@ Screens:
                                           RadiusTopRight: =0
                                           Width: =Parent.Width
                                         Children:
-                                          - lblHDTileBookTitle:
-                                              Control: Label
+                                          - htxHDTileBook:
+                                              Control: HtmlViewer
                                               Properties:
                                                 AlignInContainer: =AlignInContainer.Stretch
-                                                Color: =ColorValue(AppTheme.PrimaryText)
-                                                Font: ="IBM Plex Sans"
-                                                FontWeight: =FontWeight.Semibold
-                                                Height: =22
+                                                AutoHeight: =true
+                                                DisplayMode: =DisplayMode.View
+                                                HtmlText: |-
+                                                  =CarbonTextColored(CarbonHtmlType.Heading02, "Book a room", AppThemeHex.PrimaryText) &
+                                                  CarbonTextColored(CarbonHtmlType.Label01, "Start a new booking", AppThemeHex.PrimaryText)
                                                 LayoutMinHeight: =0
                                                 LayoutMinWidth: =0
-                                                Size: =16
-                                                Text: ="Book a room"
-                                                Wrap: =false
-                                          - lblHDTileBookSub:
-                                              Control: Label
-                                              Properties:
-                                                AlignInContainer: =AlignInContainer.Stretch
-                                                Color: =ColorValue(AppTheme.PrimaryText)
-                                                Font: ="IBM Plex Sans"
-                                                Height: =16
-                                                LayoutMinHeight: =0
-                                                LayoutMinWidth: =0
-                                                Size: =12
-                                                Text: ="Start a new booking"
-                                                Wrap: =false
+                                                PaddingBottom: =0
+                                                PaddingLeft: =0
+                                                PaddingRight: =0
+                                                PaddingTop: =0
                                           - conHDTileBookSpacer:
                                               Control: GroupContainer
                                               Variant: AutoLayout
@@ -230,46 +211,23 @@ Screens:
                                                 LayoutDirection: =LayoutDirection.Horizontal
                                                 LayoutMinHeight: =0
                                                 LayoutMinWidth: =0
-                                          - conHDTileBookBottomRow:
-                                              Control: GroupContainer
-                                              Variant: AutoLayout
+                                          - htxHDTileBookRow:
+                                              Control: HtmlViewer
                                               Properties:
-                                                DropShadow: =DropShadow.None
-                                                FillPortions: =0
-                                                Height: =20
-                                                LayoutAlignItems: =LayoutAlignItems.Center
-                                                LayoutDirection: =LayoutDirection.Horizontal
-                                                LayoutGap: =4
+                                                AlignInContainer: =AlignInContainer.Stretch
+                                                AutoHeight: =true
+                                                DisplayMode: =DisplayMode.View
+                                                HtmlText: |-
+                                                  ="<div style=""display: flex; justify-content: space-between; align-items: center;"">" &
+                                                  "<span style=""" & CarbonHtmlType.Label01 & " color: " & AppThemeHex.PrimaryText & ";"">Step 1 of 3</span>" &
+                                                  "<span style=""" & CarbonHtmlType.Heading02 & " color: " & AppThemeHex.PrimaryText & ";"">→</span>" &
+                                                  "</div>"
                                                 LayoutMinHeight: =0
                                                 LayoutMinWidth: =0
-                                              Children:
-                                                - lblHDTileBookMeta:
-                                                    Control: Label
-                                                    Properties:
-                                                      AlignInContainer: =AlignInContainer.Stretch
-                                                      Color: =ColorValue(AppTheme.PrimaryText)
-                                                      FillPortions: =1
-                                                      Font: ="IBM Plex Sans"
-                                                      Height: =16
-                                                      LayoutMinHeight: =0
-                                                      LayoutMinWidth: =0
-                                                      Size: =12
-                                                      Text: ="Step 1 of 3"
-                                                      Wrap: =false
-                                                - lblHDTileBookArrow:
-                                                    Control: Label
-                                                    Properties:
-                                                      Align: =Align.Right
-                                                      AlignInContainer: =AlignInContainer.Center
-                                                      Color: =ColorValue(AppTheme.PrimaryText)
-                                                      Font: ="IBM Plex Sans"
-                                                      Height: =18
-                                                      LayoutMinHeight: =0
-                                                      LayoutMinWidth: =0
-                                                      Size: =16
-                                                      Text: ="→"
-                                                      Width: =20
-                                                      Wrap: =false
+                                                PaddingBottom: =0
+                                                PaddingLeft: =0
+                                                PaddingRight: =0
+                                                PaddingTop: =0
                                     - btnHDTileBook:
                                         Control: Classic/Button
                                         Properties:
@@ -394,31 +352,21 @@ Screens:
                                           RadiusTopRight: =0
                                           Width: =Parent.Width
                                         Children:
-                                          - lblHDTileViewTitle:
-                                              Control: Label
+                                          - htxHDTileView:
+                                              Control: HtmlViewer
                                               Properties:
                                                 AlignInContainer: =AlignInContainer.Stretch
-                                                Color: =AppTheme.TextPrimary
-                                                Font: ="IBM Plex Sans"
-                                                FontWeight: =FontWeight.Semibold
-                                                Height: =22
+                                                AutoHeight: =true
+                                                DisplayMode: =DisplayMode.View
+                                                HtmlText: |-
+                                                  =CarbonText(CarbonHtmlType.Heading02, "View rooms") &
+                                                  CarbonTextSecondary(CarbonHtmlType.Label01, "Timelines &amp; availability")
                                                 LayoutMinHeight: =0
                                                 LayoutMinWidth: =0
-                                                Size: =16
-                                                Text: ="View rooms"
-                                                Wrap: =false
-                                          - lblHDTileViewSub:
-                                              Control: Label
-                                              Properties:
-                                                AlignInContainer: =AlignInContainer.Stretch
-                                                Color: =AppTheme.TextSecondary
-                                                Font: ="IBM Plex Sans"
-                                                Height: =16
-                                                LayoutMinHeight: =0
-                                                LayoutMinWidth: =0
-                                                Size: =12
-                                                Text: ="Timelines &amp; availability"
-                                                Wrap: =false
+                                                PaddingBottom: =0
+                                                PaddingLeft: =0
+                                                PaddingRight: =0
+                                                PaddingTop: =0
                                           - conHDTileViewSpacer:
                                               Control: GroupContainer
                                               Variant: AutoLayout
@@ -427,60 +375,40 @@ Screens:
                                                 LayoutDirection: =LayoutDirection.Horizontal
                                                 LayoutMinHeight: =0
                                                 LayoutMinWidth: =0
-                                          - conHDTileViewBottomRow:
-                                              Control: GroupContainer
-                                              Variant: AutoLayout
+                                          - htxHDTileViewRow:
+                                              Control: HtmlViewer
                                               Properties:
-                                                DropShadow: =DropShadow.None
-                                                FillPortions: =0
-                                                Height: =20
-                                                LayoutAlignItems: =LayoutAlignItems.Center
-                                                LayoutDirection: =LayoutDirection.Horizontal
-                                                LayoutGap: =4
+                                                AlignInContainer: =AlignInContainer.Stretch
+                                                AutoHeight: =true
+                                                DisplayMode: =DisplayMode.View
+                                                HtmlText: |-
+                                                  ="<div style=""display: flex; justify-content: space-between; align-items: center;"">" &
+                                                  "<span style=""" & CarbonHtmlType.Label01 & " color: " & AppThemeHex.TextMuted & ";"">" &
+                                                  fnHtmlEscape(
+                                                      Text(
+                                                          CountRows(
+                                                              Filter(
+                                                                  colRooms As _r,
+                                                                  IsBlank(
+                                                                      LookUp(
+                                                                          TodayBookings,
+                                                                          RoomID.Id = _r.ID && fnOverlaps(StartDateTime, EndDateTime, varNowTick, varNowTick)
+                                                                      )
+                                                                  )
+                                                              )
+                                                          ),
+                                                          "[$-en-US]0"
+                                                      ) & " free now"
+                                                  ) &
+                                                  "</span>" &
+                                                  "<span style=""" & CarbonHtmlType.Heading02 & " color: " & AppThemeHex.TextSecondary & ";"">→</span>" &
+                                                  "</div>"
                                                 LayoutMinHeight: =0
                                                 LayoutMinWidth: =0
-                                              Children:
-                                                - lblHDTileViewMeta:
-                                                    Control: Label
-                                                    Properties:
-                                                      AlignInContainer: =AlignInContainer.Stretch
-                                                      Color: =AppTheme.TextMuted
-                                                      FillPortions: =1
-                                                      Font: ="IBM Plex Sans"
-                                                      Height: =16
-                                                      LayoutMinHeight: =0
-                                                      LayoutMinWidth: =0
-                                                      Size: =12
-                                                      Text: |-
-                                                        =Text(
-                                                            CountRows(
-                                                                Filter(
-                                                                    colRooms As _r,
-                                                                    IsBlank(
-                                                                        LookUp(
-                                                                            TodayBookings,
-                                                                            RoomID.Id = _r.ID && fnOverlaps(StartDateTime, EndDateTime, varNowTick, varNowTick)
-                                                                        )
-                                                                    )
-                                                                )
-                                                            ),
-                                                            "[$-en-US]0"
-                                                        ) & " free now"
-                                                      Wrap: =false
-                                                - lblHDTileViewArrow:
-                                                    Control: Label
-                                                    Properties:
-                                                      Align: =Align.Right
-                                                      AlignInContainer: =AlignInContainer.Center
-                                                      Color: =AppTheme.TextSecondary
-                                                      Font: ="IBM Plex Sans"
-                                                      Height: =18
-                                                      LayoutMinHeight: =0
-                                                      LayoutMinWidth: =0
-                                                      Size: =16
-                                                      Text: ="→"
-                                                      Width: =20
-                                                      Wrap: =false
+                                                PaddingBottom: =0
+                                                PaddingLeft: =0
+                                                PaddingRight: =0
+                                                PaddingTop: =0
                                     - btnHDTileView:
                                         Control: Classic/Button
                                         Properties:
@@ -546,31 +474,21 @@ Screens:
                                           RadiusTopRight: =0
                                           Width: =Parent.Width
                                         Children:
-                                          - lblHDTileMyTitle:
-                                              Control: Label
+                                          - htxHDTileMy:
+                                              Control: HtmlViewer
                                               Properties:
                                                 AlignInContainer: =AlignInContainer.Stretch
-                                                Color: =AppTheme.TextPrimary
-                                                Font: ="IBM Plex Sans"
-                                                FontWeight: =FontWeight.Semibold
-                                                Height: =22
+                                                AutoHeight: =true
+                                                DisplayMode: =DisplayMode.View
+                                                HtmlText: |-
+                                                  =CarbonText(CarbonHtmlType.Heading02, "My bookings") &
+                                                  CarbonTextSecondary(CarbonHtmlType.Label01, "Upcoming &amp; past")
                                                 LayoutMinHeight: =0
                                                 LayoutMinWidth: =0
-                                                Size: =16
-                                                Text: ="My bookings"
-                                                Wrap: =false
-                                          - lblHDTileMySub:
-                                              Control: Label
-                                              Properties:
-                                                AlignInContainer: =AlignInContainer.Stretch
-                                                Color: =AppTheme.TextSecondary
-                                                Font: ="IBM Plex Sans"
-                                                Height: =16
-                                                LayoutMinHeight: =0
-                                                LayoutMinWidth: =0
-                                                Size: =12
-                                                Text: ="Upcoming &amp; past"
-                                                Wrap: =false
+                                                PaddingBottom: =0
+                                                PaddingLeft: =0
+                                                PaddingRight: =0
+                                                PaddingTop: =0
                                           - conHDTileMySpacer:
                                               Control: GroupContainer
                                               Variant: AutoLayout
@@ -579,46 +497,25 @@ Screens:
                                                 LayoutDirection: =LayoutDirection.Horizontal
                                                 LayoutMinHeight: =0
                                                 LayoutMinWidth: =0
-                                          - conHDTileMyBottomRow:
-                                              Control: GroupContainer
-                                              Variant: AutoLayout
+                                          - htxHDTileMyRow:
+                                              Control: HtmlViewer
                                               Properties:
-                                                DropShadow: =DropShadow.None
-                                                FillPortions: =0
-                                                Height: =20
-                                                LayoutAlignItems: =LayoutAlignItems.Center
-                                                LayoutDirection: =LayoutDirection.Horizontal
-                                                LayoutGap: =4
+                                                AlignInContainer: =AlignInContainer.Stretch
+                                                AutoHeight: =true
+                                                DisplayMode: =DisplayMode.View
+                                                HtmlText: |-
+                                                  ="<div style=""display: flex; justify-content: space-between; align-items: center;"">" &
+                                                  "<span style=""" & CarbonHtmlType.Label01 & " color: " & AppThemeHex.TextMuted & ";"">" &
+                                                  fnHtmlEscape(Text(CountRows(Filter(MyBookings, EndDateTime >= varNowTick)), "[$-en-US]0") & " upcoming") &
+                                                  "</span>" &
+                                                  "<span style=""" & CarbonHtmlType.Heading02 & " color: " & AppThemeHex.TextSecondary & ";"">→</span>" &
+                                                  "</div>"
                                                 LayoutMinHeight: =0
                                                 LayoutMinWidth: =0
-                                              Children:
-                                                - lblHDTileMyMeta:
-                                                    Control: Label
-                                                    Properties:
-                                                      AlignInContainer: =AlignInContainer.Stretch
-                                                      Color: =AppTheme.TextMuted
-                                                      FillPortions: =1
-                                                      Font: ="IBM Plex Sans"
-                                                      Height: =16
-                                                      LayoutMinHeight: =0
-                                                      LayoutMinWidth: =0
-                                                      Size: =12
-                                                      Text: =Text(CountRows(Filter(MyBookings, EndDateTime >= varNowTick)), "[$-en-US]0") & " upcoming"
-                                                      Wrap: =false
-                                                - lblHDTileMyArrow:
-                                                    Control: Label
-                                                    Properties:
-                                                      Align: =Align.Right
-                                                      AlignInContainer: =AlignInContainer.Center
-                                                      Color: =AppTheme.TextSecondary
-                                                      Font: ="IBM Plex Sans"
-                                                      Height: =18
-                                                      LayoutMinHeight: =0
-                                                      LayoutMinWidth: =0
-                                                      Size: =16
-                                                      Text: ="→"
-                                                      Width: =20
-                                                      Wrap: =false
+                                                PaddingBottom: =0
+                                                PaddingLeft: =0
+                                                PaddingRight: =0
+                                                PaddingTop: =0
                                     - btnHDTileMy:
                                         Control: Classic/Button
                                         Properties:
@@ -648,7 +545,7 @@ Screens:
                                           RadiusBottomRight: =0
                                           RadiusTopLeft: =0
                                           RadiusTopRight: =0
-                                          Text: ="My bookings — " & lblHDTileMyMeta.Text
+                                          Text: ="My bookings — " & Text(CountRows(Filter(MyBookings, EndDateTime >= varNowTick)), "[$-en-US]0") & " upcoming"
                                           Width: =Parent.Width
                         - conHDPanels:
                             Control: GroupContainer
@@ -782,149 +679,82 @@ Screens:
                                           RadiusTopRight: =0
                                           Visible: =!IsBlank(NextBookingRecord)
                                         Children:
-                                          - conHDNextStatus:
-                                              Control: GroupContainer
-                                              Variant: AutoLayout
-                                              Properties:
-                                                DropShadow: =DropShadow.None
-                                                Fill: =RGBA(0,0,0,0)
-                                                FillPortions: =0
-                                                Height: =16
-                                                LayoutAlignItems: =LayoutAlignItems.Center
-                                                LayoutDirection: =LayoutDirection.Horizontal
-                                                LayoutGap: =4
-                                                LayoutMinHeight: =0
-                                                LayoutMinWidth: =0
-                                                RadiusBottomLeft: =0
-                                                RadiusBottomRight: =0
-                                                RadiusTopLeft: =0
-                                                RadiusTopRight: =0
-                                              Children:
-                                                - lblHDNextDot:
-                                                    Control: Label
-                                                    Properties:
-                                                      Color: |-
-                                                        =If(
-                                                            NextBookingRecord.StartDateTime <= varNowTick && NextBookingRecord.EndDateTime > varNowTick,
-                                                            ColorValue(AppTheme.Primary),
-                                                            AppTheme.TextMuted
-                                                        )
-                                                      Fill: =RGBA(0,0,0,0)
-                                                      Font: ="IBM Plex Sans"
-                                                      Height: =16
-                                                      LayoutMinHeight: =0
-                                                      LayoutMinWidth: =0
-                                                      PaddingBottom: =0
-                                                      PaddingLeft: =0
-                                                      PaddingRight: =0
-                                                      PaddingTop: =0
-                                                      Size: =12
-                                                      Text: ="●"
-                                                      Width: =12
-                                                      Wrap: =false
-                                                - lblHDNextStatus:
-                                                    Control: Label
-                                                    Properties:
-                                                      AlignInContainer: =AlignInContainer.Stretch
-                                                      Color: |-
-                                                        =If(
-                                                            NextBookingRecord.StartDateTime <= varNowTick && NextBookingRecord.EndDateTime > varNowTick,
-                                                            ColorValue(AppTheme.Primary),
-                                                            AppTheme.TextSecondary
-                                                        )
-                                                      Fill: =RGBA(0,0,0,0)
-                                                      FillPortions: =1
-                                                      Font: ="IBM Plex Sans"
-                                                      Height: =16
-                                                      LayoutMinHeight: =0
-                                                      LayoutMinWidth: =0
-                                                      PaddingBottom: =0
-                                                      PaddingLeft: =0
-                                                      PaddingRight: =0
-                                                      PaddingTop: =0
-                                                      Size: =12
-                                                      Text: |-
-                                                        =If(
-                                                            NextBookingRecord.StartDateTime <= varNowTick && NextBookingRecord.EndDateTime > varNowTick,
-                                                            "In progress",
-                                                            With(
-                                                                {_m: DateDiff(varNowTick, NextBookingRecord.StartDateTime, TimeUnit.Minutes)},
-                                                                If(
-                                                                    _m <= 0,
-                                                                    "Starting now",
-                                                                    _m < 60,
-                                                                    "In " & _m & "m",
-                                                                    _m < 1440,
-                                                                    "In " & RoundDown(_m / 60, 0) & "h " & Mod(_m, 60) & "m",
-                                                                    "In " & RoundDown(_m / 1440, 0) & " days"
-                                                                )
-                                                            )
-                                                        )
-                                                      Wrap: =false
-                                          - lblHDNextRoom:
-                                              Control: Label
+                                          - htxHDNextStatus:
+                                              Control: HtmlViewer
                                               Properties:
                                                 AlignInContainer: =AlignInContainer.Stretch
-                                                Color: =AppTheme.TextPrimary
-                                                Fill: =RGBA(0,0,0,0)
-                                                Font: ="IBM Plex Sans"
-                                                FontWeight: =FontWeight.Semibold
-                                                Height: =34
-                                                LayoutMinHeight: =0
-                                                LayoutMinWidth: =0
-                                                PaddingBottom: =0
-                                                PaddingLeft: =0
-                                                PaddingRight: =0
-                                                PaddingTop: =0
-                                                Size: =24
-                                                Text: |-
-                                                  =NextBookingRecord.'RoomID: Title'.Value
-                                                Wrap: =false
-                                          - lblHDNextTimeRange:
-                                              Control: Label
-                                              Properties:
-                                                AlignInContainer: =AlignInContainer.Stretch
-                                                Color: =AppTheme.TextPrimary
-                                                Fill: =RGBA(0,0,0,0)
-                                                Font: ="IBM Plex Sans"
-                                                Height: =24
-                                                LayoutMinHeight: =0
-                                                LayoutMinWidth: =0
-                                                PaddingBottom: =0
-                                                PaddingLeft: =0
-                                                PaddingRight: =0
-                                                PaddingTop: =0
-                                                Size: =16
-                                                Text: =Text(NextBookingRecord.StartDateTime, "HH:mm") & " – " & Text(NextBookingRecord.EndDateTime, "HH:mm")
-                                                Wrap: =false
-                                          - lblHDNextMeta:
-                                              Control: Label
-                                              Properties:
-                                                AlignInContainer: =AlignInContainer.Stretch
-                                                Color: =AppTheme.TextMuted
-                                                Fill: =RGBA(0,0,0,0)
-                                                Font: ="IBM Plex Sans"
-                                                Height: =18
-                                                LayoutMinHeight: =0
-                                                LayoutMinWidth: =0
-                                                PaddingBottom: =0
-                                                PaddingLeft: =0
-                                                PaddingRight: =0
-                                                PaddingTop: =0
-                                                Size: =12
-                                                Text: |-
-                                                  =With(
-                                                      {_place: Trim(Coalesce(LookUp(colRooms, ID = NextBookingRecord.RoomID.Id).description, ""))},
-                                                      Trim(Coalesce(NextBookingRecord.Title, "")) &
-                                                      If(IsBlank(_place), "", " · " & _place) &
-                                                      " · hosted by " &
-                                                      If(
-                                                          Lower(NextBookingRecord.BookedByEmail) = Lower(User().Email),
-                                                          "You",
-                                                          NextBookingRecord.BookedBy.DisplayName
-                                                      )
+                                                AutoHeight: =true
+                                                DisplayMode: =DisplayMode.View
+                                                HtmlText: |-
+                                                  =/* Dot + status share the old labels' conditional color logic 1:1:
+                                                     dot Primary/TextMuted, text Primary/TextSecondary on in-progress. */
+                                                  With(
+                                                      {_active: NextBookingRecord.StartDateTime <= varNowTick && NextBookingRecord.EndDateTime > varNowTick},
+                                                      "<div style=""display: flex; align-items: center; gap: 4px;"">" &
+                                                      "<span style=""display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: " &
+                                                      If(_active, AppThemeHex.Primary, AppThemeHex.TextMuted) &
+                                                      ";""></span>" &
+                                                      "<span style=""" & CarbonHtmlType.Label01 & " color: " &
+                                                      If(_active, AppThemeHex.Primary, AppThemeHex.TextSecondary) &
+                                                      ";"">" &
+                                                      fnHtmlEscape(
+                                                          If(
+                                                              _active,
+                                                              "In progress",
+                                                              With(
+                                                                  {_m: DateDiff(varNowTick, NextBookingRecord.StartDateTime, TimeUnit.Minutes)},
+                                                                  If(
+                                                                      _m <= 0,
+                                                                      "Starting now",
+                                                                      _m < 60,
+                                                                      "In " & _m & "m",
+                                                                      _m < 1440,
+                                                                      "In " & RoundDown(_m / 60, 0) & "h " & Mod(_m, 60) & "m",
+                                                                      "In " & RoundDown(_m / 1440, 0) & " days"
+                                                                  )
+                                                              )
+                                                          )
+                                                      ) &
+                                                      "</span></div>"
                                                   )
-                                                Wrap: =false
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                PaddingBottom: =0
+                                                PaddingLeft: =0
+                                                PaddingRight: =0
+                                                PaddingTop: =0
+                                          - htxHDNextInfo:
+                                              Control: HtmlViewer
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.Stretch
+                                                AutoHeight: =true
+                                                DisplayMode: =DisplayMode.View
+                                                HtmlText: |-
+                                                  =CarbonText(CarbonHtmlType.Heading03, fnHtmlEscape(NextBookingRecord.'RoomID: Title'.Value)) &
+                                                  CarbonText(CarbonHtmlType.Heading02, fnHtmlEscape(Text(NextBookingRecord.StartDateTime, "HH:mm") & " – " & Text(NextBookingRecord.EndDateTime, "HH:mm"))) &
+                                                  CarbonTextColored(
+                                                      CarbonHtmlType.Label01,
+                                                      fnHtmlEscape(
+                                                          With(
+                                                              {_place: Trim(Coalesce(LookUp(colRooms, ID = NextBookingRecord.RoomID.Id).description, ""))},
+                                                              Trim(Coalesce(NextBookingRecord.Title, "")) &
+                                                              If(IsBlank(_place), "", " · " & _place) &
+                                                              " · hosted by " &
+                                                              If(
+                                                                  Lower(NextBookingRecord.BookedByEmail) = Lower(User().Email),
+                                                                  "You",
+                                                                  NextBookingRecord.BookedBy.DisplayName
+                                                              )
+                                                          )
+                                                      ),
+                                                      AppThemeHex.TextMuted
+                                                  )
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                PaddingBottom: =0
+                                                PaddingLeft: =0
+                                                PaddingRight: =0
+                                                PaddingTop: =0
                                           - conHDNextProgress:
                                               Control: GroupContainer
                                               Variant: ManualLayout
@@ -962,89 +792,42 @@ Screens:
                                                             },
                                                             Parent.Width * Max(0, Min(1, _done / _total))
                                                         )
-                                          - conHDNextProgressLabels:
-                                              Control: GroupContainer
-                                              Variant: AutoLayout
+                                          - htxHDNextProgLabels:
+                                              Control: HtmlViewer
                                               Properties:
-                                                DropShadow: =DropShadow.None
-                                                Fill: =RGBA(0,0,0,0)
-                                                FillPortions: =0
-                                                Height: =16
-                                                LayoutAlignItems: =LayoutAlignItems.Center
-                                                LayoutDirection: =LayoutDirection.Horizontal
-                                                LayoutGap: =4
+                                                AlignInContainer: =AlignInContainer.Stretch
+                                                AutoHeight: =true
+                                                DisplayMode: =DisplayMode.View
+                                                HtmlText: |-
+                                                  ="<div style=""display: flex; justify-content: space-between; align-items: center;"">" &
+                                                  "<span style=""" & CarbonHtmlType.Label01 & " color: " & AppThemeHex.TextMuted & ";"">" &
+                                                  fnHtmlEscape(Text(NextBookingRecord.StartDateTime, "HH:mm")) &
+                                                  "</span>" &
+                                                  "<span style=""" & CarbonHtmlType.Label01 & " color: " & AppThemeHex.TextMuted & ";"">" &
+                                                  fnHtmlEscape(
+                                                      With(
+                                                          {_m: DateDiff(varNowTick, NextBookingRecord.EndDateTime, TimeUnit.Minutes)},
+                                                          If(
+                                                              _m <= 0,
+                                                              "0 min left",
+                                                              _m <= 60,
+                                                              _m & " min left",
+                                                              RoundDown(_m / 60, 0) & "h " & Mod(_m, 60) & "m left"
+                                                          )
+                                                      )
+                                                  ) &
+                                                  "</span>" &
+                                                  "<span style=""" & CarbonHtmlType.Label01 & " color: " & AppThemeHex.TextMuted & ";"">" &
+                                                  fnHtmlEscape(Text(NextBookingRecord.EndDateTime, "HH:mm")) &
+                                                  "</span>" &
+                                                  "</div>"
                                                 LayoutMinHeight: =0
                                                 LayoutMinWidth: =0
-                                                RadiusBottomLeft: =0
-                                                RadiusBottomRight: =0
-                                                RadiusTopLeft: =0
-                                                RadiusTopRight: =0
+                                                PaddingBottom: =0
+                                                PaddingLeft: =0
+                                                PaddingRight: =0
+                                                PaddingTop: =0
                                                 Visible: =NextBookingRecord.StartDateTime <= varNowTick && NextBookingRecord.EndDateTime > varNowTick
-                                              Children:
-                                                - lblHDNextProgStart:
-                                                    Control: Label
-                                                    Properties:
-                                                      Color: =AppTheme.TextMuted
-                                                      Fill: =RGBA(0,0,0,0)
-                                                      Font: ="IBM Plex Sans"
-                                                      Height: =16
-                                                      LayoutMinHeight: =0
-                                                      LayoutMinWidth: =0
-                                                      PaddingBottom: =0
-                                                      PaddingLeft: =0
-                                                      PaddingRight: =0
-                                                      PaddingTop: =0
-                                                      Size: =11
-                                                      Text: =Text(NextBookingRecord.StartDateTime, "HH:mm")
-                                                      Width: =48
-                                                      Wrap: =false
-                                                - lblHDNextProgRemaining:
-                                                    Control: Label
-                                                    Properties:
-                                                      Align: =Align.Center
-                                                      AlignInContainer: =AlignInContainer.Stretch
-                                                      Color: =AppTheme.TextMuted
-                                                      Fill: =RGBA(0,0,0,0)
-                                                      FillPortions: =1
-                                                      Font: ="IBM Plex Sans"
-                                                      Height: =16
-                                                      LayoutMinHeight: =0
-                                                      LayoutMinWidth: =0
-                                                      PaddingBottom: =0
-                                                      PaddingLeft: =0
-                                                      PaddingRight: =0
-                                                      PaddingTop: =0
-                                                      Size: =11
-                                                      Text: |-
-                                                        =With(
-                                                            {_m: DateDiff(varNowTick, NextBookingRecord.EndDateTime, TimeUnit.Minutes)},
-                                                            If(
-                                                                _m <= 0,
-                                                                "0 min left",
-                                                                _m <= 60,
-                                                                _m & " min left",
-                                                                RoundDown(_m / 60, 0) & "h " & Mod(_m, 60) & "m left"
-                                                            )
-                                                        )
-                                                      Wrap: =false
-                                                - lblHDNextProgEnd:
-                                                    Control: Label
-                                                    Properties:
-                                                      Align: =Align.Right
-                                                      Color: =AppTheme.TextMuted
-                                                      Fill: =RGBA(0,0,0,0)
-                                                      Font: ="IBM Plex Sans"
-                                                      Height: =16
-                                                      LayoutMinHeight: =0
-                                                      LayoutMinWidth: =0
-                                                      PaddingBottom: =0
-                                                      PaddingLeft: =0
-                                                      PaddingRight: =0
-                                                      PaddingTop: =0
-                                                      Size: =11
-                                                      Text: =Text(NextBookingRecord.EndDateTime, "HH:mm")
-                                                      Width: =48
-                                                      Wrap: =false
                                           - conHDNextActions:
                                               Control: GroupContainer
                                               Variant: AutoLayout
@@ -1549,33 +1332,26 @@ Screens:
                                     RadiusTopLeft: =0
                                     RadiusTopRight: =0
                                   Children:
-                                    - lblHDOccTitle:
-                                        Control: Label
+                                    - htxHDOccHeader:
+                                        Control: HtmlViewer
                                         Properties:
-                                          AlignInContainer: =AlignInContainer.Stretch
-                                          Color: =AppTheme.TextPrimary
-                                          FillPortions: =1
-                                          Font: ="IBM Plex Sans"
-                                          FontWeight: =FontWeight.Semibold
-                                          LayoutMinHeight: =0
-                                          LayoutMinWidth: =0
-                                          Size: =14
-                                          Text: ="Today's occupancy"
-                                          Wrap: =false
-                                    - lblHDOccAvg:
-                                        Control: Label
-                                        Properties:
-                                          Align: =Align.Right
                                           AlignInContainer: =AlignInContainer.Center
-                                          Color: =AppTheme.TextSecondary
-                                          Font: ="IBM Plex Sans"
-                                          Height: =20
+                                          AutoHeight: =true
+                                          DisplayMode: =DisplayMode.View
+                                          FillPortions: =1
+                                          HtmlText: |-
+                                            ="<div style=""display: flex; justify-content: space-between; align-items: center;"">" &
+                                            "<span style=""" & CarbonHtmlType.HeadingCompact01 & " color: " & AppThemeHex.TextPrimary & ";"">Today's occupancy</span>" &
+                                            "<span style=""" & CarbonHtmlType.Label01 & " color: " & AppThemeHex.TextSecondary & ";"">" &
+                                            fnHtmlEscape("Avg " & Text(Average(RoomOccupancyToday, Pct) * 100, "[$-en-US]0") & "%") &
+                                            "</span>" &
+                                            "</div>"
                                           LayoutMinHeight: =0
                                           LayoutMinWidth: =0
-                                          Size: =12
-                                          Text: ="Avg " & Text(Average(RoomOccupancyToday, Pct) * 100, "[$-en-US]0") & "%"
-                                          Width: =80
-                                          Wrap: =false
+                                          PaddingBottom: =0
+                                          PaddingLeft: =0
+                                          PaddingRight: =0
+                                          PaddingTop: =0
                                     - btnHDOccFind:
                                         Control: Classic/Button
                                         Properties:
@@ -1868,43 +1644,24 @@ Screens:
                                           Text: ="Booked"
                                           Width: =48
                                           Wrap: =false
-                                    - recHDOccLegendNow:
-                                        Control: Rectangle
+                                    - htxHDOccLegendNow:
+                                        Control: HtmlViewer
                                         Properties:
                                           AlignInContainer: =AlignInContainer.Center
-                                          BorderColor: =RGBA(0,0,0,0)
-                                          Fill: =AppTheme.StatusBusyText
-                                          Height: =10
+                                          AutoHeight: =true
+                                          DisplayMode: =DisplayMode.View
+                                          HtmlText: |-
+                                            ="<div style=""display: flex; align-items: center; gap: 6px;"">" &
+                                            "<span style=""display: inline-block; width: 10px; height: 10px; background-color: " & AppThemeHex.StatusBusyText & ";""></span>" &
+                                            "<span style=""" & CarbonHtmlType.Label01 & " color: " & AppThemeHex.TextMuted & ";"">Now</span>" &
+                                            "</div>"
                                           LayoutMinHeight: =0
                                           LayoutMinWidth: =0
-                                          Width: =10
-                                    - lblHDOccLegendNow:
-                                        Control: Label
-                                        Properties:
-                                          AlignInContainer: =AlignInContainer.Center
-                                          Color: =AppTheme.TextMuted
-                                          Font: ="IBM Plex Sans"
-                                          Height: =16
-                                          LayoutMinHeight: =0
-                                          LayoutMinWidth: =0
+                                          PaddingBottom: =0
                                           PaddingLeft: =0
                                           PaddingRight: =0
-                                          Size: =11
-                                          Text: ="Now"
-                                          Width: =32
-                                          Wrap: =false
-                                    - lblHDOccLegendSpacer:
-                                        Control: Label
-                                        Properties:
-                                          AlignInContainer: =AlignInContainer.Stretch
-                                          Color: =RGBA(0,0,0,0)
-                                          FillPortions: =1
-                                          Font: ="IBM Plex Sans"
-                                          LayoutMinHeight: =0
-                                          LayoutMinWidth: =0
-                                          Size: =11
-                                          Text: =""
-                                          Wrap: =false
+                                          PaddingTop: =0
+                                          Width: =48
       - cpt_Modal__book:
           Control: CanvasComponent
           ComponentName: cpt_Modal_

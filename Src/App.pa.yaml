@@ -160,7 +160,7 @@ App:
 
                   ThemeMap = {
                       Light: {
-                          PrimaryText: ColourTokens.Light.PrimaryText,
+                          PrimaryText: ThemeMapHex.Light.PrimaryText,
                           TextPrimary: ColorValue(ThemeMapHex.Light.TextPrimary),
                           TextSecondary: ColorValue(ThemeMapHex.Light.TextSecondary),
                           TextMuted: ColorValue(ThemeMapHex.Light.TextMuted),
@@ -173,7 +173,7 @@ App:
                           StatusFreeBg: ColorValue("#defbe6"),
                           StatusWarnText: ColorValue("#684e00"),
                           StatusWarnBg: ColorValue("#fcf4d6"),
-                          Primary: "#0f62fe",
+                          Primary: ThemeMapHex.Light.Primary,
                           FocusedBorder: Color.Red,
                           ButtonPrimary: "#0f62fe",
                           ButtonPrimaryHover: RGBA(0, 0, 0, 0.1),
@@ -222,7 +222,7 @@ App:
                           ModalScrim: RGBA(0, 0, 0, 0.5)
                       },
                       Dark: {
-                          PrimaryText: ColourTokens.Dark.PrimaryText,
+                          PrimaryText: ThemeMapHex.Dark.PrimaryText,
                           TextPrimary: ColorValue(ThemeMapHex.Dark.TextPrimary),
                           TextSecondary: ColorValue(ThemeMapHex.Dark.TextSecondary),
                           TextMuted: ColorValue(ThemeMapHex.Dark.TextMuted),
@@ -235,7 +235,7 @@ App:
                           StatusFreeBg: ColorValue("#152a17"),
                           StatusWarnText: ColorValue("#f1c21b"),
                           StatusWarnBg: ColorValue("#2d2200"),
-                          Primary: "#0f62fe",
+                          Primary: ThemeMapHex.Dark.Primary,
                           FocusedBorder: Color.Red,
                           ButtonPrimary: "#0f62fe",
                           ButtonPrimaryHover: RGBA(0, 0, 0, 0.1),
@@ -326,8 +326,8 @@ App:
                       }
                   };
 
-                  /* ThemeMapHex is the source of truth for the five lifted text-color tokens
-                     (TextPrimary/TextSecondary/TextMuted/StatusBusyText/StatusFreeText) - plain
+                  /* ThemeMapHex is the source of truth for the seven lifted color tokens
+                     (TextPrimary/TextSecondary/TextMuted/StatusBusyText/StatusFreeText/Primary/PrimaryText) - plain
                      hex strings, since a CSS string cannot embed a Color value. Same light/dark
                      branch shape as ThemeMap - KEEP IN SYNC with the corresponding ThemeMap
                      entries, which derive their Color values via ColorValue(ThemeMapHex.X.Y).
@@ -341,14 +341,18 @@ App:
                           TextSecondary: "#525252",
                           TextMuted: "#6f6f6f",
                           StatusBusyText: "#da1e28",
-                          StatusFreeText: "#198038"
+                          StatusFreeText: "#198038",
+                          Primary: "#0f62fe",
+                          PrimaryText: "#ffffff"
                       },
                       Dark: {
                           TextPrimary: "#f4f4f4",
                           TextSecondary: "#c6c6c6",
                           TextMuted: "#8d8d8d",
                           StatusBusyText: "#ff8389",
-                          StatusFreeText: "#42be65"
+                          StatusFreeText: "#42be65",
+                          Primary: "#0f62fe",
+                          PrimaryText: "#ffffff"
                       }
                   };
 
