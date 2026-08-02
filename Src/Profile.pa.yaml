@@ -154,30 +154,20 @@ Screens:
                               RadiusTopLeft: =2
                               RadiusTopRight: =2
                             Children:
-                              - lblNotifTitle:
-                                  Control: Label
+                              - htxNotifTitle:
+                                  Control: HtmlViewer
                                   Properties:
                                     AlignInContainer: =AlignInContainer.Stretch
                                     AutoHeight: =true
-                                    Color: =AppTheme.TextPrimary
-                                    DisplayMode: =DisplayMode.Disabled
-                                    Font: =Font.Lato
-                                    FontWeight: =FontWeight.Semibold
+                                    DisplayMode: =DisplayMode.View
+                                    HtmlText: |-
+                                      =CarbonText(CarbonHtmlType.Heading02, "Notifications")
                                     LayoutMinHeight: =0
                                     LayoutMinWidth: =0
-                                    Size: =16
-                                    Text: ="Notifications"
-                              - lblNotifCaption:
-                                  Control: Label
-                                  Properties:
-                                    AlignInContainer: =AlignInContainer.Stretch
-                                    AutoHeight: =true
-                                    Color: =AppTheme.TextMuted
-                                    Font: =Font.Lato
-                                    LayoutMinHeight: =0
-                                    LayoutMinWidth: =0
-                                    Size: =12
-                                    Text: =
+                                    PaddingBottom: =0
+                                    PaddingLeft: =0
+                                    PaddingRight: =0
+                                    PaddingTop: =0
                               - conSetRow_NotifyConfirm:
                                   Control: GroupContainer
                                   Variant: AutoLayout
@@ -428,95 +418,27 @@ Screens:
                               RadiusTopLeft: =2
                               RadiusTopRight: =2
                             Children:
-                              - lblAboutTitle:
-                                  Control: Label
+                              - htxProfileAbout:
+                                  Control: HtmlViewer
                                   Properties:
                                     AlignInContainer: =AlignInContainer.Stretch
                                     AutoHeight: =true
-                                    Color: =AppTheme.TextPrimary
-                                    Font: =Font.Lato
-                                    FontWeight: =FontWeight.Semibold
+                                    DisplayMode: =DisplayMode.View
+                                    HtmlText: |-
+                                      =CarbonText(CarbonHtmlType.Heading02, "About") &
+                                      CarbonTextColored(CarbonHtmlType.Label01, "Version", AppThemeHex.TextMuted) &
+                                      CarbonText(CarbonHtmlType.Label01, AppVersionInfo) &
+                                      CarbonTextColored(CarbonHtmlType.Label01, "Environment", AppThemeHex.TextMuted) &
+                                      CarbonText(CarbonHtmlType.Label01, If(IsSandbox, "Sandbox — mock data, no live SharePoint connection", "Production")) &
+                                      CarbonTextColored(CarbonHtmlType.Label01, "Booking policy", AppThemeHex.TextMuted) &
+                                      CarbonText(CarbonHtmlType.Label01, "Bookable " & DayStartHour & ":00–" & DayEndHour & ":00, Monday to Friday, up to " & MaxBookingMinutes / 60 & " hours per booking") &
+                                      CarbonTextColored(CarbonHtmlType.Label01, "Bookings are stored in the team's SharePoint site. Meeting titles are visible to colleagues unless you choose 'Show as busy' when booking.", AppThemeHex.TextMuted)
                                     LayoutMinHeight: =0
                                     LayoutMinWidth: =0
-                                    Size: =16
-                                    Text: ="About"
-                              - capAboutVersion:
-                                  Control: Label
-                                  Properties:
-                                    AlignInContainer: =AlignInContainer.Stretch
-                                    AutoHeight: =true
-                                    Color: =AppTheme.TextMuted
-                                    Font: =Font.Lato
-                                    LayoutMinHeight: =0
-                                    LayoutMinWidth: =0
-                                    Size: =11
-                                    Text: ="Version"
-                              - valAboutVersion:
-                                  Control: Label
-                                  Properties:
-                                    AlignInContainer: =AlignInContainer.Stretch
-                                    AutoHeight: =true
-                                    Color: =AppTheme.TextPrimary
-                                    Font: =Font.Lato
-                                    LayoutMinHeight: =0
-                                    LayoutMinWidth: =0
-                                    Size: =12
-                                    Text: =AppVersionInfo
-                              - capAboutEnvironment:
-                                  Control: Label
-                                  Properties:
-                                    AlignInContainer: =AlignInContainer.Stretch
-                                    AutoHeight: =true
-                                    Color: =AppTheme.TextMuted
-                                    Font: =Font.Lato
-                                    LayoutMinHeight: =0
-                                    LayoutMinWidth: =0
-                                    Size: =11
-                                    Text: ="Environment"
-                              - valAboutEnvironment:
-                                  Control: Label
-                                  Properties:
-                                    AlignInContainer: =AlignInContainer.Stretch
-                                    AutoHeight: =true
-                                    Color: =AppTheme.TextPrimary
-                                    Font: =Font.Lato
-                                    LayoutMinHeight: =0
-                                    LayoutMinWidth: =0
-                                    Size: =12
-                                    Text: =If(IsSandbox, "Sandbox — mock data, no live SharePoint connection", "Production")
-                              - capAboutPolicy:
-                                  Control: Label
-                                  Properties:
-                                    AlignInContainer: =AlignInContainer.Stretch
-                                    AutoHeight: =true
-                                    Color: =AppTheme.TextMuted
-                                    Font: =Font.Lato
-                                    LayoutMinHeight: =0
-                                    LayoutMinWidth: =0
-                                    Size: =11
-                                    Text: ="Booking policy"
-                              - valAboutPolicy:
-                                  Control: Label
-                                  Properties:
-                                    AlignInContainer: =AlignInContainer.Stretch
-                                    AutoHeight: =true
-                                    Color: =AppTheme.TextPrimary
-                                    Font: =Font.Lato
-                                    LayoutMinHeight: =0
-                                    LayoutMinWidth: =0
-                                    Size: =12
-                                    Text: ="Bookable " & DayStartHour & ":00–" & DayEndHour & ":00, Monday to Friday, up to " & MaxBookingMinutes / 60 & " hours per booking"
-                              - lblAboutPrivacy:
-                                  Control: Label
-                                  Properties:
-                                    AlignInContainer: =AlignInContainer.Stretch
-                                    AutoHeight: =true
-                                    Color: =AppTheme.TextMuted
-                                    Font: =Font.Lato
-                                    LayoutMinHeight: =0
-                                    LayoutMinWidth: =0
-                                    Size: =12
-                                    Text: ="Bookings are stored in the team's SharePoint site. Meeting titles are visible to colleagues unless you choose 'Show as busy' when booking."
+                                    PaddingBottom: =0
+                                    PaddingLeft: =0
+                                    PaddingRight: =0
+                                    PaddingTop: =0
                               - btnReportProblem:
                                   Control: Classic/Button
                                   Properties:
