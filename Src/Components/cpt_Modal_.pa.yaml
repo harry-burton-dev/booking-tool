@@ -72,6 +72,20 @@ ComponentDefinitions:
                   Set(varTitleTouched, false);
                   Set(gbl_UI_Book_CancelConfirm, false);
                   Set(gblEditingBookingID, 0);
+                  // RESET-SITE[wizard-scrim-close] full wizard-state clear on close (BUG-13)
+                  Set(varTitle, Blank());
+                  Set(varSelectedRoom, Blank());
+                  Set(varSelectedDate, Blank());
+                  Set(varStartTime, Blank());
+                  Set(varEndTime, Blank());
+                  Set(varConflict, false);
+                  Set(varConflictingBooking, Blank());
+                  Set(varNextFreeSlot, Blank());
+                  Set(varBookingError, false);
+                  Set(varSubmitting, false);
+                  Set(gbl_Book_SubmitResult, "");
+                  Set(gbl_UI_Book_Modal_Step, WizardStep1);
+                  ClearCollect(varAlternativeRooms, Filter(colRooms, true = false));
                   Set(gbl_UI_Book_Modal, false),
                   Set(gbl_UI_Book_CancelConfirm, true)
               )
@@ -1629,6 +1643,20 @@ ComponentDefinitions:
                               Set(varTitleTouched, false);
                               Set(gbl_UI_Book_CancelConfirm, false);
                               Set(gblEditingBookingID, 0);
+                              // RESET-SITE[wizard-btnback-cancel] full wizard-state clear on close (BUG-13)
+                              Set(varTitle, Blank());
+                              Set(varSelectedRoom, Blank());
+                              Set(varSelectedDate, Blank());
+                              Set(varStartTime, Blank());
+                              Set(varEndTime, Blank());
+                              Set(varConflict, false);
+                              Set(varConflictingBooking, Blank());
+                              Set(varNextFreeSlot, Blank());
+                              Set(varBookingError, false);
+                              Set(varSubmitting, false);
+                              Set(gbl_Book_SubmitResult, "");
+                              Set(gbl_UI_Book_Modal_Step, WizardStep1);
+                              ClearCollect(varAlternativeRooms, Filter(colRooms, true = false));
                               Set(gbl_UI_Book_Modal, false)
                           )
                         PressedBorderColor: =AppTheme.Border
@@ -1675,6 +1703,20 @@ ComponentDefinitions:
                               Set(varTitleTouched, false);
                               Set(gbl_UI_Book_CancelConfirm, false);
                               Set(gblEditingBookingID, 0);
+                              // RESET-SITE[wizard-btnclose] full wizard-state clear on close (BUG-13)
+                              Set(varTitle, Blank());
+                              Set(varSelectedRoom, Blank());
+                              Set(varSelectedDate, Blank());
+                              Set(varStartTime, Blank());
+                              Set(varEndTime, Blank());
+                              Set(varConflict, false);
+                              Set(varConflictingBooking, Blank());
+                              Set(varNextFreeSlot, Blank());
+                              Set(varBookingError, false);
+                              Set(varSubmitting, false);
+                              Set(gbl_Book_SubmitResult, "");
+                              Set(gbl_UI_Book_Modal_Step, WizardStep1);
+                              ClearCollect(varAlternativeRooms, Filter(colRooms, true = false));
                               Set(gbl_UI_Book_Modal, false),
                               Set(gbl_UI_Book_CancelConfirm, true)
                           )
@@ -1873,17 +1915,22 @@ ComponentDefinitions:
                                  PatchPayload / ValidPayload, the host performs the write. */
                               If(gblEditingBookingID = 0, cpt_Modal_.OnSubmit(), cpt_Modal_.OnSubmitEdit());
 
-                              /* Host closes the modal on both outcomes; clear transient wizard state. */
-                              Reset(drpRepeats);
-                              Reset(drpOccurrences);
-                              Reset(tglPrivate);
-                              Reset(tglBookOnBehalf);
-                              Reset(drpBookFor);
-                              Set(varBookForEmail, "");
-                              Set(varBookForName, "");
-                              Reset(txtBookingTitle);
-                              Set(varTitleTouched, false);
-                              Set(gbl_UI_Book_CancelConfirm, false)
+                              /* BUG-14: on the host's "error" outcome the modal stays open —
+                                 keep the user's inputs. Hosts set gbl_Book_SubmitResult
+                                 synchronously inside OnSubmit()/OnSubmitEdit() above. */
+                              If(
+                                  gbl_Book_SubmitResult <> "error",
+                                  Reset(drpRepeats);
+                                  Reset(drpOccurrences);
+                                  Reset(tglPrivate);
+                                  Reset(tglBookOnBehalf);
+                                  Reset(drpBookFor);
+                                  Set(varBookForEmail, "");
+                                  Set(varBookForName, "");
+                                  Reset(txtBookingTitle);
+                                  Set(varTitleTouched, false);
+                                  Set(gbl_UI_Book_CancelConfirm, false)
+                              )
                           );
                           Set(varSubmitting, false)
                         PressedBorderColor: =RGBA(11, 69, 182, 1)
@@ -1988,6 +2035,20 @@ ComponentDefinitions:
                                 Reset(txtBookingTitle);
                                 Set(varTitleTouched, false);
                                 Set(gblEditingBookingID, 0);
+                                // RESET-SITE[wizard-discard] full wizard-state clear on close (BUG-13)
+                                Set(varTitle, Blank());
+                                Set(varSelectedRoom, Blank());
+                                Set(varSelectedDate, Blank());
+                                Set(varStartTime, Blank());
+                                Set(varEndTime, Blank());
+                                Set(varConflict, false);
+                                Set(varConflictingBooking, Blank());
+                                Set(varNextFreeSlot, Blank());
+                                Set(varBookingError, false);
+                                Set(varSubmitting, false);
+                                Set(gbl_Book_SubmitResult, "");
+                                Set(gbl_UI_Book_Modal_Step, WizardStep1);
+                                ClearCollect(varAlternativeRooms, Filter(colRooms, true = false));
                                 Set(gbl_UI_Book_Modal, false)
                               PressedColor: =RGBA(255, 255, 255, 1)
                               PressedFill: =RGBA(155, 21, 28, 1)
