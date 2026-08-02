@@ -685,21 +685,6 @@ Screens:
             OnSubmit: |-
               =If(cpt_Modal__book_find.ValidPayload,
                   ClearCollect(colPayloadSnapshot, cpt_Modal__book_find.PatchPayload);
-                  /* BUG-1: fresh server read spanning the whole series for the target room;
-                     the per-occurrence _hasClash checks below read this, not the stale snapshot. */
-                  ClearCollect(
-                      colFreshRoomBookings,
-                      Filter(
-                          Filter(
-                              Book_Bookings,
-                              Status = "Active",
-                              EndDateTime > Min(colPayloadSnapshot, StartDateTime),
-                              StartDateTime < Max(colPayloadSnapshot, EndDateTime)
-                          ),
-                          RoomID.Id = First(colPayloadSnapshot).RoomIdNumber,
-                          ID <> gblEditingBookingID
-                      )
-                  );
                   Clear(colFailedBookings);
                   Set(varNewSeriesID, If(First(colPayloadSnapshot).RecurrenceType <> "", GUID(), Blank()));
 
@@ -709,12 +694,19 @@ Screens:
                       With(
                           {
                               _isWeekend: Weekday(_occ.StartDateTime, StartOfWeek.Sunday) = 1 || Weekday(_occ.StartDateTime, StartOfWeek.Sunday) = 7,
+                              /* BUG-1: fresh slot-sized server read per occurrence — the narrow
+                                 window keeps the result far under the data-row cap; room
+                                 narrowing stays client-side on that small set. */
                               _hasClash: !IsBlank(
                                   LookUp(
                                       Filter(
-                                          colFreshRoomBookings,
-                                          Status = "Active",
-                                          fnOverlaps(StartDateTime, EndDateTime, _occ.StartDateTime, _occ.EndDateTime)
+                                          Filter(
+                                              Book_Bookings,
+                                              Status = "Active",
+                                              StartDateTime < _occ.EndDateTime,
+                                              EndDateTime > _occ.StartDateTime
+                                          ),
+                                          ID <> gblEditingBookingID
                                       ),
                                       RoomID.Id = _occ.RoomIdNumber
                                   )
