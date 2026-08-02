@@ -666,11 +666,12 @@ Screens:
                                                               _startMinutes: Hour(gbl_PendingStart) * 60 + Minute(gbl_PendingStart),
                                                               _endMinutes: Hour(gbl_PendingEnd) * 60 + Minute(gbl_PendingEnd)
                                                           },
+                                                          ClearCollect(colSeriesServerRows, Filter(Book_Bookings, SeriesID = _sid));
                                                           ClearCollect(
                                                               colSeriesEditPlan,
                                                               ForAll(
                                                                   Filter(
-                                                                      Filter(Book_Bookings, SeriesID = _sid),
+                                                                      colSeriesServerRows,
                                                                       StartDateTime >= Now(), Status <> "Cancelled", !IsException,
                                                                       BookedByEmail = Lower(User().Email)
                                                                   ),
@@ -741,19 +742,21 @@ Screens:
                                                       ),
                                                       // CANCEL — whole series (including exceptions; past occurrences untouched), OWNED only.
                                                       // Server-filtered by SeriesID so the mutation set is immune to the data-row limit (BUG-2/BUG-3).
+                                                      // (refinement runs on the materialized collection — predicates layered on the live query draw compile-failing delegation warnings)
                                                       With(
                                                           {_sid: gblSelectedBooking.SeriesID},
+                                                          ClearCollect(colSeriesServerRows, Filter(Book_Bookings, SeriesID = _sid));
                                                           With(
                                                               {
                                                                   _results: ForAll(
                                                                       Filter(
-                                                                          Filter(Book_Bookings, SeriesID = _sid),
+                                                                          colSeriesServerRows,
                                                                           StartDateTime >= Now(),
                                                                           Status <> "Cancelled",
                                                                           BookedByEmail = Lower(User().Email)
                                                                       ) As _m,
                                                                       IfError(
-                                                                          Patch(Book_Bookings, _m, {Status: "Cancelled"});
+                                                                          Patch(Book_Bookings, LookUp(Book_Bookings, ID = _m.ID), {Status: "Cancelled"});
                                                                           true,
                                                                           false
                                                                       )

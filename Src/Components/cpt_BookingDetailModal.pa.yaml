@@ -894,20 +894,22 @@ ComponentDefinitions:
                                       =// PROD-REVERT[booking-cancel] soft delete via Patch; Remove() retired per WS4
                                       /* Whole series: future, non-cancelled, OWNED members (exceptions included;
                                          past occurrences untouched). Server-filtered by SeriesID so the mutation
-                                         set is immune to the data-row limit (BUG-2/BUG-3). */
+                                         set is immune to the data-row limit (BUG-2/BUG-3).
+                                         (refinement runs on the materialized collection — predicates layered on the live query draw compile-failing delegation warnings) */
                                       With(
                                           {_sid: gblSelectedBooking.SeriesID},
+                                          ClearCollect(colSeriesServerRows, Filter(Book_Bookings, SeriesID = _sid));
                                           With(
                                               {
                                                   _results: ForAll(
                                                       Filter(
-                                                          Filter(Book_Bookings, SeriesID = _sid),
+                                                          colSeriesServerRows,
                                                           StartDateTime >= Now(),
                                                           Status <> "Cancelled",
                                                           BookedByEmail = Lower(User().Email)
                                                       ) As _m,
                                                       IfError(
-                                                          Patch(Book_Bookings, _m, {Status: "Cancelled"});
+                                                          Patch(Book_Bookings, LookUp(Book_Bookings, ID = _m.ID), {Status: "Cancelled"});
                                                           true,
                                                           false
                                                       )

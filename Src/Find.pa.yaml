@@ -695,18 +695,16 @@ Screens:
                           {
                               _isWeekend: Weekday(_occ.StartDateTime, StartOfWeek.Sunday) = 1 || Weekday(_occ.StartDateTime, StartOfWeek.Sunday) = 7,
                               /* BUG-1: fresh slot-sized server read per occurrence — the narrow
-                                 window keeps the result far under the data-row cap; room
-                                 narrowing stays client-side on that small set. */
+                                 window keeps the result far under the data-row cap. No ID
+                                 self-exclusion needed: OnSubmit only fires in create mode
+                                 (gblEditingBookingID = 0); edits route to OnSubmitEdit. */
                               _hasClash: !IsBlank(
                                   LookUp(
                                       Filter(
-                                          Filter(
-                                              Book_Bookings,
-                                              Status = "Active",
-                                              StartDateTime < _occ.EndDateTime,
-                                              EndDateTime > _occ.StartDateTime
-                                          ),
-                                          ID <> gblEditingBookingID
+                                          Book_Bookings,
+                                          Status = "Active",
+                                          StartDateTime < _occ.EndDateTime,
+                                          EndDateTime > _occ.StartDateTime
                                       ),
                                       RoomID.Id = _occ.RoomIdNumber
                                   )

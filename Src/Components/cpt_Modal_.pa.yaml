@@ -1795,19 +1795,19 @@ ComponentDefinitions:
                         OnSelect: |-
                           =Set(varSubmitting, true);
                           /* BUG-1: re-read the server, not the colBookings snapshot, so a slot
-                             taken by ANOTHER user since screen entry is caught here. */
+                             taken by ANOTHER user since screen entry is caught here. The edit-mode
+                             self-exclusion happens collection-side: an ID <> predicate layered on
+                             the server query draws a delegation warning that fails compile. */
                           ClearCollect(
                               colOverlappingBookings,
                               Filter(
-                                  Filter(
-                                      Book_Bookings,
-                                      Status = "Active",
-                                      StartDateTime < varEndTime,
-                                      EndDateTime > varStartTime
-                                  ),
-                                  ID <> gblEditingBookingID
+                                  Book_Bookings,
+                                  Status = "Active",
+                                  StartDateTime < varEndTime,
+                                  EndDateTime > varStartTime
                               )
                           );
+                          RemoveIf(colOverlappingBookings, ID = gblEditingBookingID);
                           Set(varConflict, !IsEmpty(Filter(colOverlappingBookings, RoomID.Id = varSelectedRoom.ID)));
                           Set(varConflictingBooking, LookUp(colOverlappingBookings, RoomID.Id = varSelectedRoom.ID));
                           Set(
