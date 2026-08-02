@@ -1841,29 +1841,37 @@ Screens:
               =If(cpt_Modal__book_rooms.ValidPayload,
                   ClearCollect(colPayloadSnapshot, cpt_Modal__book_rooms.PatchPayload);
                   Clear(colFailedBookings);
+                  /* BUG-1: fresh per-occurrence server reads, materialized before the main loop.
+                     Each slot-sized query is fully delegable; RoomID.Id (not delegable on
+                     SharePoint) and exact-overlap narrowing happen client-side on the collection.
+                     ClearCollect/Clear are illegal inside ForAll, hence the two-pass shape. */
+                  Clear(colOccOverlap);
+                  ForAll(
+                      colPayloadSnapshot As _w,
+                      Collect(
+                          colOccOverlap,
+                          Filter(
+                              Book_Bookings,
+                              Status = "Active",
+                              StartDateTime < _w.EndDateTime,
+                              EndDateTime > _w.StartDateTime
+                          )
+                      )
+                  );
                   Set(varNewSeriesID, If(First(colPayloadSnapshot).RecurrenceType <> "", GUID(), Blank()));
 
                   /* Loop through all snapshot occurrences */
                   ForAll(
                       colPayloadSnapshot As _occ,
-                      /* BUG-1: fresh slot-sized server read per occurrence — delegable predicates
-                         only; the narrow window keeps the result far under the data-row cap.
-                         RoomID.Id isn't delegable on SharePoint, so room narrowing happens on the
-                         materialized collection. No ID self-exclusion needed: OnSubmit only fires
-                         in create mode (gblEditingBookingID = 0); edits route to OnSubmitEdit. */
-                      ClearCollect(
-                          colOccOverlap,
-                          Filter(
-                              Book_Bookings,
-                              Status = "Active",
-                              StartDateTime < _occ.EndDateTime,
-                              EndDateTime > _occ.StartDateTime
-                          )
-                      );
                       With(
                           {
                               _isWeekend: Weekday(_occ.StartDateTime, StartOfWeek.Sunday) = 1 || Weekday(_occ.StartDateTime, StartOfWeek.Sunday) = 7,
-                              _hasClash: !IsBlank(LookUp(colOccOverlap, RoomID.Id = _occ.RoomIdNumber))
+                              _hasClash: !IsBlank(
+                                  LookUp(
+                                      Filter(colOccOverlap, fnOverlaps(StartDateTime, EndDateTime, _occ.StartDateTime, _occ.EndDateTime)),
+                                      RoomID.Id = _occ.RoomIdNumber
+                                  )
+                              )
                           },
                           With(
                               {
