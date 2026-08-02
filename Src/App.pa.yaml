@@ -135,6 +135,10 @@ App:
                      longest series is 12 monthly occurrences (last at start+11 months)
                      and the start date is user-picked and unbounded, so 12 months alone
                      only covers series starting today. */
+                  /* MIRROR CONVENTION: colBookings is a local mirror of BookingsWindow.
+                     Every Book_Bookings write must either mirror the same change into
+                     colBookings or re-pull the window behind a MIRROR-FALLBACK comment;
+                     single-row mirrors use blank-safe UpdateIf (no-op if the row is not local). */
                   BookingsWindowStart = DateAdd(Today(), -90, TimeUnit.Days);
                   BookingsWindowEnd   = DateAdd(Today(), 24, TimeUnit.Months);
                   BookingsWindow = Filter(

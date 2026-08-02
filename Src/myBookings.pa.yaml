@@ -1330,15 +1330,20 @@ Screens:
                                       // Ownership predicate mirrors the MyBookings named formula (BUG-3).
                                       // (refinement runs on the materialized collection — predicates layered on the live query draw compile-failing delegation warnings)
                                       ClearCollect(colSeriesServerRows, Filter(Book_Bookings, SeriesID = gbl_UI_CancelSeriesConfirmID));
+                                      // _targets captured once: the same rows drive the server loop and the mirror (one predicate, no Now() drift)
+                                      With(
+                                          {
+                                              _targets: Filter(
+                                                  colSeriesServerRows,
+                                                  StartDateTime >= Now(),
+                                                  Status <> "Cancelled",
+                                                  BookedByEmail = Lower(User().Email)
+                                              )
+                                          },
                                       With(
                                           {
                                               _results: ForAll(
-                                                  Filter(
-                                                      colSeriesServerRows,
-                                                      StartDateTime >= Now(),
-                                                      Status <> "Cancelled",
-                                                      BookedByEmail = Lower(User().Email)
-                                                  ) As _m,
+                                                  _targets As _m,
                                                   IfError(
                                                       Patch(Book_Bookings, LookUp(Book_Bookings, ID = _m.ID), {Status: "Cancelled"});
                                                       true,
@@ -1349,11 +1354,13 @@ Screens:
                                           Refresh(Book_Bookings);
                                           If(
                                               CountRows(Filter(_results, !Value)) = 0,
-                                              // Mirror: predicate copied from the server loop above (SeriesID server filter + client refinement)
-                                              UpdateIf(
-                                                  colBookings,
-                                                  SeriesID = gbl_UI_CancelSeriesConfirmID && StartDateTime >= Now() && Status <> "Cancelled" && BookedByEmail = Lower(User().Email),
-                                                  {Status: "Cancelled"}
+                                              // Mirror: same _targets rows the server loop wrote (blank-safe; UpdateIf is not supported inside ForAll)
+                                              ForAll(
+                                                  _targets As _t,
+                                                  With(
+                                                      {_mirrorRow: LookUp(colBookings, ID = _t.ID)},
+                                                      If(!IsBlank(_mirrorRow), Patch(colBookings, _mirrorRow, {Status: "Cancelled"}))
+                                                  )
                                               ),
                                               // MIRROR-FALLBACK: partial series-cancel failure — local picture uncertain, re-pull the window
                                               ClearCollect(colBookings, BookingsWindow)
@@ -1369,6 +1376,7 @@ Screens:
                                                   NotificationType.Error
                                               )
                                           )
+                                      )
                                       )
                                     PressedColor: =ColorValue(AppTheme.PrimaryText)
                                     PressedFill: =ColorValue(AppTheme.ButtonDangerActive)

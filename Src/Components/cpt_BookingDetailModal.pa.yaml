@@ -773,7 +773,7 @@ ComponentDefinitions:
                                           Patch(Book_Bookings, LookUp(Book_Bookings, ID = gblSelectedBooking.ID), {Status: "Cancelled"}),
                                           Notify("Couldn't cancel this booking. Please try again.", NotificationType.Error),
                                           Refresh(Book_Bookings);
-                                          Patch(colBookings, LookUp(colBookings, ID = gblSelectedBooking.ID), {Status: "Cancelled"});
+                                          UpdateIf(colBookings, ID = gblSelectedBooking.ID, {Status: "Cancelled"});
                                           Set(gblSelectedBooking, Blank());
                                           Notify("Booking cancelled", NotificationType.Success);
                                           Set(gbl_FixCycleSeriesID, "");
@@ -858,7 +858,7 @@ ComponentDefinitions:
                                           Patch(Book_Bookings, LookUp(Book_Bookings, ID = gblSelectedBooking.ID), {Status: "Cancelled"}),
                                           Notify("Couldn't cancel this booking. Please try again.", NotificationType.Error),
                                           Refresh(Book_Bookings);
-                                          Patch(colBookings, LookUp(colBookings, ID = gblSelectedBooking.ID), {Status: "Cancelled"});
+                                          UpdateIf(colBookings, ID = gblSelectedBooking.ID, {Status: "Cancelled"});
                                           Set(gblSelectedBooking, Blank());
                                           Notify("Booking cancelled", NotificationType.Success);
                                           Set(gbl_FixCycleSeriesID, "");
@@ -899,15 +899,20 @@ ComponentDefinitions:
                                       With(
                                           {_sid: gblSelectedBooking.SeriesID},
                                           ClearCollect(colSeriesServerRows, Filter(Book_Bookings, SeriesID = _sid));
+                                          // _targets captured once: the same rows drive the server loop and the mirror (one predicate, no Now() drift)
+                                          With(
+                                              {
+                                                  _targets: Filter(
+                                                      colSeriesServerRows,
+                                                      StartDateTime >= Now(),
+                                                      Status <> "Cancelled",
+                                                      BookedByEmail = Lower(User().Email)
+                                                  )
+                                              },
                                           With(
                                               {
                                                   _results: ForAll(
-                                                      Filter(
-                                                          colSeriesServerRows,
-                                                          StartDateTime >= Now(),
-                                                          Status <> "Cancelled",
-                                                          BookedByEmail = Lower(User().Email)
-                                                      ) As _m,
+                                                      _targets As _m,
                                                       IfError(
                                                           Patch(Book_Bookings, LookUp(Book_Bookings, ID = _m.ID), {Status: "Cancelled"});
                                                           true,
@@ -918,11 +923,13 @@ ComponentDefinitions:
                                               Refresh(Book_Bookings);
                                               If(
                                                   CountRows(Filter(_results, !Value)) = 0,
-                                                  // Mirror: predicate copied from the server loop above (SeriesID server filter + client refinement)
-                                                  UpdateIf(
-                                                      colBookings,
-                                                      SeriesID = _sid && StartDateTime >= Now() && Status <> "Cancelled" && BookedByEmail = Lower(User().Email),
-                                                      {Status: "Cancelled"}
+                                                  // Mirror: same _targets rows the server loop wrote (blank-safe; UpdateIf is not supported inside ForAll)
+                                                  ForAll(
+                                                      _targets As _t,
+                                                      With(
+                                                          {_mirrorRow: LookUp(colBookings, ID = _t.ID)},
+                                                          If(!IsBlank(_mirrorRow), Patch(colBookings, _mirrorRow, {Status: "Cancelled"}))
+                                                      )
                                                   ),
                                                   // MIRROR-FALLBACK: partial series-cancel failure — local picture uncertain, re-pull the window
                                                   ClearCollect(colBookings, BookingsWindow)
@@ -942,6 +949,7 @@ ComponentDefinitions:
                                               // RESET-SITE[detail-modal-close] cancel completed, dismiss the modal
                                               Set(gbl_UI_Detail_ConfirmMode, "");
                                               Set(gbl_UI_Detail_Modal, false)
+                                          )
                                           )
                                       )
                                     PressedColor: =ColorValue(AppTheme.PrimaryText)
