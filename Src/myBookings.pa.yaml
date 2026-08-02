@@ -271,59 +271,25 @@ Screens:
                                     RadiusTopLeft: =0
                                     RadiusTopRight: =0
                                   Children:
-                                    - mb2LblNextEyebrow:
-                                        Control: Label
+                                    - htxMbNextText:
+                                        Control: HtmlViewer
                                         Properties:
                                           AlignInContainer: =AlignInContainer.Stretch
-                                          Color: =AppTheme.TextMuted
-                                          Fill: =Color.Transparent
-                                          Font: ="IBM Plex Sans"
-                                          Height: =14
+                                          AutoHeight: =true
+                                          DisplayMode: =DisplayMode.View
+                                          HtmlText: |-
+                                            =CarbonTextColored(CarbonHtmlType.Eyebrow, "NEXT UP", AppThemeHex.TextMuted) &
+                                            CarbonText(CarbonHtmlType.HeadingCompact01, fnHtmlEscape(NextBookingRecord.Title)) &
+                                            CarbonTextSecondary(
+                                                CarbonHtmlType.Label01,
+                                                fnHtmlEscape(NextBookingRecord.'RoomID: Title'.Value & " · " & Text(NextBookingRecord.StartDateTime, "HH:mm") & " – " & Text(NextBookingRecord.EndDateTime, "HH:mm"))
+                                            )
                                           LayoutMinHeight: =0
                                           LayoutMinWidth: =0
                                           PaddingBottom: =0
                                           PaddingLeft: =0
                                           PaddingRight: =0
                                           PaddingTop: =0
-                                          Size: =10
-                                          Text: ="NEXT UP"
-                                          Wrap: =false
-                                    - mb2LblNextTitle:
-                                        Control: Label
-                                        Properties:
-                                          AlignInContainer: =AlignInContainer.Stretch
-                                          Color: =AppTheme.TextPrimary
-                                          Fill: =Color.Transparent
-                                          Font: ="IBM Plex Sans"
-                                          FontWeight: =FontWeight.Semibold
-                                          Height: =20
-                                          LayoutMinHeight: =0
-                                          LayoutMinWidth: =0
-                                          PaddingBottom: =0
-                                          PaddingLeft: =0
-                                          PaddingRight: =0
-                                          PaddingTop: =0
-                                          Size: =14
-                                          Text: =NextBookingRecord.Title
-                                          Wrap: =false
-                                    - mb2LblNextSub:
-                                        Control: Label
-                                        Properties:
-                                          AlignInContainer: =AlignInContainer.Stretch
-                                          Color: =AppTheme.TextSecondary
-                                          Fill: =Color.Transparent
-                                          Font: ="IBM Plex Sans"
-                                          Height: =16
-                                          LayoutMinHeight: =0
-                                          LayoutMinWidth: =0
-                                          PaddingBottom: =0
-                                          PaddingLeft: =0
-                                          PaddingRight: =0
-                                          PaddingTop: =0
-                                          Size: =12
-                                          Text: |-
-                                            =NextBookingRecord.'RoomID: Title'.Value & " · " & Text(NextBookingRecord.StartDateTime, "HH:mm") & " – " & Text(NextBookingRecord.EndDateTime, "HH:mm")
-                                          Wrap: =false
                               - mb2LblNextCountdown:
                                   Control: Label
                                   Properties:
