@@ -159,29 +159,20 @@ Screens:
                                     LayoutMinHeight: =0
                                     LayoutMinWidth: =0
                                   Children:
-                                    - capRoom:
-                                        Control: Label
-                                        Properties:
-                                          Color: =AppTheme.TextMuted
-                                          Font: =Font.Lato
-                                          Height: =16
-                                          LayoutMinHeight: =0
-                                          Size: =11
-                                          Text: ="Room"
-                                          Wrap: =false
-                                    - valRoom:
-                                        Control: Label
+                                    - htxDetailFieldRoom:
+                                        Control: HtmlViewer
                                         Properties:
                                           AutoHeight: =true
-                                          Color: =AppTheme.TextPrimary
-                                          Font: =Font.Lato
-                                          FontWeight: =FontWeight.Semibold
-                                          Height: =20
+                                          DisplayMode: =DisplayMode.View
+                                          HtmlText: |-
+                                            =CarbonTextColored(CarbonHtmlType.Label01, "Room", AppThemeHex.TextMuted) &
+                                            CarbonText(CarbonHtmlType.HeadingCompact01, gblSelectedBooking.'RoomID: Title'.Value)
                                           LayoutMinHeight: =0
-                                          Size: =14
-                                          Text: |-
-                                            =gblSelectedBooking.'RoomID: Title'.Value
-                                          Wrap: =false
+                                          LayoutMinWidth: =0
+                                          PaddingBottom: =0
+                                          PaddingLeft: =0
+                                          PaddingRight: =0
+                                          PaddingTop: =0
                               - fldDate:
                                   Control: GroupContainer
                                   Variant: AutoLayout
@@ -194,26 +185,20 @@ Screens:
                                     LayoutMinHeight: =0
                                     LayoutMinWidth: =0
                                   Children:
-                                    - capDate:
-                                        Control: Label
+                                    - htxDetailFieldDate:
+                                        Control: HtmlViewer
                                         Properties:
-                                          Color: =AppTheme.TextMuted
-                                          Font: =Font.Lato
-                                          Height: =16
+                                          AutoHeight: =true
+                                          DisplayMode: =DisplayMode.View
+                                          HtmlText: |-
+                                            =CarbonTextColored(CarbonHtmlType.Label01, "Date", AppThemeHex.TextMuted) &
+                                            CarbonText(CarbonHtmlType.BodyCompact01, Text(gblSelectedBooking.StartDateTime, "dddd dd mmmm yyyy"))
                                           LayoutMinHeight: =0
-                                          Size: =11
-                                          Text: ="Date"
-                                          Wrap: =false
-                                    - valDate:
-                                        Control: Label
-                                        Properties:
-                                          Color: =AppTheme.TextPrimary
-                                          Font: =Font.Lato
-                                          Height: =20
-                                          LayoutMinHeight: =0
-                                          Size: =14
-                                          Text: =Text(gblSelectedBooking.StartDateTime, "dddd dd mmmm yyyy")
-                                          Wrap: =false
+                                          LayoutMinWidth: =0
+                                          PaddingBottom: =0
+                                          PaddingLeft: =0
+                                          PaddingRight: =0
+                                          PaddingTop: =0
                               - fldTime:
                                   Control: GroupContainer
                                   Variant: AutoLayout
@@ -226,26 +211,20 @@ Screens:
                                     LayoutMinHeight: =0
                                     LayoutMinWidth: =0
                                   Children:
-                                    - capTime:
-                                        Control: Label
+                                    - htxDetailFieldTime:
+                                        Control: HtmlViewer
                                         Properties:
-                                          Color: =AppTheme.TextMuted
-                                          Font: =Font.Lato
-                                          Height: =16
+                                          AutoHeight: =true
+                                          DisplayMode: =DisplayMode.View
+                                          HtmlText: |-
+                                            =CarbonTextColored(CarbonHtmlType.Label01, "Time", AppThemeHex.TextMuted) &
+                                            CarbonText(CarbonHtmlType.BodyCompact01, Text(gblSelectedBooking.StartDateTime, "HH:mm") & " – " & Text(gblSelectedBooking.EndDateTime, "HH:mm"))
                                           LayoutMinHeight: =0
-                                          Size: =11
-                                          Text: ="Time"
-                                          Wrap: =false
-                                    - valTime:
-                                        Control: Label
-                                        Properties:
-                                          Color: =AppTheme.TextPrimary
-                                          Font: =Font.Lato
-                                          Height: =20
-                                          LayoutMinHeight: =0
-                                          Size: =14
-                                          Text: =Text(gblSelectedBooking.StartDateTime, "HH:mm") & " – " & Text(gblSelectedBooking.EndDateTime, "HH:mm")
-                                          Wrap: =false
+                                          LayoutMinWidth: =0
+                                          PaddingBottom: =0
+                                          PaddingLeft: =0
+                                          PaddingRight: =0
+                                          PaddingTop: =0
                               - fldBy:
                                   Control: GroupContainer
                                   Variant: AutoLayout
@@ -258,26 +237,20 @@ Screens:
                                     LayoutMinHeight: =0
                                     LayoutMinWidth: =0
                                   Children:
-                                    - capBy:
-                                        Control: Label
+                                    - htxDetailFieldBy:
+                                        Control: HtmlViewer
                                         Properties:
-                                          Color: =AppTheme.TextMuted
-                                          Font: =Font.Lato
-                                          Height: =16
+                                          AutoHeight: =true
+                                          DisplayMode: =DisplayMode.View
+                                          HtmlText: |-
+                                            =CarbonTextColored(CarbonHtmlType.Label01, "Booked by", AppThemeHex.TextMuted) &
+                                            CarbonText(CarbonHtmlType.BodyCompact01, gblSelectedBooking.BookedBy.DisplayName)
                                           LayoutMinHeight: =0
-                                          Size: =11
-                                          Text: ="Booked by"
-                                          Wrap: =false
-                                    - valBy:
-                                        Control: Label
-                                        Properties:
-                                          Color: =AppTheme.TextPrimary
-                                          Font: =Font.Lato
-                                          Height: =20
-                                          LayoutMinHeight: =0
-                                          Size: =14
-                                          Text: =gblSelectedBooking.BookedBy.DisplayName
-                                          Wrap: =false
+                                          LayoutMinWidth: =0
+                                          PaddingBottom: =0
+                                          PaddingLeft: =0
+                                          PaddingRight: =0
+                                          PaddingTop: =0
                         - conCancelZone:
                             Control: GroupContainer
                             Variant: AutoLayout
