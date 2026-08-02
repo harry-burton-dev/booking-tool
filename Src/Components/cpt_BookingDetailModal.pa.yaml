@@ -773,7 +773,7 @@ ComponentDefinitions:
                                           Patch(Book_Bookings, LookUp(Book_Bookings, ID = gblSelectedBooking.ID), {Status: "Cancelled"}),
                                           Notify("Couldn't cancel this booking. Please try again.", NotificationType.Error),
                                           Refresh(Book_Bookings);
-                                          ClearCollect(colBookings, Book_Bookings);
+                                          ClearCollect(colBookings, BookingsWindow);
                                           Set(gblSelectedBooking, Blank());
                                           Notify("Booking cancelled", NotificationType.Success);
                                           Set(gbl_FixCycleSeriesID, "");
@@ -858,7 +858,7 @@ ComponentDefinitions:
                                           Patch(Book_Bookings, LookUp(Book_Bookings, ID = gblSelectedBooking.ID), {Status: "Cancelled"}),
                                           Notify("Couldn't cancel this booking. Please try again.", NotificationType.Error),
                                           Refresh(Book_Bookings);
-                                          ClearCollect(colBookings, Book_Bookings);
+                                          ClearCollect(colBookings, BookingsWindow);
                                           Set(gblSelectedBooking, Blank());
                                           Notify("Booking cancelled", NotificationType.Success);
                                           Set(gbl_FixCycleSeriesID, "");
@@ -906,7 +906,7 @@ ComponentDefinitions:
                                               )
                                           );
                                           Refresh(Book_Bookings);
-                                          ClearCollect(colBookings, Book_Bookings);
+                                          ClearCollect(colBookings, BookingsWindow);
                                           Set(gblSelectedBooking, Blank());
                                           Notify("Series cancelled", NotificationType.Success);
                                           Set(gbl_FixCycleSeriesID, "");

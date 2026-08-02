@@ -10,7 +10,7 @@ Screens:
         /* Re-pull the shared bookings snapshot so colleagues' writes since App.OnStart
            (or since this session's last write) show up without requiring a write of our own */
         Refresh(Book_Bookings);
-        ClearCollect(colBookings, Book_Bookings);
+        ClearCollect(colBookings, BookingsWindow);
 
         Select(btnLoadFindBookings)
     Children:
@@ -769,7 +769,7 @@ Screens:
 
                   // PROD-REVERT[booking-create-find] SharePoint round-trip after series create
                   Refresh(Book_Bookings);
-                  ClearCollect(colBookings, Book_Bookings);
+                  ClearCollect(colBookings, BookingsWindow);
 
                   Set(varBookingError, !IsEmpty(Filter(colFailedBookings, Reason = "error")));
 

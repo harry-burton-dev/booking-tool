@@ -112,6 +112,19 @@ App:
                   SlotMinutes = 15;
                   MaxBookingMinutes = 240;
 
+                  /* The one bounded source for the colBookings snapshot. Rolling window:
+                     every consumer (MyBookings -90d, Find/Rooms day views, clash checks)
+                     filters narrower than this. Both predicates are delegable to SharePoint
+                     (>= / <= on DateTime), so the pull no longer truncates at the
+                     data-row limit for in-window rows (BUG-2). */
+                  BookingsWindowStart = DateAdd(Today(), -90, TimeUnit.Days);
+                  BookingsWindowEnd   = DateAdd(Today(), 180, TimeUnit.Days);
+                  BookingsWindow = Filter(
+                      Book_Bookings,
+                      EndDateTime >= BookingsWindowStart,
+                      StartDateTime <= BookingsWindowEnd
+                  );
+
                   WizardStep1 = "1";
                   WizardStep2 = "2";
                   WizardStep3 = "3";
@@ -614,7 +627,7 @@ App:
 
                   Concurrent(
                       ClearCollect(colRooms, Book_Rooms),
-                      ClearCollect(colBookings, Book_Bookings)
+                      ClearCollect(colBookings, BookingsWindow)
                   );
 
 
