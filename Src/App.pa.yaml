@@ -106,9 +106,9 @@ App:
                       Eyebrow:          "font-size: 11px; font-family: " & CarbonFontFamily & "; font-weight: 400; letter-spacing: 0.6px; text-transform: uppercase;"
                   };
 
-                  CarbonText(css:Text, content:Text):Text          = "<div style='" & css & " color: " & AppThemeHex.TextPrimary & ";'>" & content & "</div>";
-                  CarbonTextSecondary(css:Text, content:Text):Text = "<div style='" & css & " color: " & AppThemeHex.TextSecondary & ";'>" & content & "</div>";
-                  CarbonTextColored(css:Text, content:Text, hex:Text):Text = "<div style='" & css & " color: " & hex & ";'>" & content & "</div>";
+                  CarbonText(css:Text, content:Text):Text          = "<div style=""" & css & " color: " & AppThemeHex.TextPrimary & ";"">" & content & "</div>";
+                  CarbonTextSecondary(css:Text, content:Text):Text = "<div style=""" & css & " color: " & AppThemeHex.TextSecondary & ";"">" & content & "</div>";
+                  CarbonTextColored(css:Text, content:Text, hex:Text):Text = "<div style=""" & css & " color: " & hex & ";"">" & content & "</div>";
 
                   //------------------------------------------------------------
                   //--- Shared predicates, policy constants, wizard step keys ---
@@ -154,15 +154,15 @@ App:
                   ThemeMap = {
                       Light: {
                           PrimaryText: ColourTokens.Light.PrimaryText,
-                          TextPrimary: ColorValue(AppThemeHex.TextPrimary),
-                          TextSecondary: ColorValue(AppThemeHex.TextSecondary),
-                          TextMuted: ColorValue(AppThemeHex.TextMuted),
+                          TextPrimary: ColorValue(ThemeMapHex.Light.TextPrimary),
+                          TextSecondary: ColorValue(ThemeMapHex.Light.TextSecondary),
+                          TextMuted: ColorValue(ThemeMapHex.Light.TextMuted),
                           Border: ColorValue("#e0e0e0"),
                           Surface: ColorValue("#ffffff"),
                           SurfaceAlt: ColorValue("#f4f4f4"),
-                          StatusBusyText: ColorValue(AppThemeHex.StatusBusyText),
+                          StatusBusyText: ColorValue(ThemeMapHex.Light.StatusBusyText),
                           StatusBusyBg: ColorValue("#fff1f1"),
-                          StatusFreeText: ColorValue(AppThemeHex.StatusFreeText),
+                          StatusFreeText: ColorValue(ThemeMapHex.Light.StatusFreeText),
                           StatusFreeBg: ColorValue("#defbe6"),
                           StatusWarnText: ColorValue("#684e00"),
                           StatusWarnBg: ColorValue("#fcf4d6"),
@@ -216,15 +216,15 @@ App:
                       },
                       Dark: {
                           PrimaryText: ColourTokens.Dark.PrimaryText,
-                          TextPrimary: ColorValue(AppThemeHex.TextPrimary),
-                          TextSecondary: ColorValue(AppThemeHex.TextSecondary),
-                          TextMuted: ColorValue(AppThemeHex.TextMuted),
+                          TextPrimary: ColorValue(ThemeMapHex.Dark.TextPrimary),
+                          TextSecondary: ColorValue(ThemeMapHex.Dark.TextSecondary),
+                          TextMuted: ColorValue(ThemeMapHex.Dark.TextMuted),
                           Border: ColorValue("#393939"),
                           Surface: ColorValue("#161616"),
                           SurfaceAlt: ColorValue("#262626"),
-                          StatusBusyText: ColorValue(AppThemeHex.StatusBusyText),
+                          StatusBusyText: ColorValue(ThemeMapHex.Dark.StatusBusyText),
                           StatusBusyBg: ColorValue("#2d1515"),
-                          StatusFreeText: ColorValue(AppThemeHex.StatusFreeText),
+                          StatusFreeText: ColorValue(ThemeMapHex.Dark.StatusFreeText),
                           StatusFreeBg: ColorValue("#152a17"),
                           StatusWarnText: ColorValue("#f1c21b"),
                           StatusWarnBg: ColorValue("#2d2200"),
@@ -319,25 +319,33 @@ App:
                       }
                   };
 
-                  /* Hex-string mirror of the lifted text-color tokens (source of truth for
-                     CSS strings, which cannot embed a Color value). Same light/dark branch
-                     shape as ThemeMap - KEEP IN SYNC with the corresponding ThemeMap entries. */
-                  AppThemeHex = If(glbIsDarkMode,
-                      {
-                          TextPrimary: "#f4f4f4",
-                          TextSecondary: "#c6c6c6",
-                          TextMuted: "#8d8d8d",
-                          StatusBusyText: "#ff8389",
-                          StatusFreeText: "#42be65"
-                      },
-                      {
+                  /* ThemeMapHex is the source of truth for the five lifted text-color tokens
+                     (TextPrimary/TextSecondary/TextMuted/StatusBusyText/StatusFreeText) - plain
+                     hex strings, since a CSS string cannot embed a Color value. Same light/dark
+                     branch shape as ThemeMap - KEEP IN SYNC with the corresponding ThemeMap
+                     entries, which derive their Color values via ColorValue(ThemeMapHex.X.Y).
+                     AppThemeHex resolves ThemeMapHex to the active theme for direct hex access
+                     in HTML/CSS composition (CarbonText* UDFs).
+                     NOTE: distinct from ThemeHex below, which is %23-URL-encoded for embedding
+                     in SVG data-URIs, not for CSS style strings. */
+                  ThemeMapHex = {
+                      Light: {
                           TextPrimary: "#161616",
                           TextSecondary: "#525252",
                           TextMuted: "#6f6f6f",
                           StatusBusyText: "#da1e28",
                           StatusFreeText: "#198038"
+                      },
+                      Dark: {
+                          TextPrimary: "#f4f4f4",
+                          TextSecondary: "#c6c6c6",
+                          TextMuted: "#8d8d8d",
+                          StatusBusyText: "#ff8389",
+                          StatusFreeText: "#42be65"
                       }
-                  );
+                  };
+
+                  AppThemeHex = If(glbIsDarkMode, ThemeMapHex.Dark, ThemeMapHex.Light);
 
                   AppTheme = If(glbIsDarkMode, ThemeMap.Dark, ThemeMap.Light);
 
