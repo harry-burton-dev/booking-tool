@@ -106,6 +106,9 @@ App:
                       Eyebrow:          "font-size: 11px; font-family: " & CarbonFontFamily & "; font-weight: 400; letter-spacing: 0.6px; text-transform: uppercase;"
                   };
 
+                  /* Kit rule: any non-literal value interpolated into a CarbonText* call goes through fnHtmlEscape (ampersand first, so entities are not double-decoded). */
+                  fnHtmlEscape(t:Text):Text = Substitute(Substitute(Substitute(t, "&", "&amp;"), "<", "&lt;"), ">", "&gt;");
+
                   CarbonText(css:Text, content:Text):Text          = "<div style=""" & css & " color: " & AppThemeHex.TextPrimary & ";"">" & content & "</div>";
                   CarbonTextSecondary(css:Text, content:Text):Text = "<div style=""" & css & " color: " & AppThemeHex.TextSecondary & ";"">" & content & "</div>";
                   CarbonTextColored(css:Text, content:Text, hex:Text):Text = "<div style=""" & css & " color: " & hex & ";"">" & content & "</div>";

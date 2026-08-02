@@ -1429,7 +1429,7 @@ ComponentDefinitions:
                       Properties:
                         DropShadow: =DropShadow.None
                         FillPortions: =0
-                        Height: =16 + lbl_textStep4_confirmBooking.Height + 12 + conSummaryCard.Height + 12 + htxStep3Errors.Height + 16
+                        Height: =16 + lbl_textStep4_confirmBooking.Height + 12 + conSummaryCard.Height + If(htxStep3Errors.Visible, 12 + htxStep3Errors.Height, 0) + 16
                         LayoutAlignItems: =LayoutAlignItems.Stretch
                         LayoutDirection: =LayoutDirection.Vertical
                         LayoutGap: =12
@@ -1488,7 +1488,7 @@ ComponentDefinitions:
                                       CarbonTextSecondary(CarbonHtmlType.Label01, Text(varStartTime, "HH:mm") & " - " & Text(varEndTime, "HH:mm")) &
                                       If(
                                           !IsBlank(varBookForEmail),
-                                          CarbonTextSecondary(CarbonHtmlType.Label01, $"Booking for: {varBookForName}"),
+                                          CarbonTextSecondary(CarbonHtmlType.Label01, $"Booking for: {fnHtmlEscape(varBookForName)}"),
                                           ""
                                       ) &
                                       If(
@@ -1509,7 +1509,11 @@ ComponentDefinitions:
                               AutoHeight: =true
                               DisplayMode: =DisplayMode.View
                               HtmlText: |-
-                                =If(
+                                =/* Consolidates lbl_textSlotTakenError + lbl_textBookingFailedError +
+                                   lbl_textConfirmDisabledReason. The If-chain reproduces the old three-label
+                                   Visible logic 1:1 - including the intentional double-render when varConflict
+                                   is true (red slot-taken error AND muted guidance shown simultaneously). */
+                                If(
                                     varConflict || gbl_Book_SubmitResult = "conflict",
                                     CarbonTextColored(CarbonHtmlType.Label01, "This slot was just taken. Please go back and choose a different time.", AppThemeHex.StatusBusyText),
                                     ""
@@ -1519,6 +1523,8 @@ ComponentDefinitions:
                                     CarbonTextColored(CarbonHtmlType.Label01, "Booking failed. Please try again.", AppThemeHex.StatusBusyText),
                                     ""
                                 ) &
+                                /* Muted (not red) on purpose: the disabled-reason line is guidance,
+                                   not an error - it replaces lbl_textConfirmDisabledReason. */
                                 With(
                                     {
                                         _reason: If(varConflict, "Resolve the scheduling conflict above before confirming.",
@@ -1539,6 +1545,7 @@ ComponentDefinitions:
                               PaddingLeft: =0
                               PaddingRight: =0
                               PaddingTop: =0
+                              Visible: =Self.HtmlText <> ""
             - conWizardFooter:
                 Control: GroupContainer
                 Variant: AutoLayout

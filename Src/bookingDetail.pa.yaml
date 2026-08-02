@@ -244,7 +244,7 @@ Screens:
                                           DisplayMode: =DisplayMode.View
                                           HtmlText: |-
                                             =CarbonTextColored(CarbonHtmlType.Label01, "Booked by", AppThemeHex.TextMuted) &
-                                            CarbonText(CarbonHtmlType.BodyCompact01, gblSelectedBooking.BookedBy.DisplayName)
+                                            CarbonText(CarbonHtmlType.BodyCompact01, fnHtmlEscape(gblSelectedBooking.BookedBy.DisplayName))
                                           LayoutMinHeight: =0
                                           LayoutMinWidth: =0
                                           PaddingBottom: =0

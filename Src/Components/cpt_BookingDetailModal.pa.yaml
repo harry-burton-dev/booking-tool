@@ -77,7 +77,7 @@ ComponentDefinitions:
                                         IsBlank(gblSelectedBooking),
                                         "No booking selected",
                                         /* booking titles are user-entered - escape HTML metacharacters */
-                                        Substitute(Substitute(gblSelectedBooking.Title, "<", "&lt;"), ">", "&gt;")
+                                        fnHtmlEscape(gblSelectedBooking.Title)
                                     )
                                 ) &
                                 CarbonTextSecondary(
@@ -385,7 +385,7 @@ ComponentDefinitions:
                                     DisplayMode: =DisplayMode.View
                                     HtmlText: |-
                                       =CarbonTextColored(CarbonHtmlType.Label01, "Booked by", AppThemeHex.TextMuted) &
-                                      CarbonText(CarbonHtmlType.HeadingCompact01, gblSelectedBooking.BookedBy.DisplayName)
+                                      CarbonText(CarbonHtmlType.HeadingCompact01, fnHtmlEscape(gblSelectedBooking.BookedBy.DisplayName))
                                     LayoutMinHeight: =0
                                     LayoutMinWidth: =0
                                     PaddingBottom: =0
