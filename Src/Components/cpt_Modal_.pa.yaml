@@ -1013,31 +1013,25 @@ ComponentDefinitions:
                                           LayoutMinHeight: =0
                                           LayoutMinWidth: =0
                                         Children:
-                                          - lbl_textConflictRoomTitle:
-                                              Control: Label
+                                          - htxConflictTitles:
+                                              Control: HtmlViewer
                                               Properties:
                                                 AlignInContainer: =AlignInContainer.Stretch
                                                 AutoHeight: =true
-                                                Color: =AppTheme.StatusBusyText
-                                                Font: =Font.Lato
-                                                FontWeight: =FontWeight.Semibold
+                                                DisplayMode: =DisplayMode.View
+                                                HtmlText: |-
+                                                  =CarbonTextColored(CarbonHtmlType.HeadingCompact01, "Conflict - " & fnHtmlEscape(varSelectedRoom.Title), AppThemeHex.StatusBusyText) &
+                                                  CarbonTextColored(
+                                                      CarbonHtmlType.Label01,
+                                                      "Your requested slot " & fnHtmlEscape(Text(varStartTime, "HH:mm") & " - " & Text(varEndTime, "HH:mm")) & " is unavailable",
+                                                      AppThemeHex.TextMuted
+                                                  )
                                                 LayoutMinHeight: =0
                                                 LayoutMinWidth: =0
-                                                Size: =14
-                                                Text: ="Conflict - " & varSelectedRoom.Title
-                                                Wrap: =false
-                                          - lbl_textConflictSlotUnavailable:
-                                              Control: Label
-                                              Properties:
-                                                AlignInContainer: =AlignInContainer.Stretch
-                                                AutoHeight: =true
-                                                Color: =AppTheme.TextMuted
-                                                Font: =Font.Lato
-                                                LayoutMinHeight: =0
-                                                LayoutMinWidth: =0
-                                                Size: =12
-                                                Text: ="Your requested slot " & Text(varStartTime, "HH:mm") & " - " & Text(varEndTime, "HH:mm") & " is unavailable"
-                                                Wrap: =false
+                                                PaddingBottom: =0
+                                                PaddingLeft: =0
+                                                PaddingRight: =0
+                                                PaddingTop: =0
                               - lbl_textTimelineLabel:
                                   Control: Label
                                   Properties:
