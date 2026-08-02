@@ -598,31 +598,21 @@ Screens:
                                                       Visible: =varFindViewMode = "Week"
                                                       Width: =Parent.TemplateWidth
                                                     Children:
-                                                      - lblWeekCount_v2:
-                                                          Control: Label
+                                                      - htxWeekCell_v2:
+                                                          Control: HtmlViewer
                                                           Properties:
-                                                            Color: =AppTheme.TextPrimary
-                                                            FontWeight: =FontWeight.Semibold
-                                                            LayoutMinHeight: =20
+                                                            AlignInContainer: =AlignInContainer.Stretch
+                                                            AutoHeight: =true
+                                                            DisplayMode: =DisplayMode.View
+                                                            HtmlText: |-
+                                                              =CarbonText(CarbonHtmlType.Label01, fnHtmlEscape(ThisItem.Title)) &
+                                                              CarbonTextColored(CarbonHtmlType.Label01, fnHtmlEscape(ThisItem.BookedBy), AppThemeHex.TextMuted)
+                                                            LayoutMinHeight: =0
                                                             LayoutMinWidth: =0
                                                             PaddingBottom: =0
                                                             PaddingLeft: =4
                                                             PaddingRight: =0
                                                             PaddingTop: =4
-                                                            Size: =11
-                                                            Text: =ThisItem.Title
-                                                      - lblWeekFree_v2:
-                                                          Control: Label
-                                                          Properties:
-                                                            Color: =AppTheme.TextMuted
-                                                            LayoutMinHeight: =16
-                                                            LayoutMinWidth: =0
-                                                            PaddingBottom: =0
-                                                            PaddingLeft: =4
-                                                            PaddingRight: =0
-                                                            PaddingTop: =0
-                                                            Size: =11
-                                                            Text: =ThisItem.BookedBy
                                                       - btnWeekCell_v2:
                                                           Control: Classic/Button
                                                           Properties:
