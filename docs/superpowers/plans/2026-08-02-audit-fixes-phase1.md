@@ -124,10 +124,10 @@ git commit -am "fix(app): seed Find globals in OnStart, Concurrent collects (BUG
                      (>= / <= on DateTime), so the pull no longer truncates at the
                      data-row limit for in-window rows (BUG-2). */
                   BookingsWindowStart = DateAdd(Today(), -90, TimeUnit.Days);
-                  /* End = 12 months: the longest series (12 monthly occurrences, last at
-                     +11 months) must stay fully inside the window — +180d would hide
-                     series tails from displays and clash checks (found in Task-2 review). */
-                  BookingsWindowEnd   = DateAdd(Today(), 12, TimeUnit.Months);
+                  /* End = 24 months (revised twice in review): +180d hid series tails;
+                     12 months only covers series STARTING today — the date picker is
+                     unbounded, so a 12-monthly series starting +2 months tails at +13. */
+                  BookingsWindowEnd   = DateAdd(Today(), 24, TimeUnit.Months);
                   BookingsWindow = Filter(
                       Book_Bookings,
                       EndDateTime >= BookingsWindowStart,
@@ -719,8 +719,11 @@ The component has `AccessAppScope: true`, so it can clear the app globals itself
 
 ```
                                   // RESET-SITE[<site-name>] full wizard-state clear on close (BUG-13)
+                                  // NOTE (final review): varSelectedRoom is NOT cleared — the Rooms
+                                  // open-sites inherit the screen's room selection; blanking it here
+                                  // dead-ends the timeline flow. gbl_FixCycleSeriesID IS cleared so
+                                  // an abandoned wizard can't leave the fix cycle armed.
                                   Set(varTitle, Blank());
-                                  Set(varSelectedRoom, Blank());
                                   Set(varSelectedDate, Blank());
                                   Set(varStartTime, Blank());
                                   Set(varEndTime, Blank());
@@ -730,6 +733,7 @@ The component has `AccessAppScope: true`, so it can clear the app globals itself
                                   Set(varBookingError, false);
                                   Set(varSubmitting, false);
                                   Set(gbl_Book_SubmitResult, "");
+                                  Set(gbl_FixCycleSeriesID, "");
                                   Set(gbl_UI_Book_Modal_Step, WizardStep1);
                                   ClearCollect(varAlternativeRooms, Filter(colRooms, true = false));
 ```
@@ -868,4 +872,12 @@ git push -u origin fix/audit-phase1
    - `bookingDetail.OnSubmitEdit` never sets `gbl_Book_SubmitResult = "error"` on its failure branches.
    - `_runEnd` day-end fallback in Rooms should reference `Timeline_DayEnd` instead of recomputing it.
    - `btnTLFree` disabled-state styling (no DisabledFill/DisabledColor — check in Studio).
-   - Timeline browsing >12 months out shows "all free" (unbounded date pickers vs BookingsWindow).
+   - Timeline browsing beyond the window shows "all free" (unbounded date pickers vs BookingsWindow); real fix = EndDate bound on `dtpBookingDate` and the timeline date pickers.
+5. **From the final whole-implementation review (2026-08-02):**
+   - Split authorization model: single-occurrence cancel has NO ownership gate while series cancel now does — same modal, two rules; on-behalf creators can no longer series-cancel their own on-behalf series (confirm intended). Phase-3 item.
+   - `conTLPick` selection block renders clipped when the selection crosses the hour row (`Height = varTLSelMinutes * 2` inside a row-height container) — visual only, booking data correct.
+   - `varNextFreeSlot` still reads the snapshot while `varConflict` in the same formula is fresh — the conflict banner can suggest a just-taken "next free" slot.
+   - Comment overstatement in App.pa.yaml: delegation moves filtering server-side but does not lift ClearCollect's row cap (>2000 in-window rows still truncate).
+   - Remaining un-cleared wizard-adjacent globals on close: `gbl_UI_ScopePrompt`, `gbl_PendingStart`, `gbl_PendingEnd`.
+   - **Rung-6 player checks (required):** (a) cancel a series and confirm the list updates without navigating away (With-record eagerness + ForAll-over-live-query); (b) Rooms timeline: room → View timeline → slot → Book → close → slot → Book → Continue enabled, header still names the room.
+   - **Task 9 Step 5 (required):** App Checker diff must specifically confirm NO new delegation warnings on the four new `Filter(Book_Bookings, …)` sites (`_occ.…` comparands) — the only remaining way BUG-1/2 could silently still be live.
