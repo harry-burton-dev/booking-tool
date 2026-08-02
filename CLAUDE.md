@@ -53,7 +53,19 @@ block — RULES P10), then `tools/pack-msapp/pack-msapp.ps1`. Deployment runbook
 
 Any coding task that fails the trivial threshold (≤2 files, ≤20 changed lines, no new logic)
 starts by invoking the `orchestrator-coding` skill — before reading implementation files or
-writing code. On a Canvas App, workers lint but never compile and never commit (RULES O1).
+writing code. That skill is **the** execution path here. Do **not** run
+`superpowers:subagent-driven-development` or `superpowers:executing-plans` in this repo: they
+mandate two review agents per task and know nothing about the compile gate. Running that path on
+2026-08-02 cost ~4.4M subagent tokens for ~400 changed lines. `superpowers:writing-plans` is
+still fine for authoring a multi-task plan — the plan then hands to `orchestrator-coding` to
+execute, and plan tasks carry a lane (see the skill).
+
+On a Canvas App, workers lint but never compile and never commit (RULES O1). Because of that the
+orchestrator owns a **probe compile**: the first task introducing a new data-source query,
+control type, or component wiring is implemented and compiled *alone*, before any further task is
+dispatched, and the compiler's verdict becomes a hard constraint in every later task spec.
+pa-lint cannot see delegation warnings, `ForAll` mutation rules, or unknown properties — only
+`compile_canvas` can, and it fails the entire publish on any one of them.
 
 ### Local environment notes (this machine)
 

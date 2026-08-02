@@ -17,6 +17,22 @@ Self-edit directly ONLY if ALL three hold:
 
 Anything else follows the loop below. Do not rationalize around the gate.
 
+## Effort lanes (pick one per task, before dispatch)
+
+The trivial gate is binary; the work above it is not. A fresh agent burns 60–80k tokens just
+orienting, so the lane choice dominates cost far more than the code does. Name the lane in every
+task spec.
+
+| Lane | Fits when | Process |
+|---|---|---|
+| **Batched** | several edits whose exact before/after is already known, no new logic | ONE Implementer does all of them in one dispatch; orchestrator runs the acceptance checks; no Reviewer |
+| **Standard** | multi-file, known pattern, some judgment | one Implementer → orchestrator acceptance checks → ONE Reviewer |
+| **Novel** | new data-source query, new control/component, new algorithm, anything the compiler has never seen | goes FIRST, alone, with a probe compile (below); its verdict constrains every later spec |
+
+Never run two review agents over one task. Spec-compliance is mechanical and belongs to the
+orchestrator (step 5); the Reviewer judges correctness and consequences, which is where the real
+defects live. Don't spawn one worker per file when one worker can hold the whole edit set.
+
 ## Model routing table
 
 | Role | Agent tool settings | Use for | Never |
@@ -33,8 +49,16 @@ Anything else follows the loop below. Do not rationalize around the gate.
 2. **Design** — requirements unclear → invoke `superpowers:brainstorming`. Clear → state assumptions in 2–3 lines.
 3. **Plan** — write per-task specs using the template below (`superpowers:writing-plans` for multi-task work). Every spec names its model from the routing table.
 4. **Delegate** — dispatch via the Agent tool with the pinned model. Independent tasks: dispatch in parallel in one message. Workers return the structured report — never file dumps.
-5. **Review gate** — every non-trivial task's diff goes to a Reviewer agent with the task spec. Verdict `PASS` or `FAIL(reasons)`.
-   - FAIL → SendMessage fix instructions to the SAME worker (persistent context). Max 2 retries.
+5. **Review gate** — the orchestrator first runs the spec's acceptance checks itself: `git show
+   --stat`, the spec's grep counts, lint/validate tails. Those are bounded, small outputs; this is
+   the one exception to "orchestrator never verifies diffs", and it replaces the spec-review agent
+   entirely. Never pull the full diff into the main context — that is the Reviewer's job. Then, in
+   Standard and Novel lanes only, ONE Reviewer agent gets the diff and the task spec. Verdict
+   `PASS` or `FAIL(reasons)`.
+   - FAIL, fix is ≤5 lines and mechanical → orchestrator applies it directly and re-runs the
+     acceptance checks. No re-dispatch, no re-review.
+   - FAIL, anything larger → SendMessage fix instructions to the SAME worker (persistent
+     context). Max 2 retries. Re-review only if the fix changed the design.
    - Still failing → reassign to a Heavy implementer, or surface to the user.
 6. **Advice channel** — worker questions come back in reports; answer from design knowledge WITHOUT loading the code yourself.
 7. **Finish** — collect reviewer verification evidence, then invoke `superpowers:finishing-a-development-branch`.
@@ -62,6 +86,19 @@ O-rules in `docs/RULES.md` bind this skill to that constraint:
   same file; reserve parallelism for scouts and reviewers.
 - **Reviewers prefer mechanical diffs over eyeballing** (O2) — extract, normalize, diff against
   the original. This is what caught the defects compile could not.
+- **The orchestrator owns a probe compile (Novel lane).** Workers cannot compile, and pa-lint
+  sees none of what the compiler rejects: delegation warnings (which fail the *whole* publish,
+  not just warn), `ForAll` mutation rules, unknown control properties. So the first task
+  introducing a new query/control/wiring pattern is implemented alone, compiled alone under the
+  lock, and its verdict becomes a hard constraint in every later task spec. Compiling last
+  instead of first on 2026-08-02 forced six rework loops and a four-attempt publish.
+
+## Budget tripwire
+
+A task changing <50 lines should cost one dispatch, not three. If one task passes ~300k subagent
+tokens, or the run passes ~1M, stop and tell the user what is eating it before continuing. The
+2026-08-02 phase-1 run spent ~4.4M tokens on ~400 changed lines (~11k per line): two review
+agents per task, eight spec reviews that found nothing between them, and compile-last sequencing.
 
 ## Task-spec template
 
