@@ -569,7 +569,8 @@ Screens:
                                                                       StartDateTime: gbl_PendingStart,
                                                                       EndDateTime: gbl_PendingEnd,
                                                                       IsException: true,
-                                                                      Status: If(_free, "Active", gblSelectedBooking.Status)
+                                                                      /* BUG-4: a busy target slot is a clash, whatever the row was before */
+                                                                      Status: If(_free, "Active", "Clash")
                                                                   }
                                                               ),
                                                               Notify("Couldn't update this booking. Please try again.", NotificationType.Error),
@@ -588,7 +589,11 @@ Screens:
                                                                       If(
                                                                           IsBlank(_next),
                                                                           Set(gbl_FixCycleSeriesID, "");
-                                                                          Notify("All clashes resolved", NotificationType.Success),
+                                                                          If(
+                                                                              _free,
+                                                                              Notify("All clashes resolved", NotificationType.Success),
+                                                                              Notify("No further clashes to fix — this booking is still clashed", NotificationType.Warning)
+                                                                          ),
                                                                           // RESET-SITE[bookingdetail-fix-cycle-advance] wizard state reset before opening the next clash
                                                                           Set(gblSelectedBooking, _next);
                                                                           Set(gblEditingBookingID, _next.ID);
