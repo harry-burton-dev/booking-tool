@@ -1347,7 +1347,17 @@ Screens:
                                               )
                                           },
                                           Refresh(Book_Bookings);
-                                          ClearCollect(colBookings, BookingsWindow);
+                                          If(
+                                              CountRows(Filter(_results, !Value)) = 0,
+                                              // Mirror: predicate copied from the server loop above (SeriesID server filter + client refinement)
+                                              UpdateIf(
+                                                  colBookings,
+                                                  SeriesID = gbl_UI_CancelSeriesConfirmID && StartDateTime >= Now() && Status <> "Cancelled" && BookedByEmail = Lower(User().Email),
+                                                  {Status: "Cancelled"}
+                                              ),
+                                              // MIRROR-FALLBACK: partial series-cancel failure — local picture uncertain, re-pull the window
+                                              ClearCollect(colBookings, BookingsWindow)
+                                          );
                                           Set(gbl_UI_CancelSeriesConfirmID, Blank());
                                           If(
                                               CountRows(_results) = 0,
