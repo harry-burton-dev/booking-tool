@@ -772,7 +772,7 @@ After:
 
 - [ ] **Step 5: `btnDiscardBooking.OnSelect`** — ends `…Set(gblEditingBookingID, 0); Set(gbl_UI_Book_Modal, false)`. Same insertion, site name `wizard-discard`.
 
-- [ ] **Step 6 (BUG-14): resets in `btnConfirm` only on non-error outcome.** The host's `OnSubmit` runs synchronously inside `cpt_Modal_.OnSubmit()` and sets `gbl_Book_SubmitResult` before returning (verified in Home's handler: `Set(gbl_Book_SubmitResult, If(varBookingError, "error", "success"))`). Before:
+- [ ] **Step 6 (BUG-14): WITHDRAWN in Task-8 review.** The audit's premise ("on the host's error path the modal stays open") is false — all three creation hosts close the modal unconditionally ("close the modal on all branches"), so guarding the resets on `gbl_Book_SubmitResult <> "error"` only creates stale control state (on-behalf toggle, title, repeats) that leaks into the next open, since host open-sites cannot `Reset()` controls inside the component. The post-submit resets stay UNCONDITIONAL (comment updated to record why). BUG-14's real fix — hosts keeping the modal open on error — is a host-behavior UX change, moved to the follow-on plans. Original (rejected) step for the record:
 
 ```
                               /* Host closes the modal on both outcomes; clear transient wizard state. */
@@ -860,3 +860,12 @@ git push -u origin fix/audit-phase1
 1. **Phase 2 — performance program** (audit items 2, 6, 7): replace post-mutation `Refresh`+re-collect with local `Patch`/`UpdateIf` mirrors (PERF-1/6); split the Rooms timeline into its own screen — **every moved control must be recreated under a NEW name** (memory: re-parented controls publish default-constructed and render black; Y6 names are app-global) (PERF-3); precompute slot strips in `RoomsBrowseBase`/`RoomOccupancyToday` and batch `Collect(target, ForAll(...))` (PERF-4/5).
 2. **Phase 3 — state hygiene** (audit items 9, 10): kill `bdmBtnChangeTime`'s 15-variable grab via component Input/Output properties (STATE-2); revisit-reset policy + `gbl*/ctx*/col*` naming sweep (STATE-3/4); wire-or-delete dead component inputs (BUG-20, STATE-5).
 3. **Phase 1b — small bugs sweep:** BUG-11 (self-referential `ClearCollect(colFindRows, SortByColumns(colFindRows, …))`), BUG-12 (sort before gap derivation), BUG-15 (`varNextFreeSlot` unsorted LookUp), BUG-17 (series re-time date semantics), BUG-18 (IfError on entry reads), BUG-19 (Profile settings patch base), BUG-21 (case normalization), BUG-24 (double-encoded `&amp;`).
+4. **Additions from Phase-1 execution reviews (2026-08-02):**
+   - BUG-14 real fix: hosts keep the modal open on `"error"` + guarded resets + host-side control resets (audit premise "modal stays open" was false; see Task 8).
+   - Dead `_isWeekend` branches in Home/Find/Rooms OnSubmit (unreachable after the Task-6 weekend shift) — remove or mark legacy-only.
+   - Duplicate warning toast in bookingDetail's stuck fix-cycle case ("Slot still busy…" + "No further clashes…" back to back).
+   - Per-row failure aggregation on the series-EDIT path (cancel paths got it in Task 4).
+   - `bookingDetail.OnSubmitEdit` never sets `gbl_Book_SubmitResult = "error"` on its failure branches.
+   - `_runEnd` day-end fallback in Rooms should reference `Timeline_DayEnd` instead of recomputing it.
+   - `btnTLFree` disabled-state styling (no DisabledFill/DisabledColor — check in Studio).
+   - Timeline browsing >12 months out shows "all free" (unbounded date pickers vs BookingsWindow).
