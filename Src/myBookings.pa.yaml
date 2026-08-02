@@ -1324,22 +1324,38 @@ Screens:
                                     HoverColor: =ColorValue(AppTheme.PrimaryText)
                                     HoverFill: =ColorValue(AppTheme.ButtonDangerActive)
                                     OnSelect: |-
-                                      =// PROD-REVERT[booking-cancel] soft delete via per-row Patch; matches single-cancel pattern in bookingDetail.
-                                      // UpdateIf's <> and Now() predicates aren't delegable to SharePoint, so this iterates the
-                                      // client-side colBookings copy (series capped at 12 rows) and patches each row by ID instead.
-                                      ForAll(
-                                          Filter(colBookings, SeriesID = gbl_UI_CancelSeriesConfirmID, StartDateTime >= Now(), Status <> "Cancelled") As _m,
-                                          IfError(
-                                              Patch(Book_Bookings, LookUp(Book_Bookings, ID = _m.ID), {Status: "Cancelled"});
-                                              true,
-                                              Notify("Couldn't cancel one or more occurrences.", NotificationType.Error);
-                                              false
+                                      =// PROD-REVERT[booking-cancel] soft delete via Patch; Remove() retired per WS4
+                                      // Server-filter SeriesID (delegable =, <=12 rows), then refine with the
+                                      // non-delegable predicates client-side — immune to the data-row limit (BUG-2).
+                                      // Ownership predicate mirrors the MyBookings named formula (BUG-3).
+                                      With(
+                                          {
+                                              _results: ForAll(
+                                                  Filter(
+                                                      Filter(Book_Bookings, SeriesID = gbl_UI_CancelSeriesConfirmID),
+                                                      StartDateTime >= Now(),
+                                                      Status <> "Cancelled",
+                                                      BookedByEmail = Lower(User().Email)
+                                                  ) As _m,
+                                                  IfError(
+                                                      Patch(Book_Bookings, _m, {Status: "Cancelled"});
+                                                      true,
+                                                      false
+                                                  )
+                                              )
+                                          },
+                                          Refresh(Book_Bookings);
+                                          ClearCollect(colBookings, BookingsWindow);
+                                          Set(gbl_UI_CancelSeriesConfirmID, Blank());
+                                          If(
+                                              CountRows(Filter(_results, !Value)) = 0,
+                                              Notify("Series cancelled", NotificationType.Success),
+                                              Notify(
+                                                  $"Couldn't cancel {CountRows(Filter(_results, !Value))} occurrence(s) — the series is only partially cancelled.",
+                                                  NotificationType.Error
+                                              )
                                           )
-                                      );
-                                      Refresh(Book_Bookings);
-                                      ClearCollect(colBookings, BookingsWindow);
-                                      Set(gbl_UI_CancelSeriesConfirmID, Blank());
-                                      Notify("Series cancelled", NotificationType.Success)
+                                      )
                                     PressedColor: =ColorValue(AppTheme.PrimaryText)
                                     PressedFill: =ColorValue(AppTheme.ButtonDangerActive)
                                     RadiusBottomLeft: =0

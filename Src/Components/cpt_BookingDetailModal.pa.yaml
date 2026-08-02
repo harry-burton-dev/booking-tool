@@ -892,27 +892,43 @@ ComponentDefinitions:
                                     LayoutMinWidth: =0
                                     OnSelect: |-
                                       =// PROD-REVERT[booking-cancel] soft delete via Patch; Remove() retired per WS4
-                                      /* Whole series: future, non-cancelled members (exceptions included;
-                                         past occurrences untouched) - mirrors bookingDetail.btnScopeSeries. */
+                                      /* Whole series: future, non-cancelled, OWNED members (exceptions included;
+                                         past occurrences untouched). Server-filtered by SeriesID so the mutation
+                                         set is immune to the data-row limit (BUG-2/BUG-3). */
                                       With(
                                           {_sid: gblSelectedBooking.SeriesID},
-                                          ForAll(
-                                              Filter(colBookings, SeriesID = _sid, StartDateTime >= Now(), Status <> "Cancelled") As _m,
-                                              IfError(
-                                                  Patch(Book_Bookings, LookUp(Book_Bookings, ID = _m.ID), {Status: "Cancelled"});
-                                                  true,
-                                                  Notify("Couldn't cancel one or more occurrences.", NotificationType.Error);
-                                                  false
-                                              )
-                                          );
-                                          Refresh(Book_Bookings);
-                                          ClearCollect(colBookings, BookingsWindow);
-                                          Set(gblSelectedBooking, Blank());
-                                          Notify("Series cancelled", NotificationType.Success);
-                                          Set(gbl_FixCycleSeriesID, "");
-                                          // RESET-SITE[detail-modal-close] cancel completed, dismiss the modal
-                                          Set(gbl_UI_Detail_ConfirmMode, "");
-                                          Set(gbl_UI_Detail_Modal, false)
+                                          With(
+                                              {
+                                                  _results: ForAll(
+                                                      Filter(
+                                                          Filter(Book_Bookings, SeriesID = _sid),
+                                                          StartDateTime >= Now(),
+                                                          Status <> "Cancelled",
+                                                          BookedByEmail = Lower(User().Email)
+                                                      ) As _m,
+                                                      IfError(
+                                                          Patch(Book_Bookings, _m, {Status: "Cancelled"});
+                                                          true,
+                                                          false
+                                                      )
+                                                  )
+                                              },
+                                              Refresh(Book_Bookings);
+                                              ClearCollect(colBookings, BookingsWindow);
+                                              Set(gblSelectedBooking, Blank());
+                                              If(
+                                                  CountRows(Filter(_results, !Value)) = 0,
+                                                  Notify("Series cancelled", NotificationType.Success),
+                                                  Notify(
+                                                      $"Couldn't cancel {CountRows(Filter(_results, !Value))} occurrence(s) — the series is only partially cancelled.",
+                                                      NotificationType.Error
+                                                  )
+                                              );
+                                              Set(gbl_FixCycleSeriesID, "");
+                                              // RESET-SITE[detail-modal-close] cancel completed, dismiss the modal
+                                              Set(gbl_UI_Detail_ConfirmMode, "");
+                                              Set(gbl_UI_Detail_Modal, false)
+                                          )
                                       )
                                     PressedColor: =ColorValue(AppTheme.PrimaryText)
                                     PressedFill: =ColorValue(AppTheme.ButtonPrimaryActive)
