@@ -289,7 +289,7 @@ App:
                       Light: {
                           BorderSubtle: "#e0e0e0",
                           Background: "#ffffff",
-                          PrimaryText: "#ffffff",
+                          PrimaryText: "#ffffff", /* no longer referenced - live source is ThemeMapHex.Light.PrimaryText */
                           Primary: "#0f62fe",
                           Accent: "#d0e2ff",
                           layer01Bg: "#f4f4f4",
@@ -309,7 +309,7 @@ App:
                           BorderSubtle: "#393939",
                           Background: "#161616",
                           Primary: "#0f62fe",
-                          PrimaryText: "#ffffff",
+                          PrimaryText: "#ffffff", /* no longer referenced - live source is ThemeMapHex.Dark.PrimaryText */
                           Accent: "#d0e2ff",
                           layer01Bg: "#262626",
                           SideNavBg:            "#161616",
@@ -331,6 +331,9 @@ App:
                      hex strings, since a CSS string cannot embed a Color value. Same light/dark
                      branch shape as ThemeMap - KEEP IN SYNC with the corresponding ThemeMap
                      entries, which derive their Color values via ColorValue(ThemeMapHex.X.Y).
+                     Primary is a three-copy chain: the literal lives in ColourTokens.X.Primary,
+                     ThemeMapHex derives from it, ThemeMap derives from ThemeMapHex - KEEP ALL
+                     THREE IN SYNC when changing the brand color.
                      AppThemeHex resolves ThemeMapHex to the active theme for direct hex access
                      in HTML/CSS composition (CarbonText* UDFs).
                      NOTE: distinct from ThemeHex below, which is %23-URL-encoded for embedding
@@ -342,7 +345,7 @@ App:
                           TextMuted: "#6f6f6f",
                           StatusBusyText: "#da1e28",
                           StatusFreeText: "#198038",
-                          Primary: "#0f62fe",
+                          Primary: ColourTokens.Light.Primary,
                           PrimaryText: "#ffffff"
                       },
                       Dark: {
@@ -351,7 +354,7 @@ App:
                           TextMuted: "#8d8d8d",
                           StatusBusyText: "#ff8389",
                           StatusFreeText: "#42be65",
-                          Primary: "#0f62fe",
+                          Primary: ColourTokens.Dark.Primary,
                           PrimaryText: "#ffffff"
                       }
                   };

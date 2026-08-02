@@ -360,6 +360,7 @@ Screens:
                                                 DisplayMode: =DisplayMode.View
                                                 HtmlText: |-
                                                   =CarbonText(CarbonHtmlType.Heading02, "View rooms") &
+                                                  /* pre-escaped literal: old Label displayed the raw entity; do not fnHtmlEscape */
                                                   CarbonTextSecondary(CarbonHtmlType.Label01, "Timelines &amp; availability")
                                                 LayoutMinHeight: =0
                                                 LayoutMinWidth: =0
@@ -482,6 +483,7 @@ Screens:
                                                 DisplayMode: =DisplayMode.View
                                                 HtmlText: |-
                                                   =CarbonText(CarbonHtmlType.Heading02, "My bookings") &
+                                                  /* pre-escaped literal: old Label displayed the raw entity; do not fnHtmlEscape */
                                                   CarbonTextSecondary(CarbonHtmlType.Label01, "Upcoming &amp; past")
                                                 LayoutMinHeight: =0
                                                 LayoutMinWidth: =0
@@ -545,7 +547,9 @@ Screens:
                                           RadiusBottomRight: =0
                                           RadiusTopLeft: =0
                                           RadiusTopRight: =0
-                                          Text: ="My bookings — " & Text(CountRows(Filter(MyBookings, EndDateTime >= varNowTick)), "[$-en-US]0") & " upcoming"
+                                          Text: |-
+                                            =/* keep in sync with htxHDTileMyRow meta line (T7 dedup candidate) */
+                                            "My bookings — " & Text(CountRows(Filter(MyBookings, EndDateTime >= varNowTick)), "[$-en-US]0") & " upcoming"
                                           Width: =Parent.Width
                         - conHDPanels:
                             Control: GroupContainer
@@ -1651,7 +1655,8 @@ Screens:
                                           AutoHeight: =true
                                           DisplayMode: =DisplayMode.View
                                           HtmlText: |-
-                                            ="<div style=""display: flex; align-items: center; gap: 6px;"">" &
+                                            =/* Free/Booked legend pairs stay Rectangle+Label pending a Border hex token (wave-3/T8 scope) */
+                                            "<div style=""display: flex; align-items: center; gap: 6px;"">" &
                                             "<span style=""display: inline-block; width: 10px; height: 10px; background-color: " & AppThemeHex.StatusBusyText & ";""></span>" &
                                             "<span style=""" & CarbonHtmlType.Label01 & " color: " & AppThemeHex.TextMuted & ";"">Now</span>" &
                                             "</div>"
