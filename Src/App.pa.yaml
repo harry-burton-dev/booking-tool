@@ -606,9 +606,16 @@ App:
                   );
                   /* 0 = create mode; >0 = booking being edited */
                   Set(gblEditingBookingID, 0);
+                  /* Seed the Find-screen globals the App-level named formulas
+                     (varFindWindowStart/End, varFindWeekStart, WeekBookings) read —
+                     without these, any consumer outside Find gets poisoned blanks (BUG-8). */
+                  Set(varFindSelectedDate, Today());
+                  Set(varFindViewMode, "Day");
 
-                  ClearCollect(colRooms, Book_Rooms);
-                  ClearCollect(colBookings, Book_Bookings);
+                  Concurrent(
+                      ClearCollect(colRooms, Book_Rooms),
+                      ClearCollect(colBookings, Book_Bookings)
+                  );
 
 
                   Set(gblUserInitials, Upper(Left(User().FullName, 1) & If(CountRows(Split(User().FullName, " ")) > 1, Left(Last(Split(User().FullName, " ")).Value, 1), "")));
