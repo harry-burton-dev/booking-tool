@@ -84,7 +84,7 @@ ComponentDefinitions:
                                     CarbonHtmlType.Label01,
                                     With(
                                         {_room: LookUp(colRooms, ID = gblSelectedBooking.RoomID.Id)},
-                                        gblSelectedBooking.'RoomID: Title'.Value &
+                                        fnHtmlEscape(gblSelectedBooking.'RoomID: Title'.Value) &
                                         If(IsBlank(_room) || IsBlank(_room.Capacity), "", " · seats " & _room.Capacity)
                                     )
                                 )
@@ -435,7 +435,7 @@ ComponentDefinitions:
                                     DisplayMode: =DisplayMode.View
                                     HtmlText: |-
                                       =CarbonTextColored(CarbonHtmlType.Label01, "Room", AppThemeHex.TextMuted) &
-                                      CarbonText(CarbonHtmlType.HeadingCompact01, gblSelectedBooking.'RoomID: Title'.Value)
+                                      CarbonText(CarbonHtmlType.HeadingCompact01, fnHtmlEscape(gblSelectedBooking.'RoomID: Title'.Value))
                                     LayoutMinHeight: =0
                                     LayoutMinWidth: =0
                                     PaddingBottom: =0
@@ -472,7 +472,7 @@ ComponentDefinitions:
                                     DisplayMode: =DisplayMode.View
                                     HtmlText: |-
                                       =CarbonTextColored(CarbonHtmlType.Label01, "Series", AppThemeHex.TextMuted) &
-                                      CarbonText(CarbonHtmlType.HeadingCompact01, If(IsBlank(gblSelectedBooking.RecurrenceType), "Repeats", gblSelectedBooking.RecurrenceType))
+                                      CarbonText(CarbonHtmlType.HeadingCompact01, If(IsBlank(gblSelectedBooking.RecurrenceType), "Repeats", fnHtmlEscape(gblSelectedBooking.RecurrenceType)))
                                     LayoutMinHeight: =0
                                     LayoutMinWidth: =0
                                     PaddingBottom: =0

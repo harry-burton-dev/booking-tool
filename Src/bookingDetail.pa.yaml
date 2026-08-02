@@ -166,7 +166,7 @@ Screens:
                                           DisplayMode: =DisplayMode.View
                                           HtmlText: |-
                                             =CarbonTextColored(CarbonHtmlType.Label01, "Room", AppThemeHex.TextMuted) &
-                                            CarbonText(CarbonHtmlType.HeadingCompact01, gblSelectedBooking.'RoomID: Title'.Value)
+                                            CarbonText(CarbonHtmlType.HeadingCompact01, fnHtmlEscape(gblSelectedBooking.'RoomID: Title'.Value))
                                           LayoutMinHeight: =0
                                           LayoutMinWidth: =0
                                           PaddingBottom: =0

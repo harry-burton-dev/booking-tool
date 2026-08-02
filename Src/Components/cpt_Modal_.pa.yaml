@@ -1483,7 +1483,7 @@ ComponentDefinitions:
                                     AutoHeight: =true
                                     DisplayMode: =DisplayMode.View
                                     HtmlText: |-
-                                      =CarbonTextSecondary(CarbonHtmlType.HeadingCompact01, varSelectedRoom.Title) &
+                                      =CarbonTextSecondary(CarbonHtmlType.HeadingCompact01, fnHtmlEscape(varSelectedRoom.Title)) &
                                       CarbonTextSecondary(CarbonHtmlType.Label01, Text(varSelectedDate, "dd mmm yyyy")) &
                                       CarbonTextSecondary(CarbonHtmlType.Label01, Text(varStartTime, "HH:mm") & " - " & Text(varEndTime, "HH:mm")) &
                                       If(
