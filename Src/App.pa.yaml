@@ -116,9 +116,11 @@ App:
                      every consumer (MyBookings -90d, Find/Rooms day views, clash checks)
                      filters narrower than this. Both predicates are delegable to SharePoint
                      (>= / <= on DateTime), so the pull no longer truncates at the
-                     data-row limit for in-window rows (BUG-2). */
+                     data-row limit for in-window rows (BUG-2). End = 12 months so the
+                     longest series (12 monthly occurrences, last at +11 months) stays
+                     fully inside the window. */
                   BookingsWindowStart = DateAdd(Today(), -90, TimeUnit.Days);
-                  BookingsWindowEnd   = DateAdd(Today(), 180, TimeUnit.Days);
+                  BookingsWindowEnd   = DateAdd(Today(), 12, TimeUnit.Months);
                   BookingsWindow = Filter(
                       Book_Bookings,
                       EndDateTime >= BookingsWindowStart,
