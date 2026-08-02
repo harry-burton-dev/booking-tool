@@ -124,7 +124,10 @@ git commit -am "fix(app): seed Find globals in OnStart, Concurrent collects (BUG
                      (>= / <= on DateTime), so the pull no longer truncates at the
                      data-row limit for in-window rows (BUG-2). */
                   BookingsWindowStart = DateAdd(Today(), -90, TimeUnit.Days);
-                  BookingsWindowEnd   = DateAdd(Today(), 180, TimeUnit.Days);
+                  /* End = 12 months: the longest series (12 monthly occurrences, last at
+                     +11 months) must stay fully inside the window — +180d would hide
+                     series tails from displays and clash checks (found in Task-2 review). */
+                  BookingsWindowEnd   = DateAdd(Today(), 12, TimeUnit.Months);
                   BookingsWindow = Filter(
                       Book_Bookings,
                       EndDateTime >= BookingsWindowStart,
@@ -204,36 +207,9 @@ After (server filter carries only delegable predicates — the overlap condition
 
 Everything downstream (`varConflict`, `varConflictingBooking`, `varAlternativeRooms`) reads `colOverlappingBookings` unchanged — same shape, now fresh. Leave the `varNextFreeSlot` block (advisory UI) on `colBookings`.
 
-- [ ] **Step 2: Give the hosts fresh per-occurrence data.** In `Home.pa.yaml` host `OnSubmit`, Before (the two lines after the `If(cpt_Modal__book.ValidPayload,` open):
+- [ ] **Step 2 (REVISED in Task-3 review): per-occurrence fresh reads, no big span pull.** A single collect spanning the whole series (up to ~11 months, all rooms) can exceed the data-row cap and silently truncate — reintroducing BUG-1. Instead each occurrence does its own slot-sized server read (a few hours wide → tiny result), mirroring the btnConfirm gate. The `ClearCollect(colPayloadSnapshot, …); Clear(colFailedBookings);` opening is left UNCHANGED.
 
-```
-                  ClearCollect(colPayloadSnapshot, cpt_Modal__book.PatchPayload);
-                  Clear(colFailedBookings);
-```
-
-After:
-
-```
-                  ClearCollect(colPayloadSnapshot, cpt_Modal__book.PatchPayload);
-                  /* BUG-1: fresh server read spanning the whole series for the target room;
-                     the per-occurrence _hasClash checks below read this, not the stale snapshot. */
-                  ClearCollect(
-                      colFreshRoomBookings,
-                      Filter(
-                          Filter(
-                              Book_Bookings,
-                              Status = "Active",
-                              EndDateTime > Min(colPayloadSnapshot, StartDateTime),
-                              StartDateTime < Max(colPayloadSnapshot, EndDateTime)
-                          ),
-                          RoomID.Id = First(colPayloadSnapshot).RoomIdNumber,
-                          ID <> gblEditingBookingID
-                      )
-                  );
-                  Clear(colFailedBookings);
-```
-
-- [ ] **Step 3: Point the per-occurrence check at it.** Same handler, Before:
+- [ ] **Step 3: Swap the per-occurrence check to a fresh server read.** In `Home.pa.yaml` host `OnSubmit`, Before:
 
 ```
                               _hasClash: !IsBlank(
@@ -248,15 +224,22 @@ After:
                               )
 ```
 
-After (source swap only):
+After:
 
 ```
+                              /* BUG-1: fresh slot-sized server read per occurrence — the narrow
+                                 window keeps the result far under the data-row cap; room
+                                 narrowing stays client-side on that small set. */
                               _hasClash: !IsBlank(
                                   LookUp(
                                       Filter(
-                                          colFreshRoomBookings,
-                                          Status = "Active",
-                                          fnOverlaps(StartDateTime, EndDateTime, _occ.StartDateTime, _occ.EndDateTime)
+                                          Filter(
+                                              Book_Bookings,
+                                              Status = "Active",
+                                              StartDateTime < _occ.EndDateTime,
+                                              EndDateTime > _occ.StartDateTime
+                                          ),
+                                          ID <> gblEditingBookingID
                                       ),
                                       RoomID.Id = _occ.RoomIdNumber
                                   )
@@ -267,9 +250,8 @@ After (source swap only):
 
 - [ ] **Step 5: Acceptance grep**
 
-Run: `grep -rn "colFreshRoomBookings" <scratch-dir> --include=*.pa.yaml -l`
-Expected: `Home.pa.yaml`, `Find.pa.yaml`, `Rooms.pa.yaml` (3 files; 2 hits each — collect + read).
-Run: `grep -rn "fnOverlaps(StartDateTime, EndDateTime, _occ" <scratch-dir> | grep -c "colBookings"` → expect `0` context matches (check the three edited blocks manually with `-B4`).
+Run: `grep -rn "colFreshRoomBookings" <scratch-dir>` → NO matches (the big-span pull was rejected in review).
+Run: `grep -rn "_hasClash" <scratch-dir>` with `-A8` → all three hosts read the nested `Filter(Filter(Book_Bookings, …))` per-occurrence pattern; none reads `colBookings`.
 
 - [ ] **Step 6: Lint + validate + commit**
 
