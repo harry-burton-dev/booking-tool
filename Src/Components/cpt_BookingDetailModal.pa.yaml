@@ -773,7 +773,7 @@ ComponentDefinitions:
                                           Patch(Book_Bookings, LookUp(Book_Bookings, ID = gblSelectedBooking.ID), {Status: "Cancelled"}),
                                           Notify("Couldn't cancel this booking. Please try again.", NotificationType.Error),
                                           Refresh(Book_Bookings);
-                                          ClearCollect(colBookings, BookingsWindow);
+                                          Patch(colBookings, LookUp(colBookings, ID = gblSelectedBooking.ID), {Status: "Cancelled"});
                                           Set(gblSelectedBooking, Blank());
                                           Notify("Booking cancelled", NotificationType.Success);
                                           Set(gbl_FixCycleSeriesID, "");
@@ -858,7 +858,7 @@ ComponentDefinitions:
                                           Patch(Book_Bookings, LookUp(Book_Bookings, ID = gblSelectedBooking.ID), {Status: "Cancelled"}),
                                           Notify("Couldn't cancel this booking. Please try again.", NotificationType.Error),
                                           Refresh(Book_Bookings);
-                                          ClearCollect(colBookings, BookingsWindow);
+                                          Patch(colBookings, LookUp(colBookings, ID = gblSelectedBooking.ID), {Status: "Cancelled"});
                                           Set(gblSelectedBooking, Blank());
                                           Notify("Booking cancelled", NotificationType.Success);
                                           Set(gbl_FixCycleSeriesID, "");
@@ -916,7 +916,17 @@ ComponentDefinitions:
                                                   )
                                               },
                                               Refresh(Book_Bookings);
-                                              ClearCollect(colBookings, BookingsWindow);
+                                              If(
+                                                  CountRows(Filter(_results, !Value)) = 0,
+                                                  // Mirror: predicate copied from the server loop above (SeriesID server filter + client refinement)
+                                                  UpdateIf(
+                                                      colBookings,
+                                                      SeriesID = _sid && StartDateTime >= Now() && Status <> "Cancelled" && BookedByEmail = Lower(User().Email),
+                                                      {Status: "Cancelled"}
+                                                  ),
+                                                  // MIRROR-FALLBACK: partial series-cancel failure — local picture uncertain, re-pull the window
+                                                  ClearCollect(colBookings, BookingsWindow)
+                                              );
                                               Set(gblSelectedBooking, Blank());
                                               If(
                                                   CountRows(_results) = 0,
