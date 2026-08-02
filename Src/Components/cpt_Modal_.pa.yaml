@@ -911,12 +911,28 @@ ComponentDefinitions:
                                     "Select a start and end time to continue. Bookings are Monday to Friday only, up to 4 hours long.",
                                     drpRepeats.Selected.Value <> "Doesn't repeat",
                                     drpOccurrences.Selected.Value & " bookings, " & Lower(drpRepeats.Selected.Value) & ", last on " & Text(
-                                        Switch(
-                                            drpRepeats.Selected.Value,
-                                            "Weekly", DateAdd(varStartTime, 7 * (Value(drpOccurrences.Selected.Value) - 1), TimeUnit.Days),
-                                            "Every 2 weeks", DateAdd(varStartTime, 14 * (Value(drpOccurrences.Selected.Value) - 1), TimeUnit.Days),
-                                            "Monthly", DateAdd(varStartTime, Value(drpOccurrences.Selected.Value) - 1, TimeUnit.Months),
-                                            varStartTime
+                                        /* BUG-10b: mirror the payload builder's weekend shift */
+                                        With(
+                                            {
+                                                _rawLast: Switch(
+                                                    drpRepeats.Selected.Value,
+                                                    "Weekly", DateAdd(varStartTime, 7 * (Value(drpOccurrences.Selected.Value) - 1), TimeUnit.Days),
+                                                    "Every 2 weeks", DateAdd(varStartTime, 14 * (Value(drpOccurrences.Selected.Value) - 1), TimeUnit.Days),
+                                                    "Monthly", DateAdd(varStartTime, Value(drpOccurrences.Selected.Value) - 1, TimeUnit.Months),
+                                                    varStartTime
+                                                )
+                                            },
+                                            With(
+                                                {
+                                                    _shift: Switch(
+                                                        Weekday(_rawLast, StartOfWeek.Sunday),
+                                                        7, 2,
+                                                        1, 1,
+                                                        0
+                                                    )
+                                                },
+                                                DateAdd(_rawLast, _shift, TimeUnit.Days)
+                                            )
                                         ),
                                         "dd mmm yyyy"
                                     ),
