@@ -1875,9 +1875,11 @@ Screens:
                           },
                           With(
                               {
-                                  /* Create booking; record a write failure if it errors */
+                                  /* Create booking; on success Collect() mirrors the row Patch
+                                     returns (server-assigned ID included) into colBookings;
+                                     record a write failure if it errors */
                                   _patchOk: IfError(
-                                      Patch(
+                                      Collect(colBookings, Patch(
                                           Book_Bookings,
                                           Defaults(Book_Bookings),
                                           {
@@ -1906,7 +1908,7 @@ Screens:
                                               OccIndex: _occ.OccIndex,
                                               IsException: false
                                           }
-                                      );
+                                      ));
                                       true,
                                       Collect(
                                           colFailedBookings,
@@ -1936,8 +1938,8 @@ Screens:
                   );
 
                   // PROD-REVERT[booking-create-rooms] SharePoint round-trip after series create
+                  // (created rows are mirrored into colBookings per-occurrence above; failed rows have no server row to mirror)
                   Refresh(Book_Bookings);
-                  ClearCollect(colBookings, BookingsWindow);
 
                   Set(varBookingError, !IsEmpty(Filter(colFailedBookings, Reason = "error")));
 
