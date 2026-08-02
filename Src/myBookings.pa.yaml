@@ -90,7 +90,6 @@ Screens:
                                   Properties:
                                     DropShadow: =DropShadow.None
                                     Fill: =Color.Transparent
-                                    FillPortions: =1
                                     LayoutAlignItems: =LayoutAlignItems.Stretch
                                     LayoutDirection: =LayoutDirection.Vertical
                                     LayoutGap: =2
@@ -131,7 +130,6 @@ Screens:
                                                 DisabledColor: =AppTheme.TextMuted
                                                 DisabledFill: =Color.Transparent
                                                 Fill: =Color.Transparent
-                                                FillPortions: =0
                                                 FocusedBorderColor: =ColorValue(AppTheme.Primary)
                                                 FocusedBorderThickness: =2
                                                 Font: ="IBM Plex Sans"
@@ -163,7 +161,6 @@ Screens:
                                                 AlignInContainer: =AlignInContainer.Center
                                                 Color: =AppTheme.TextMuted
                                                 Fill: =Color.Transparent
-                                                FillPortions: =0
                                                 Font: ="IBM Plex Sans"
                                                 Height: =16
                                                 LayoutMinHeight: =0
@@ -182,7 +179,6 @@ Screens:
                                                 AlignInContainer: =AlignInContainer.Center
                                                 Color: =AppTheme.TextSecondary
                                                 Fill: =Color.Transparent
-                                                FillPortions: =0
                                                 Font: ="IBM Plex Sans"
                                                 Height: =16
                                                 LayoutMinHeight: =0
@@ -216,14 +212,12 @@ Screens:
                                     AlignInContainer: =AlignInContainer.Center
                                     Color: =AppTheme.TextSecondary
                                     Fill: =Color.Transparent
-                                    FillPortions: =0
                                     Font: ="IBM Plex Sans"
                                     Height: =20
                                     LayoutMinHeight: =0
                                     LayoutMinWidth: =0
                                     Size: =12
-                                    Text: |-
-                                      =Text(CountRows(Filter(MyBookings, !fnIsPast(EndDateTime))), "[$-en-US]0") & " upcoming · Austin HQ"
+                                    Text: =Text(CountRows(Filter(MyBookings, !fnIsPast(EndDateTime))), "[$-en-US]0") & " upcoming · Austin HQ"
                                     Width: =260
                                     Wrap: =false
                         - mb2ConNextUp:
@@ -238,7 +232,6 @@ Screens:
                               Height: =72
                               LayoutAlignItems: =LayoutAlignItems.Stretch
                               LayoutDirection: =LayoutDirection.Horizontal
-                              LayoutGap: =0
                               LayoutMinHeight: =0
                               LayoutMinWidth: =0
                               RadiusBottomLeft: =0
@@ -263,7 +256,6 @@ Screens:
                                   Properties:
                                     DropShadow: =DropShadow.None
                                     Fill: =Color.Transparent
-                                    FillPortions: =1
                                     LayoutAlignItems: =LayoutAlignItems.Stretch
                                     LayoutDirection: =LayoutDirection.Vertical
                                     LayoutGap: =2
@@ -285,7 +277,6 @@ Screens:
                                           AlignInContainer: =AlignInContainer.Stretch
                                           Color: =AppTheme.TextMuted
                                           Fill: =Color.Transparent
-                                          FillPortions: =0
                                           Font: ="IBM Plex Sans"
                                           Height: =14
                                           LayoutMinHeight: =0
@@ -303,7 +294,6 @@ Screens:
                                           AlignInContainer: =AlignInContainer.Stretch
                                           Color: =AppTheme.TextPrimary
                                           Fill: =Color.Transparent
-                                          FillPortions: =0
                                           Font: ="IBM Plex Sans"
                                           FontWeight: =FontWeight.Semibold
                                           Height: =20
@@ -322,7 +312,6 @@ Screens:
                                           AlignInContainer: =AlignInContainer.Stretch
                                           Color: =AppTheme.TextSecondary
                                           Fill: =Color.Transparent
-                                          FillPortions: =0
                                           Font: ="IBM Plex Sans"
                                           Height: =16
                                           LayoutMinHeight: =0
@@ -342,7 +331,6 @@ Screens:
                                     AlignInContainer: =AlignInContainer.Center
                                     Color: =ColorValue(AppTheme.Primary)
                                     Fill: =Color.Transparent
-                                    FillPortions: =0
                                     Font: ="IBM Plex Sans"
                                     FontWeight: =FontWeight.Semibold
                                     Height: =20
@@ -385,7 +373,6 @@ Screens:
                                     Height: =48
                                     LayoutAlignItems: =LayoutAlignItems.Stretch
                                     LayoutDirection: =LayoutDirection.Horizontal
-                                    LayoutGap: =0
                                     LayoutMinHeight: =0
                                     LayoutMinWidth: =0
                                     RadiusBottomLeft: =0
@@ -404,7 +391,6 @@ Screens:
                                           Height: =48
                                           LayoutAlignItems: =LayoutAlignItems.Stretch
                                           LayoutDirection: =LayoutDirection.Vertical
-                                          LayoutGap: =0
                                           LayoutMinHeight: =0
                                           LayoutMinWidth: =0
                                           RadiusBottomLeft: =0
@@ -425,7 +411,6 @@ Screens:
                                                 DisabledColor: =AppTheme.TextMuted
                                                 DisabledFill: =AppTheme.SurfaceAlt
                                                 Fill: =If(varMyBookingsFilter = "Upcoming", AppTheme.Background, AppTheme.SurfaceAlt)
-                                                FillPortions: =0
                                                 FocusedBorderColor: =ColorValue(AppTheme.Primary)
                                                 FocusedBorderThickness: =2
                                                 Font: ="IBM Plex Sans"
@@ -445,8 +430,7 @@ Screens:
                                                 RadiusTopLeft: =0
                                                 RadiusTopRight: =0
                                                 Size: =12
-                                                Text: |-
-                                                  ="Upcoming " & Text(CountRows(Filter(MyBookings, !fnIsPast(EndDateTime))), "[$-en-US]0")
+                                                Text: ="Upcoming " & Text(CountRows(Filter(MyBookings, !fnIsPast(EndDateTime))), "[$-en-US]0")
                                                 Width: =Parent.Width
                                           - mb2RectTabUpcomingBar:
                                               Control: Rectangle
@@ -468,7 +452,6 @@ Screens:
                                           Height: =48
                                           LayoutAlignItems: =LayoutAlignItems.Stretch
                                           LayoutDirection: =LayoutDirection.Vertical
-                                          LayoutGap: =0
                                           LayoutMinHeight: =0
                                           LayoutMinWidth: =0
                                           RadiusBottomLeft: =0
@@ -489,7 +472,6 @@ Screens:
                                                 DisabledColor: =AppTheme.TextMuted
                                                 DisabledFill: =AppTheme.SurfaceAlt
                                                 Fill: =If(varMyBookingsFilter = "Past", AppTheme.Background, AppTheme.SurfaceAlt)
-                                                FillPortions: =0
                                                 FocusedBorderColor: =ColorValue(AppTheme.Primary)
                                                 FocusedBorderThickness: =2
                                                 Font: ="IBM Plex Sans"
@@ -509,8 +491,7 @@ Screens:
                                                 RadiusTopLeft: =0
                                                 RadiusTopRight: =0
                                                 Size: =12
-                                                Text: |-
-                                                  ="Past " & Text(CountRows(Filter(MyBookings, fnIsPast(EndDateTime))), "[$-en-US]0")
+                                                Text: ="Past " & Text(CountRows(Filter(MyBookings, fnIsPast(EndDateTime))), "[$-en-US]0")
                                                 Width: =Parent.Width
                                           - mb2RectTabPastBar:
                                               Control: Rectangle
@@ -532,7 +513,6 @@ Screens:
                                           Height: =48
                                           LayoutAlignItems: =LayoutAlignItems.Stretch
                                           LayoutDirection: =LayoutDirection.Vertical
-                                          LayoutGap: =0
                                           LayoutMinHeight: =0
                                           LayoutMinWidth: =0
                                           RadiusBottomLeft: =0
@@ -553,7 +533,6 @@ Screens:
                                                 DisabledColor: =AppTheme.TextMuted
                                                 DisabledFill: =AppTheme.SurfaceAlt
                                                 Fill: =If(varMyBookingsFilter = "Series", AppTheme.Background, AppTheme.SurfaceAlt)
-                                                FillPortions: =0
                                                 FocusedBorderColor: =ColorValue(AppTheme.Primary)
                                                 FocusedBorderThickness: =2
                                                 Font: ="IBM Plex Sans"
@@ -573,8 +552,7 @@ Screens:
                                                 RadiusTopLeft: =0
                                                 RadiusTopRight: =0
                                                 Size: =12
-                                                Text: |-
-                                                  ="Series " & Text(CountRows(GroupBy(Filter(MyBookings, !IsBlank(SeriesID)), SeriesID, SeriesRows)), "[$-en-US]0")
+                                                Text: ="Series " & Text(CountRows(GroupBy(Filter(MyBookings, !IsBlank(SeriesID)), SeriesID, SeriesRows)), "[$-en-US]0")
                                                 Width: =Parent.Width
                                           - mb2RectTabSeriesBar:
                                               Control: Rectangle
@@ -621,7 +599,6 @@ Screens:
                                     DisabledColor: =ColorValue(AppTheme.ButtonDisabledText)
                                     DisabledFill: =ColorValue(AppTheme.ButtonDisabled)
                                     Fill: =ColorValue(AppTheme.ButtonPrimary)
-                                    FillPortions: =0
                                     FocusedBorderColor: =ColorValue(AppTheme.Primary)
                                     FocusedBorderThickness: =2
                                     Font: ="IBM Plex Sans"
@@ -674,7 +651,6 @@ Screens:
                                     RadiusTopRight: =0
                                     Size: =12
                                     Text: ="Book a room"
-                                    Width: =160
                         - mb2ConTableHeadWrap:
                             Control: GroupContainer
                             Variant: AutoLayout
@@ -685,7 +661,6 @@ Screens:
                               Height: =33
                               LayoutAlignItems: =LayoutAlignItems.Stretch
                               LayoutDirection: =LayoutDirection.Vertical
-                              LayoutGap: =0
                               LayoutMinHeight: =0
                               LayoutMinWidth: =0
                               RadiusBottomLeft: =0
@@ -704,7 +679,6 @@ Screens:
                                     Height: =32
                                     LayoutAlignItems: =LayoutAlignItems.Center
                                     LayoutDirection: =LayoutDirection.Horizontal
-                                    LayoutGap: =0
                                     LayoutMinHeight: =0
                                     LayoutMinWidth: =0
                                     PaddingLeft: =32
@@ -738,7 +712,6 @@ Screens:
                                           AlignInContainer: =AlignInContainer.Center
                                           Color: =AppTheme.TextMuted
                                           Fill: =Color.Transparent
-                                          FillPortions: =0
                                           Font: ="IBM Plex Sans"
                                           Height: =16
                                           LayoutMinHeight: =0
@@ -757,7 +730,6 @@ Screens:
                                           AlignInContainer: =AlignInContainer.Center
                                           Color: =AppTheme.TextMuted
                                           Fill: =Color.Transparent
-                                          FillPortions: =0
                                           Font: ="IBM Plex Sans"
                                           Height: =16
                                           LayoutMinHeight: =0
@@ -776,7 +748,6 @@ Screens:
                                           AlignInContainer: =AlignInContainer.Center
                                           Color: =AppTheme.TextMuted
                                           Fill: =Color.Transparent
-                                          FillPortions: =0
                                           Font: ="IBM Plex Sans"
                                           Height: =16
                                           LayoutMinHeight: =0
@@ -795,7 +766,6 @@ Screens:
                                           AlignInContainer: =AlignInContainer.Center
                                           Color: =AppTheme.TextMuted
                                           Fill: =Color.Transparent
-                                          FillPortions: =0
                                           Font: ="IBM Plex Sans"
                                           Height: =16
                                           LayoutMinHeight: =0
@@ -814,7 +784,6 @@ Screens:
                                           AlignInContainer: =AlignInContainer.Center
                                           Color: =AppTheme.TextMuted
                                           Fill: =Color.Transparent
-                                          FillPortions: =0
                                           Font: ="IBM Plex Sans"
                                           Height: =16
                                           LayoutMinHeight: =0
@@ -1010,8 +979,7 @@ Screens:
                                     RadiusBottomRight: =0
                                     RadiusTopLeft: =0
                                     RadiusTopRight: =0
-                                    Text: |-
-                                      =ThisItem.Title & ", " & mb2LblRowRoom.Text & ", " & Text(ThisItem.StartDateTime, "ddd dd mmm HH:mm") & ". Open booking details"
+                                    Text: =ThisItem.Title & ", " & mb2LblRowRoom.Text & ", " & Text(ThisItem.StartDateTime, "ddd dd mmm HH:mm") & ". Open booking details"
                                     Width: =Parent.TemplateWidth - 120
                               - mb2BtnRowCancel:
                                   Control: Classic/Button
@@ -1072,14 +1040,12 @@ Screens:
                                     AlignInContainer: =AlignInContainer.Center
                                     Color: =AppTheme.TextMuted
                                     Fill: =Color.Transparent
-                                    FillPortions: =0
                                     Font: ="IBM Plex Sans"
                                     Height: =20
                                     LayoutMinHeight: =0
                                     LayoutMinWidth: =0
                                     Size: =12
-                                    Text: |-
-                                      =If(varMyBookingsFilter = "Upcoming", "No upcoming bookings yet.", "No bookings found.")
+                                    Text: =If(varMyBookingsFilter = "Upcoming", "No upcoming bookings yet.", "No bookings found.")
                                     Width: =Parent.Width
                                     Wrap: =false
                               - mb2BtnEmptyBook:
@@ -1092,7 +1058,6 @@ Screens:
                                     DisabledColor: =ColorValue(AppTheme.ButtonDisabledText)
                                     DisabledFill: =ColorValue(AppTheme.ButtonDisabled)
                                     Fill: =ColorValue(AppTheme.ButtonPrimary)
-                                    FillPortions: =0
                                     FocusedBorderColor: =ColorValue(AppTheme.Primary)
                                     FocusedBorderThickness: =2
                                     Font: ="IBM Plex Sans"
@@ -1145,7 +1110,6 @@ Screens:
                                     RadiusTopRight: =0
                                     Size: =12
                                     Text: ="Book a room"
-                                    Width: =160
                         - mb2GalSeries:
                             Control: Gallery
                             Variant: Vertical
@@ -1220,8 +1184,7 @@ Screens:
                                     Font: ="IBM Plex Sans"
                                     Height: =16
                                     Size: =12
-                                    Text: |-
-                                      =Switch(ThisItem.SeriesPattern, "Weekly", "Weekly", "BiWeekly", "Every 2 weeks", "Monthly", "Monthly", ThisItem.SeriesPattern) & " · Next " & If(IsBlank(ThisItem.NextDate), "—", Text(ThisItem.NextDate, "[$-en-US]d mmm yyyy"))
+                                    Text: =Switch(ThisItem.SeriesPattern, "Weekly", "Weekly", "BiWeekly", "Every 2 weeks", "Monthly", "Monthly", ThisItem.SeriesPattern) & " · Next " & If(IsBlank(ThisItem.NextDate), "—", Text(ThisItem.NextDate, "[$-en-US]d mmm yyyy"))
                                     Width: =Max(Parent.Width - 312, 120)
                                     Wrap: =false
                                     X: =32
@@ -1233,8 +1196,7 @@ Screens:
                                     Font: ="IBM Plex Sans"
                                     Height: =16
                                     Size: =12
-                                    Text: |-
-                                      =ThisItem.ActiveCount & " active" & If(ThisItem.ClashCount > 0, " · " & ThisItem.ClashCount & " clash", "")
+                                    Text: =ThisItem.ActiveCount & " active" & If(ThisItem.ClashCount > 0, " · " & ThisItem.ClashCount & " clash", "")
                                     Width: =Max(Parent.Width - 312, 120)
                                     Wrap: =false
                                     X: =32
@@ -1264,8 +1226,7 @@ Screens:
                                     RadiusBottomRight: =0
                                     RadiusTopLeft: =0
                                     RadiusTopRight: =0
-                                    Text: |-
-                                      =ThisItem.SeriesTitle & ", " & ThisItem.SeriesRoom & ". " & ThisItem.ActiveCount & " active" & If(ThisItem.ClashCount > 0, ", " & ThisItem.ClashCount & " clash", "") & ". Toggle occurrence list"
+                                    Text: =ThisItem.SeriesTitle & ", " & ThisItem.SeriesRoom & ". " & ThisItem.ActiveCount & " active" & If(ThisItem.ClashCount > 0, ", " & ThisItem.ClashCount & " clash", "") & ". Toggle occurrence list"
                                     Width: =Parent.Width - 264
                               - mb2BtnSeriesResolve:
                                   Control: Classic/Button
@@ -1418,7 +1379,6 @@ Screens:
                                     AlignInContainer: =AlignInContainer.Center
                                     Color: =AppTheme.TextMuted
                                     Fill: =Color.Transparent
-                                    FillPortions: =0
                                     Font: ="IBM Plex Sans"
                                     Height: =20
                                     LayoutMinHeight: =0
@@ -1485,8 +1445,7 @@ Screens:
                                     Font: ="IBM Plex Sans"
                                     Height: =Parent.TemplateHeight
                                     Size: =12
-                                    Text: |-
-                                      ="Occ " & ThisItem.OccIndex & " · " & Text(ThisItem.StartDateTime, "[$-en-US]ddd d mmm yyyy") & "  " & Text(ThisItem.StartDateTime, "HH:mm") & " – " & Text(ThisItem.EndDateTime, "HH:mm")
+                                    Text: ="Occ " & ThisItem.OccIndex & " · " & Text(ThisItem.StartDateTime, "[$-en-US]ddd d mmm yyyy") & "  " & Text(ThisItem.StartDateTime, "HH:mm") & " – " & Text(ThisItem.EndDateTime, "HH:mm")
                                     Width: =Max(Parent.Width - 192, 120)
                                     Wrap: =false
                                     X: =32
@@ -1527,8 +1486,7 @@ Screens:
                                     RadiusBottomRight: =0
                                     RadiusTopLeft: =0
                                     RadiusTopRight: =0
-                                    Text: |-
-                                      =ThisItem.Title & ", occurrence " & ThisItem.OccIndex & ", " & Text(ThisItem.StartDateTime, "ddd dd mmm HH:mm") & ", " & ThisItem.Status & ". Open booking details"
+                                    Text: =ThisItem.Title & ", occurrence " & ThisItem.OccIndex & ", " & Text(ThisItem.StartDateTime, "ddd dd mmm HH:mm") & ", " & ThisItem.Status & ". Open booking details"
                                     Width: =Parent.Width
                         - mb2LblFooterHint:
                             Control: Label
@@ -1536,7 +1494,6 @@ Screens:
                               AlignInContainer: =AlignInContainer.Stretch
                               Color: =AppTheme.TextMuted
                               Fill: =Color.Transparent
-                              FillPortions: =0
                               Font: ="IBM Plex Sans"
                               Height: =20
                               LayoutMinHeight: =0
@@ -1551,5 +1508,3 @@ Screens:
             Height: =App.Height
             Visible: =gbl_UI_Detail_Modal = true
             Width: =App.Width
-            X: =0
-            Y: =0

@@ -9,3 +9,4 @@ EditorState:
   ComponentDefinitionsOrder:
     - Shell_Header
     - cpt_Modal_
+    - cpt_BookingDetailModal

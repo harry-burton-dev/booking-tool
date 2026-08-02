@@ -1475,58 +1475,6 @@ Screens:
                                                 Wrap: =false
                                                 X: =8
                                                 Y: =58
-                                          - galHDRoomSeg:
-                                              Control: Gallery
-                                              Variant: Horizontal
-                                              Properties:
-                                                DelayItemLoading: =false
-                                                Fill: =RGBA(0,0,0,0)
-                                                Height: =8
-                                                Items: |-
-                                                  =With(
-                                                      {_roomBookings: Filter(TodayBookings, RoomID.Id = ThisItem.ID)},
-                                                      ForAll(
-                                                          Sequence((DayEndHour - DayStartHour) * 2) As _slot,
-                                                          With(
-                                                              {
-                                                                  _start: DateAdd(
-                                                                      TodayWindowStart,
-                                                                      (_slot.Value - 1) * 30,
-                                                                      TimeUnit.Minutes
-                                                                  )
-                                                              },
-                                                              {
-                                                                  SlotStart: _start,
-                                                                  SlotEnd: DateAdd(_start, 30, TimeUnit.Minutes),
-                                                                  IsBooked: !IsBlank(
-                                                                      LookUp(
-                                                                          _roomBookings,
-                                                                          fnOverlaps(
-                                                                              StartDateTime,
-                                                                              EndDateTime,
-                                                                              _start,
-                                                                              DateAdd(_start, 30, TimeUnit.Minutes)
-                                                                          )
-                                                                      )
-                                                                  )
-                                                              }
-                                                          )
-                                                      )
-                                                  )
-                                                ShowScrollbar: =false
-                                                TemplatePadding: =1
-                                                TemplateSize: =(Self.Width / ((DayEndHour - DayStartHour) * 2))
-                                                Width: =Parent.TemplateWidth - 22
-                                                X: =8
-                                                Y: =82
-                                              Children:
-                                                - recHDRoomSeg:
-                                                    Control: Rectangle
-                                                    Properties:
-                                                      BorderColor: =RGBA(0,0,0,0)
-                                                      Fill: =If(ThisItem.IsBooked, AppTheme.TextMuted, AppTheme.HeaderAccent)
-                                                      Height: =6
-                                                      Width: =Parent.TemplateWidth - 2
                                           - btnHDRoomsNowOverlay:
                                               Control: Classic/Button
                                               Properties:

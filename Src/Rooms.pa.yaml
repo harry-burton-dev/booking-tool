@@ -11,7 +11,7 @@ Screens:
         /* Re-pull the shared bookings snapshot so colleagues' writes since App.OnStart
            (or since this session's last write) show up without requiring a write of our own */
         Refresh(Book_Bookings);
-        ClearCollect(colBookings, BookingWindow);
+        ClearCollect(colBookings, Book_Bookings);
 
         Set(gblRoomsSearch, "");
         Set(gblRoomsMinCapacity, 0);
@@ -1831,36 +1831,18 @@ Screens:
                       With(
                           {
                               _isWeekend: Weekday(_occ.StartDateTime, StartOfWeek.Sunday) = 1 || Weekday(_occ.StartDateTime, StartOfWeek.Sunday) = 7,
-                              /* Server re-read, not colBookings: the snapshot predates this
-                                 wizard and cannot see a booking another user made since.
-                                 Filter is fnOverlaps written out (s1 < e2 && e1 > s2) so the
-                                 room/date window narrows on the server; room match stays in
-                                 the LookUp, as everywhere else in the app. */
                               _hasClash: !IsBlank(
                                   LookUp(
                                       Filter(
-                                          Book_Bookings,
+                                          colBookings,
                                           Status = "Active",
-                                          StartDateTime < _occ.EndDateTime,
-                                          EndDateTime > _occ.StartDateTime
+                                          fnOverlaps(StartDateTime, EndDateTime, _occ.StartDateTime, _occ.EndDateTime)
                                       ),
                                       RoomID.Id = _occ.RoomIdNumber
                                   )
                               )
                           },
-                          If(
-                              _hasClash,
-
-                              /* Slot was taken after the wizard's snapshot — do not write */
-                              Collect(
-                                  colFailedBookings,
-                                  {
-                                      BookingDate: Text(_occ.StartDateTime, "dd mmm yyyy"),
-                                      Reason: "taken"
-                                  }
-                              ),
-
-                              With(
+                          With(
                               {
                                   /* Create booking; record a write failure if it errors */
                                   _patchOk: IfError(
@@ -1887,7 +1869,7 @@ Screens:
                                                   JobTitle: "",
                                                   Picture: ""
                                               },
-                                              Status: If(_isWeekend, "Clash", "Active"),
+                                              Status: If(_isWeekend || _hasClash, "Clash", "Active"),
                                               SeriesID: If(IsBlank(varNewSeriesID), Blank(), Text(varNewSeriesID)),
                                               RecurrenceType: _occ.RecurrenceType,
                                               OccIndex: _occ.OccIndex,
@@ -1906,10 +1888,10 @@ Screens:
                                   )
                               },
 
-                              /* The occurrence lands on a weekend — the row is still
-                                 written, just as Clash instead of Active */
+                              /* Slot already occupied or the occurrence lands on a weekend —
+                                 the row is still written, just as Clash instead of Active */
                               If(
-                                  _patchOk && _isWeekend,
+                                  _patchOk && (_isWeekend || _hasClash),
                                   Collect(
                                       colFailedBookings,
                                       {
@@ -1919,13 +1901,12 @@ Screens:
                                   )
                               )
                           )
-                          )
                       )
                   );
 
                   // PROD-REVERT[booking-create-rooms] SharePoint round-trip after series create
                   Refresh(Book_Bookings);
-                  ClearCollect(colBookings, BookingWindow);
+                  ClearCollect(colBookings, Book_Bookings);
 
                   Set(varBookingError, !IsEmpty(Filter(colFailedBookings, Reason = "error")));
 
@@ -1942,13 +1923,6 @@ Screens:
                           "Some bookings failed to save. Please try again. Not created: " &
                           Concat(Filter(colFailedBookings, Reason = "error"), BookingDate, ", "),
                           NotificationType.Error,
-                          10000
-                      ),
-                      CountRows(Filter(colFailedBookings, Reason = "taken")) > 0,
-                      Notify(
-                          $"Created {CountRows(colPayloadSnapshot) - CountRows(Filter(colFailedBookings, Reason = "taken"))} bookings — {CountRows(Filter(colFailedBookings, Reason = "taken"))} not created, someone else booked that room first: " &
-                          Concat(Filter(colFailedBookings, Reason = "taken"), BookingDate, ", "),
-                          NotificationType.Warning,
                           10000
                       ),
                       CountRows(Filter(colFailedBookings, Reason = "clash")) > 0,

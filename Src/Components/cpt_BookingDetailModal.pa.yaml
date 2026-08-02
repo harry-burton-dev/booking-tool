@@ -27,8 +27,6 @@ ComponentDefinitions:
             Height: =Min(Parent.Height - 64, 520)
             LayoutAlignItems: =LayoutAlignItems.Stretch
             LayoutDirection: =LayoutDirection.Vertical
-            LayoutMinHeight: =0
-            LayoutMinWidth: =0
             RadiusBottomLeft: =0
             RadiusBottomRight: =0
             RadiusTopLeft: =0
@@ -45,7 +43,6 @@ ComponentDefinitions:
                   Fill: =AppTheme.Surface
                   FillPortions: =0
                   Height: =132
-                  LayoutAlignItems: =LayoutAlignItems.Start
                   LayoutDirection: =LayoutDirection.Horizontal
                   LayoutGap: =8
                   LayoutMinHeight: =0
@@ -61,7 +58,6 @@ ComponentDefinitions:
                       Properties:
                         DropShadow: =DropShadow.None
                         Fill: =RGBA(0,0,0,0) /* DS-EXEMPT transparent layout container, no painted surface */
-                        FillPortions: =1
                         LayoutAlignItems: =LayoutAlignItems.Stretch
                         LayoutDirection: =LayoutDirection.Vertical
                         LayoutGap: =4
@@ -87,7 +83,6 @@ ComponentDefinitions:
                               Color: =AppTheme.TextPrimary
                               Font: ="IBM Plex Sans"
                               FontWeight: =FontWeight.Semibold
-                              Height: =40
                               LayoutMinHeight: =0
                               LayoutMinWidth: =0
                               Size: =24
@@ -117,12 +112,10 @@ ComponentDefinitions:
                         BorderThickness: =0
                         Color: =AppTheme.TextSecondary
                         Fill: =RGBA(0,0,0,0) /* DS-EXEMPT Carbon ghost icon button, no resting fill */
-                        FillPortions: =0
                         FocusedBorderColor: =ColorValue(AppTheme.ButtonPrimary)
                         FocusedBorderThickness: =2
                         Font: ="IBM Plex Sans"
                         FontWeight: =FontWeight.Normal
-                        Height: =40
                         HoverColor: =AppTheme.TextPrimary
                         HoverFill: =AppTheme.SurfaceAlt
                         LayoutMinHeight: =0
@@ -173,7 +166,6 @@ ComponentDefinitions:
                               gblSelectedBooking.Status = "Clash", AppTheme.StatusWarnBg,
                               ColorValue(AppTheme.ButtonPrimary)
                           )
-                        FillPortions: =0
                         Font: ="IBM Plex Sans"
                         Height: =24
                         LayoutMinHeight: =0
@@ -191,8 +183,8 @@ ComponentDefinitions:
                       Control: Label
                       Properties:
                         Color: =AppTheme.TextMuted
-                        Font: ="IBM Plex Sans"
                         FillPortions: =1
+                        Font: ="IBM Plex Sans"
                         Height: =20
                         LayoutMinHeight: =0
                         LayoutMinWidth: =0
@@ -216,7 +208,6 @@ ComponentDefinitions:
                 Properties:
                   DropShadow: =DropShadow.None
                   Fill: =AppTheme.Surface
-                  FillPortions: =1
                   LayoutAlignItems: =LayoutAlignItems.Stretch
                   LayoutDirection: =LayoutDirection.Vertical
                   LayoutGap: =1
@@ -251,7 +242,6 @@ ComponentDefinitions:
                               BorderThickness: =1
                               DropShadow: =DropShadow.None
                               Fill: =AppTheme.SurfaceAlt
-                              FillPortions: =1
                               LayoutAlignItems: =LayoutAlignItems.Stretch
                               LayoutDirection: =LayoutDirection.Vertical
                               LayoutGap: =4
@@ -297,7 +287,6 @@ ComponentDefinitions:
                               BorderThickness: =1
                               DropShadow: =DropShadow.None
                               Fill: =AppTheme.SurfaceAlt
-                              FillPortions: =1
                               LayoutAlignItems: =LayoutAlignItems.Stretch
                               LayoutDirection: =LayoutDirection.Vertical
                               LayoutGap: =4
@@ -357,7 +346,6 @@ ComponentDefinitions:
                               BorderThickness: =1
                               DropShadow: =DropShadow.None
                               Fill: =AppTheme.SurfaceAlt
-                              FillPortions: =1
                               LayoutAlignItems: =LayoutAlignItems.Stretch
                               LayoutDirection: =LayoutDirection.Vertical
                               LayoutGap: =4
@@ -411,7 +399,6 @@ ComponentDefinitions:
                               BorderThickness: =1
                               DropShadow: =DropShadow.None
                               Fill: =AppTheme.SurfaceAlt
-                              FillPortions: =1
                               LayoutAlignItems: =LayoutAlignItems.Stretch
                               LayoutDirection: =LayoutDirection.Vertical
                               LayoutGap: =4
@@ -471,7 +458,6 @@ ComponentDefinitions:
                               BorderThickness: =1
                               DropShadow: =DropShadow.None
                               Fill: =AppTheme.SurfaceAlt
-                              FillPortions: =1
                               LayoutAlignItems: =LayoutAlignItems.Stretch
                               LayoutDirection: =LayoutDirection.Vertical
                               LayoutGap: =4
@@ -518,7 +504,6 @@ ComponentDefinitions:
                               BorderThickness: =1
                               DropShadow: =DropShadow.None
                               Fill: =AppTheme.SurfaceAlt
-                              FillPortions: =1
                               LayoutAlignItems: =LayoutAlignItems.Stretch
                               LayoutDirection: =LayoutDirection.Vertical
                               LayoutGap: =4
@@ -562,7 +547,6 @@ ComponentDefinitions:
                 Variant: AutoLayout
                 Properties:
                   BorderColor: =AppTheme.Border
-                  BorderThickness: =0
                   DropShadow: =DropShadow.None
                   Fill: =AppTheme.SurfaceAlt
                   FillPortions: =0
@@ -597,10 +581,8 @@ ComponentDefinitions:
                             Properties:
                               DropShadow: =DropShadow.None
                               Fill: =RGBA(0,0,0,0) /* DS-EXEMPT transparent layout container, no painted surface */
-                              FillPortions: =1
                               LayoutAlignItems: =LayoutAlignItems.Stretch
                               LayoutDirection: =LayoutDirection.Horizontal
-                              LayoutJustifyContent: =LayoutJustifyContent.Start
                               LayoutMinHeight: =0
                               LayoutMinWidth: =0
                             Children:
@@ -611,7 +593,6 @@ ComponentDefinitions:
                                     BorderThickness: =0
                                     Color: =ColorValue(AppTheme.ButtonDangerPrimary)
                                     Fill: =RGBA(0,0,0,0) /* DS-EXEMPT Carbon danger-ghost button, no resting fill */
-                                    FillPortions: =0
                                     FocusedBorderColor: =ColorValue(AppTheme.ButtonPrimary)
                                     FocusedBorderThickness: =2
                                     Font: ="IBM Plex Sans"
@@ -633,14 +614,12 @@ ComponentDefinitions:
                                     RadiusTopRight: =0
                                     Size: =11
                                     Text: ="Cancel booking"
-                                    Width: =160
                         - bdmFooterRight:
                             Control: GroupContainer
                             Variant: AutoLayout
                             Properties:
                               DropShadow: =DropShadow.None
                               Fill: =RGBA(0,0,0,0) /* DS-EXEMPT transparent layout container, no painted surface */
-                              FillPortions: =1
                               LayoutAlignItems: =LayoutAlignItems.Stretch
                               LayoutDirection: =LayoutDirection.Horizontal
                               LayoutJustifyContent: =LayoutJustifyContent.End
@@ -654,7 +633,6 @@ ComponentDefinitions:
                                     BorderThickness: =1
                                     Color: =ColorValue(AppTheme.PrimaryText)
                                     Fill: =ColorValue(AppTheme.ButtonPrimary)
-                                    FillPortions: =0
                                     FocusedBorderColor: =ColorValue(AppTheme.ButtonPrimary)
                                     FocusedBorderThickness: =2
                                     Font: ="IBM Plex Sans"
@@ -702,7 +680,6 @@ ComponentDefinitions:
                                     RadiusTopRight: =0
                                     Size: =11
                                     Text: ="Change time"
-                                    Width: =160
                   - bdmConfirmRow:
                       Control: GroupContainer
                       Variant: AutoLayout
@@ -757,7 +734,6 @@ ComponentDefinitions:
                                     BorderThickness: =1
                                     Color: =AppTheme.TextPrimary
                                     Fill: =AppTheme.Surface
-                                    FillPortions: =0
                                     FocusedBorderColor: =ColorValue(AppTheme.ButtonPrimary)
                                     FocusedBorderThickness: =2
                                     Font: ="IBM Plex Sans"
@@ -783,7 +759,6 @@ ComponentDefinitions:
                                     BorderThickness: =0
                                     Color: =ColorValue(AppTheme.PrimaryText)
                                     Fill: =AppTheme.StatusBusyText
-                                    FillPortions: =0
                                     FocusedBorderColor: =ColorValue(AppTheme.ButtonPrimary)
                                     FocusedBorderThickness: =2
                                     Font: ="IBM Plex Sans"
@@ -869,7 +844,6 @@ ComponentDefinitions:
                                     BorderThickness: =1
                                     Color: =AppTheme.TextPrimary
                                     Fill: =AppTheme.Surface
-                                    FillPortions: =0
                                     FocusedBorderColor: =ColorValue(AppTheme.ButtonPrimary)
                                     FocusedBorderThickness: =2
                                     Font: ="IBM Plex Sans"
@@ -908,7 +882,6 @@ ComponentDefinitions:
                                     BorderThickness: =1
                                     Color: =ColorValue(AppTheme.PrimaryText)
                                     Fill: =ColorValue(AppTheme.ButtonPrimary)
-                                    FillPortions: =0
                                     FocusedBorderColor: =ColorValue(AppTheme.ButtonPrimary)
                                     FocusedBorderThickness: =2
                                     Font: ="IBM Plex Sans"
@@ -957,7 +930,6 @@ ComponentDefinitions:
                                     BorderThickness: =1
                                     Color: =AppTheme.TextPrimary
                                     Fill: =AppTheme.Surface
-                                    FillPortions: =0
                                     FocusedBorderColor: =ColorValue(AppTheme.ButtonPrimary)
                                     FocusedBorderThickness: =2
                                     Font: ="IBM Plex Sans"
