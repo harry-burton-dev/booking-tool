@@ -1631,20 +1631,23 @@ Screens:
                                 UpdateIf(colRoomBookings, EndDateTime > Timeline_DayEnd, {EndDateTime: Timeline_DayEnd});
                                 ClearCollect(colRoomBookings, Sort(colRoomBookings, StartDateTime, SortOrder.Ascending));
                                 Clear(colTimelineRows);
-                                ForAll(
-                                    colRoomBookings As booking,
-                                    Collect(colTimelineRows, {
-                                        RowType: "booked",
-                                        RowStart: booking.StartDateTime,
-                                        RowEnd: booking.EndDateTime,
-                                        RowHeight: DateDiff(booking.StartDateTime, booking.EndDateTime, TimeUnit.Minutes) * 2,
-                                        RowMinutes: DateDiff(booking.StartDateTime, booking.EndDateTime, TimeUnit.Minutes),
-                                        Title: If(booking.IsPrivate && booking.BookedByEmail <> Lower(User().Email), "Busy", booking.Title),
-                                        BookedBy: If(booking.IsPrivate && booking.BookedByEmail <> Lower(User().Email), "", booking.BookedBy.DisplayName),
-                                        IsMine: booking.BookedBy.Email = User().Email,
-                                        BookingID: booking.ID,
-                                        IsMasked: booking.IsPrivate && booking.BookedByEmail <> Lower(User().Email)
-                                    })
+                                Collect(
+                                    colTimelineRows,
+                                    ForAll(
+                                        colRoomBookings As booking,
+                                        {
+                                            RowType: "booked",
+                                            RowStart: booking.StartDateTime,
+                                            RowEnd: booking.EndDateTime,
+                                            RowHeight: DateDiff(booking.StartDateTime, booking.EndDateTime, TimeUnit.Minutes) * 2,
+                                            RowMinutes: DateDiff(booking.StartDateTime, booking.EndDateTime, TimeUnit.Minutes),
+                                            Title: If(booking.IsPrivate && booking.BookedByEmail <> Lower(User().Email), "Busy", booking.Title),
+                                            BookedBy: If(booking.IsPrivate && booking.BookedByEmail <> Lower(User().Email), "", booking.BookedBy.DisplayName),
+                                            IsMine: booking.BookedBy.Email = User().Email,
+                                            BookingID: booking.ID,
+                                            IsMasked: booking.IsPrivate && booking.BookedByEmail <> Lower(User().Email)
+                                        }
+                                    )
                                 );
                                 ForAll(
                                     Sequence(DayEndHour - DayStartHour) As hr,
