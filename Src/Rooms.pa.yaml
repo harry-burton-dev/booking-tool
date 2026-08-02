@@ -372,37 +372,7 @@ Screens:
                                         Variant: Horizontal
                                         Properties:
                                           Height: =8
-                                          Items: |-
-                                            =With(
-                                                {_roomBookings: ThisItem.TodayRoomBookings},
-                                                ForAll(
-                                                    Sequence((DayEndHour - DayStartHour) * 2) As _slot,
-                                                    With(
-                                                        {
-                                                            _start: DateAdd(
-                                                                TodayWindowStart,
-                                                                (_slot.Value - 1) * 30,
-                                                                TimeUnit.Minutes
-                                                            )
-                                                        },
-                                                        {
-                                                            SlotStart: _start,
-                                                            SlotEnd: DateAdd(_start, 30, TimeUnit.Minutes),
-                                                            IsBooked: !IsBlank(
-                                                                LookUp(
-                                                                    _roomBookings,
-                                                                    fnOverlaps(
-                                                                        StartDateTime,
-                                                                        EndDateTime,
-                                                                        _start,
-                                                                        DateAdd(_start, 30, TimeUnit.Minutes)
-                                                                    )
-                                                                )
-                                                            )
-                                                        }
-                                                    )
-                                                )
-                                            )
+                                          Items: =ThisItem.Slots
                                           ShowScrollbar: =false
                                           TemplatePadding: =1
                                           TemplateSize: =(Self.Width / ((DayEndHour - DayStartHour) * 2))

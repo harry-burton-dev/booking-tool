@@ -433,29 +433,63 @@ App:
                   // gallery control per row.
                   RoomOccupancyToday = ForAll(
                       colRooms As _r,
-                      {
-                          RoomId: _r.ID,
-                          Title: _r.Title,
-                          Pct: Min(
-                              1,
-                              Sum(
-                                  ForAll(
-                                      Filter(TodayBookings, RoomID.Id = _r.ID) As _b,
+                      With(
+                          {
+                              _bookings: Filter(TodayBookings, RoomID.Id = _r.ID)
+                          },
+                          {
+                              RoomId: _r.ID,
+                              Title: _r.Title,
+                              Pct: Min(
+                                  1,
+                                  Sum(
+                                      ForAll(
+                                          _bookings As _b,
+                                          {
+                                              m: Max(
+                                                  0,
+                                                  DateDiff(
+                                                      If(_b.StartDateTime < TodayWindowStart, TodayWindowStart, _b.StartDateTime),
+                                                      If(_b.EndDateTime > TodayWindowEnd, TodayWindowEnd, _b.EndDateTime),
+                                                      TimeUnit.Minutes
+                                                  )
+                                              )
+                                          }
+                                      ),
+                                      m
+                                  ) / WorkingDayMinutes
+                              ),
+                              // Per-slot strip precomputed here so galHDOccSegments binds
+                              // ThisItem.Slots with zero per-slot LookUps in the template.
+                              Slots: ForAll(
+                                  Sequence((DayEndHour - DayStartHour) * 2) As _slot,
+                                  With(
                                       {
-                                          m: Max(
-                                              0,
-                                              DateDiff(
-                                                  If(_b.StartDateTime < TodayWindowStart, TodayWindowStart, _b.StartDateTime),
-                                                  If(_b.EndDateTime > TodayWindowEnd, TodayWindowEnd, _b.EndDateTime),
-                                                  TimeUnit.Minutes
+                                          _start: DateAdd(
+                                              TodayWindowStart,
+                                              (_slot.Value - 1) * 30,
+                                              TimeUnit.Minutes
+                                          )
+                                      },
+                                      {
+                                          SlotStart: _start,
+                                          SlotEnd: DateAdd(_start, 30, TimeUnit.Minutes),
+                                          IsBooked: !IsBlank(
+                                              LookUp(
+                                                  _bookings,
+                                                  fnOverlaps(
+                                                      StartDateTime,
+                                                      EndDateTime,
+                                                      _start,
+                                                      DateAdd(_start, 30, TimeUnit.Minutes)
+                                                  )
                                               )
                                           )
                                       }
-                                  ),
-                                  m
-                              ) / WorkingDayMinutes
-                          )
-                      }
+                                  )
+                              )
+                          }
+                      )
                   );
 
                   // 90-day lookback keeps the "All" tab bounded (delegation-safe on revert).
@@ -571,12 +605,34 @@ App:
                                           ),
                                           Minutes
                                       ),
-                                      TodayRoomBookings: ForAll(
-                                          _bookings As _booking,
-                                          {
-                                              StartDateTime: _booking.StartDateTime,
-                                              EndDateTime: _booking.EndDateTime
-                                          }
+                                      // Per-slot strip precomputed here so galRoomsAvailabilitySegments
+                                      // binds ThisItem.Slots with zero per-slot LookUps in the template.
+                                      Slots: ForAll(
+                                          Sequence((DayEndHour - DayStartHour) * 2) As _slot,
+                                          With(
+                                              {
+                                                  _start: DateAdd(
+                                                      TodayWindowStart,
+                                                      (_slot.Value - 1) * 30,
+                                                      TimeUnit.Minutes
+                                                  )
+                                              },
+                                              {
+                                                  SlotStart: _start,
+                                                  SlotEnd: DateAdd(_start, 30, TimeUnit.Minutes),
+                                                  IsBooked: !IsBlank(
+                                                      LookUp(
+                                                          _bookings,
+                                                          fnOverlaps(
+                                                              StartDateTime,
+                                                              EndDateTime,
+                                                              _start,
+                                                              DateAdd(_start, 30, TimeUnit.Minutes)
+                                                          )
+                                                      )
+                                                  )
+                                              }
+                                          )
                                       )
                                   }
                               )
