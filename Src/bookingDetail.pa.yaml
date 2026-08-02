@@ -463,7 +463,7 @@ Screens:
                                                           Patch(Book_Bookings, LookUp(Book_Bookings, ID = gblSelectedBooking.ID), {Status: "Cancelled"}),
                                                           Notify("Couldn't cancel this booking. Please try again.", NotificationType.Error),
                                                           Refresh(Book_Bookings);
-                                                          ClearCollect(colBookings, BookingsWindow);
+                                                          Patch(colBookings, LookUp(colBookings, ID = gblSelectedBooking.ID), {Status: "Cancelled"});
                                                           Set(gblSelectedBooking, Blank());
                                                           Notify("Booking cancelled", NotificationType.Success);
                                                           Navigate(myBookings, ScreenTransition.Fade)
@@ -575,7 +575,7 @@ Screens:
                                                               ),
                                                               Notify("Couldn't update this booking. Please try again.", NotificationType.Error),
                                                               Refresh(Book_Bookings);
-                                                              ClearCollect(colBookings, BookingsWindow);
+                                                              Patch(colBookings, LookUp(colBookings, ID = gblSelectedBooking.ID), {StartDateTime: gbl_PendingStart, EndDateTime: gbl_PendingEnd, IsException: true, Status: If(_free, "Active", "Clash")});
                                                               If(
                                                                   _free,
                                                                   Notify("Booking updated", NotificationType.Success),
@@ -623,7 +623,7 @@ Screens:
                                                           Patch(Book_Bookings, LookUp(Book_Bookings, ID = gblSelectedBooking.ID), {Status: "Cancelled"}),
                                                           Notify("Couldn't cancel this booking. Please try again.", NotificationType.Error),
                                                           Refresh(Book_Bookings);
-                                                          ClearCollect(colBookings, BookingsWindow);
+                                                          Patch(colBookings, LookUp(colBookings, ID = gblSelectedBooking.ID), {Status: "Cancelled"});
                                                           Set(gblSelectedBooking, Blank());
                                                           Notify("Booking cancelled", NotificationType.Success);
                                                           Set(gbl_FixCycleSeriesID, "");
@@ -705,23 +705,35 @@ Screens:
                                                               )
                                                           );
 
-                                                          ForAll(
-                                                              colSeriesEditPlan,
-                                                              IfError(
-                                                                  Patch(
-                                                                      Book_Bookings,
-                                                                      LookUp(Book_Bookings, ID = MemberID),
-                                                                      {StartDateTime: NewStart, EndDateTime: NewEnd, Status: NewStatus}
-                                                                  );
-                                                                  true,
-                                                                  Notify("Couldn't update one or more occurrences.", NotificationType.Error);
-                                                                  false
-                                                              )
+                                                          With(
+                                                              {
+                                                                  _results: ForAll(
+                                                                      colSeriesEditPlan,
+                                                                      IfError(
+                                                                          Patch(
+                                                                              Book_Bookings,
+                                                                              LookUp(Book_Bookings, ID = MemberID),
+                                                                              {StartDateTime: NewStart, EndDateTime: NewEnd, Status: NewStatus}
+                                                                          );
+                                                                          true,
+                                                                          Notify("Couldn't update one or more occurrences.", NotificationType.Error);
+                                                                          false
+                                                                      )
+                                                                  )
+                                                              },
+                                                              Refresh(Book_Bookings);
+                                                              If(
+                                                                  CountRows(Filter(_results, !Value)) = 0,
+                                                                  // Mirror: iterate the same plan collection the server loop wrote from — identical change set
+                                                                  ForAll(
+                                                                      colSeriesEditPlan As _p,
+                                                                      Patch(colBookings, LookUp(colBookings, ID = _p.MemberID), {StartDateTime: _p.NewStart, EndDateTime: _p.NewEnd, Status: _p.NewStatus})
+                                                                  ),
+                                                                  // MIRROR-FALLBACK: partial series-edit failure — local picture uncertain, re-pull the window
+                                                                  ClearCollect(colBookings, BookingsWindow)
+                                                              );
+                                                              Set(gblSelectedBooking, LookUp(colBookings, ID = gblSelectedBooking.ID))
                                                           );
-
-                                                          Refresh(Book_Bookings);
-                                                          ClearCollect(colBookings, BookingsWindow);
-                                                          Set(gblSelectedBooking, LookUp(colBookings, ID = gblSelectedBooking.ID));
 
                                                           If(
                                                               CountRows(colSeriesEditPlan) = 0,
@@ -763,7 +775,17 @@ Screens:
                                                                   )
                                                               },
                                                               Refresh(Book_Bookings);
-                                                              ClearCollect(colBookings, BookingsWindow);
+                                                              If(
+                                                                  CountRows(Filter(_results, !Value)) = 0,
+                                                                  // Mirror: predicate copied from the server loop above (SeriesID server filter + client refinement)
+                                                                  UpdateIf(
+                                                                      colBookings,
+                                                                      SeriesID = _sid && StartDateTime >= Now() && Status <> "Cancelled" && BookedByEmail = Lower(User().Email),
+                                                                      {Status: "Cancelled"}
+                                                                  ),
+                                                                  // MIRROR-FALLBACK: partial series-cancel failure — local picture uncertain, re-pull the window
+                                                                  ClearCollect(colBookings, BookingsWindow)
+                                                              );
                                                               Set(gblSelectedBooking, Blank());
                                                               If(
                                                                   CountRows(_results) = 0,
@@ -864,7 +886,7 @@ Screens:
                                   ),
                                   Notify("Couldn't update this booking. Please try again.", NotificationType.Error),
                                   Refresh(Book_Bookings);
-                                  ClearCollect(colBookings, BookingsWindow);
+                                  Patch(colBookings, LookUp(colBookings, ID = gblEditingBookingID), {Title: _occ.Title, RoomID: {Id: _occ.RoomIdNumber, Value: _occ.RoomIdText}, StartDateTime: _occ.StartDateTime, EndDateTime: _occ.EndDateTime});
                                   Notify("Booking updated", NotificationType.Success)
                               )
                           )
