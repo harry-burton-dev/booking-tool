@@ -105,33 +105,30 @@ Screens:
                                           PaddingRight: =0
                                           PaddingTop: =0
                                           Width: =64
-                                    - lblProfileName:
-                                        Control: Label
+                                    - htxProfileIdentity:
+                                        Control: HtmlViewer
                                         Properties:
-                                          AlignInContainer: =AlignInContainer.Stretch
-                                          Color: =AppTheme.TextPrimary
+                                          AlignInContainer: =AlignInContainer.Center
+                                          AutoHeight: =true
+                                          DisplayMode: =DisplayMode.View
                                           FillPortions: =1
-                                          Font: =Font.Lato
-                                          FontWeight: =FontWeight.Semibold
+                                          HtmlText: |-
+                                            =/* Old layout was two FillPortions:1 labels side by side in the
+                                               horizontal avatar slot - the flex row reproduces that split. */
+                                            "<div style=""display: flex; align-items: center;"">" &
+                                            "<span style=""flex: 1; " & CarbonHtmlType.Heading03 & " color: " & AppThemeHex.TextPrimary & ";"">" &
+                                            fnHtmlEscape(User().FullName) &
+                                            "</span>" &
+                                            "<span style=""flex: 1; " & CarbonHtmlType.Label01 & " color: " & AppThemeHex.TextMuted & ";"">" &
+                                            fnHtmlEscape(User().Email) &
+                                            "</span>" &
+                                            "</div>"
                                           LayoutMinHeight: =0
                                           LayoutMinWidth: =0
-                                          Size: =20
-                                          Text: =User().FullName
-                                          X: =40
-                                          Y: =40
-                                    - lblProfileEmail:
-                                        Control: Label
-                                        Properties:
-                                          AlignInContainer: =AlignInContainer.Stretch
-                                          Color: =AppTheme.TextMuted
-                                          FillPortions: =1
-                                          Font: =Font.Lato
-                                          LayoutMinHeight: =0
-                                          LayoutMinWidth: =0
-                                          Size: =12
-                                          Text: =User().Email
-                                          X: =40
-                                          Y: =40
+                                          PaddingBottom: =0
+                                          PaddingLeft: =0
+                                          PaddingRight: =0
+                                          PaddingTop: =0
                         - conProfileNotifications:
                             Control: GroupContainer
                             Variant: AutoLayout
