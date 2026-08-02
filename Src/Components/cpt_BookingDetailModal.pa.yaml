@@ -64,46 +64,36 @@ ComponentDefinitions:
                         LayoutMinHeight: =0
                         LayoutMinWidth: =0
                       Children:
-                        - bdmEyebrow:
-                            Control: Label
-                            Properties:
-                              Color: =AppTheme.TextMuted
-                              Font: ="IBM Plex Sans"
-                              FontWeight: =FontWeight.Semibold
-                              Height: =16
-                              LayoutMinHeight: =0
-                              LayoutMinWidth: =0
-                              Size: =10
-                              Text: ="BOOKING DETAIL"
-                              Wrap: =false
-                        - bdmTitle:
-                            Control: Label
+                        - htxBdmHeader:
+                            Control: HtmlViewer
                             Properties:
                               AutoHeight: =true
-                              Color: =AppTheme.TextPrimary
-                              Font: ="IBM Plex Sans"
-                              FontWeight: =FontWeight.Semibold
-                              LayoutMinHeight: =0
-                              LayoutMinWidth: =0
-                              Size: =24
-                              Text: =If(IsBlank(gblSelectedBooking), "No booking selected", gblSelectedBooking.Title)
-                        - bdmSubtitle:
-                            Control: Label
-                            Properties:
-                              AutoHeight: =true
-                              Color: =AppTheme.TextSecondary
-                              Font: ="IBM Plex Sans"
-                              Height: =22
-                              LayoutMinHeight: =0
-                              LayoutMinWidth: =0
-                              Size: =12
-                              Text: |-
-                                =With(
-                                    {_room: LookUp(colRooms, ID = gblSelectedBooking.RoomID.Id)},
-                                    gblSelectedBooking.'RoomID: Title'.Value &
-                                    If(IsBlank(_room) || IsBlank(_room.Capacity), "", " · seats " & _room.Capacity)
+                              DisplayMode: =DisplayMode.View
+                              HtmlText: |-
+                                =CarbonTextColored(CarbonHtmlType.Eyebrow, "BOOKING DETAIL", AppThemeHex.TextMuted) &
+                                CarbonText(
+                                    CarbonHtmlType.Heading03,
+                                    If(
+                                        IsBlank(gblSelectedBooking),
+                                        "No booking selected",
+                                        /* booking titles are user-entered - escape HTML metacharacters */
+                                        Substitute(Substitute(gblSelectedBooking.Title, "<", "&lt;"), ">", "&gt;")
+                                    )
+                                ) &
+                                CarbonTextSecondary(
+                                    CarbonHtmlType.Label01,
+                                    With(
+                                        {_room: LookUp(colRooms, ID = gblSelectedBooking.RoomID.Id)},
+                                        gblSelectedBooking.'RoomID: Title'.Value &
+                                        If(IsBlank(_room) || IsBlank(_room.Capacity), "", " · seats " & _room.Capacity)
+                                    )
                                 )
-                              Wrap: =false
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              PaddingBottom: =0
+                              PaddingLeft: =0
+                              PaddingRight: =0
+                              PaddingTop: =0
                   - bdmBtnClose:
                       Control: Classic/Button
                       Properties:
@@ -256,29 +246,20 @@ ComponentDefinitions:
                               RadiusTopLeft: =0
                               RadiusTopRight: =0
                             Children:
-                              - bdmCapDate:
-                                  Control: Label
+                              - htxBdmCellDate:
+                                  Control: HtmlViewer
                                   Properties:
-                                    Color: =AppTheme.TextMuted
-                                    Font: ="IBM Plex Sans"
-                                    Height: =16
+                                    AutoHeight: =true
+                                    DisplayMode: =DisplayMode.View
+                                    HtmlText: |-
+                                      =CarbonTextColored(CarbonHtmlType.Label01, "Date", AppThemeHex.TextMuted) &
+                                      CarbonText(CarbonHtmlType.HeadingCompact01, Text(gblSelectedBooking.StartDateTime, "dddd dd mmmm yyyy"))
                                     LayoutMinHeight: =0
                                     LayoutMinWidth: =0
-                                    Size: =11
-                                    Text: ="Date"
-                                    Wrap: =false
-                              - bdmValDate:
-                                  Control: Label
-                                  Properties:
-                                    Color: =AppTheme.TextPrimary
-                                    Font: ="IBM Plex Sans"
-                                    FontWeight: =FontWeight.Semibold
-                                    Height: =20
-                                    LayoutMinHeight: =0
-                                    LayoutMinWidth: =0
-                                    Size: =14
-                                    Text: =Text(gblSelectedBooking.StartDateTime, "dddd dd mmmm yyyy")
-                                    Wrap: =false
+                                    PaddingBottom: =0
+                                    PaddingLeft: =0
+                                    PaddingRight: =0
+                                    PaddingTop: =0
                         - bdmCellTime:
                             Control: GroupContainer
                             Variant: AutoLayout
@@ -301,29 +282,20 @@ ComponentDefinitions:
                               RadiusTopLeft: =0
                               RadiusTopRight: =0
                             Children:
-                              - bdmCapTime:
-                                  Control: Label
+                              - htxBdmCellTime:
+                                  Control: HtmlViewer
                                   Properties:
-                                    Color: =AppTheme.TextMuted
-                                    Font: ="IBM Plex Sans"
-                                    Height: =16
+                                    AutoHeight: =true
+                                    DisplayMode: =DisplayMode.View
+                                    HtmlText: |-
+                                      =CarbonTextColored(CarbonHtmlType.Label01, "Time", AppThemeHex.TextMuted) &
+                                      CarbonText(CarbonHtmlType.HeadingCompact01, Text(gblSelectedBooking.StartDateTime, "HH:mm") & " – " & Text(gblSelectedBooking.EndDateTime, "HH:mm"))
                                     LayoutMinHeight: =0
                                     LayoutMinWidth: =0
-                                    Size: =11
-                                    Text: ="Time"
-                                    Wrap: =false
-                              - bdmValTime:
-                                  Control: Label
-                                  Properties:
-                                    Color: =AppTheme.TextPrimary
-                                    Font: ="IBM Plex Sans"
-                                    FontWeight: =FontWeight.Semibold
-                                    Height: =20
-                                    LayoutMinHeight: =0
-                                    LayoutMinWidth: =0
-                                    Size: =14
-                                    Text: =Text(gblSelectedBooking.StartDateTime, "HH:mm") & " – " & Text(gblSelectedBooking.EndDateTime, "HH:mm")
-                                    Wrap: =false
+                                    PaddingBottom: =0
+                                    PaddingLeft: =0
+                                    PaddingRight: =0
+                                    PaddingTop: =0
                   - bdmGridRow2:
                       Control: GroupContainer
                       Variant: AutoLayout
@@ -360,37 +332,30 @@ ComponentDefinitions:
                               RadiusTopLeft: =0
                               RadiusTopRight: =0
                             Children:
-                              - bdmCapDuration:
-                                  Control: Label
+                              - htxBdmCellDuration:
+                                  Control: HtmlViewer
                                   Properties:
-                                    Color: =AppTheme.TextMuted
-                                    Font: ="IBM Plex Sans"
-                                    Height: =16
-                                    LayoutMinHeight: =0
-                                    LayoutMinWidth: =0
-                                    Size: =11
-                                    Text: ="Duration"
-                                    Wrap: =false
-                              - bdmValDuration:
-                                  Control: Label
-                                  Properties:
-                                    Color: =AppTheme.TextPrimary
-                                    Font: ="IBM Plex Sans"
-                                    FontWeight: =FontWeight.Semibold
-                                    Height: =20
-                                    LayoutMinHeight: =0
-                                    LayoutMinWidth: =0
-                                    Size: =14
-                                    Text: |-
-                                      =With(
-                                          {_mins: DateDiff(gblSelectedBooking.StartDateTime, gblSelectedBooking.EndDateTime, TimeUnit.Minutes)},
-                                          If(
-                                              Mod(_mins, 60) = 0,
-                                              _mins / 60 & If(_mins = 60, " hour", " hours"),
-                                              _mins & " min"
+                                    AutoHeight: =true
+                                    DisplayMode: =DisplayMode.View
+                                    HtmlText: |-
+                                      =CarbonTextColored(CarbonHtmlType.Label01, "Duration", AppThemeHex.TextMuted) &
+                                      CarbonText(
+                                          CarbonHtmlType.HeadingCompact01,
+                                          With(
+                                              {_mins: DateDiff(gblSelectedBooking.StartDateTime, gblSelectedBooking.EndDateTime, TimeUnit.Minutes)},
+                                              If(
+                                                  Mod(_mins, 60) = 0,
+                                                  _mins / 60 & If(_mins = 60, " hour", " hours"),
+                                                  _mins & " min"
+                                              )
                                           )
                                       )
-                                    Wrap: =false
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    PaddingBottom: =0
+                                    PaddingLeft: =0
+                                    PaddingRight: =0
+                                    PaddingTop: =0
                         - bdmCellBy:
                             Control: GroupContainer
                             Variant: AutoLayout
@@ -413,29 +378,20 @@ ComponentDefinitions:
                               RadiusTopLeft: =0
                               RadiusTopRight: =0
                             Children:
-                              - bdmCapBy:
-                                  Control: Label
+                              - htxBdmCellBy:
+                                  Control: HtmlViewer
                                   Properties:
-                                    Color: =AppTheme.TextMuted
-                                    Font: ="IBM Plex Sans"
-                                    Height: =16
+                                    AutoHeight: =true
+                                    DisplayMode: =DisplayMode.View
+                                    HtmlText: |-
+                                      =CarbonTextColored(CarbonHtmlType.Label01, "Booked by", AppThemeHex.TextMuted) &
+                                      CarbonText(CarbonHtmlType.HeadingCompact01, gblSelectedBooking.BookedBy.DisplayName)
                                     LayoutMinHeight: =0
                                     LayoutMinWidth: =0
-                                    Size: =11
-                                    Text: ="Booked by"
-                                    Wrap: =false
-                              - bdmValBy:
-                                  Control: Label
-                                  Properties:
-                                    Color: =AppTheme.TextPrimary
-                                    Font: ="IBM Plex Sans"
-                                    FontWeight: =FontWeight.Semibold
-                                    Height: =20
-                                    LayoutMinHeight: =0
-                                    LayoutMinWidth: =0
-                                    Size: =14
-                                    Text: =gblSelectedBooking.BookedBy.DisplayName
-                                    Wrap: =false
+                                    PaddingBottom: =0
+                                    PaddingLeft: =0
+                                    PaddingRight: =0
+                                    PaddingTop: =0
                   - bdmGridRow3:
                       Control: GroupContainer
                       Variant: AutoLayout
@@ -472,30 +428,20 @@ ComponentDefinitions:
                               RadiusTopLeft: =0
                               RadiusTopRight: =0
                             Children:
-                              - bdmCapRoom:
-                                  Control: Label
+                              - htxBdmCellRoom:
+                                  Control: HtmlViewer
                                   Properties:
-                                    Color: =AppTheme.TextMuted
-                                    Font: ="IBM Plex Sans"
-                                    Height: =16
+                                    AutoHeight: =true
+                                    DisplayMode: =DisplayMode.View
+                                    HtmlText: |-
+                                      =CarbonTextColored(CarbonHtmlType.Label01, "Room", AppThemeHex.TextMuted) &
+                                      CarbonText(CarbonHtmlType.HeadingCompact01, gblSelectedBooking.'RoomID: Title'.Value)
                                     LayoutMinHeight: =0
                                     LayoutMinWidth: =0
-                                    Size: =11
-                                    Text: ="Room"
-                                    Wrap: =false
-                              - bdmValRoom:
-                                  Control: Label
-                                  Properties:
-                                    Color: =AppTheme.TextPrimary
-                                    Font: ="IBM Plex Sans"
-                                    FontWeight: =FontWeight.Semibold
-                                    Height: =20
-                                    LayoutMinHeight: =0
-                                    LayoutMinWidth: =0
-                                    Size: =14
-                                    Text: |-
-                                      =gblSelectedBooking.'RoomID: Title'.Value
-                                    Wrap: =false
+                                    PaddingBottom: =0
+                                    PaddingLeft: =0
+                                    PaddingRight: =0
+                                    PaddingTop: =0
                         - bdmCellSeries:
                             Control: GroupContainer
                             Variant: AutoLayout
@@ -519,29 +465,20 @@ ComponentDefinitions:
                               RadiusTopRight: =0
                               Visible: =!IsBlank(gblSelectedBooking.SeriesID)
                             Children:
-                              - bdmCapSeries:
-                                  Control: Label
+                              - htxBdmCellSeries:
+                                  Control: HtmlViewer
                                   Properties:
-                                    Color: =AppTheme.TextMuted
-                                    Font: ="IBM Plex Sans"
-                                    Height: =16
+                                    AutoHeight: =true
+                                    DisplayMode: =DisplayMode.View
+                                    HtmlText: |-
+                                      =CarbonTextColored(CarbonHtmlType.Label01, "Series", AppThemeHex.TextMuted) &
+                                      CarbonText(CarbonHtmlType.HeadingCompact01, If(IsBlank(gblSelectedBooking.RecurrenceType), "Repeats", gblSelectedBooking.RecurrenceType))
                                     LayoutMinHeight: =0
                                     LayoutMinWidth: =0
-                                    Size: =11
-                                    Text: ="Series"
-                                    Wrap: =false
-                              - bdmValSeries:
-                                  Control: Label
-                                  Properties:
-                                    Color: =AppTheme.TextPrimary
-                                    Font: ="IBM Plex Sans"
-                                    FontWeight: =FontWeight.Semibold
-                                    Height: =20
-                                    LayoutMinHeight: =0
-                                    LayoutMinWidth: =0
-                                    Size: =14
-                                    Text: =If(IsBlank(gblSelectedBooking.RecurrenceType), "Repeats", gblSelectedBooking.RecurrenceType)
-                                    Wrap: =false
+                                    PaddingBottom: =0
+                                    PaddingLeft: =0
+                                    PaddingRight: =0
+                                    PaddingTop: =0
             - bdmFooter:
                 Control: GroupContainer
                 Variant: AutoLayout
