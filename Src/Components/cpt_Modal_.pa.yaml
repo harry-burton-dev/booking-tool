@@ -1801,14 +1801,14 @@ ComponentDefinitions:
                                           Sequence(If(_repeating, Value(drpOccurrences.Selected.Value), 1)) As _occ,
                                           With(
                                               {
-                                                  vStart: Switch(
+                                                  _rawStart: Switch(
                                                       _recurrenceType,
                                                       "Weekly", DateAdd(varStartTime, 7 * (_occ.Value - 1), TimeUnit.Days),
                                                       "BiWeekly", DateAdd(varStartTime, 14 * (_occ.Value - 1), TimeUnit.Days),
                                                       "Monthly", DateAdd(varStartTime, _occ.Value - 1, TimeUnit.Months),
                                                       varStartTime
                                                   ),
-                                                  vEnd: Switch(
+                                                  _rawEnd: Switch(
                                                       _recurrenceType,
                                                       "Weekly", DateAdd(varEndTime, 7 * (_occ.Value - 1), TimeUnit.Days),
                                                       "BiWeekly", DateAdd(varEndTime, 14 * (_occ.Value - 1), TimeUnit.Days),
@@ -1816,18 +1816,38 @@ ComponentDefinitions:
                                                       varEndTime
                                                   )
                                               },
-                                              {
-                                                  OccIndex: _occ.Value,
-                                                  Title: varTitle,
-                                                  BookedByEmail: If(IsBlank(varBookForEmail), Lower(User().Email), varBookForEmail),
-                                                  RoomIdNumber: Value(varSelectedRoom.ID),
-                                                  RoomIdText: Text(varSelectedRoom.RoomID),
-                                                  RoomTitle: varSelectedRoom.Title,
-                                                  StartDateTime: vStart,
-                                                  EndDateTime: vEnd,
-                                                  IsPrivate: tglPrivate.Checked,
-                                                  RecurrenceType: _recurrenceType
-                                              }
+                                              With(
+                                                  {
+                                                      /* BUG-10b: Mon–Fri rule for every occurrence, not just #1.
+                                                         Weekly/BiWeekly steps preserve the weekday, so the shift is
+                                                         0 for them by construction; only Monthly can drift onto
+                                                         Sat (Weekday 7 → +2) or Sun (Weekday 1 → +1). */
+                                                      _shiftDays: Switch(
+                                                          Weekday(_rawStart, StartOfWeek.Sunday),
+                                                          7, 2,
+                                                          1, 1,
+                                                          0
+                                                      )
+                                                  },
+                                                  With(
+                                                      {
+                                                          vStart: DateAdd(_rawStart, _shiftDays, TimeUnit.Days),
+                                                          vEnd: DateAdd(_rawEnd, _shiftDays, TimeUnit.Days)
+                                                      },
+                                                      {
+                                                          OccIndex: _occ.Value,
+                                                          Title: varTitle,
+                                                          BookedByEmail: If(IsBlank(varBookForEmail), Lower(User().Email), varBookForEmail),
+                                                          RoomIdNumber: Value(varSelectedRoom.ID),
+                                                          RoomIdText: Text(varSelectedRoom.RoomID),
+                                                          RoomTitle: varSelectedRoom.Title,
+                                                          StartDateTime: vStart,
+                                                          EndDateTime: vEnd,
+                                                          IsPrivate: tglPrivate.Checked,
+                                                          RecurrenceType: _recurrenceType
+                                                      }
+                                                  )
+                                              )
                                           )
                                       )
                                   )
