@@ -213,30 +213,33 @@ Screens:
                                           dayOpen:  DateAdd(DateAdd(varFindWeekStart, (dy2.Value - 1) * 24 * 60, TimeUnit.Minutes), Timeline_OpenHour * 60, TimeUnit.Minutes),
                                           dayClose: DateAdd(DateAdd(varFindWeekStart, (dy2.Value - 1) * 24 * 60, TimeUnit.Minutes), Timeline_CloseHour * 60, TimeUnit.Minutes)
                                       },
-                                      ForAll(
-                                          FindRooms As rm2,
-                                          With(
-                                              { overl: Filter(WeekBookings,
-                                                          RoomID.Id = rm2.ID,
-                                                          fnOverlaps(StartDateTime, EndDateTime, dayOpen, dayClose)) },
+                                      Collect(
+                                          colFindWeekRows,
+                                          ForAll(
+                                              FindRooms As rm2,
                                               With(
-                                                  { bookedMin: Sum(
-                                                          ForAll(overl As b,
-                                                              DateDiff(
-                                                                  If(b.StartDateTime > dayOpen, b.StartDateTime, dayOpen),
-                                                                  If(b.EndDateTime < dayClose, b.EndDateTime, dayClose),
-                                                                  TimeUnit.Minutes
-                                                              )
-                                                          ),
-                                                          Value
-                                                      )
-                                                  },
+                                                  { overl: Filter(WeekBookings,
+                                                              RoomID.Id = rm2.ID,
+                                                              fnOverlaps(StartDateTime, EndDateTime, dayOpen, dayClose)) },
                                                   With(
-                                                      {
-                                                          cellTitle: CountRows(overl) & If(CountRows(overl) = 1, " booking", " bookings"),
-                                                          cellFree: RoundDown(((Timeline_HoursPerDay * 60) - bookedMin) / 60, 0) & "h " & Mod((Timeline_HoursPerDay * 60) - bookedMin, 60) & "m free"
+                                                      { bookedMin: Sum(
+                                                              ForAll(overl As b,
+                                                                  DateDiff(
+                                                                      If(b.StartDateTime > dayOpen, b.StartDateTime, dayOpen),
+                                                                      If(b.EndDateTime < dayClose, b.EndDateTime, dayClose),
+                                                                      TimeUnit.Minutes
+                                                                  )
+                                                              ),
+                                                              Value
+                                                          )
                                                       },
-                                                      Collect(colFindWeekRows, {RoomKey:rm2.ID, RowType:"week", RowStart:dayOpen, RowEnd:dayClose, RowHeight:Timeline_WeekCellPx, RowMinutes:DateDiff(dayOpen, dayClose, TimeUnit.Minutes), Title:cellTitle, BookedBy:cellFree})
+                                                      With(
+                                                          {
+                                                              cellTitle: CountRows(overl) & If(CountRows(overl) = 1, " booking", " bookings"),
+                                                              cellFree: RoundDown(((Timeline_HoursPerDay * 60) - bookedMin) / 60, 0) & "h " & Mod((Timeline_HoursPerDay * 60) - bookedMin, 60) & "m free"
+                                                          },
+                                                          {RoomKey:rm2.ID, RowType:"week", RowStart:dayOpen, RowEnd:dayClose, RowHeight:Timeline_WeekCellPx, RowMinutes:DateDiff(dayOpen, dayClose, TimeUnit.Minutes), Title:cellTitle, BookedBy:cellFree}
+                                                      )
                                                   )
                                               )
                                           )
