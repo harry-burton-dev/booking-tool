@@ -1950,6 +1950,7 @@ Screens:
                      SharePoint) and exact-overlap narrowing happen client-side on the collection.
                      ClearCollect/Clear are illegal inside ForAll, hence the two-pass shape. */
                   Clear(colOccOverlap);
+                  // PERF-5-SKIP[table-ingest] do not batch — each iteration Collects a Filter sub-table, not a record
                   ForAll(
                       colPayloadSnapshot As _w,
                       Collect(

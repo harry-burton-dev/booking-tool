@@ -187,6 +187,7 @@ Screens:
                                               RowHeight:DateDiff(_s,First(room).StartDateTime,TimeUnit.Minutes)*Timeline_PxPerMinute,
                                               RowMinutes:DateDiff(_s,First(room).StartDateTime,TimeUnit.Minutes),Title:"",BookedBy:""})
                                       );
+                                      // PERF-5-SKIP[conditional-cardinality] do not batch — If branches Collect 0-1 rows per iteration
                                       ForAll(room As b,
                                           With({next: LookUp(room, StartDateTime >= b.EndDateTime, StartDateTime)},
                                               If(IsBlank(next) && b.EndDateTime < _e,
@@ -206,6 +207,7 @@ Screens:
                           ClearCollect(colFindRows, SortByColumns(colFindRows, "RoomKey", SortOrder.Ascending, "RowStart", SortOrder.Ascending));
                           Clear(colFindWeekRows);
                           If(varFindViewMode = "Week",
+                              // PERF-5-SKIP[partial] inner room loop batched; day loop stays — see T3
                               ForAll(
                                   Sequence(Timeline_WeekDayCount) As dy2,
                                   With(
@@ -694,6 +696,7 @@ Screens:
                      SharePoint) and exact-overlap narrowing happen client-side on the collection.
                      ClearCollect/Clear are illegal inside ForAll, hence the two-pass shape. */
                   Clear(colOccOverlap);
+                  // PERF-5-SKIP[table-ingest] do not batch — each iteration Collects a Filter sub-table, not a record
                   ForAll(
                       colPayloadSnapshot As _w,
                       Collect(
