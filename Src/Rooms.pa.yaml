@@ -1072,6 +1072,7 @@ Screens:
                                                                   BorderStyle: =BorderStyle.None
                                                                   BorderThickness: =0
                                                                   Color: =AppTheme.TextMuted
+                                                                  DisplayMode: =If(fnIsPast(ThisItem.RowEnd), DisplayMode.Disabled, DisplayMode.Edit)
                                                                   Fill: =Color.Transparent
                                                                   FocusedBorderColor: =ColorValue(AppTheme.Primary)
                                                                   FocusedBorderThickness: =2
@@ -1093,17 +1094,32 @@ Screens:
                                                                             With(
                                                                                 {_start: If(_clamped < _slotEnd, _clamped, _slotStart)},
                                                                                 With(
-                                                                                    {_fit: DateDiff(_start, _slotEnd, TimeUnit.Minutes)},
-                                                                                    UpdateContext({
-                                                                                        varTLSelStart: _start,
-                                                                                        varTLSelRunStart: ThisItem.RowStart,
-                                                                                        varTLSelRunEnd: _slotEnd,
-                                                                                        varTLSelMinutes: If(
-                                                                                            !IsBlank(varTLSelStart) && ThisItem.RowStart = varTLSelRunStart && varTLSelMinutes <= _fit,
-                                                                                            varTLSelMinutes,
-                                                                                            If(_fit >= 60, 60, _fit >= 30, 30, _fit)
+                                                                                    {
+                                                                                        /* BUG-5: free rows are clipped to hour cells; the true contiguous
+                                                                                           free run ends at the next BOOKED row (or day end), which is what
+                                                                                           the 90m/120m duration chips must compare against. */
+                                                                                        _runEnd: With(
+                                                                                            {_nextBooked: Min(Filter(colTimelineRows, RowType = "booked", RowStart >= _slotStart), RowStart)},
+                                                                                            If(
+                                                                                                IsBlank(_nextBooked),
+                                                                                                DateAdd(Timeline_DayStart, (DayEndHour - DayStartHour) * 60, TimeUnit.Minutes),
+                                                                                                _nextBooked
+                                                                                            )
                                                                                         )
-                                                                                    })
+                                                                                    },
+                                                                                    With(
+                                                                                        {_fit: DateDiff(_start, _runEnd, TimeUnit.Minutes)},
+                                                                                        UpdateContext({
+                                                                                            varTLSelStart: _start,
+                                                                                            varTLSelRunStart: ThisItem.RowStart,
+                                                                                            varTLSelRunEnd: _runEnd,
+                                                                                            varTLSelMinutes: If(
+                                                                                                !IsBlank(varTLSelStart) && ThisItem.RowStart = varTLSelRunStart && varTLSelMinutes <= _fit,
+                                                                                                varTLSelMinutes,
+                                                                                                If(_fit >= 60, 60, _fit >= 30, 30, _fit)
+                                                                                            )
+                                                                                        })
+                                                                                    )
                                                                                 )
                                                                             )
                                                                         )
@@ -1206,7 +1222,7 @@ Screens:
                                                             Height: =2
                                                             Visible: =varNowTick >= ThisItem.RowStart && varNowTick < ThisItem.RowEnd
                                                             Width: =Parent.Width - 16
-                                                            Y: =118
+                                                            Y: =DateDiff(ThisItem.RowStart, varNowTick, TimeUnit.Minutes) * 2
                                     - lblTLEmpty:
                                         Control: Label
                                         Properties:
@@ -1686,7 +1702,9 @@ Screens:
                                                                     segStart < segEnd &&
                                                                         segStart >= cellStart &&
                                                                         segEnd <= cellEnd &&
-                                                                        CountRows(Filter(overl, EndDateTime = b.EndDateTime, StartDateTime < b.StartDateTime)) = 0,
+                                                                        CountRows(Filter(overl, EndDateTime = b.EndDateTime, StartDateTime < b.StartDateTime)) = 0 &&
+                                                                        /* BUG-6: never emit a free row over any booking still covering this segment */
+                                                                        IsEmpty(Filter(colRoomBookings, StartDateTime < segEnd, EndDateTime > segStart)),
                                                                     Collect(colTimelineRows, {
                                                                         RowType: "free",
                                                                         RowStart: segStart,

@@ -1706,7 +1706,7 @@ ComponentDefinitions:
                         DisabledBorderColor: =AppTheme.SurfaceAlt
                         DisabledColor: =ColorValue(AppTheme.ButtonDisabledText)
                         DisabledFill: =ColorValue(AppTheme.ButtonDisabled)
-                        DisplayMode: =If(IsBlank(varSelectedRoom) || IsBlank(varStartTime) || IsBlank(varEndTime) || varEndTime <= varStartTime || IsBlank(varTitle) || varConflict || (!IsBlank(varSelectedDate) && (Weekday(varSelectedDate, StartOfWeek.Sunday) in [1,7] || varSelectedDate < Today())) || DateDiff(varStartTime, varEndTime, TimeUnit.Minutes) > MaxBookingMinutes, DisplayMode.Disabled, DisplayMode.Edit)
+                        DisplayMode: =If(IsBlank(varSelectedRoom) || IsBlank(varStartTime) || IsBlank(varEndTime) || varEndTime <= varStartTime || IsBlank(varTitle) || varConflict || fnIsPast(varStartTime) || (!IsBlank(varSelectedDate) && (Weekday(varSelectedDate, StartOfWeek.Sunday) in [1,7] || varSelectedDate < Today())) || DateDiff(varStartTime, varEndTime, TimeUnit.Minutes) > MaxBookingMinutes, DisplayMode.Disabled, DisplayMode.Edit)
                         Fill: =ColorValue(AppTheme.ButtonPrimary)
                         FocusedBorderColor: =RGBA(15, 98, 254, 1)
                         FocusedBorderThickness: =2
