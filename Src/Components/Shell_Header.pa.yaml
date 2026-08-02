@@ -84,22 +84,49 @@ ComponentDefinitions:
                         RadiusTopRight: =0
                         Text: =""
                         Width: =48
-            - htx_Header_Name:
-                Control: HtmlViewer
+            - con_Header_Wordmark:
+                Control: GroupContainer
+                Variant: ManualLayout
                 Properties:
                   AlignInContainer: =AlignInContainer.Stretch
-                  AutoHeight: =true
+                  DropShadow: =DropShadow.None
                   Height: =48
-                  HtmlText: |-
-                    ="<div style='display: flex; align-items: center; height: 48px; padding: 0 16px; white-space: nowrap;'>" &
-                    "<span style='font-family: IBM Plex Sans,Segoe UI,sans-serif; font-size: 14px; font-weight: 600; color: #f4f4f4; letter-spacing: 0.1px;'>MOC</span>" &
-                    "<span style='font-family: IBM Plex Sans,Segoe UI,sans-serif; font-size: 14px; font-weight: 400; color: #c6c6c6;'>&nbsp;| BOOK</span>" &
-                    "</div>"
-                  PaddingBottom: =0
-                  PaddingLeft: =0
-                  PaddingRight: =0
-                  PaddingTop: =0
+                  RadiusBottomLeft: =0
+                  RadiusBottomRight: =0
+                  RadiusTopLeft: =0
+                  RadiusTopRight: =0
                   Width: =192
+                Children:
+                  - lbl_Header_Wordmark_Primary:
+                      Control: Label
+                      Properties:
+                        Align: =Align.Left
+                        Color: =AppTheme.HeaderNavItemText
+                        Font: ="IBM Plex Sans"
+                        FontWeight: =FontWeight.Semibold
+                        Height: =48
+                        Size: =14
+                        Text: ="MOC"
+                        VerticalAlign: =VerticalAlign.Middle
+                        Width: =40
+                        Wrap: =false
+                        X: =16
+                        Y: =0
+                  - lbl_Header_Wordmark_Secondary:
+                      Control: Label
+                      Properties:
+                        Align: =Align.Left
+                        Color: =ColorValue(AppTheme.ButtonDisabled)
+                        Font: ="IBM Plex Sans"
+                        FontWeight: =FontWeight.Normal
+                        Height: =48
+                        Size: =14
+                        Text: =" | BOOK"
+                        VerticalAlign: =VerticalAlign.Middle
+                        Width: =136
+                        Wrap: =false
+                        X: =56
+                        Y: =0
             - con_Header_Nav:
                 Control: GroupContainer
                 Variant: AutoLayout
@@ -395,19 +422,34 @@ ComponentDefinitions:
                         RadiusTopRight: =0
                         Width: =48
                       Children:
-                        - htx_Header_Avatar:
-                            Control: HtmlViewer
+                        - con_Header_AvatarCircle:
+                            Control: GroupContainer
+                            Variant: ManualLayout
                             Properties:
-                              AutoHeight: =true
+                              DropShadow: =DropShadow.None
+                              Fill: =ColorValue(AppTheme.Primary)
                               Height: =32
-                              HtmlText: ="<div style='width:32px;height:32px;border-radius:50%;background:" & AppTheme.Primary & ";color:#f4f4f4;font-family:IBM Plex Sans,Segoe UI,sans-serif;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center'>" & gblUserInitials & "</div>"
-                              PaddingBottom: =0
-                              PaddingLeft: =0
-                              PaddingRight: =0
-                              PaddingTop: =0
+                              RadiusBottomLeft: =16
+                              RadiusBottomRight: =16
+                              RadiusTopLeft: =16
+                              RadiusTopRight: =16
                               Width: =32
                               X: =8
                               Y: =8
+                            Children:
+                              - lbl_Header_AvatarInitials:
+                                  Control: Label
+                                  Properties:
+                                    Align: =Align.Center
+                                    Color: =AppTheme.HeaderNavItemText
+                                    Font: ="IBM Plex Sans"
+                                    FontWeight: =FontWeight.Semibold
+                                    Height: =32
+                                    Size: =12
+                                    Text: =gblUserInitials
+                                    VerticalAlign: =VerticalAlign.Middle
+                                    Width: =32
+                                    Wrap: =false
                         - btn_Header_Avatar:
                             Control: Classic/Button
                             Properties:
