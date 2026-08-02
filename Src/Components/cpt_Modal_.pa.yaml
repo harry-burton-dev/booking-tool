@@ -1736,12 +1736,17 @@ ComponentDefinitions:
                         LayoutMinWidth: =0
                         OnSelect: |-
                           =Set(varSubmitting, true);
+                          /* BUG-1: re-read the server, not the colBookings snapshot, so a slot
+                             taken by ANOTHER user since screen entry is caught here. */
                           ClearCollect(
                               colOverlappingBookings,
                               Filter(
-                                  colBookings,
-                                  Status = "Active",
-                                  fnOverlaps(StartDateTime, EndDateTime, varStartTime, varEndTime),
+                                  Filter(
+                                      Book_Bookings,
+                                      Status = "Active",
+                                      StartDateTime < varEndTime,
+                                      EndDateTime > varStartTime
+                                  ),
                                   ID <> gblEditingBookingID
                               )
                           );

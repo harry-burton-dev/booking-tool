@@ -1939,6 +1939,21 @@ Screens:
             OnSubmit: |-
               =If(cpt_Modal__book.ValidPayload,
                   ClearCollect(colPayloadSnapshot, cpt_Modal__book.PatchPayload);
+                  /* BUG-1: fresh server read spanning the whole series for the target room;
+                     the per-occurrence _hasClash checks below read this, not the stale snapshot. */
+                  ClearCollect(
+                      colFreshRoomBookings,
+                      Filter(
+                          Filter(
+                              Book_Bookings,
+                              Status = "Active",
+                              EndDateTime > Min(colPayloadSnapshot, StartDateTime),
+                              StartDateTime < Max(colPayloadSnapshot, EndDateTime)
+                          ),
+                          RoomID.Id = First(colPayloadSnapshot).RoomIdNumber,
+                          ID <> gblEditingBookingID
+                      )
+                  );
                   Clear(colFailedBookings);
                   Set(varNewSeriesID, If(First(colPayloadSnapshot).RecurrenceType <> "", GUID(), Blank()));
 
@@ -1951,7 +1966,7 @@ Screens:
                               _hasClash: !IsBlank(
                                   LookUp(
                                       Filter(
-                                          colBookings,
+                                          colFreshRoomBookings,
                                           Status = "Active",
                                           fnOverlaps(StartDateTime, EndDateTime, _occ.StartDateTime, _occ.EndDateTime)
                                       ),
