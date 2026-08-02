@@ -1915,22 +1915,20 @@ ComponentDefinitions:
                                  PatchPayload / ValidPayload, the host performs the write. */
                               If(gblEditingBookingID = 0, cpt_Modal_.OnSubmit(), cpt_Modal_.OnSubmitEdit());
 
-                              /* BUG-14: on the host's "error" outcome the modal stays open —
-                                 keep the user's inputs. Hosts set gbl_Book_SubmitResult
-                                 synchronously inside OnSubmit()/OnSubmitEdit() above. */
-                              If(
-                                  gbl_Book_SubmitResult <> "error",
-                                  Reset(drpRepeats);
-                                  Reset(drpOccurrences);
-                                  Reset(tglPrivate);
-                                  Reset(tglBookOnBehalf);
-                                  Reset(drpBookFor);
-                                  Set(varBookForEmail, "");
-                                  Set(varBookForName, "");
-                                  Reset(txtBookingTitle);
-                                  Set(varTitleTouched, false);
-                                  Set(gbl_UI_Book_CancelConfirm, false)
-                              )
+                              /* Hosts close the modal on ALL outcomes (success and error), so reset
+                                 unconditionally — a guarded reset would leave stale control state
+                                 (on-behalf toggle, title, repeats) for the next open. BUG-14's
+                                 "modal stays open on error" premise was disproven in review 2026-08-02. */
+                              Reset(drpRepeats);
+                              Reset(drpOccurrences);
+                              Reset(tglPrivate);
+                              Reset(tglBookOnBehalf);
+                              Reset(drpBookFor);
+                              Set(varBookForEmail, "");
+                              Set(varBookForName, "");
+                              Reset(txtBookingTitle);
+                              Set(varTitleTouched, false);
+                              Set(gbl_UI_Book_CancelConfirm, false)
                           );
                           Set(varSubmitting, false)
                         PressedBorderColor: =RGBA(11, 69, 182, 1)
