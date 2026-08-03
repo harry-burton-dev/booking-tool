@@ -102,7 +102,8 @@ Screens:
                                     OnSelect: |-
                                       =/* Old btnTLBack flipped varShowTimeline false (staying on Rooms with the
                                          room still selected); with navigation, Back() lands on Rooms whose
-                                         OnVisible blanks varSelectedRoom - stage 2 owns reconciling that delta. */
+                                         OnVisible blanks varSelectedRoom - delta ACCEPTED per Rooms'
+                                         reset-on-entry policy (STATE-3); Phase 3 revisit-policy scope. */
                                       Set(varNowTick, Now());
                                       UpdateContext({tlSelStart: Blank()});
                                       Back(ScreenTransition.Fade)
