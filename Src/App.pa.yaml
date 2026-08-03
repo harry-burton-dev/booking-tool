@@ -103,7 +103,8 @@ App:
                       Heading02:        "font-size: 16px; font-family: " & CarbonFontFamily & "; font-weight: 600; line-height: 1.5; letter-spacing: 0px;",
                       Heading03:        "font-size: 20px; font-family: " & CarbonFontFamily & "; font-weight: 400; line-height: 1.4; letter-spacing: 0px;",
                       Heading04:        "font-size: 28px; font-family: " & CarbonFontFamily & "; font-weight: 400; line-height: 1.28572; letter-spacing: 0px;",
-                      Eyebrow:          "font-size: 11px; font-family: " & CarbonFontFamily & "; font-weight: 400; letter-spacing: 0.6px; text-transform: uppercase;"
+                      Eyebrow:          "font-size: 11px; font-family: " & CarbonFontFamily & "; font-weight: 400; letter-spacing: 0.6px; text-transform: uppercase;",
+                      TableHead:        "font-size: 10px; font-family: " & CarbonFontFamily & "; font-weight: 400; letter-spacing: 0.32px;"
                   };
 
                   /* Kit rule: any non-literal value interpolated into a CarbonText* call goes through fnHtmlEscape (ampersand first, so entities are not double-decoded). */
@@ -124,6 +125,18 @@ App:
                   CarbonSpan(css:Text, content:Text, hex:Text):Text = "<span style=""" & css & " color: " & hex & ";"">" & content & "</span>";
                   CarbonFlexBetween(content:Text):Text = "<div style=""display: flex; justify-content: space-between; align-items: center;"">" & content & "</div>";
                   CarbonSwatch(hex:Text, px:Number):Text = "<span style=""display: inline-block; width: " & px & "px; height: " & px & "px; background-color: " & hex & ";""></span>";
+
+                  /* Phase-3 additions: absolute-positioned span + relative row wrapper, for the
+                     Home occupancy column header (fractional-width hour marks). leftCss is a full
+                     CSS length/calc() expression, e.g. "calc(170px + (100% - 218px)*0.2)". */
+                  CarbonRelRow(hPx:Number, content:Text):Text = "<div style=""position: relative; height: " & hPx & "px;"">" & content & "</div>";
+                  CarbonAbsSpan(leftCss:Text, css:Text, content:Text, hex:Text):Text = "<span style=""position: absolute; top: 2px; left: " & leftCss & "; " & css & " color: " & hex & ";"">" & content & "</span>";
+                  CarbonAbsSpanRight(rightCss:Text, css:Text, content:Text, hex:Text):Text = "<span style=""position: absolute; top: 2px; right: " & rightCss & "; " & css & " color: " & hex & ";"">" & content & "</span>";
+
+                  /* Single source of truth for the myBookings table columns - consumed by BOTH
+                     htxMb2TableHead's flex spans (T2) and the mb2GalBookings row-label Width/X
+                     properties. Change a width here, header and rows move together. */
+                  MB2TableCols = { Room: 190, Date: 100, Time: 110, Status: 110, Action: 110 };
 
                   //------------------------------------------------------------
                   //--- Shared predicates, policy constants, wizard step keys ---
@@ -362,7 +375,11 @@ App:
                           PrimaryText: "#ffffff",
                           Border: "#e0e0e0",
                           Surface: "#ffffff",
-                          SurfaceAlt: "#f4f4f4"
+                          SurfaceAlt: "#f4f4f4",
+                          HeaderBackground: ColourTokens.Light.Primary,
+                          Layer01Bg: ColourTokens.Light.layer01Bg,
+                          HeaderNavItemText: "#f4f4f4", /* header band is dark in both themes - Light and Dark carry the same value */
+                          WordmarkSecondary: "#c6c6c6" /* borrows ButtonDisabled (#c6c6c6) as wordmark secondary tint - retheme together; see T6 */
                       },
                       Dark: {
                           TextPrimary: "#f4f4f4",
@@ -374,7 +391,11 @@ App:
                           PrimaryText: "#ffffff",
                           Border: "#393939",
                           Surface: "#161616",
-                          SurfaceAlt: "#262626"
+                          SurfaceAlt: "#262626",
+                          HeaderBackground: ColourTokens.Dark.Primary,
+                          Layer01Bg: ColourTokens.Dark.layer01Bg,
+                          HeaderNavItemText: "#f4f4f4", /* header band is dark in both themes - Light and Dark carry the same value */
+                          WordmarkSecondary: "#c6c6c6" /* borrows ButtonDisabled (#c6c6c6) as wordmark secondary tint - retheme together; see T6 */
                       }
                   };
 
