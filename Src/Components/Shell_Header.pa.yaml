@@ -90,6 +90,7 @@ ComponentDefinitions:
                 Properties:
                   AlignInContainer: =AlignInContainer.Stretch
                   DropShadow: =DropShadow.None
+                  FillPortions: =0
                   Height: =48
                   RadiusBottomLeft: =0
                   RadiusBottomRight: =0
