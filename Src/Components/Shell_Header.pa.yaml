@@ -117,7 +117,7 @@ ComponentDefinitions:
                       Control: Label
                       Properties:
                         Align: =Align.Left
-                        Color: =ColorValue(AppTheme.ButtonDisabled)
+                        Color: =/* borrows ButtonDisabled (#c6c6c6) as wordmark secondary tint - retheme both together; see T6 */ ColorValue(AppTheme.ButtonDisabled)
                         Font: ="IBM Plex Sans"
                         FontWeight: =FontWeight.Normal
                         Height: =48
