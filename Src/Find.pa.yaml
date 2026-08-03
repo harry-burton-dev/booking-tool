@@ -66,18 +66,19 @@ Screens:
                               OnSelect: =Set(varFindSelectedDate, DateAdd(varFindSelectedDate, If(varFindViewMode = "Week", -7, -1), TimeUnit.Days)); Select(btnLoadFindBookings)
                               TabIndex: =0
                               Width: =40
-                        - lblFindDate:
-                            Control: Label
+                        - htxFindDate:
+                            Control: HtmlViewer
                             Properties:
-                              Align: =Align.Center
                               AlignInContainer: =AlignInContainer.Center
-                              Color: =AppTheme.TextPrimary
-                              Font: ="IBM Plex Sans"
-                              FontWeight: =FontWeight.Semibold
-                              Size: =14
-                              Text: =Text(varFindSelectedDate, "ddd dd mmm yyyy")
+                              AutoHeight: =true
+                              DisplayMode: =DisplayMode.View
+                              HtmlText: |-
+                                =CarbonText(CarbonHtmlType.HeadingCompact01, Text(varFindSelectedDate, "ddd dd mmm yyyy"))
+                              PaddingBottom: =0
+                              PaddingLeft: =0
+                              PaddingRight: =0
+                              PaddingTop: =0
                               Width: =180
-                              Wrap: =false
                         - imgDateForward_1:
                             Control: Image
                             Properties:

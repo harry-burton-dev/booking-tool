@@ -359,18 +359,21 @@ Screens:
                                     RadiusTopRight: =2
                                     Visible: =varConfirmCancel && gbl_UI_ScopePrompt = ""
                                   Children:
-                                    - lblCancelConfirm:
-                                        Control: Label
+                                    - htxCancelConfirm:
+                                        Control: HtmlViewer
                                         Properties:
                                           AlignInContainer: =AlignInContainer.Stretch
                                           AutoHeight: =true
-                                          Color: =AppTheme.StatusBusyText
-                                          Font: ="IBM Plex Sans"
+                                          DisplayMode: =DisplayMode.View
                                           Height: =24
+                                          HtmlText: |-
+                                            =CarbonTextColored(CarbonHtmlType.Label01, "Cancel this booking? This can't be undone.", AppThemeHex.StatusBusyText)
                                           LayoutMinHeight: =0
                                           LayoutMinWidth: =0
-                                          Size: =12
-                                          Text: ="Cancel this booking? This can't be undone."
+                                          PaddingBottom: =0
+                                          PaddingLeft: =0
+                                          PaddingRight: =0
+                                          PaddingTop: =0
                                     - conConfirmButtons:
                                         Control: GroupContainer
                                         Variant: AutoLayout
@@ -472,18 +475,21 @@ Screens:
                                     RadiusTopRight: =2
                                     Visible: =gbl_UI_ScopePrompt = "edit" || gbl_UI_ScopePrompt = "cancel"
                                   Children:
-                                    - lblScopePromptTitle:
-                                        Control: Label
+                                    - htxScopePromptTitle:
+                                        Control: HtmlViewer
                                         Properties:
                                           AlignInContainer: =AlignInContainer.Stretch
                                           AutoHeight: =true
-                                          Color: =AppTheme.StatusWarnText
-                                          Font: ="IBM Plex Sans"
+                                          DisplayMode: =DisplayMode.View
                                           Height: =24
+                                          HtmlText: |-
+                                            =CarbonTextColored(CarbonHtmlType.Label01, If(gbl_UI_ScopePrompt = "edit", "This booking is part of a series. Apply the new time to:", "This booking is part of a series. Cancel:"), AppThemeHex.StatusWarnText)
                                           LayoutMinHeight: =0
                                           LayoutMinWidth: =0
-                                          Size: =12
-                                          Text: =If(gbl_UI_ScopePrompt = "edit", "This booking is part of a series. Apply the new time to:", "This booking is part of a series. Cancel:")
+                                          PaddingBottom: =0
+                                          PaddingLeft: =0
+                                          PaddingRight: =0
+                                          PaddingTop: =0
                                     - conScopePromptButtons:
                                         Control: GroupContainer
                                         Variant: AutoLayout

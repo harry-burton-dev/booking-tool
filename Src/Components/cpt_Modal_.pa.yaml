@@ -186,7 +186,7 @@ ComponentDefinitions:
                       Properties:
                         DropShadow: =DropShadow.None
                         Fill: =AppTheme.Background
-                        Height: =16 + lbl_textStep1_chooseRoom.Height + 12 + galRooms.Height + 16
+                        Height: =16 + htxStep1Title.Height + 12 + galRooms.Height + 16
                         LayoutAlignItems: =LayoutAlignItems.Stretch
                         LayoutDirection: =LayoutDirection.Vertical
                         LayoutGap: =12
@@ -198,18 +198,20 @@ ComponentDefinitions:
                         PaddingTop: =16
                         Visible: =gbl_UI_Book_Modal_Step = WizardStep1
                       Children:
-                        - lbl_textStep1_chooseRoom:
-                            Control: Label
+                        - htxStep1Title:
+                            Control: HtmlViewer
                             Properties:
                               AlignInContainer: =AlignInContainer.Stretch
-                              Color: =AppTheme.SideNavText
-                              Font: ="IBM Plex Sans"
-                              FontWeight: =FontWeight.Bold
+                              AutoHeight: =true
+                              DisplayMode: =DisplayMode.View
+                              HtmlText: |-
+                                =CarbonTextColored(CarbonHtmlType.HeadingCompact01 & " font-weight: 700;", "Choose a Room", AppThemeHex.SideNavText)
                               LayoutMinHeight: =0
                               LayoutMinWidth: =0
-                              Size: =14
-                              Text: ="Choose a Room"
-                              Wrap: =false
+                              PaddingBottom: =0
+                              PaddingLeft: =0
+                              PaddingRight: =0
+                              PaddingTop: =0
                         - galRooms:
                             Control: Gallery
                             Variant: Vertical
@@ -1351,7 +1353,7 @@ ComponentDefinitions:
                       Properties:
                         DropShadow: =DropShadow.None
                         FillPortions: =0
-                        Height: =16 + lbl_textStep4_confirmBooking.Height + 12 + conSummaryCard.Height + If(htxStep3Errors.Visible, 12 + htxStep3Errors.Height, 0) + 16
+                        Height: =16 + htxStep3Title.Height + 12 + conSummaryCard.Height + If(htxStep3Errors.Visible, 12 + htxStep3Errors.Height, 0) + 16
                         LayoutAlignItems: =LayoutAlignItems.Stretch
                         LayoutDirection: =LayoutDirection.Vertical
                         LayoutGap: =12
@@ -1363,18 +1365,20 @@ ComponentDefinitions:
                         PaddingTop: =16
                         Visible: =gbl_UI_Book_Modal_Step  = WizardStep3
                       Children:
-                        - lbl_textStep4_confirmBooking:
-                            Control: Label
+                        - htxStep3Title:
+                            Control: HtmlViewer
                             Properties:
                               AlignInContainer: =AlignInContainer.Stretch
-                              Color: =AppTheme.SideNavText
-                              Font: ="IBM Plex Sans"
-                              FontWeight: =FontWeight.Bold
+                              AutoHeight: =true
+                              DisplayMode: =DisplayMode.View
+                              HtmlText: |-
+                                =CarbonTextColored(CarbonHtmlType.HeadingCompact01 & " font-weight: 700;", "Confirm details", AppThemeHex.SideNavText)
                               LayoutMinHeight: =0
                               LayoutMinWidth: =0
-                              Size: =14
-                              Text: ="Confirm details"
-                              Wrap: =false
+                              PaddingBottom: =0
+                              PaddingLeft: =0
+                              PaddingRight: =0
+                              PaddingTop: =0
                         - conSummaryCard:
                             Control: GroupContainer
                             Variant: AutoLayout

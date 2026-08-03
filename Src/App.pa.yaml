@@ -379,7 +379,9 @@ App:
                           HeaderBackground: ColourTokens.Light.Primary,
                           Layer01Bg: ColourTokens.Light.layer01Bg,
                           HeaderNavItemText: "#f4f4f4", /* header band is dark in both themes - Light and Dark carry the same value */
-                          WordmarkSecondary: "#c6c6c6" /* borrows ButtonDisabled (#c6c6c6) as wordmark secondary tint - retheme together; see T6 */
+                          WordmarkSecondary: "#c6c6c6", /* borrows ButtonDisabled (#c6c6c6) as wordmark secondary tint - retheme together; see T6 */
+                          SideNavText: ColourTokens.Light.SideNavText,
+                          StatusWarnText: "#684e00"
                       },
                       Dark: {
                           TextPrimary: "#f4f4f4",
@@ -395,7 +397,9 @@ App:
                           HeaderBackground: ColourTokens.Dark.Primary,
                           Layer01Bg: ColourTokens.Dark.layer01Bg,
                           HeaderNavItemText: "#f4f4f4", /* header band is dark in both themes - Light and Dark carry the same value */
-                          WordmarkSecondary: "#c6c6c6" /* borrows ButtonDisabled (#c6c6c6) as wordmark secondary tint - retheme together; see T6 */
+                          WordmarkSecondary: "#c6c6c6", /* borrows ButtonDisabled (#c6c6c6) as wordmark secondary tint - retheme together; see T6 */
+                          SideNavText: ColourTokens.Dark.SideNavText,
+                          StatusWarnText: "#f1c21b"
                       }
                   };
 
