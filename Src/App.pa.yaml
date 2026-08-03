@@ -525,6 +525,12 @@ App:
                       StartDateTime, SortOrder.Ascending
                   );
 
+                  // "N upcoming" for the Home My-bookings tile. Consumers: htxHDTileMyRow
+                  // meta line and btnHDTileMy accessible Text (was a keep-in-sync comment
+                  // pair — PERF-7). varNowTick cutoff like the rest of the Home surface;
+                  // distinct from MyBookingsUpcomingCount, whose fnIsPast cutoff is Now().
+                  MyUpcomingCount = CountRows(Filter(MyBookings, EndDateTime >= varNowTick));
+
                   // varNowTick (set on App.OnStart and Home.OnVisible) forces recalc per Home visit — Now() alone would not trigger re-evaluation.
                   NextBookingRecord = First(
                       Sort(
