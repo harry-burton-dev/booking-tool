@@ -1,11 +1,13 @@
 Screens:
   Find:
     Properties:
-      Fill: =RGBA(255, 255, 255, 1)
+      Fill: =AppTheme.layer01Bg
       LoadingSpinnerColor: =RGBA(0, 120, 212, 1)
       OnVisible: |
         =Set(varFindViewMode, "Day");
         Set(varFindSelectedDate, Today());
+        /* Timeline-redesign selection state (bottom bar). Screen-local, reset on entry. */
+        UpdateContext({findSelRoomID: Blank(), findSelRoomTitle: Blank(), findSelStart: Blank(), findSelEnd: Blank()});
 
         /* Re-pull the shared bookings snapshot so colleagues' writes since App.OnStart
            (or since this session's last write) show up without requiring a write of our own */
@@ -31,132 +33,65 @@ Screens:
                 Variant: AutoLayout
                 Properties:
                   Height: =Parent.Height - 48
-                  LayoutAlignItems: =LayoutAlignItems.Center
+                  LayoutAlignItems: =LayoutAlignItems.Stretch
                   LayoutDirection: =LayoutDirection.Vertical
-                  PaddingBottom: =32
+                  LayoutGap: =16
+                  PaddingBottom: =24
                   PaddingLeft: =32
                   PaddingRight: =32
-                  PaddingTop: =32
+                  PaddingTop: =24
                   Width: =Parent.Width
                   Y: =48
                 Children:
-                  - con_header:
+                  - conFindPageHeader_f3:
                       Control: GroupContainer
                       Variant: AutoLayout
                       Properties:
                         DropShadow: =DropShadow.None
                         FillPortions: =0
-                        Height: =100
-                        LayoutAlignItems: =LayoutAlignItems.Center
+                        Height: =64
+                        LayoutAlignItems: =LayoutAlignItems.End
                         LayoutDirection: =LayoutDirection.Horizontal
-                        LayoutMinHeight: =16
-                        LayoutMinWidth: =16
+                        LayoutGap: =24
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
                         RadiusBottomLeft: =0
                         RadiusBottomRight: =0
                         RadiusTopLeft: =0
                         RadiusTopRight: =0
                       Children:
-                        - imgDateBack_1:
-                            Control: Image
-                            Properties:
-                              AccessibleLabel: ="Previous day"
-                              AlignInContainer: =AlignInContainer.Center
-                              Height: =44
-                              Image: ="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAzMiAzMic+PHBhdGggZD0nTTIwIDI0TDEyIDE2IDIwIDgnIHN0cm9rZT0nIzUyNTI1Micgc3Ryb2tlLXdpZHRoPScyJyBmaWxsPSdub25lJyBzdHJva2UtbGluZWNhcD0ncm91bmQnIHN0cm9rZS1saW5lam9pbj0ncm91bmQnLz48L3N2Zz4="
-                              OnSelect: =Set(varFindSelectedDate, DateAdd(varFindSelectedDate, If(varFindViewMode = "Week", -7, -1), TimeUnit.Days)); Select(btnLoadFindBookings)
-                              TabIndex: =0
-                              Width: =40
-                        - imgDateForward_1:
-                            Control: Image
-                            Properties:
-                              AccessibleLabel: ="Next day"
-                              AlignInContainer: =AlignInContainer.Center
-                              Height: =44
-                              Image: ="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAzMiAzMic+PHBhdGggZD0nTTEyIDI0TDIwIDE2IDEyIDgnIHN0cm9rZT0nIzUyNTI1Micgc3Ryb2tlLXdpZHRoPScyJyBmaWxsPSdub25lJyBzdHJva2UtbGluZWNhcD0ncm91bmQnIHN0cm9rZS1saW5lam9pbj0ncm91bmQnLz48L3N2Zz4="
-                              OnSelect: =Set(varFindSelectedDate, DateAdd(varFindSelectedDate, If(varFindViewMode = "Week", 7, 1), TimeUnit.Days)); Select(btnLoadFindBookings)
-                              TabIndex: =0
-                              Width: =40
-                        - tabFindViewMode:
-                            Control: TabList
-                            Properties:
-                              AlignInContainer: =AlignInContainer.Center
-                              DefaultSelectedItems: =[varFindViewMode]
-                              Items: =["Day", "Week"]
-                              OnChange: =Set(varFindViewMode, tabFindViewMode.Selected.Value); Select(btnLoadFindBookings)
-                        - htxFindDate:
+                        - htxFindTitle_f3:
                             Control: HtmlViewer
                             Properties:
-                              AlignInContainer: =AlignInContainer.Center
-                              AutoHeight: =true
                               DisplayMode: =DisplayMode.View
-                              HtmlText: =CarbonText(CarbonHtmlType.HeadingCompact01, Text(varFindSelectedDate, "ddd dd mmm yyyy"))
+                              FillPortions: =1
+                              Height: =Parent.Height
+                              HtmlText: |-
+                                ="<div style='" & CarbonHtmlType.Eyebrow & " color:" & AppThemeHex.TextMuted & "; margin-bottom:6px;'>Room booking</div>" &
+                                CarbonText(CarbonHtmlType.Heading04, "Room availability")
                               PaddingBottom: =0
                               PaddingLeft: =0
                               PaddingRight: =0
                               PaddingTop: =0
-                              Width: =180
-                        - drpFindCapacity:
-                            Control: Classic/DropDown
+                        - htxFindSummary_f3:
+                            Control: HtmlViewer
                             Properties:
-                              AccessibleLabel: ="Filter by room capacity"
-                              BorderColor: =AppTheme.Border
-                              BorderThickness: =0
-                              ChevronBackground: =AppTheme.HeaderBackground
-                              ChevronFill: =AppTheme.HeaderAccent
-                              Color: =AppTheme.SideNavText
-                              Default: ="Any size"
-                              DisabledBorderColor: =AppTheme.SurfaceAlt
-                              DisabledColor: =AppTheme.TextMuted
-                              DisabledFill: =AppTheme.SurfaceAlt
-                              Fill: =AppTheme.layer01Bg
-                              FocusedBorderColor: =RGBA(15, 98, 254, 1)
-                              FocusedBorderThickness: =2
-                              Font: ="IBM Plex Sans"
-                              HoverBorderColor: =AppTheme.TextSecondary
-                              HoverColor: =AppTheme.TextPrimary
-                              HoverFill: =AppTheme.SurfaceAlt
-                              Items: =["Any size","4+","8+","14+","20+"]
-                              Items.Value: =Value
-                              LayoutMinHeight: =0
-                              LayoutMinWidth: =0
-                              OnChange: =Set(varFindMinCapacity, Switch(Self.Selected.Value, "4+", 4, "8+", 8, "14+", 14, "20+", 20, 0)); Select(btnLoadFindBookings)
-                              PressedColor: =AppTheme.TextPrimary
-                              PressedFill: =AppTheme.SurfaceAlt
-                              Size: =11
-                              Width: =110
-                        - drpFindEquipment:
-                            Control: Classic/DropDown
-                            Properties:
-                              AccessibleLabel: ="Filter by equipment"
-                              BorderColor: =AppTheme.Border
-                              BorderThickness: =0
-                              ChevronBackground: =AppTheme.HeaderBackground
-                              ChevronFill: =AppTheme.HeaderAccent
-                              Color: =AppTheme.SideNavText
-                              Default: ="Any"
-                              DisabledBorderColor: =AppTheme.SurfaceAlt
-                              DisabledColor: =AppTheme.TextMuted
-                              DisabledFill: =AppTheme.SurfaceAlt
-                              Fill: =AppTheme.layer01Bg
-                              FocusedBorderColor: =RGBA(15, 98, 254, 1)
-                              FocusedBorderThickness: =2
-                              Font: ="IBM Plex Sans"
-                              HoverBorderColor: =AppTheme.TextSecondary
-                              HoverColor: =AppTheme.TextPrimary
-                              HoverFill: =AppTheme.SurfaceAlt
-                              Items: =["Any","Screen","VC","Whiteboard","Projector"]
-                              Items.Value: =Value
-                              LayoutMinHeight: =0
-                              LayoutMinWidth: =0
-                              OnChange: =Set(varFindEquipment, Self.Selected.Value); Select(btnLoadFindBookings)
-                              PressedColor: =AppTheme.TextPrimary
-                              PressedFill: =AppTheme.SurfaceAlt
-                              Size: =11
-                              Width: =120
+                              DisplayMode: =DisplayMode.View
+                              Height: =Parent.Height
+                              HtmlText: |-
+                                ="<div style='display:flex; align-items:flex-end; justify-content:flex-end; height:100%; padding-bottom:6px; box-sizing:border-box;'>" &
+                                "<span style='" & CarbonHtmlType.Code01 & " color:" & AppThemeHex.TextSecondary & "; white-space:nowrap;'>" &
+                                CountRows(FindRooms) & " of " & CountRows(colRooms) & " rooms shown" &
+                                If(varFindSelectedDate = Today(), " · " & FreeNowCount & " free right now", "") &
+                                "</span></div>"
+                              PaddingBottom: =0
+                              PaddingLeft: =0
+                              PaddingRight: =0
+                              PaddingTop: =0
+                              Width: =360
                   - btnLoadFindBookings:
                       Control: Button
                       Properties:
-                        AlignInContainer: =AlignInContainer.Start
                         OnSelect: |-
                           =If(CountRows(FindBookings) >= 500,
                               Notify("Warning: results may be incomplete. Too many bookings in this window.", NotificationType.Warning)
@@ -175,17 +110,18 @@ Screens:
                                               RowHeight: DateDiff(b.StartDateTime, b.EndDateTime, TimeUnit.Minutes) * Timeline_PxPerMinute,
                                               RowMinutes: DateDiff(b.StartDateTime, b.EndDateTime, TimeUnit.Minutes),
                                               Title:     If(b.IsPrivate && b.BookedByEmail <> Lower(User().Email), "Busy", b.Title),
-                                              BookedBy:  If(b.IsPrivate && b.BookedByEmail <> Lower(User().Email), "", b.BookedBy.DisplayName)
+                                              BookedBy:  If(b.IsPrivate && b.BookedByEmail <> Lower(User().Email), "", b.BookedBy.DisplayName),
+                                              IsMine:    Lower(Coalesce(b.BookedByEmail, "")) = Lower(User().Email)
                                           })
                                       );
                                       If(IsEmpty(room),
                                           Collect(colFindRows, {RoomKey:rm.ID,RowType:"free",RowStart:_s,RowEnd:_e,
                                               RowHeight:DateDiff(_s,_e,TimeUnit.Minutes)*Timeline_PxPerMinute,
-                                              RowMinutes:DateDiff(_s,_e,TimeUnit.Minutes),Title:"",BookedBy:""}),
+                                              RowMinutes:DateDiff(_s,_e,TimeUnit.Minutes),Title:"",BookedBy:"",IsMine:false}),
                                           First(room).StartDateTime > _s,
                                           Collect(colFindRows, {RoomKey:rm.ID,RowType:"free",RowStart:_s,RowEnd:First(room).StartDateTime,
                                               RowHeight:DateDiff(_s,First(room).StartDateTime,TimeUnit.Minutes)*Timeline_PxPerMinute,
-                                              RowMinutes:DateDiff(_s,First(room).StartDateTime,TimeUnit.Minutes),Title:"",BookedBy:""})
+                                              RowMinutes:DateDiff(_s,First(room).StartDateTime,TimeUnit.Minutes),Title:"",BookedBy:"",IsMine:false})
                                       );
                                       // PERF-5-SKIP[conditional-cardinality] do not batch — If branches Collect 0-1 rows per iteration
                                       ForAll(room As b,
@@ -193,11 +129,11 @@ Screens:
                                               If(IsBlank(next) && b.EndDateTime < _e,
                                                   Collect(colFindRows, {RoomKey:rm.ID,RowType:"free",RowStart:b.EndDateTime,RowEnd:_e,
                                                       RowHeight:DateDiff(b.EndDateTime,_e,TimeUnit.Minutes)*Timeline_PxPerMinute,
-                                                      RowMinutes:DateDiff(b.EndDateTime,_e,TimeUnit.Minutes),Title:"",BookedBy:""}),
+                                                      RowMinutes:DateDiff(b.EndDateTime,_e,TimeUnit.Minutes),Title:"",BookedBy:"",IsMine:false}),
                                                   !IsBlank(next) && next > b.EndDateTime,
                                                   Collect(colFindRows, {RoomKey:rm.ID,RowType:"free",RowStart:b.EndDateTime,RowEnd:next,
                                                       RowHeight:DateDiff(b.EndDateTime,next,TimeUnit.Minutes)*Timeline_PxPerMinute,
-                                                      RowMinutes:DateDiff(b.EndDateTime,next,TimeUnit.Minutes),Title:"",BookedBy:""})
+                                                      RowMinutes:DateDiff(b.EndDateTime,next,TimeUnit.Minutes),Title:"",BookedBy:"",IsMine:false})
                                               )
                                           )
                                       )
@@ -238,9 +174,25 @@ Screens:
                                                       With(
                                                           {
                                                               cellTitle: CountRows(overl) & If(CountRows(overl) = 1, " booking", " bookings"),
-                                                              cellFree: RoundDown(((Timeline_HoursPerDay * 60) - bookedMin) / 60, 0) & "h " & Mod((Timeline_HoursPerDay * 60) - bookedMin, 60) & "m free"
+                                                              cellFree: RoundDown(((Timeline_HoursPerDay * 60) - bookedMin) / 60, 0) & "h " & Mod((Timeline_HoursPerDay * 60) - bookedMin, 60) & "m free",
+                                                              /* 30-min occupancy strip, precomputed at build time so the
+                                                                 week lane HtmlViewer does zero per-slot LookUps at render */
+                                                              segsHtml: Concat(
+                                                                  ForAll(Sequence(Timeline_HoursPerDay * 2) As sg,
+                                                                      With({_ss: DateAdd(dayOpen, (sg.Value - 1) * 30, TimeUnit.Minutes)},
+                                                                          With({_hit: LookUp(overl, fnOverlaps(StartDateTime, EndDateTime, _ss, DateAdd(_ss, 30, TimeUnit.Minutes)))},
+                                                                              {seg: "<span style='flex:1 1 0;background:" &
+                                                                                  If(IsBlank(_hit), AppThemeHex.Border,
+                                                                                     Lower(Coalesce(_hit.BookedByEmail, "")) = Lower(User().Email), AppThemeHex.Primary,
+                                                                                     AppThemeHex.TextSecondary) &
+                                                                                  ";'></span>"}
+                                                                          )
+                                                                      )
+                                                                  ),
+                                                                  seg
+                                                              )
                                                           },
-                                                          {RoomKey:rm2.ID, RowType:"week", RowStart:dayOpen, RowEnd:dayClose, RowHeight:Timeline_WeekCellPx, RowMinutes:DateDiff(dayOpen, dayClose, TimeUnit.Minutes), Title:cellTitle, BookedBy:cellFree}
+                                                          {RoomKey:rm2.ID, RowType:"week", RowStart:dayOpen, RowEnd:dayClose, RowHeight:Timeline_WeekCellPx, RowMinutes:DateDiff(dayOpen, dayClose, TimeUnit.Minutes), Title:cellTitle, BookedBy:cellFree, BookedMinutes:bookedMin, SegsHtml:segsHtml}
                                                       )
                                                   )
                                               )
@@ -251,88 +203,615 @@ Screens:
                           )
                         Text: ="Load"
                         Visible: =false
-                  - conFindBody:
+                  - conFindCard_f3:
                       Control: GroupContainer
                       Variant: AutoLayout
                       Properties:
+                        BorderColor: =AppTheme.Border
+                        BorderThickness: =1
                         DropShadow: =DropShadow.None
-                        Fill: =AppTheme.Background
+                        Fill: =AppTheme.Surface
                         LayoutDirection: =LayoutDirection.Vertical
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
                         RadiusBottomLeft: =0
                         RadiusBottomRight: =0
                         RadiusTopLeft: =0
                         RadiusTopRight: =0
                       Children:
-                        - con_tableheader_find_v2:
+                        - conFindToolbar_f3:
                             Control: GroupContainer
                             Variant: AutoLayout
                             Properties:
-                              BorderColor: =AppTheme.HeaderBorder
-                              BorderThickness: =1
                               DropShadow: =DropShadow.None
                               FillPortions: =0
-                              Height: =44
+                              Height: =56
                               LayoutAlignItems: =LayoutAlignItems.Center
                               LayoutDirection: =LayoutDirection.Horizontal
-                              LayoutMinHeight: =16
+                              LayoutGap: =16
+                              LayoutMinHeight: =0
                               LayoutMinWidth: =0
-                              PaddingRight: =16
+                              PaddingLeft: =16
+                              PaddingRight: =8
                               RadiusBottomLeft: =0
                               RadiusBottomRight: =0
                               RadiusTopLeft: =0
                               RadiusTopRight: =0
                             Children:
-                              - con_spacer_v2:
+                              - conFindViewSeg_f3:
                                   Control: GroupContainer
                                   Variant: AutoLayout
                                   Properties:
-                                    AlignInContainer: =AlignInContainer.Center
-                                    BorderColor: =AppTheme.Border
                                     DropShadow: =DropShadow.None
-                                    Fill: =AppTheme.layer01Bg
                                     FillPortions: =0
-                                    Height: =44
+                                    Height: =32
                                     LayoutAlignItems: =LayoutAlignItems.Center
-                                    LayoutDirection: =LayoutDirection.Vertical
-                                    LayoutGap: =2
-                                    PaddingBottom: =4
-                                    PaddingLeft: =8
-                                    PaddingRight: =8
-                                    PaddingTop: =4
+                                    LayoutDirection: =LayoutDirection.Horizontal
+                                    LayoutGap: =1
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
                                     RadiusBottomLeft: =0
                                     RadiusBottomRight: =0
                                     RadiusTopLeft: =0
                                     RadiusTopRight: =0
-                                    Width: =conTimeAxis_v2.Width
-                              - galFindRoomHeaders:
-                                  Control: Gallery
-                                  Variant: Horizontal
+                                    Width: =113
+                                  Children:
+                                    - btnFindTabDay_f3:
+                                        Control: Classic/Button
+                                        Properties:
+                                          BorderColor: =If(varFindViewMode = "Day", AppTheme.TextPrimary, AppTheme.Border)
+                                          BorderThickness: =1
+                                          Color: =If(varFindViewMode = "Day", AppTheme.Surface, AppTheme.TextSecondary)
+                                          Fill: =If(varFindViewMode = "Day", AppTheme.TextPrimary, AppTheme.Surface)
+                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                          FocusedBorderThickness: =2
+                                          Font: ="IBM Plex Sans"
+                                          Height: =32
+                                          HoverBorderColor: =If(varFindViewMode = "Day", AppTheme.TextPrimary, AppTheme.Border)
+                                          HoverColor: =If(varFindViewMode = "Day", AppTheme.Surface, AppTheme.TextPrimary)
+                                          HoverFill: =If(varFindViewMode = "Day", AppTheme.TextPrimary, AppTheme.SurfaceAlt)
+                                          OnSelect: |-
+                                            =Set(varFindViewMode, "Day"); UpdateContext({findSelRoomID: Blank(), findSelRoomTitle: Blank(), findSelStart: Blank(), findSelEnd: Blank()}); Select(btnLoadFindBookings)
+                                          PressedBorderColor: =AppTheme.TextPrimary
+                                          PressedColor: =AppTheme.Surface
+                                          PressedFill: =AppTheme.TextPrimary
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                          Size: =12
+                                          Text: ="Day"
+                                          Width: =56
+                                    - btnFindTabWeek_f3:
+                                        Control: Classic/Button
+                                        Properties:
+                                          BorderColor: =If(varFindViewMode = "Week", AppTheme.TextPrimary, AppTheme.Border)
+                                          BorderThickness: =1
+                                          Color: =If(varFindViewMode = "Week", AppTheme.Surface, AppTheme.TextSecondary)
+                                          Fill: =If(varFindViewMode = "Week", AppTheme.TextPrimary, AppTheme.Surface)
+                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                          FocusedBorderThickness: =2
+                                          Font: ="IBM Plex Sans"
+                                          Height: =32
+                                          HoverBorderColor: =If(varFindViewMode = "Week", AppTheme.TextPrimary, AppTheme.Border)
+                                          HoverColor: =If(varFindViewMode = "Week", AppTheme.Surface, AppTheme.TextPrimary)
+                                          HoverFill: =If(varFindViewMode = "Week", AppTheme.TextPrimary, AppTheme.SurfaceAlt)
+                                          OnSelect: |-
+                                            =Set(varFindViewMode, "Week"); UpdateContext({findSelRoomID: Blank(), findSelRoomTitle: Blank(), findSelStart: Blank(), findSelEnd: Blank()}); Select(btnLoadFindBookings)
+                                          PressedBorderColor: =AppTheme.TextPrimary
+                                          PressedColor: =AppTheme.Surface
+                                          PressedFill: =AppTheme.TextPrimary
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                          Size: =12
+                                          Text: ="Week"
+                                          Width: =56
+                              - conFindToolbarDiv_f3:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
                                   Properties:
-                                    AlignInContainer: =AlignInContainer.Center
-                                    Fill: =AppTheme.layer01Bg
-                                    Height: =44
-                                    Items: =FindRooms
+                                    DropShadow: =DropShadow.None
+                                    Fill: =AppTheme.Border
+                                    FillPortions: =0
+                                    Height: =24
+                                    LayoutDirection: =LayoutDirection.Horizontal
                                     LayoutMinHeight: =0
                                     LayoutMinWidth: =0
-                                    ShowScrollbar: =false
-                                    TemplatePadding: =0
-                                    TemplateSize: =Self.Width / Max(1, CountRows(FindRooms))
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Width: =1
+                              - conFindDateNav_f3:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
+                                  Properties:
+                                    DropShadow: =DropShadow.None
+                                    FillPortions: =0
+                                    Height: =32
+                                    LayoutAlignItems: =LayoutAlignItems.Center
+                                    LayoutDirection: =LayoutDirection.Horizontal
+                                    LayoutGap: =4
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Width: =526
                                   Children:
-                                    - lblRoomName_v2:
+                                    - btnFindPrev_f3:
+                                        Control: Classic/Button
+                                        Properties:
+                                          BorderColor: =AppTheme.Border
+                                          BorderThickness: =1
+                                          Color: =AppTheme.TextPrimary
+                                          Fill: =AppTheme.Surface
+                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                          FocusedBorderThickness: =2
+                                          Height: =32
+                                          HoverBorderColor: =AppTheme.Border
+                                          HoverColor: =AppTheme.TextPrimary
+                                          HoverFill: =AppTheme.SurfaceAlt
+                                          OnSelect: |-
+                                            =Set(varFindSelectedDate, DateAdd(varFindSelectedDate, If(varFindViewMode = "Week", -7, -1), TimeUnit.Days)); UpdateContext({findSelRoomID: Blank(), findSelRoomTitle: Blank(), findSelStart: Blank(), findSelEnd: Blank()}); Select(btnLoadFindBookings)
+                                          PressedBorderColor: =AppTheme.Border
+                                          PressedColor: =AppTheme.TextPrimary
+                                          PressedFill: =AppTheme.SideNavItemActive
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                          Size: =14
+                                          Text: ="‹"
+                                          Width: =32
+                                    - btnFindNext_f3:
+                                        Control: Classic/Button
+                                        Properties:
+                                          BorderColor: =AppTheme.Border
+                                          BorderThickness: =1
+                                          Color: =AppTheme.TextPrimary
+                                          Fill: =AppTheme.Surface
+                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                          FocusedBorderThickness: =2
+                                          Height: =32
+                                          HoverBorderColor: =AppTheme.Border
+                                          HoverColor: =AppTheme.TextPrimary
+                                          HoverFill: =AppTheme.SurfaceAlt
+                                          OnSelect: |-
+                                            =Set(varFindSelectedDate, DateAdd(varFindSelectedDate, If(varFindViewMode = "Week", 7, 1), TimeUnit.Days)); UpdateContext({findSelRoomID: Blank(), findSelRoomTitle: Blank(), findSelStart: Blank(), findSelEnd: Blank()}); Select(btnLoadFindBookings)
+                                          PressedBorderColor: =AppTheme.Border
+                                          PressedColor: =AppTheme.TextPrimary
+                                          PressedFill: =AppTheme.SideNavItemActive
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                          Size: =14
+                                          Text: ="›"
+                                          Width: =32
+                                    - lblFindRange_f3:
                                         Control: Label
                                         Properties:
                                           Align: =Align.Center
-                                          BorderColor: =AppTheme.Border
-                                          Color: =AppTheme.SideNavText
-                                          Fill: =If(gblFindFocusRoomID = ThisItem.ID, AppTheme.HeaderAccent, AppTheme.layer01Bg)
+                                          AlignInContainer: =AlignInContainer.Center
+                                          Color: =AppTheme.TextPrimary
+                                          Font: ="IBM Plex Sans"
                                           FontWeight: =FontWeight.Semibold
-                                          Height: =Parent.TemplateHeight
-                                          PaddingLeft: =8
-                                          PaddingRight: =8
+                                          Height: =32
                                           Size: =12
-                                          Text: =ThisItem.Title
-                                          Width: =Parent.TemplateWidth
-                        - conFindScrollable_v2:
+                                          Text: |-
+                                            =If(varFindViewMode = "Week",
+                                                Text(varFindWeekStart, "dd mmm") & " – " & Text(DateAdd(varFindWeekStart, Timeline_WeekDayCount - 1, TimeUnit.Days), "dd mmm yyyy"),
+                                                Text(varFindSelectedDate, "ddd dd mmm yyyy")
+                                            )
+                                          Width: =190
+                                          Wrap: =false
+                                    - btnFindToday_f3:
+                                        Control: Classic/Button
+                                        Properties:
+                                          BorderColor: =If(varFindSelectedDate = Today(), AppTheme.SideNavItemActive, AppTheme.Border)
+                                          BorderThickness: =1
+                                          Color: =If(varFindSelectedDate = Today(), AppTheme.TextPrimary, ColorValue(AppTheme.Primary))
+                                          Fill: =If(varFindSelectedDate = Today(), AppTheme.SideNavItemActive, AppTheme.Surface)
+                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                          FocusedBorderThickness: =2
+                                          Font: ="IBM Plex Sans"
+                                          Height: =32
+                                          HoverBorderColor: =AppTheme.Border
+                                          HoverColor: =AppTheme.TextPrimary
+                                          HoverFill: =AppTheme.SurfaceAlt
+                                          OnSelect: |-
+                                            =Set(varFindSelectedDate, Today()); UpdateContext({findSelRoomID: Blank(), findSelRoomTitle: Blank(), findSelStart: Blank(), findSelEnd: Blank()}); Select(btnLoadFindBookings)
+                                          PressedBorderColor: =AppTheme.Border
+                                          PressedColor: =AppTheme.TextPrimary
+                                          PressedFill: =AppTheme.SideNavItemActive
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                          Size: =11
+                                          Text: ="Today"
+                                          Width: =60
+                              - conFindToolbarSpacer_f3:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
+                                  Properties:
+                                    DropShadow: =DropShadow.None
+                                    Fill: =Color.Transparent
+                                    Height: =32
+                                    LayoutDirection: =LayoutDirection.Horizontal
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                              - conFindSeatsSeg_f3:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
+                                  Properties:
+                                    DropShadow: =DropShadow.None
+                                    FillPortions: =0
+                                    Height: =32
+                                    LayoutAlignItems: =LayoutAlignItems.Center
+                                    LayoutDirection: =LayoutDirection.Horizontal
+                                    LayoutGap: =1
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Width: =239
+                                  Children:
+                                    - lblFindSeats_f3:
+                                        Control: Label
+                                        Properties:
+                                          Align: =Align.Right
+                                          AlignInContainer: =AlignInContainer.Center
+                                          Color: =AppTheme.TextMuted
+                                          Font: ="IBM Plex Sans"
+                                          Height: =32
+                                          PaddingRight: =8
+                                          Size: =11
+                                          Text: ="Seats"
+                                          Width: =44
+                                    - btnFindSeatsAny_f3:
+                                        Control: Classic/Button
+                                        Properties:
+                                          BorderColor: =If(varFindMinCapacity = 0 && varFindMaxCapacity = 0, AppTheme.TextPrimary, AppTheme.Border)
+                                          BorderThickness: =1
+                                          Color: =If(varFindMinCapacity = 0 && varFindMaxCapacity = 0, AppTheme.Surface, AppTheme.TextSecondary)
+                                          Fill: =If(varFindMinCapacity = 0 && varFindMaxCapacity = 0, AppTheme.TextPrimary, AppTheme.Surface)
+                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                          FocusedBorderThickness: =2
+                                          Font: ="IBM Plex Sans"
+                                          Height: =32
+                                          HoverBorderColor: =AppTheme.Border
+                                          HoverColor: =AppTheme.TextPrimary
+                                          HoverFill: =AppTheme.SurfaceAlt
+                                          OnSelect: |-
+                                            =Set(varFindMinCapacity, 0); Set(varFindMaxCapacity, 0); UpdateContext({findSelRoomID: Blank(), findSelRoomTitle: Blank(), findSelStart: Blank(), findSelEnd: Blank()}); Select(btnLoadFindBookings)
+                                          PressedBorderColor: =AppTheme.TextPrimary
+                                          PressedColor: =AppTheme.Surface
+                                          PressedFill: =AppTheme.TextPrimary
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                          Size: =11
+                                          Text: ="Any"
+                                          Width: =44
+                                    - btnFindSeats1to4_f3:
+                                        Control: Classic/Button
+                                        Properties:
+                                          BorderColor: =If(varFindMinCapacity = 0 && varFindMaxCapacity = 4, AppTheme.TextPrimary, AppTheme.Border)
+                                          BorderThickness: =1
+                                          Color: =If(varFindMinCapacity = 0 && varFindMaxCapacity = 4, AppTheme.Surface, AppTheme.TextSecondary)
+                                          Fill: =If(varFindMinCapacity = 0 && varFindMaxCapacity = 4, AppTheme.TextPrimary, AppTheme.Surface)
+                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                          FocusedBorderThickness: =2
+                                          Font: ="IBM Plex Sans"
+                                          Height: =32
+                                          HoverBorderColor: =AppTheme.Border
+                                          HoverColor: =AppTheme.TextPrimary
+                                          HoverFill: =AppTheme.SurfaceAlt
+                                          OnSelect: |-
+                                            =Set(varFindMinCapacity, 0); Set(varFindMaxCapacity, 4); UpdateContext({findSelRoomID: Blank(), findSelRoomTitle: Blank(), findSelStart: Blank(), findSelEnd: Blank()}); Select(btnLoadFindBookings)
+                                          PressedBorderColor: =AppTheme.TextPrimary
+                                          PressedColor: =AppTheme.Surface
+                                          PressedFill: =AppTheme.TextPrimary
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                          Size: =11
+                                          Text: ="1–4"
+                                          Width: =48
+                                    - btnFindSeats5to9_f3:
+                                        Control: Classic/Button
+                                        Properties:
+                                          BorderColor: =If(varFindMinCapacity = 5 && varFindMaxCapacity = 9, AppTheme.TextPrimary, AppTheme.Border)
+                                          BorderThickness: =1
+                                          Color: =If(varFindMinCapacity = 5 && varFindMaxCapacity = 9, AppTheme.Surface, AppTheme.TextSecondary)
+                                          Fill: =If(varFindMinCapacity = 5 && varFindMaxCapacity = 9, AppTheme.TextPrimary, AppTheme.Surface)
+                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                          FocusedBorderThickness: =2
+                                          Font: ="IBM Plex Sans"
+                                          Height: =32
+                                          HoverBorderColor: =AppTheme.Border
+                                          HoverColor: =AppTheme.TextPrimary
+                                          HoverFill: =AppTheme.SurfaceAlt
+                                          OnSelect: |-
+                                            =Set(varFindMinCapacity, 5); Set(varFindMaxCapacity, 9); UpdateContext({findSelRoomID: Blank(), findSelRoomTitle: Blank(), findSelStart: Blank(), findSelEnd: Blank()}); Select(btnLoadFindBookings)
+                                          PressedBorderColor: =AppTheme.TextPrimary
+                                          PressedColor: =AppTheme.Surface
+                                          PressedFill: =AppTheme.TextPrimary
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                          Size: =11
+                                          Text: ="5–9"
+                                          Width: =48
+                                    - btnFindSeats10plus_f3:
+                                        Control: Classic/Button
+                                        Properties:
+                                          BorderColor: =If(varFindMinCapacity = 10, AppTheme.TextPrimary, AppTheme.Border)
+                                          BorderThickness: =1
+                                          Color: =If(varFindMinCapacity = 10, AppTheme.Surface, AppTheme.TextSecondary)
+                                          Fill: =If(varFindMinCapacity = 10, AppTheme.TextPrimary, AppTheme.Surface)
+                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                          FocusedBorderThickness: =2
+                                          Font: ="IBM Plex Sans"
+                                          Height: =32
+                                          HoverBorderColor: =AppTheme.Border
+                                          HoverColor: =AppTheme.TextPrimary
+                                          HoverFill: =AppTheme.SurfaceAlt
+                                          OnSelect: |-
+                                            =Set(varFindMinCapacity, 10); Set(varFindMaxCapacity, 0); UpdateContext({findSelRoomID: Blank(), findSelRoomTitle: Blank(), findSelStart: Blank(), findSelEnd: Blank()}); Select(btnLoadFindBookings)
+                                          PressedBorderColor: =AppTheme.TextPrimary
+                                          PressedColor: =AppTheme.Surface
+                                          PressedFill: =AppTheme.TextPrimary
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                          Size: =11
+                                          Text: ="10+"
+                                          Width: =48
+                              - conFindEquipSeg_f3:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
+                                  Properties:
+                                    DropShadow: =DropShadow.None
+                                    FillPortions: =0
+                                    Height: =32
+                                    LayoutAlignItems: =LayoutAlignItems.Center
+                                    LayoutDirection: =LayoutDirection.Horizontal
+                                    LayoutGap: =1
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Width: =332
+                                  Children:
+                                    - lblFindEquip_f3:
+                                        Control: Label
+                                        Properties:
+                                          Align: =Align.Right
+                                          AlignInContainer: =AlignInContainer.Center
+                                          Color: =AppTheme.TextMuted
+                                          Font: ="IBM Plex Sans"
+                                          Height: =32
+                                          PaddingRight: =8
+                                          Size: =11
+                                          Text: ="Equip"
+                                          Width: =44
+                                    - btnFindEquipAll_f3:
+                                        Control: Classic/Button
+                                        Properties:
+                                          BorderColor: =If(varFindEquipment = "Any", AppTheme.TextPrimary, AppTheme.Border)
+                                          BorderThickness: =1
+                                          Color: =If(varFindEquipment = "Any", AppTheme.Surface, AppTheme.TextSecondary)
+                                          Fill: =If(varFindEquipment = "Any", AppTheme.TextPrimary, AppTheme.Surface)
+                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                          FocusedBorderThickness: =2
+                                          Font: ="IBM Plex Sans"
+                                          Height: =32
+                                          HoverBorderColor: =AppTheme.Border
+                                          HoverColor: =AppTheme.TextPrimary
+                                          HoverFill: =AppTheme.SurfaceAlt
+                                          OnSelect: |-
+                                            =Set(varFindEquipment, "Any"); UpdateContext({findSelRoomID: Blank(), findSelRoomTitle: Blank(), findSelStart: Blank(), findSelEnd: Blank()}); Select(btnLoadFindBookings)
+                                          PressedBorderColor: =AppTheme.TextPrimary
+                                          PressedColor: =AppTheme.Surface
+                                          PressedFill: =AppTheme.TextPrimary
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                          Size: =11
+                                          Text: ="All"
+                                          Width: =40
+                                    - btnFindEquipScreen_f3:
+                                        Control: Classic/Button
+                                        Properties:
+                                          BorderColor: =If(varFindEquipment = "Screen", AppTheme.TextPrimary, AppTheme.Border)
+                                          BorderThickness: =1
+                                          Color: =If(varFindEquipment = "Screen", AppTheme.Surface, AppTheme.TextSecondary)
+                                          Fill: =If(varFindEquipment = "Screen", AppTheme.TextPrimary, AppTheme.Surface)
+                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                          FocusedBorderThickness: =2
+                                          Font: ="IBM Plex Sans"
+                                          Height: =32
+                                          HoverBorderColor: =AppTheme.Border
+                                          HoverColor: =AppTheme.TextPrimary
+                                          HoverFill: =AppTheme.SurfaceAlt
+                                          OnSelect: |-
+                                            =Set(varFindEquipment, "Screen"); UpdateContext({findSelRoomID: Blank(), findSelRoomTitle: Blank(), findSelStart: Blank(), findSelEnd: Blank()}); Select(btnLoadFindBookings)
+                                          PressedBorderColor: =AppTheme.TextPrimary
+                                          PressedColor: =AppTheme.Surface
+                                          PressedFill: =AppTheme.TextPrimary
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                          Size: =11
+                                          Text: ="Screen"
+                                          Width: =56
+                                    - btnFindEquipVC_f3:
+                                        Control: Classic/Button
+                                        Properties:
+                                          BorderColor: =If(varFindEquipment = "VC", AppTheme.TextPrimary, AppTheme.Border)
+                                          BorderThickness: =1
+                                          Color: =If(varFindEquipment = "VC", AppTheme.Surface, AppTheme.TextSecondary)
+                                          Fill: =If(varFindEquipment = "VC", AppTheme.TextPrimary, AppTheme.Surface)
+                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                          FocusedBorderThickness: =2
+                                          Font: ="IBM Plex Sans"
+                                          Height: =32
+                                          HoverBorderColor: =AppTheme.Border
+                                          HoverColor: =AppTheme.TextPrimary
+                                          HoverFill: =AppTheme.SurfaceAlt
+                                          OnSelect: |-
+                                            =Set(varFindEquipment, "VC"); UpdateContext({findSelRoomID: Blank(), findSelRoomTitle: Blank(), findSelStart: Blank(), findSelEnd: Blank()}); Select(btnLoadFindBookings)
+                                          PressedBorderColor: =AppTheme.TextPrimary
+                                          PressedColor: =AppTheme.Surface
+                                          PressedFill: =AppTheme.TextPrimary
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                          Size: =11
+                                          Text: ="VC"
+                                          Width: =36
+                                    - btnFindEquipWhiteboard_f3:
+                                        Control: Classic/Button
+                                        Properties:
+                                          BorderColor: =If(varFindEquipment = "Whiteboard", AppTheme.TextPrimary, AppTheme.Border)
+                                          BorderThickness: =1
+                                          Color: =If(varFindEquipment = "Whiteboard", AppTheme.Surface, AppTheme.TextSecondary)
+                                          Fill: =If(varFindEquipment = "Whiteboard", AppTheme.TextPrimary, AppTheme.Surface)
+                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                          FocusedBorderThickness: =2
+                                          Font: ="IBM Plex Sans"
+                                          Height: =32
+                                          HoverBorderColor: =AppTheme.Border
+                                          HoverColor: =AppTheme.TextPrimary
+                                          HoverFill: =AppTheme.SurfaceAlt
+                                          OnSelect: |-
+                                            =Set(varFindEquipment, "Whiteboard"); UpdateContext({findSelRoomID: Blank(), findSelRoomTitle: Blank(), findSelStart: Blank(), findSelEnd: Blank()}); Select(btnLoadFindBookings)
+                                          PressedBorderColor: =AppTheme.TextPrimary
+                                          PressedColor: =AppTheme.Surface
+                                          PressedFill: =AppTheme.TextPrimary
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                          Size: =11
+                                          Text: ="Whiteboard"
+                                          Width: =80
+                                    - btnFindEquipProjector_f3:
+                                        Control: Classic/Button
+                                        Properties:
+                                          BorderColor: =If(varFindEquipment = "Projector", AppTheme.TextPrimary, AppTheme.Border)
+                                          BorderThickness: =1
+                                          Color: =If(varFindEquipment = "Projector", AppTheme.Surface, AppTheme.TextSecondary)
+                                          Fill: =If(varFindEquipment = "Projector", AppTheme.TextPrimary, AppTheme.Surface)
+                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                          FocusedBorderThickness: =2
+                                          Font: ="IBM Plex Sans"
+                                          Height: =32
+                                          HoverBorderColor: =AppTheme.Border
+                                          HoverColor: =AppTheme.TextPrimary
+                                          HoverFill: =AppTheme.SurfaceAlt
+                                          OnSelect: |-
+                                            =Set(varFindEquipment, "Projector"); UpdateContext({findSelRoomID: Blank(), findSelRoomTitle: Blank(), findSelStart: Blank(), findSelEnd: Blank()}); Select(btnLoadFindBookings)
+                                          PressedBorderColor: =AppTheme.TextPrimary
+                                          PressedColor: =AppTheme.Surface
+                                          PressedFill: =AppTheme.TextPrimary
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                          Size: =11
+                                          Text: ="Projector"
+                                          Width: =68
+                        - conFindToolbarRule_f3:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              DropShadow: =DropShadow.None
+                              Fill: =AppTheme.Border
+                              FillPortions: =0
+                              Height: =1
+                              LayoutDirection: =LayoutDirection.Horizontal
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
+                        - htxFindGridHead_f3:
+                            Control: HtmlViewer
+                            Properties:
+                              DisplayMode: =DisplayMode.View
+                              Height: =If(varFindViewMode = "Week", 48, 32)
+                              HtmlText: |-
+                                =With({_winMin: Timeline_HoursPerDay * 60},
+                                    "<div style='display:flex; height:100%; background:" & AppThemeHex.SurfaceAlt & "; box-sizing:border-box;'>" &
+                                    "<div style='width:" & Timeline_RoomColPx & "px; flex:0 0 auto; padding:8px 16px; box-sizing:border-box; " & CarbonHtmlType.Eyebrow & " color:" & AppThemeHex.TextMuted & ";'>Room</div>" &
+                                    If(varFindViewMode = "Day",
+                                        "<div style='flex:1 1 auto; position:relative; overflow:hidden;'>" &
+                                        Concat(
+                                            ForAll(Sequence(RoundDown(Timeline_HoursPerDay / 2, 0) + 1) As hh,
+                                                {s: "<span style='position:absolute; top:8px; left:" & Round((hh.Value - 1) * 120 / _winMin * 100, 2) & "%; transform:translateX(-" & If(hh.Value = 1, "0", If((hh.Value - 1) * 120 = _winMin, "100", "50")) & "%); " & CarbonHtmlType.Code01 & " color:" & AppThemeHex.TextMuted & ";'>" & Text(DateAdd(varFindWindowStart, (hh.Value - 1) * 120, TimeUnit.Minutes), "HH:mm") & "</span>"}
+                                            ),
+                                            s
+                                        ) &
+                                        "</div>",
+                                        "<div style='flex:1 1 auto; display:flex;'>" &
+                                        Concat(
+                                            ForAll(Sequence(Timeline_WeekDayCount) As dd,
+                                                With({_d: DateAdd(varFindWeekStart, dd.Value - 1, TimeUnit.Days)},
+                                                    {s: "<div style='flex:1 1 0; min-width:0; border-left:1px solid " & AppThemeHex.Border & "; padding:6px 12px; box-sizing:border-box;" & If(_d = Today(), " background:" & AppThemeHex.Border & ";", "") & "'>" &
+                                                        "<div style='" & CarbonHtmlType.HeadingCompact01 & " color:" & AppThemeHex.TextPrimary & ";'>" & Text(_d, "ddd") & "</div>" &
+                                                        "<div style='" & CarbonHtmlType.Code01 & " color:" & AppThemeHex.TextMuted & ";'>" & Text(_d, "dd mmm") & "</div>" &
+                                                        "</div>"}
+                                                )
+                                            ),
+                                            s
+                                        ) &
+                                        "</div>"
+                                    ) &
+                                    "</div>"
+                                )
+                              PaddingBottom: =0
+                              PaddingLeft: =0
+                              PaddingRight: =0
+                              PaddingTop: =0
+                        - conFindGridHeadRule_f3:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              DropShadow: =DropShadow.None
+                              Fill: =AppTheme.Border
+                              FillPortions: =0
+                              Height: =1
+                              LayoutDirection: =LayoutDirection.Horizontal
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
+                        - conFindRowsWrap_f3:
                             Control: GroupContainer
                             Variant: AutoLayout
                             Properties:
@@ -347,318 +826,249 @@ Screens:
                               RadiusTopLeft: =0
                               RadiusTopRight: =0
                             Children:
-                              - conScrollContent_v2:
-                                  Control: GroupContainer
-                                  Variant: AutoLayout
+                              - galFindRows_f3:
+                                  Control: Gallery
+                                  Variant: Vertical
                                   Properties:
-                                    DropShadow: =DropShadow.None
+                                    DelayItemLoading: =false
                                     Fill: =Color.Transparent
                                     FillPortions: =0
-                                    Height: =Timeline_HoursPerDay * 60 * Timeline_PxPerMinute
-                                    LayoutDirection: =LayoutDirection.Horizontal
-                                    LayoutGap: =1
-                                    RadiusBottomLeft: =0
-                                    RadiusBottomRight: =0
-                                    RadiusTopLeft: =0
-                                    RadiusTopRight: =0
-                                    Width: =Parent.Width
+                                    Height: =CountRows(FindRooms) * If(varFindViewMode = "Week", 92, 60)
+                                    Items: =FindRooms
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    ShowScrollbar: =false
+                                    TemplateFill: =If(ThisItem.ID = gblFindFocusRoomID, AppTheme.HeaderAccent, Color.Transparent)
+                                    TemplatePadding: =0
+                                    TemplateSize: =If(varFindViewMode = "Week", 92, 60)
                                   Children:
-                                    - conTimeAxis_v2:
-                                        Control: GroupContainer
-                                        Variant: AutoLayout
+                                    - htxFindRowLane_f3:
+                                        Control: HtmlViewer
                                         Properties:
-                                          AlignInContainer: =AlignInContainer.Start
-                                          BorderColor: =AppTheme.HeaderBorder
-                                          BorderThickness: =1
-                                          DropShadow: =DropShadow.None
-                                          Fill: =AppTheme.layer01Bg
-                                          FillPortions: =0
-                                          Height: =If(varFindViewMode = "Week", Timeline_WeekDayCount, Timeline_HoursPerDay) * galTimeAxis_v2.TemplateHeight
-                                          LayoutDirection: =LayoutDirection.Vertical
-                                          LayoutMinHeight: =0
-                                          LayoutMinWidth: =0
-                                          RadiusBottomLeft: =0
-                                          RadiusBottomRight: =0
-                                          RadiusTopLeft: =0
-                                          RadiusTopRight: =0
-                                          Width: =52
-                                        Children:
-                                          - galTimeAxis_v2:
-                                              Control: Gallery
-                                              Variant: Vertical
-                                              Properties:
-                                                Fill: =AppTheme.layer01Bg
-                                                FillPortions: =0
-                                                Height: =Parent.Height
-                                                Items: =If(varFindViewMode = "Week", Sequence(Timeline_WeekDayCount), Sequence(Timeline_HoursPerDay))
-                                                LayoutMinHeight: =0
-                                                LayoutMinWidth: =0
-                                                ShowScrollbar: =false
-                                                TemplatePadding: =0
-                                                TemplateSize: =If(varFindViewMode = "Week", Timeline_WeekCellPx, 60 * Timeline_PxPerMinute)
-                                              Children:
-                                                - lblHourMarker_v2:
-                                                    Control: Label
-                                                    Properties:
-                                                      Align: =Align.Right
-                                                      BorderColor: =AppTheme.HeaderBorder
-                                                      BorderThickness: =1
-                                                      Color: =AppTheme.TextMuted
-                                                      Height: =Parent.TemplateHeight
-                                                      PaddingRight: =4
-                                                      PaddingTop: =4
-                                                      Size: =11
-                                                      Text: |
-                                                        =If(varFindViewMode = "Week",
-                                                            Text(DateAdd(varFindWeekStart, (ThisItem.Value - 1) * 24 * 60, TimeUnit.Minutes), "ddd dd"),
-                                                            Text(DateAdd(varFindWindowStart, (ThisItem.Value - 1) * 60, TimeUnit.Minutes), "HH:mm")
-                                                        )
-                                                      VerticalAlign: =VerticalAlign.Top
-                                                      Width: =Parent.TemplateWidth
-                                    - galFindRoomCols:
+                                          DisplayMode: =DisplayMode.View
+                                          Height: =Parent.TemplateHeight
+                                          HtmlText: |-
+                                            =With(
+                                                {
+                                                    _isDay: varFindViewMode = "Day",
+                                                    _rows: Filter(colFindRows, RoomKey = ThisItem.ID),
+                                                    _wk: SortByColumns(Filter(colFindWeekRows, RoomKey = ThisItem.ID), "RowStart", SortOrder.Ascending),
+                                                    _winMin: Timeline_HoursPerDay * 60,
+                                                    _isToday: varFindSelectedDate = Today()
+                                                },
+                                                With(
+                                                    {
+                                                        _busyRow: If(_isDay && _isToday, LookUp(_rows, RowType = "booked" && RowStart <= varNowTick && RowEnd > varNowTick)),
+                                                        _nextBooked: If(_isDay, Min(Filter(_rows, RowType = "booked", RowStart > If(_isToday, varNowTick, varFindWindowStart)), RowStart)),
+                                                        _freeMin: Sum(Filter(_rows, RowType = "free"), RowMinutes)
+                                                    },
+                                                    "<div style='display:flex; height:100%; border-bottom:1px solid " & AppThemeHex.Border & "; box-sizing:border-box;'>" &
+                                                    "<div style='width:" & Timeline_RoomColPx & "px; flex:0 0 auto; padding:8px 16px; border-right:1px solid " & AppThemeHex.Border & "; box-sizing:border-box; display:flex; flex-direction:column; justify-content:center; gap:2px; overflow:hidden;'>" &
+                                                    "<div style='" & CarbonHtmlType.HeadingCompact01 & " color:" & AppThemeHex.TextPrimary & "; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;'>" & fnHtmlEscape(ThisItem.Title) & "</div>" &
+                                                    If(_isDay,
+                                                        "<div style='display:flex; align-items:center; gap:8px;'>" &
+                                                        "<span style='width:6px; height:6px; border-radius:50%; flex:0 0 auto; background:" & If(!IsBlank(_busyRow), AppThemeHex.StatusBusyText, AppThemeHex.StatusFreeText) & ";'></span>" &
+                                                        "<span style='" & CarbonHtmlType.Label01 & " color:" & If(!IsBlank(_busyRow), AppThemeHex.StatusBusyText, AppThemeHex.StatusFreeText) & "; white-space:nowrap;'>" &
+                                                        If(!IsBlank(_busyRow), "In use until " & Text(_busyRow.RowEnd, "HH:mm"),
+                                                           !IsBlank(_nextBooked), "Free until " & Text(_nextBooked, "HH:mm"),
+                                                           "Free all day") &
+                                                        "</span></div>",
+                                                        ""
+                                                    ) &
+                                                    "<div style='" & CarbonHtmlType.Code01 & " color:" & AppThemeHex.TextMuted & "; white-space:nowrap;'>seats " & ThisItem.Capacity & "</div>" &
+                                                    "</div>" &
+                                                    "<div style='flex:1 1 auto; position:relative; overflow:hidden;'>" &
+                                                    If(_isDay,
+                                                        Concat(
+                                                            ForAll(Sequence(Timeline_HoursPerDay + 1) As tk,
+                                                                {h: "<span style='position:absolute; top:0; bottom:0; left:" & Round((tk.Value - 1) * 60 / _winMin * 100, 2) & "%; width:1px; background:" & If(Mod(tk.Value - 1, 2) = 0, AppThemeHex.Border, AppThemeHex.SurfaceAlt) & ";'></span>"}
+                                                            ),
+                                                            h
+                                                        ) &
+                                                        Concat(
+                                                            ForAll(Filter(_rows, RowType = "free", RowMinutes >= 60) As g,
+                                                                {h: "<span style='position:absolute; top:0; bottom:0; display:flex; align-items:center; justify-content:center; left:" & Round(DateDiff(varFindWindowStart, g.RowStart, TimeUnit.Minutes) / _winMin * 100, 3) & "%; width:" & Round(g.RowMinutes / _winMin * 100, 3) & "%; " & CarbonHtmlType.Code01 & " color:" & AppThemeHex.TextMuted & "; white-space:nowrap; overflow:hidden; z-index:1;'>" &
+                                                                    Text(g.RowStart, "HH:mm") & "–" & Text(g.RowEnd, "HH:mm") & " · " &
+                                                                    If(g.RowMinutes >= 60, Text(RoundDown(g.RowMinutes / 60, 0)) & "h", "") &
+                                                                    If(Mod(g.RowMinutes, 60) > 0, If(g.RowMinutes >= 60, " ", "") & Mod(g.RowMinutes, 60) & "m", "") &
+                                                                    " free</span>"}
+                                                            ),
+                                                            h
+                                                        ) &
+                                                        Concat(
+                                                            ForAll(Filter(_rows, RowType = "booked") As b,
+                                                                {h: "<div style='position:absolute; top:8px; bottom:8px; left:" & Round(DateDiff(varFindWindowStart, b.RowStart, TimeUnit.Minutes) / _winMin * 100, 3) & "%; width:" & Round(b.RowMinutes / _winMin * 100, 3) & "%; box-sizing:border-box; background:" & If(b.IsMine, AppThemeHex.Primary, AppThemeHex.Border) & "; box-shadow:" & If(b.IsMine, "none", "inset 3px 0 0 0 " & AppThemeHex.TextSecondary) & "; padding:0 10px; display:flex; flex-direction:column; justify-content:center; gap:1px; overflow:hidden; z-index:2;'>" &
+                                                                    "<div style='" & CarbonHtmlType.Label01 & " font-weight:600; color:" & If(b.IsMine, AppThemeHex.PrimaryText, AppThemeHex.TextPrimary) & "; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;'>" & fnHtmlEscape(b.Title) & "</div>" &
+                                                                    "<div style='" & CarbonHtmlType.Code01 & " font-size:11px; color:" & If(b.IsMine, ColourTokens.Light.Accent, AppThemeHex.TextMuted) & "; white-space:nowrap;'>" & Text(b.RowStart, "HH:mm") & "–" & Text(b.RowEnd, "HH:mm") & If(b.BookedBy <> "", " · " & fnHtmlEscape(b.BookedBy), "") & "</div>" &
+                                                                    "</div>"}
+                                                            ),
+                                                            h
+                                                        ) &
+                                                        If(_isToday,
+                                                            "<span style='position:absolute; top:0; bottom:0; left:" & Round(DateDiff(varFindWindowStart, varNowTick, TimeUnit.Minutes) / _winMin * 100, 2) & "%; width:1px; background:" & AppThemeHex.StatusBusyText & "; z-index:3;'></span>",
+                                                            ""
+                                                        ),
+                                                        "<div style='display:flex; height:100%; width:100%;'>" &
+                                                        Concat(
+                                                            ForAll(_wk As c,
+                                                                {h: "<div style='flex:1 1 0; min-width:0; border-left:1px solid " & AppThemeHex.Border & "; padding:10px 12px; box-sizing:border-box; display:flex; flex-direction:column; gap:6px; justify-content:center; overflow:hidden;'>" &
+                                                                    "<div style='display:flex; align-items:baseline; justify-content:space-between; gap:8px;'>" &
+                                                                    "<span style='" & CarbonHtmlType.HeadingCompact01 & " font-size:13px; color:" & If(c.BookedMinutes = 0, AppThemeHex.StatusFreeText, AppThemeHex.TextPrimary) & "; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;'>" & If(c.BookedMinutes = 0, "Free all day", c.Title) & "</span>" &
+                                                                    If(c.BookedMinutes > 0, "<span style='" & CarbonHtmlType.Code01 & " font-size:11px; color:" & AppThemeHex.TextMuted & "; white-space:nowrap;'>" & Round(c.BookedMinutes / _winMin * 100, 0) & "%</span>", "") &
+                                                                    "</div>" &
+                                                                    "<div style='display:flex; gap:1px; height:10px;'>" & c.SegsHtml & "</div>" &
+                                                                    "<div style='" & CarbonHtmlType.Code01 & " color:" & AppThemeHex.TextSecondary & "; white-space:nowrap;'>" & c.BookedBy & "</div>" &
+                                                                    "</div>"}
+                                                            ),
+                                                            h
+                                                        ) &
+                                                        "</div>"
+                                                    ) &
+                                                    "</div></div>"
+                                                )
+                                            )
+                                          PaddingBottom: =0
+                                          PaddingLeft: =0
+                                          PaddingRight: =0
+                                          PaddingTop: =0
+                                          Width: =Parent.TemplateWidth
+                                    - galFindSlots_f3:
                                         Control: Gallery
                                         Variant: Horizontal
                                         Properties:
-                                          AlignInContainer: =AlignInContainer.Start
                                           Fill: =Color.Transparent
-                                          Height: =Timeline_HoursPerDay * 60 * Timeline_PxPerMinute
-                                          Items: =FindRooms
-                                          LayoutMinHeight: =0
-                                          LayoutMinWidth: =0
+                                          Height: =Parent.TemplateHeight
+                                          Items: |-
+                                            =ForAll(
+                                                Sequence(If(varFindViewMode = "Day", Timeline_HoursPerDay * 4, Timeline_WeekDayCount)) As n,
+                                                {Value: n.Value, SlotRoomID: ThisItem.ID, SlotRoomTitle: ThisItem.Title}
+                                            )
                                           ShowScrollbar: =false
                                           TemplatePadding: =0
-                                          TemplateSize: =Self.Width / Max(1, CountRows(FindRooms))
+                                          TemplateSize: =Self.Width / If(varFindViewMode = "Day", Timeline_HoursPerDay * 4, Timeline_WeekDayCount)
+                                          Width: =Parent.TemplateWidth - Timeline_RoomColPx
+                                          X: =Timeline_RoomColPx
                                         Children:
-                                          - galFindColRows:
-                                              Control: Gallery
-                                              Variant: BrowseLayout_Flexible_SocialFeed_ver5.0
+                                          - btnFindSlot_f3:
+                                              Control: Classic/Button
                                               Properties:
+                                                BorderColor: =RGBA(0,0,0,0)
+                                                BorderStyle: =BorderStyle.None
+                                                BorderThickness: =0
+                                                Color: =RGBA(0,0,0,0)
+                                                DisabledBorderColor: =RGBA(0,0,0,0)
+                                                DisabledColor: =RGBA(0,0,0,0)
+                                                DisabledFill: =RGBA(0,0,0,0)
+                                                Fill: =RGBA(0,0,0,0)
+                                                FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                                FocusedBorderThickness: =2
                                                 Height: =Parent.TemplateHeight
-                                                Items: |
-                                                  =If(varFindViewMode = "Week",
-                                                      Filter(colFindWeekRows, RoomKey = ThisItem.ID),
-                                                      Filter(colFindRows, RoomKey = ThisItem.ID)
-                                                  )
-                                                ShowScrollbar: =false
-                                                TemplatePadding: =0
-                                                TemplateSize: =Timeline_HoursPerDay * 60 * Timeline_PxPerMinute
-                                                Width: =Parent.TemplateWidth
-                                              Children:
-                                                - conSlotBlock_v2:
-                                                    Control: GroupContainer
-                                                    Variant: AutoLayout
-                                                    Properties:
-                                                      BorderColor: =AppTheme.HeaderBorder
-                                                      DropShadow: =DropShadow.None
-                                                      Fill: =AppTheme.HeaderBackground
-                                                      Height: =ThisItem.RowHeight
-                                                      LayoutAlignItems: =LayoutAlignItems.Stretch
-                                                      LayoutDirection: =LayoutDirection.Horizontal
-                                                      LayoutGap: =2
-                                                      RadiusBottomLeft: =0
-                                                      RadiusBottomRight: =0
-                                                      RadiusTopLeft: =0
-                                                      RadiusTopRight: =0
-                                                      Visible: =varFindViewMode = "Day" && ThisItem.RowType = "booked"
-                                                      Width: =Parent.TemplateWidth
-                                                    Children:
-                                                      - lblBookingTitle_v2:
-                                                          Control: Label
-                                                          Properties:
-                                                            Color: =ColorValue(AppTheme.PrimaryText)
-                                                            FillPortions: =1
-                                                            FontWeight: =FontWeight.Semibold
-                                                            LayoutMinHeight: =20
-                                                            LayoutMinWidth: =0
-                                                            PaddingBottom: =0
-                                                            PaddingLeft: =0
-                                                            PaddingRight: =0
-                                                            PaddingTop: =0
-                                                            Text: =Text(ThisItem.RowStart, "HH:mm") & " – " & Text(ThisItem.RowEnd, "HH:mm") & "  " & ThisItem.Title & " " & ThisItem.BookedBy
-                                                            Visible: =ThisItem.RowType = "booked"
-                                                - conFreeSlot_v2:
-                                                    Control: GroupContainer
-                                                    Variant: AutoLayout
-                                                    Properties:
-                                                      BorderColor: =AppTheme.Border
-                                                      BorderThickness: =1
-                                                      DropShadow: =DropShadow.None
-                                                      Fill: =AppTheme.Surface
-                                                      Height: =ThisItem.RowHeight
-                                                      LayoutAlignItems: =LayoutAlignItems.Center
-                                                      LayoutDirection: =LayoutDirection.Vertical
-                                                      RadiusBottomLeft: =0
-                                                      RadiusBottomRight: =0
-                                                      RadiusTopLeft: =0
-                                                      RadiusTopRight: =0
-                                                      Visible: =varFindViewMode = "Day" && ThisItem.RowType = "free"
-                                                      Width: =Parent.TemplateWidth
-                                                    Children:
-                                                      - btnFreeSlot_v2:
-                                                          Control: Classic/Button
-                                                          Properties:
-                                                            BorderColor: =RGBA(0,0,0,0)
-                                                            BorderStyle: =BorderStyle.None
-                                                            BorderThickness: =0
-                                                            Color: =AppTheme.TextMuted
-                                                            DisabledBorderColor: =RGBA(0,0,0,0)
-                                                            DisabledColor: =AppTheme.TextMuted
-                                                            DisabledFill: =RGBA(0,0,0,0)
-                                                            Fill: =RGBA(0,0,0,0)
-                                                            FocusedBorderColor: =RGBA(15,98,254,1)
-                                                            FocusedBorderThickness: =2
-                                                            Font: ="IBM Plex Sans"
-                                                            Height: =Parent.Height
-                                                            HoverBorderColor: =RGBA(0,0,0,0)
-                                                            HoverColor: =AppTheme.TextPrimary
-                                                            HoverFill: =RGBA(0,0,0,0.06)
-                                                            OnSelect: |-
-                                                              =Set(varSelectedDate, varFindSelectedDate);
-                                                              // RESET-SITE[find-free-slot] wizard state reset before opening step 2
-                                                              Set(varSelectedRoom, LookUp(colRooms, ID = ThisItem.RoomKey));
-                                                              Set(varTitle, Blank());
-                                                              Set(varConflict, false);
-                                                              Set(varBookingError, false);
-                                                              Set(varSubmitting, false);
-                                                              Set(varTitleTouched, false);
-                                                              Set(gbl_UI_Book_CancelConfirm, false);
-                                                              Set(gbl_Book_SubmitResult, "");
-                                                              Set(varConflictingBooking, Blank());
-                                                              Set(varNextFreeSlot, Blank());
-                                                              Set(gblEditingBookingID, 0);
-
-                                                              /* Start = slot start, pushed to the next 15-minute mark if the
-                                                                 slot has already begun; End = start + 60 min, capped at the
-                                                                 end of this free run. */
-                                                              With(
-                                                                  {
-                                                                      _slotStart: ThisItem.RowStart,
-                                                                      _slotEnd: ThisItem.RowEnd,
-                                                                      _now: Now()
-                                                                  },
+                                                HoverBorderColor: =RGBA(0,0,0,0)
+                                                HoverColor: =RGBA(0,0,0,0)
+                                                HoverFill: =RGBA(0,0,0,0.06)
+                                                OnSelect: |-
+                                                  =If(varFindViewMode = "Day",
+                                                      /* Resolve the free run containing this 15-min slot; a click on a
+                                                         booked slot is a no-op. Selection = design semantics: run start
+                                                         (clamped to the next 15-min mark if already begun today),
+                                                         one hour long, capped at the end of the free run. */
+                                                      With({_t: DateAdd(varFindWindowStart, (ThisItem.Value - 1) * 15, TimeUnit.Minutes)},
+                                                          With({_gap: LookUp(colFindRows, RoomKey = ThisItem.SlotRoomID && RowType = "free" && RowStart <= _t && RowEnd > _t)},
+                                                              If(!IsBlank(_gap.RowStart),
                                                                   With(
                                                                       {
-                                                                          _clamped: If(
-                                                                              _slotStart < _now,
-                                                                              DateAdd(
-                                                                                  _now,
-                                                                                  Mod(15 - Mod(DateDiff(_slotStart, _now, TimeUnit.Minutes), 15), 15),
-                                                                                  TimeUnit.Minutes
-                                                                              ),
-                                                                              _slotStart
-                                                                          )
+                                                                          _slotStart: _gap.RowStart,
+                                                                          _slotEnd: _gap.RowEnd,
+                                                                          _now: Now()
                                                                       },
                                                                       With(
-                                                                          {_start: If(_clamped < _slotEnd, _clamped, _slotStart)},
-                                                                          Set(varStartTime, _start);
-                                                                          Set(
-                                                                              varEndTime,
-                                                                              If(
-                                                                                  DateAdd(_start, 60, TimeUnit.Minutes) < _slotEnd,
-                                                                                  DateAdd(_start, 60, TimeUnit.Minutes),
-                                                                                  _slotEnd
+                                                                          {
+                                                                              _clamped: If(
+                                                                                  _slotStart < _now,
+                                                                                  DateAdd(
+                                                                                      _now,
+                                                                                      Mod(15 - Mod(DateDiff(_slotStart, _now, TimeUnit.Minutes), 15), 15),
+                                                                                      TimeUnit.Minutes
+                                                                                  ),
+                                                                                  _slotStart
                                                                               )
+                                                                          },
+                                                                          With(
+                                                                              {_start: If(_clamped < _slotEnd, _clamped, _slotStart)},
+                                                                              UpdateContext({
+                                                                                  findSelRoomID: ThisItem.SlotRoomID,
+                                                                                  findSelRoomTitle: ThisItem.SlotRoomTitle,
+                                                                                  findSelStart: _start,
+                                                                                  findSelEnd: If(
+                                                                                      DateAdd(_start, 60, TimeUnit.Minutes) < _slotEnd,
+                                                                                      DateAdd(_start, 60, TimeUnit.Minutes),
+                                                                                      _slotEnd
+                                                                                  )
+                                                                              })
                                                                           )
                                                                       )
                                                                   )
-                                                              );
-
-                                                              /* Room already known from the timeline - open the wizard on step 2 */
-                                                              Set(gbl_UI_Book_Modal_Step, WizardStep2);
-                                                              Set(gbl_UI_Book_Modal, true);
-                                                            PaddingBottom: =0
-                                                            PaddingLeft: =0
-                                                            PaddingRight: =0
-                                                            PaddingTop: =0
-                                                            PressedBorderColor: =RGBA(0,0,0,0)
-                                                            PressedColor: =AppTheme.TextPrimary
-                                                            PressedFill: =RGBA(0,0,0,0.12)
-                                                            RadiusBottomLeft: =0
-                                                            RadiusBottomRight: =0
-                                                            RadiusTopLeft: =0
-                                                            RadiusTopRight: =0
-                                                            Size: =11
-                                                            Text: =If(ThisItem.RowMinutes >= 30, "Book " & Text(ThisItem.RowStart, "HH:mm") & " - " & Text(ThisItem.RowEnd, "HH:mm") & "  ·  Available " & If(ThisItem.RowMinutes >= 60, Text(RoundDown(ThisItem.RowMinutes / 60, 0)) & "h", "") & If(Mod(ThisItem.RowMinutes, 60) > 0, If(ThisItem.RowMinutes >= 60, " ", "") & Text(Mod(ThisItem.RowMinutes, 60)) & "m", ""), "Book " & Text(ThisItem.RowStart, "HH:mm") & " - " & Text(ThisItem.RowEnd, "HH:mm"))
-                                                            Width: =Parent.Width
-                                                - conWeekBlock_v2:
-                                                    Control: GroupContainer
-                                                    Variant: AutoLayout
-                                                    Properties:
-                                                      BorderColor: =AppTheme.HeaderBorder
-                                                      BorderThickness: =1
-                                                      DropShadow: =DropShadow.None
-                                                      Fill: =AppTheme.layer01Bg
-                                                      Height: =ThisItem.RowHeight
-                                                      LayoutDirection: =LayoutDirection.Vertical
-                                                      RadiusBottomLeft: =0
-                                                      RadiusBottomRight: =0
-                                                      RadiusTopLeft: =0
-                                                      RadiusTopRight: =0
-                                                      Visible: =varFindViewMode = "Week"
-                                                      Width: =Parent.TemplateWidth
-                                                    Children:
-                                                      - lblWeekCount_v2:
-                                                          Control: Label
-                                                          Properties:
-                                                            Color: =AppTheme.TextPrimary
-                                                            FontWeight: =FontWeight.Semibold
-                                                            LayoutMinHeight: =20
-                                                            LayoutMinWidth: =0
-                                                            PaddingBottom: =0
-                                                            PaddingLeft: =4
-                                                            PaddingRight: =0
-                                                            PaddingTop: =4
-                                                            Size: =11
-                                                            Text: =ThisItem.Title
-                                                      - lblWeekFree_v2:
-                                                          Control: Label
-                                                          Properties:
-                                                            Color: =AppTheme.TextMuted
-                                                            LayoutMinHeight: =16
-                                                            LayoutMinWidth: =0
-                                                            PaddingBottom: =0
-                                                            PaddingLeft: =4
-                                                            PaddingRight: =0
-                                                            PaddingTop: =0
-                                                            Size: =11
-                                                            Text: =ThisItem.BookedBy
-                                                      - btnWeekCell_v2:
-                                                          Control: Classic/Button
-                                                          Properties:
-                                                            BorderColor: =RGBA(0,0,0,0)
-                                                            BorderStyle: =BorderStyle.None
-                                                            BorderThickness: =0
-                                                            Color: =AppTheme.TextMuted
-                                                            DisabledBorderColor: =RGBA(0,0,0,0)
-                                                            DisabledColor: =AppTheme.TextMuted
-                                                            DisabledFill: =RGBA(0,0,0,0)
-                                                            Fill: =RGBA(0,0,0,0)
-                                                            FillPortions: =1
-                                                            FocusedBorderColor: =RGBA(15,98,254,1)
-                                                            FocusedBorderThickness: =2
-                                                            Font: ="IBM Plex Sans"
-                                                            HoverBorderColor: =RGBA(0,0,0,0)
-                                                            HoverColor: =AppTheme.TextPrimary
-                                                            HoverFill: =RGBA(0,0,0,0.06)
-                                                            LayoutMinHeight: =0
-                                                            OnSelect: |-
-                                                              =Set(varFindSelectedDate, DateValue(Text(ThisItem.RowStart, "yyyy-mm-dd")));
-                                                              Set(varFindViewMode, "Day");
-                                                              Select(btnLoadFindBookings)
-                                                            PaddingBottom: =0
-                                                            PaddingLeft: =0
-                                                            PaddingRight: =0
-                                                            PaddingTop: =0
-                                                            PressedBorderColor: =RGBA(0,0,0,0)
-                                                            PressedColor: =AppTheme.TextPrimary
-                                                            PressedFill: =RGBA(0,0,0,0.12)
-                                                            RadiusBottomLeft: =0
-                                                            RadiusBottomRight: =0
-                                                            RadiusTopLeft: =0
-                                                            RadiusTopRight: =0
-                                                            Size: =11
-                                                            Text: ="Open " & Text(ThisItem.RowStart, "ddd dd mmm")
-                                                            Width: =Parent.Width
+                                                              )
+                                                          )
+                                                      ),
+                                                      /* Week: drill into that day's Day view */
+                                                      Set(varFindSelectedDate, DateAdd(varFindWeekStart, ThisItem.Value - 1, TimeUnit.Days));
+                                                      Set(varFindViewMode, "Day");
+                                                      UpdateContext({findSelRoomID: Blank(), findSelRoomTitle: Blank(), findSelStart: Blank(), findSelEnd: Blank()});
+                                                      Select(btnLoadFindBookings)
+                                                  )
+                                                PaddingBottom: =0
+                                                PaddingLeft: =0
+                                                PaddingRight: =0
+                                                PaddingTop: =0
+                                                PressedBorderColor: =RGBA(0,0,0,0)
+                                                PressedColor: =RGBA(0,0,0,0)
+                                                PressedFill: =RGBA(0,0,0,0.12)
+                                                RadiusBottomLeft: =0
+                                                RadiusBottomRight: =0
+                                                RadiusTopLeft: =0
+                                                RadiusTopRight: =0
+                                                Text: |-
+                                                  =/* Visually hidden (transparent Color) — Classic/Button has no
+                                                     AccessibleLabel, so Text carries the accessible name (Y4). */
+                                                  If(varFindViewMode = "Day",
+                                                      "Book " & ThisItem.SlotRoomTitle & " from " & Text(DateAdd(varFindWindowStart, (ThisItem.Value - 1) * 15, TimeUnit.Minutes), "HH:mm"),
+                                                      "Open " & Text(DateAdd(varFindWeekStart, ThisItem.Value - 1, TimeUnit.Days), "ddd dd mmm")
+                                                  )
+                                                Width: =Parent.TemplateWidth
+                        - conFindLegendRule_f3:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              DropShadow: =DropShadow.None
+                              Fill: =AppTheme.Border
+                              FillPortions: =0
+                              Height: =1
+                              LayoutDirection: =LayoutDirection.Horizontal
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
+                        - htxFindLegend_f3:
+                            Control: HtmlViewer
+                            Properties:
+                              DisplayMode: =DisplayMode.View
+                              HtmlText: |-
+                                ="<div style='display:flex; align-items:center; justify-content:space-between; height:100%; padding:0 16px; box-sizing:border-box;'>" &
+                                "<div style='display:flex; align-items:center; gap:20px;'>" &
+                                "<span style='display:flex; align-items:center; gap:6px; " & CarbonHtmlType.Label01 & " color:" & AppThemeHex.TextMuted & ";'><span style='display:inline-block; width:12px; height:8px; background:" & AppThemeHex.Surface & "; border:1px solid " & AppThemeHex.Border & ";'></span>Available — click to book</span>" &
+                                "<span style='display:flex; align-items:center; gap:6px; " & CarbonHtmlType.Label01 & " color:" & AppThemeHex.TextMuted & ";'><span style='display:inline-block; width:12px; height:8px; background:" & AppThemeHex.Border & "; box-shadow:inset 3px 0 0 0 " & AppThemeHex.TextSecondary & ";'></span>Booked</span>" &
+                                "<span style='display:flex; align-items:center; gap:6px; " & CarbonHtmlType.Label01 & " color:" & AppThemeHex.TextMuted & ";'><span style='display:inline-block; width:12px; height:8px; background:" & AppThemeHex.Primary & ";'></span>Your booking</span>" &
+                                "<span style='display:flex; align-items:center; gap:6px; " & CarbonHtmlType.Label01 & " color:" & AppThemeHex.TextMuted & ";'><span style='display:inline-block; width:2px; height:12px; background:" & AppThemeHex.StatusBusyText & ";'></span>Now</span>" &
+                                "</div>" &
+                                "<span style='" & CarbonHtmlType.Code01 & " color:" & AppThemeHex.TextMuted & "; white-space:nowrap;'>" & Text(Time(DayStartHour, 0, 0), "HH:mm") & "–" & Text(Time(DayEndHour, 0, 0), "HH:mm") & " · Mon–Fri</span>" &
+                                "</div>"
+                              PaddingBottom: =0
+                              PaddingLeft: =0
+                              PaddingRight: =0
+                              PaddingTop: =0
                         - lbl_textFindEmptyState:
                             Control: Label
                             Properties:
@@ -668,9 +1078,125 @@ Screens:
                               Height: =24
                               LayoutMinHeight: =0
                               LayoutMinWidth: =0
+                              PaddingLeft: =16
                               Size: =12
                               Text: =If(IsEmpty(FindRooms) && !IsEmpty(colRooms), "No rooms match your filters", "No rooms available")
                               Visible: =IsEmpty(colRooms) || IsEmpty(FindRooms)
+            - conFindSelBar_f3:
+                Control: GroupContainer
+                Variant: AutoLayout
+                Properties:
+                  DropShadow: =DropShadow.Regular
+                  Fill: =AppTheme.HeaderNavBg
+                  Height: =64
+                  LayoutAlignItems: =LayoutAlignItems.Center
+                  LayoutDirection: =LayoutDirection.Horizontal
+                  LayoutGap: =24
+                  PaddingLeft: =16
+                  PaddingRight: =16
+                  RadiusBottomLeft: =0
+                  RadiusBottomRight: =0
+                  RadiusTopLeft: =0
+                  RadiusTopRight: =0
+                  Visible: =!IsBlank(findSelStart)
+                  Width: =Parent.Width
+                  Y: =Parent.Height - 64
+                Children:
+                  - htxFindSelInfo_f3:
+                      Control: HtmlViewer
+                      Properties:
+                        DisplayMode: =DisplayMode.View
+                        FillPortions: =1
+                        Height: =Parent.Height
+                        HtmlText: |-
+                          =/* Selection bar is dark in both themes (Carbon inverse surface),
+                             so it reads the Dark token branch directly rather than AppThemeHex. */
+                          "<div style='display:flex; align-items:center; gap:24px; height:100%;'>" &
+                          "<div style='display:flex; flex-direction:column; justify-content:center;'>" &
+                          "<span style='" & CarbonHtmlType.Label01 & " color:" & ThemeMapHex.Dark.TextMuted & ";'>Selected</span>" &
+                          "<span style='" & CarbonHtmlType.HeadingCompact01 & " color:" & ThemeMapHex.Dark.TextPrimary & "; white-space:nowrap;'>" & fnHtmlEscape(Coalesce(findSelRoomTitle, "")) & " · " & Text(findSelStart, "HH:mm") & " – " & Text(findSelEnd, "HH:mm") & "</span>" &
+                          "</div>" &
+                          "<span style='" & CarbonHtmlType.Code01 & " color:" & ThemeMapHex.Dark.TextSecondary & "; white-space:nowrap;'>" &
+                          Text(findSelStart, "ddd dd mmm") & " · " &
+                          With({_m: DateDiff(findSelStart, findSelEnd, TimeUnit.Minutes)},
+                              If(_m >= 60, Text(RoundDown(_m / 60, 0)) & "h", "") &
+                              If(Mod(_m, 60) > 0, If(_m >= 60, " ", "") & Mod(_m, 60) & "m", "")
+                          ) &
+                          "</span></div>"
+                        PaddingBottom: =0
+                        PaddingLeft: =0
+                        PaddingRight: =0
+                        PaddingTop: =0
+                  - btnFindSelClear_f3:
+                      Control: Classic/Button
+                      Properties:
+                        BorderColor: =RGBA(0,0,0,0)
+                        BorderStyle: =BorderStyle.None
+                        BorderThickness: =0
+                        Color: =AppTheme.HeaderNavItemText
+                        Fill: =RGBA(0,0,0,0)
+                        FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                        FocusedBorderThickness: =2
+                        Font: ="IBM Plex Sans"
+                        HoverBorderColor: =RGBA(0,0,0,0)
+                        HoverColor: =AppTheme.HeaderNavItemText
+                        HoverFill: =AppTheme.HeaderNavItemHover
+                        OnSelect: |-
+                          =UpdateContext({findSelRoomID: Blank(), findSelRoomTitle: Blank(), findSelStart: Blank(), findSelEnd: Blank()})
+                        PressedBorderColor: =RGBA(0,0,0,0)
+                        PressedColor: =AppTheme.HeaderNavItemText
+                        PressedFill: =AppTheme.HeaderNavItemPressed
+                        RadiusBottomLeft: =0
+                        RadiusBottomRight: =0
+                        RadiusTopLeft: =0
+                        RadiusTopRight: =0
+                        Size: =14
+                        Text: ="Clear"
+                        Width: =72
+                  - btnFindSelContinue_f3:
+                      Control: Classic/Button
+                      Properties:
+                        BorderColor: =RGBA(0,0,0,0)
+                        BorderStyle: =BorderStyle.None
+                        BorderThickness: =0
+                        Color: =ColorValue(AppTheme.PrimaryText)
+                        Fill: =ColorValue(AppTheme.ButtonPrimary)
+                        FocusedBorderColor: =AppTheme.HeaderNavItemText
+                        FocusedBorderThickness: =2
+                        Font: ="IBM Plex Sans"
+                        HoverBorderColor: =RGBA(0,0,0,0)
+                        HoverColor: =ColorValue(AppTheme.PrimaryText)
+                        HoverFill: =ColorValue(AppTheme.ButtonPrimaryActive)
+                        OnSelect: |-
+                          =Set(varSelectedDate, varFindSelectedDate);
+                          // RESET-SITE[find-free-slot] wizard state reset before opening step 2
+                          Set(varSelectedRoom, LookUp(colRooms, ID = findSelRoomID));
+                          Set(varTitle, Blank());
+                          Set(varConflict, false);
+                          Set(varBookingError, false);
+                          Set(varSubmitting, false);
+                          Set(varTitleTouched, false);
+                          Set(gbl_UI_Book_CancelConfirm, false);
+                          Set(gbl_Book_SubmitResult, "");
+                          Set(varConflictingBooking, Blank());
+                          Set(varNextFreeSlot, Blank());
+                          Set(gblEditingBookingID, 0);
+                          Set(varStartTime, findSelStart);
+                          Set(varEndTime, findSelEnd);
+
+                          /* Room and time already known from the timeline - open the wizard on step 2 */
+                          Set(gbl_UI_Book_Modal_Step, WizardStep2);
+                          Set(gbl_UI_Book_Modal, true)
+                        PressedBorderColor: =RGBA(0,0,0,0)
+                        PressedColor: =ColorValue(AppTheme.PrimaryText)
+                        PressedFill: =ColorValue(AppTheme.ButtonPrimaryActive)
+                        RadiusBottomLeft: =0
+                        RadiusBottomRight: =0
+                        RadiusTopLeft: =0
+                        RadiusTopRight: =0
+                        Size: =14
+                        Text: ="Continue"
+                        Width: =104
             - cpt_head_find:
                 Control: CanvasComponent
                 ComponentName: Shell_Header
@@ -821,8 +1347,7 @@ Screens:
                   );
                   Set(gbl_UI_Book_Modal, false);
 
-                  /* Stay on Rooms — rebuild the timeline so the new booking(s) show up.
-                     (Home navigates back to Home here instead.) */
+                  /* Stay on Find — rebuild the grid so the new booking(s) show up. */
                   Select(btnLoadFindBookings)
               )
             OnSubmitEdit: ="Text"

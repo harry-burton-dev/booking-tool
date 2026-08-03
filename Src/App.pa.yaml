@@ -104,7 +104,8 @@ App:
                       Heading03:        "font-size: 20px; font-family: " & CarbonFontFamily & "; font-weight: 400; line-height: 1.4; letter-spacing: 0px;",
                       Heading04:        "font-size: 28px; font-family: " & CarbonFontFamily & "; font-weight: 400; line-height: 1.28572; letter-spacing: 0px;",
                       Eyebrow:          "font-size: 11px; font-family: " & CarbonFontFamily & "; font-weight: 400; letter-spacing: 0.6px; text-transform: uppercase;",
-                      TableHead:        "font-size: 10px; font-family: " & CarbonFontFamily & "; font-weight: 400; letter-spacing: 0.32px;"
+                      TableHead:        "font-size: 10px; font-family: " & CarbonFontFamily & "; font-weight: 400; letter-spacing: 0.32px;",
+                      Code01:           "font-size: 12px; font-family: " & CarbonFontFamilyMono & "; font-weight: 400; line-height: 1.33333; letter-spacing: 0.32px;"
                   };
 
                   /* Kit rule: any non-literal value interpolated into a CarbonText* call goes through fnHtmlEscape (ampersand first, so entities are not double-decoded). */
@@ -423,6 +424,9 @@ App:
                   };
 
                   CarbonFontFamily = "'IBM Plex Sans', 'Segoe UI', Arial";
+                  /* Carbon Code/Mono type ramp (Find timeline meta text). HtmlViewer-only,
+                     same rule as CarbonFontFamily — native controls cannot render Plex. */
+                  CarbonFontFamilyMono = "'IBM Plex Mono', Consolas, monospace";
 
                   glbSideNavIconStr =
                       If(!glbIsDarkMode, "rgba(198,198,198,1)", "rgba(82,82,82,1)");
@@ -455,6 +459,10 @@ App:
                   //--- Find Timeline Formulas ---
                   //------------------------------
 
+                  /* Fixed room-info column width for the Find timeline grid — shared by the
+                     lane HTML (flex left column) and the slot-button gallery X offset so the
+                     hit targets stay aligned with the drawn lane. */
+                  Timeline_RoomColPx = 200;
                   varFindWindowStart = DateAdd(DateValue(Text(varFindSelectedDate,"yyyy-mm-dd")),DayStartHour*60,TimeUnit.Minutes);
                   varFindWindowEnd   = If(varFindViewMode="Day",DateAdd(DateValue(Text(varFindSelectedDate,"yyyy-mm-dd")),DayEndHour*60,TimeUnit.Minutes),DateAdd(DateValue(Text(varFindSelectedDate,"yyyy-mm-dd")),7*24*60-360,TimeUnit.Minutes));
                   varFindWeekStart   = DateAdd(varFindSelectedDate,-(Weekday(varFindSelectedDate,StartOfWeek.Monday)-1),TimeUnit.Days);
@@ -640,9 +648,12 @@ App:
                   );
 
                   /* Rooms surfaced on Find after the capacity/equipment filter (P-6/S-3).
-                     varFindMinCapacity: 0 = Any. varFindEquipment: "Any" or one Equipment token. */
+                     varFindMinCapacity: 0 = Any. varFindMaxCapacity: 0 = no upper bound
+                     (seat-bucket filter, e.g. 1-4 / 5-9 / 10+). varFindEquipment: "Any"
+                     or one Equipment token. */
                   FindRooms = Filter(colRooms,
                       Capacity >= varFindMinCapacity,
+                      varFindMaxCapacity = 0 || Capacity <= varFindMaxCapacity,
                       varFindEquipment = "Any" || varFindEquipment in Equipment
                   );
 
@@ -821,6 +832,7 @@ App:
                   Set(varNowTick, Now());
                   Set(varMyBookingsFilter, "Upcoming");
                   Set(varFindMinCapacity, 0);
+                  Set(varFindMaxCapacity, 0);
                   Set(varFindEquipment, "Any");
                   Set(gblRoomsSearch, "");
                   Set(gblRoomsMinCapacity, 0);
