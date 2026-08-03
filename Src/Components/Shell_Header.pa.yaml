@@ -100,6 +100,7 @@ ComponentDefinitions:
                   - htxHeaderWordmark:
                       Control: HtmlViewer
                       Properties:
+                        AutoHeight: =true
                         DisplayMode: =DisplayMode.View
                         Height: =48
                         HtmlText: |-
