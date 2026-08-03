@@ -97,29 +97,23 @@ ComponentDefinitions:
                   RadiusTopRight: =0
                   Width: =192
                 Children:
-                  - lbl_Header_Wordmark_Primary:
-                      Control: Label
+                  - htxHeaderWordmark:
+                      Control: HtmlViewer
                       Properties:
-                        Color: =AppTheme.HeaderNavItemText
-                        Font: ="IBM Plex Sans"
-                        FontWeight: =FontWeight.Semibold
+                        DisplayMode: =DisplayMode.View
                         Height: =48
-                        Size: =14
-                        Text: ="MOC"
-                        Width: =40
-                        Wrap: =false
-                        X: =16
-                  - lbl_Header_Wordmark_Secondary:
-                      Control: Label
-                      Properties:
-                        Color: =/* borrows ButtonDisabled (#c6c6c6) as wordmark secondary tint - retheme both together; see T6 */ ColorValue(AppTheme.ButtonDisabled)
-                        Font: ="IBM Plex Sans"
-                        Height: =48
-                        Size: =14
-                        Text: =" | BOOK"
-                        Width: =136
-                        Wrap: =false
-                        X: =56
+                        HtmlText: |-
+                          ="<div style=""display: flex; align-items: center; height: 48px; padding-left: 16px;"">" &
+                           CarbonSpan("font-size: 14px; font-family: " & CarbonFontFamily & "; font-weight: 600;", "MOC", AppThemeHex.HeaderNavItemText) &
+                           CarbonSpan("font-size: 14px; font-family: " & CarbonFontFamily & "; font-weight: 400;", "&nbsp;| BOOK", AppThemeHex.WordmarkSecondary) &
+                           "</div>"
+                        PaddingBottom: =0
+                        PaddingLeft: =0
+                        PaddingRight: =0
+                        PaddingTop: =0
+                        Width: =192
+                        X: =0
+                        Y: =0
             - con_Header_Nav:
                 Control: GroupContainer
                 Variant: AutoLayout
