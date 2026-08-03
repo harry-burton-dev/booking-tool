@@ -534,9 +534,10 @@ App:
 
                   // "N upcoming" for the Home My-bookings tile. Consumers: htxHDTileMyRow
                   // meta line and btnHDTileMy accessible Text (was a keep-in-sync comment
-                  // pair — PERF-7). varNowTick cutoff like the rest of the Home surface;
-                  // distinct from MyBookingsUpcomingCount, whose fnIsPast cutoff is Now().
-                  MyUpcomingCount = CountRows(Filter(MyBookings, EndDateTime >= varNowTick));
+                  // pair — PERF-7). Home prefix is load-bearing: varNowTick cutoff like the
+                  // rest of the Home surface, distinct from MyBookingsUpcomingCount, whose
+                  // fnIsPast cutoff is Now().
+                  HomeMyUpcomingCount = CountRows(Filter(MyBookings, EndDateTime >= varNowTick));
 
                   // varNowTick (set on App.OnStart and Home.OnVisible) forces recalc per Home visit — Now() alone would not trigger re-evaluation.
                   NextBookingRecord = First(
@@ -545,6 +546,17 @@ App:
                           StartDateTime, SortOrder.Ascending
                       )
                   );
+
+                  // myBookings tab/stat counts (PERF-7). Each hoists a CountRows(Filter(...))
+                  // that re-evaluated inline in a Label.Text. Cutoff is Now() via fnIsPast,
+                  // matching the mb2Gal* tab contents these labels count (the Home tile's
+                  // HomeMyUpcomingCount cuts off at varNowTick instead).
+                  // Consumers: mb2LblPageMeta stat line + mb2BtnTabUpcoming label.
+                  MyBookingsUpcomingCount = CountRows(Filter(MyBookings, !fnIsPast(EndDateTime)));
+                  // Consumer: mb2BtnTabPast label.
+                  MyBookingsPastCount = CountRows(Filter(MyBookings, fnIsPast(EndDateTime)));
+                  // Consumer: mb2BtnTabSeries label — one row per distinct SeriesID.
+                  MyBookingsSeriesCount = CountRows(GroupBy(Filter(MyBookings, !IsBlank(SeriesID)), SeriesID, SeriesRows));
 
                   /* Booking-wizard conflict panel (cpt_Modal_, AccessAppScope): rooms free
                      for the requested slot - every room other than the selected one with
@@ -562,16 +574,6 @@ App:
                       rm.ID <> varSelectedRoom.ID &&
                       IsEmpty(Filter(colOverlappingBookings, RoomID.Id = rm.ID))
                   );
-
-                  // myBookings tab/stat counts (PERF-7). Each hoists a CountRows(Filter(...))
-                  // that re-evaluated inline in a Label.Text. Cutoff is Now() via fnIsPast,
-                  // matching the mb2Gal* tab contents these labels count.
-                  // Consumers: mb2LblPageMeta stat line + mb2BtnTabUpcoming label.
-                  MyBookingsUpcomingCount = CountRows(Filter(MyBookings, !fnIsPast(EndDateTime)));
-                  // Consumer: mb2BtnTabPast label.
-                  MyBookingsPastCount = CountRows(Filter(MyBookings, fnIsPast(EndDateTime)));
-                  // Consumer: mb2BtnTabSeries label — one row per distinct SeriesID.
-                  MyBookingsSeriesCount = CountRows(GroupBy(Filter(MyBookings, !IsBlank(SeriesID)), SeriesID, SeriesRows));
 
                   FindBookings = Sort(
                       ForAll(

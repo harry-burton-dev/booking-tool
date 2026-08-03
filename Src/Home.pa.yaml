@@ -488,7 +488,7 @@ Screens:
                                                 HtmlText: |-
                                                   ="<div style=""display: flex; justify-content: space-between; align-items: center;"">" &
                                                   "<span style=""" & CarbonHtmlType.Label01 & " color: " & AppThemeHex.TextMuted & ";"">" &
-                                                  fnHtmlEscape(Text(MyUpcomingCount, "[$-en-US]0") & " upcoming") &
+                                                  fnHtmlEscape(Text(HomeMyUpcomingCount, "[$-en-US]0") & " upcoming") &
                                                   "</span>" &
                                                   "<span style=""" & CarbonHtmlType.Heading02 & " color: " & AppThemeHex.TextSecondary & ";"">→</span>" &
                                                   "</div>"
@@ -527,7 +527,7 @@ Screens:
                                           RadiusBottomRight: =0
                                           RadiusTopLeft: =0
                                           RadiusTopRight: =0
-                                          Text: ="My bookings — " & Text(MyUpcomingCount, "[$-en-US]0") & " upcoming"
+                                          Text: ="My bookings — " & Text(HomeMyUpcomingCount, "[$-en-US]0") & " upcoming"
                                           Width: =Parent.Width
                         - conHDPanels:
                             Control: GroupContainer
