@@ -1035,7 +1035,8 @@ ComponentDefinitions:
                                                          If(_s >= varConflictingBooking.StartDateTime && _e <= varConflictingBooking.EndDateTime,
                                                             AppThemeHex.PrimaryText,
                                                             If(_s = varNextFreeSlot, AppThemeHex.StatusFreeText, AppThemeHex.TextSecondary))) &
-                                                     "</div>" }),
+                                                     "</div>" })
+                                           ),
                                            Row)
                                        & "</div>"
                                     LayoutMinHeight: =0
