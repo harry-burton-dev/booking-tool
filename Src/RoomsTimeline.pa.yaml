@@ -11,10 +11,12 @@ Screens:
            varShowTimeline died with the split - navigation replaces it. */
         UpdateContext({tlSelStart: Blank(), tlSelRunStart: Blank(), tlSelRunEnd: Blank(), tlSelMinutes: Blank()});
         Set(varNowTick, Now());
-        /* Re-pull the shared bookings snapshot so colleagues' writes since App.OnStart
-           (or since this session's last write) show up without requiring a write of our own */
-        Refresh(Book_Bookings);
-        ClearCollect(colBookings, BookingsWindow);
+        /* No entry pull here (unlike the other booking screens): the only caller is Rooms,
+           whose own OnVisible ran the identical Refresh + ClearCollect(colBookings,
+           BookingsWindow) moments before drill-in - the old flag-flip path never re-pulled,
+           so re-pulling would double the fetch and block the timeline build on a server
+           round-trip. Staleness for writes is covered by the T2 mirror convention plus the
+           wizard's confirm-gate fresh server reads. */
         /* The old open path chained Select(btn_LoadTimeline) after flipping varShowTimeline;
            on a dedicated screen the initial row build belongs to OnVisible. */
         Select(tl2BtnLoadTimeline)
@@ -272,7 +274,10 @@ Screens:
                                                   =Set(glbSelectedDate, tl2DtpDate.SelectedDate);
                                                   UpdateContext({tlSelStart: Blank()});
                                                   Select(tl2BtnLoadTimeline)
-                                                Visible: =false
+                                                Visible: |-
+                                                  =/* Dead vestige carried from the old tree (dtpTLDate) for parity - always-hidden
+                                                     picker; candidate to delete in stage 2 alongside the old tree. */
+                                                  false
                                                 Width: =180
                                           - tl2ConHeaderSpacer:
                                               Control: GroupContainer
@@ -405,7 +410,7 @@ Screens:
                                                             PaddingRight: =8
                                                             PaddingTop: =0
                                                             Size: =11
-                                                            Text: |
+                                                            Text: |-
                                                               =If(Mod(DateDiff(Timeline_DayStart, ThisItem.RowEnd, TimeUnit.Minutes), 60) <> 0, Text(ThisItem.RowEnd, "HH:mm"), "")
                                                             VerticalAlign: =VerticalAlign.Bottom
                                                             Width: =Parent.Width
