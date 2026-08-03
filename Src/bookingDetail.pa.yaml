@@ -67,7 +67,7 @@ Screens:
                               Fill: =AppTheme.SurfaceAlt
                               FocusedBorderColor: =RGBA(15,98,254,1)
                               FocusedBorderThickness: =2
-                              Font: =Font.Lato
+                              Font: ="IBM Plex Sans"
                               FontWeight: =FontWeight.Normal
                               HoverColor: =AppTheme.TextPrimary
                               HoverFill: =AppTheme.Border
@@ -135,7 +135,7 @@ Screens:
                                     AlignInContainer: =AlignInContainer.Start
                                     Color: =If(fnIsPast(gblSelectedBooking.EndDateTime), AppTheme.TextMuted, ColorValue(AppTheme.PrimaryText))
                                     Fill: =If(fnIsPast(gblSelectedBooking.EndDateTime), AppTheme.Border, ColorValue(AppTheme.ButtonPrimary))
-                                    Font: =Font.Lato
+                                    Font: ="IBM Plex Sans"
                                     Height: =24
                                     LayoutMinHeight: =0
                                     LayoutMinWidth: =0
@@ -273,7 +273,7 @@ Screens:
                                     Fill: =ColorValue(AppTheme.ButtonPrimary)
                                     FocusedBorderColor: =RGBA(15,98,254,1)
                                     FocusedBorderThickness: =2
-                                    Font: =Font.Lato
+                                    Font: ="IBM Plex Sans"
                                     FontWeight: =FontWeight.Normal
                                     HoverColor: =ColorValue(AppTheme.PrimaryText)
                                     HoverFill: =RGBA(13,83,217,1)
@@ -321,7 +321,7 @@ Screens:
                                     Fill: =AppTheme.Surface
                                     FocusedBorderColor: =RGBA(15,98,254,1)
                                     FocusedBorderThickness: =2
-                                    Font: =Font.Lato
+                                    Font: ="IBM Plex Sans"
                                     FontWeight: =FontWeight.Normal
                                     HoverColor: =AppTheme.StatusBusyText
                                     HoverFill: =AppTheme.StatusBusyBg
@@ -365,7 +365,7 @@ Screens:
                                           AlignInContainer: =AlignInContainer.Stretch
                                           AutoHeight: =true
                                           Color: =AppTheme.StatusBusyText
-                                          Font: =Font.Lato
+                                          Font: ="IBM Plex Sans"
                                           Height: =24
                                           LayoutMinHeight: =0
                                           LayoutMinWidth: =0
@@ -394,7 +394,7 @@ Screens:
                                                 Fill: =AppTheme.Surface
                                                 FocusedBorderColor: =RGBA(15,98,254,1)
                                                 FocusedBorderThickness: =2
-                                                Font: =Font.Lato
+                                                Font: ="IBM Plex Sans"
                                                 FontWeight: =FontWeight.Normal
                                                 HoverColor: =AppTheme.TextPrimary
                                                 HoverFill: =AppTheme.Border
@@ -419,7 +419,7 @@ Screens:
                                                 Fill: =AppTheme.StatusBusyText
                                                 FocusedBorderColor: =RGBA(15,98,254,1)
                                                 FocusedBorderThickness: =2
-                                                Font: =Font.Lato
+                                                Font: ="IBM Plex Sans"
                                                 FontWeight: =FontWeight.Normal
                                                 HoverColor: =ColorValue(AppTheme.PrimaryText)
                                                 HoverFill: =ColorValue("#b81922")
@@ -478,7 +478,7 @@ Screens:
                                           AlignInContainer: =AlignInContainer.Stretch
                                           AutoHeight: =true
                                           Color: =AppTheme.StatusWarnText
-                                          Font: =Font.Lato
+                                          Font: ="IBM Plex Sans"
                                           Height: =24
                                           LayoutMinHeight: =0
                                           LayoutMinWidth: =0
@@ -507,7 +507,7 @@ Screens:
                                                 Fill: =AppTheme.Surface
                                                 FocusedBorderColor: =RGBA(15,98,254,1)
                                                 FocusedBorderThickness: =2
-                                                Font: =Font.Lato
+                                                Font: ="IBM Plex Sans"
                                                 FontWeight: =FontWeight.Normal
                                                 HoverColor: =AppTheme.TextPrimary
                                                 HoverFill: =AppTheme.Border
@@ -625,7 +625,7 @@ Screens:
                                                 Fill: =ColorValue(AppTheme.ButtonPrimary)
                                                 FocusedBorderColor: =RGBA(15,98,254,1)
                                                 FocusedBorderThickness: =2
-                                                Font: =Font.Lato
+                                                Font: ="IBM Plex Sans"
                                                 FontWeight: =FontWeight.Normal
                                                 HoverColor: =ColorValue(AppTheme.PrimaryText)
                                                 HoverFill: =RGBA(13,83,217,1)
@@ -809,7 +809,7 @@ Screens:
                                                 Fill: =AppTheme.Surface
                                                 FocusedBorderColor: =RGBA(15,98,254,1)
                                                 FocusedBorderThickness: =2
-                                                Font: =Font.Lato
+                                                Font: ="IBM Plex Sans"
                                                 FontWeight: =FontWeight.Normal
                                                 HoverColor: =AppTheme.TextPrimary
                                                 HoverFill: =AppTheme.Border

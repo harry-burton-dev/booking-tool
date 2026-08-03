@@ -72,7 +72,7 @@ Screens:
                               Align: =Align.Center
                               AlignInContainer: =AlignInContainer.Center
                               Color: =AppTheme.TextPrimary
-                              Font: =Font.Lato
+                              Font: ="IBM Plex Sans"
                               FontWeight: =FontWeight.Semibold
                               Size: =14
                               Text: =Text(varFindSelectedDate, "ddd dd mmm yyyy")
@@ -111,7 +111,7 @@ Screens:
                               Fill: =AppTheme.layer01Bg
                               FocusedBorderColor: =RGBA(15, 98, 254, 1)
                               FocusedBorderThickness: =2
-                              Font: =Font.Lato
+                              Font: ="IBM Plex Sans"
                               HoverBorderColor: =AppTheme.TextSecondary
                               HoverColor: =AppTheme.TextPrimary
                               HoverFill: =AppTheme.SurfaceAlt
@@ -140,7 +140,7 @@ Screens:
                               Fill: =AppTheme.layer01Bg
                               FocusedBorderColor: =RGBA(15, 98, 254, 1)
                               FocusedBorderThickness: =2
-                              Font: =Font.Lato
+                              Font: ="IBM Plex Sans"
                               HoverBorderColor: =AppTheme.TextSecondary
                               HoverColor: =AppTheme.TextPrimary
                               HoverFill: =AppTheme.SurfaceAlt
@@ -507,7 +507,7 @@ Screens:
                                                             Fill: =RGBA(0,0,0,0)
                                                             FocusedBorderColor: =RGBA(15,98,254,1)
                                                             FocusedBorderThickness: =2
-                                                            Font: =Font.Lato
+                                                            Font: ="IBM Plex Sans"
                                                             Height: =Parent.Height
                                                             HoverBorderColor: =RGBA(0,0,0,0)
                                                             HoverColor: =AppTheme.TextPrimary
@@ -636,7 +636,7 @@ Screens:
                                                             FillPortions: =1
                                                             FocusedBorderColor: =RGBA(15,98,254,1)
                                                             FocusedBorderThickness: =2
-                                                            Font: =Font.Lato
+                                                            Font: ="IBM Plex Sans"
                                                             HoverBorderColor: =RGBA(0,0,0,0)
                                                             HoverColor: =AppTheme.TextPrimary
                                                             HoverFill: =RGBA(0,0,0,0.06)
@@ -664,7 +664,7 @@ Screens:
                             Properties:
                               AlignInContainer: =AlignInContainer.Stretch
                               Color: =AppTheme.TextMuted
-                              Font: =Font.Lato
+                              Font: ="IBM Plex Sans"
                               Height: =24
                               LayoutMinHeight: =0
                               LayoutMinWidth: =0

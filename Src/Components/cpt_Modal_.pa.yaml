@@ -125,7 +125,7 @@ ComponentDefinitions:
                         AutoHeight: =true
                         Color: =AppTheme.TextPrimary
                         FillPortions: =1
-                        Font: =Font.Lato
+                        Font: ="IBM Plex Sans"
                         FontWeight: =FontWeight.Semibold
                         LayoutMinHeight: =0
                         LayoutMinWidth: =0
@@ -161,7 +161,7 @@ ComponentDefinitions:
                       Properties:
                         AlignInContainer: =AlignInContainer.Center
                         Color: =AppTheme.TextSecondary
-                        Font: =Font.Lato
+                        Font: ="IBM Plex Sans"
                         LayoutMinHeight: =0
                         LayoutMinWidth: =0
                         Size: =12
@@ -203,7 +203,7 @@ ComponentDefinitions:
                             Properties:
                               AlignInContainer: =AlignInContainer.Stretch
                               Color: =AppTheme.SideNavText
-                              Font: =Font.Lato
+                              Font: ="IBM Plex Sans"
                               FontWeight: =FontWeight.Bold
                               LayoutMinHeight: =0
                               LayoutMinWidth: =0
@@ -246,7 +246,7 @@ ComponentDefinitions:
                                           DisabledBorderColor: =RGBA(0, 0, 0, 0)
                                           DisabledColor: =RGBA(161, 159, 157, 1)
                                           FocusedBorderThickness: =4
-                                          Font: =Font.Lato
+                                          Font: ="IBM Plex Sans"
                                           Text: =ThisItem.Title
                                           Visible: =false
                                           Width: =87.83333333333333
@@ -297,7 +297,7 @@ ComponentDefinitions:
                                           Fill: =RGBA(0, 0, 0, 0)
                                           FocusedBorderColor: =RGBA(15, 98, 254, 1)
                                           FocusedBorderThickness: =2
-                                          Font: =Font.Lato
+                                          Font: ="IBM Plex Sans"
                                           Height: =Parent.Height
                                           HoverBorderColor: =RGBA(0, 0, 0, 0)
                                           HoverColor: =RGBA(0, 0, 0, 0)
@@ -367,7 +367,7 @@ ComponentDefinitions:
                               AlignInContainer: =AlignInContainer.Stretch
                               AutoHeight: =true
                               Color: =AppTheme.SideNavText
-                              Font: =Font.Lato
+                              Font: ="IBM Plex Sans"
                               FontWeight: =FontWeight.Bold
                               LayoutMinHeight: =0
                               LayoutMinWidth: =0
@@ -382,7 +382,7 @@ ComponentDefinitions:
                               AlignInContainer: =AlignInContainer.Stretch
                               AutoHeight: =true
                               Color: =AppTheme.TextMuted
-                              Font: =Font.Lato
+                              Font: ="IBM Plex Sans"
                               LayoutMinHeight: =0
                               LayoutMinWidth: =0
                               Size: =11
@@ -410,7 +410,7 @@ ComponentDefinitions:
                                     AlignInContainer: =AlignInContainer.Stretch
                                     AutoHeight: =true
                                     Color: =AppTheme.SideNavText
-                                    Font: =Font.Lato
+                                    Font: ="IBM Plex Sans"
                                     LayoutMinHeight: =0
                                     LayoutMinWidth: =0
                                     Size: =11
@@ -430,7 +430,7 @@ ComponentDefinitions:
                                     Fill: =AppTheme.SurfaceAlt
                                     FocusedBorderColor: =RGBA(15, 98, 254, 1)
                                     FocusedBorderThickness: =2
-                                    Font: =Font.Lato
+                                    Font: ="IBM Plex Sans"
                                     HintText: ="Enter a title for this booking"
                                     HoverBorderColor: =AppTheme.TextSecondary
                                     HoverColor: =AppTheme.TextPrimary
@@ -451,7 +451,7 @@ ComponentDefinitions:
                                     AlignInContainer: =AlignInContainer.Stretch
                                     AutoHeight: =true
                                     Color: =AppTheme.StatusBusyText
-                                    Font: =Font.Lato
+                                    Font: ="IBM Plex Sans"
                                     LayoutMinHeight: =0
                                     LayoutMinWidth: =0
                                     Size: =11
@@ -484,7 +484,7 @@ ComponentDefinitions:
                                     Fill: =AppTheme.layer01Bg
                                     FocusedBorderColor: =RGBA(15, 98, 254, 1)
                                     FocusedBorderThickness: =2
-                                    Font: =Font.Lato
+                                    Font: ="IBM Plex Sans"
                                     IconBackground: =AppTheme.HeaderBackground
                                     IconFill: =AppTheme.HeaderAccent
                                     LayoutMinHeight: =0
@@ -502,7 +502,7 @@ ComponentDefinitions:
                                     AlignInContainer: =AlignInContainer.Stretch
                                     AutoHeight: =true
                                     Color: =AppTheme.StatusBusyText
-                                    Font: =Font.Lato
+                                    Font: ="IBM Plex Sans"
                                     LayoutMinHeight: =0
                                     LayoutMinWidth: =0
                                     Size: =11
@@ -542,7 +542,7 @@ ComponentDefinitions:
                                           AlignInContainer: =AlignInContainer.Stretch
                                           AutoHeight: =true
                                           Color: =AppTheme.SideNavText
-                                          Font: =Font.Lato
+                                          Font: ="IBM Plex Sans"
                                           LayoutMinHeight: =0
                                           LayoutMinWidth: =0
                                           Size: =11
@@ -564,7 +564,7 @@ ComponentDefinitions:
                                           Fill: =AppTheme.layer01Bg
                                           FocusedBorderColor: =RGBA(15, 98, 254, 1)
                                           FocusedBorderThickness: =2
-                                          Font: =Font.Lato
+                                          Font: ="IBM Plex Sans"
                                           HoverBorderColor: =AppTheme.TextSecondary
                                           HoverColor: =AppTheme.TextPrimary
                                           HoverFill: =AppTheme.SurfaceAlt
@@ -627,7 +627,7 @@ ComponentDefinitions:
                                           AlignInContainer: =AlignInContainer.Stretch
                                           AutoHeight: =true
                                           Color: =AppTheme.StatusBusyText
-                                          Font: =Font.Lato
+                                          Font: ="IBM Plex Sans"
                                           LayoutMinHeight: =0
                                           LayoutMinWidth: =0
                                           Size: =11
@@ -655,7 +655,7 @@ ComponentDefinitions:
                                           AlignInContainer: =AlignInContainer.Stretch
                                           AutoHeight: =true
                                           Color: =AppTheme.SideNavText
-                                          Font: =Font.Lato
+                                          Font: ="IBM Plex Sans"
                                           LayoutMinHeight: =0
                                           LayoutMinWidth: =0
                                           Size: =11
@@ -677,7 +677,7 @@ ComponentDefinitions:
                                           Fill: =AppTheme.layer01Bg
                                           FocusedBorderColor: =RGBA(15, 98, 254, 1)
                                           FocusedBorderThickness: =2
-                                          Font: =Font.Lato
+                                          Font: ="IBM Plex Sans"
                                           HoverBorderColor: =AppTheme.TextSecondary
                                           HoverColor: =AppTheme.TextPrimary
                                           HoverFill: =AppTheme.SurfaceAlt
@@ -739,7 +739,7 @@ ComponentDefinitions:
                                           AlignInContainer: =AlignInContainer.Stretch
                                           AutoHeight: =true
                                           Color: =AppTheme.StatusBusyText
-                                          Font: =Font.Lato
+                                          Font: ="IBM Plex Sans"
                                           LayoutMinHeight: =0
                                           LayoutMinWidth: =0
                                           Size: =11
@@ -779,7 +779,7 @@ ComponentDefinitions:
                                           AlignInContainer: =AlignInContainer.Stretch
                                           AutoHeight: =true
                                           Color: =AppTheme.SideNavText
-                                          Font: =Font.Lato
+                                          Font: ="IBM Plex Sans"
                                           LayoutMinHeight: =0
                                           LayoutMinWidth: =0
                                           Size: =11
@@ -801,7 +801,7 @@ ComponentDefinitions:
                                           Fill: =AppTheme.layer01Bg
                                           FocusedBorderColor: =RGBA(15, 98, 254, 1)
                                           FocusedBorderThickness: =2
-                                          Font: =Font.Lato
+                                          Font: ="IBM Plex Sans"
                                           HoverBorderColor: =AppTheme.TextSecondary
                                           HoverColor: =AppTheme.TextPrimary
                                           HoverFill: =AppTheme.SurfaceAlt
@@ -834,7 +834,7 @@ ComponentDefinitions:
                                           AlignInContainer: =AlignInContainer.Stretch
                                           AutoHeight: =true
                                           Color: =AppTheme.SideNavText
-                                          Font: =Font.Lato
+                                          Font: ="IBM Plex Sans"
                                           LayoutMinHeight: =0
                                           LayoutMinWidth: =0
                                           Size: =11
@@ -856,7 +856,7 @@ ComponentDefinitions:
                                           Fill: =AppTheme.layer01Bg
                                           FocusedBorderColor: =RGBA(15, 98, 254, 1)
                                           FocusedBorderThickness: =2
-                                          Font: =Font.Lato
+                                          Font: ="IBM Plex Sans"
                                           HoverBorderColor: =AppTheme.TextSecondary
                                           HoverColor: =AppTheme.TextPrimary
                                           HoverFill: =AppTheme.SurfaceAlt
@@ -874,7 +874,7 @@ ComponentDefinitions:
                               AlignInContainer: =AlignInContainer.Stretch
                               AutoHeight: =true
                               Color: =AppTheme.TextMuted
-                              Font: =Font.Lato
+                              Font: ="IBM Plex Sans"
                               Height: =30
                               LayoutMinHeight: =0
                               LayoutMinWidth: =0
@@ -997,7 +997,7 @@ ComponentDefinitions:
                                   Properties:
                                     AlignInContainer: =AlignInContainer.Stretch
                                     Color: =AppTheme.TextSecondary
-                                    Font: =Font.Lato
+                                    Font: ="IBM Plex Sans"
                                     FontWeight: =FontWeight.Semibold
                                     LayoutMinHeight: =0
                                     LayoutMinWidth: =0
@@ -1049,7 +1049,7 @@ ComponentDefinitions:
                                   Properties:
                                     AlignInContainer: =AlignInContainer.Stretch
                                     Color: =AppTheme.TextSecondary
-                                    Font: =Font.Lato
+                                    Font: ="IBM Plex Sans"
                                     FontWeight: =FontWeight.Semibold
                                     LayoutMinHeight: =0
                                     LayoutMinWidth: =0
@@ -1081,7 +1081,7 @@ ComponentDefinitions:
                                         Control: Label
                                         Properties:
                                           Color: =AppTheme.TextPrimary
-                                          Font: =Font.Lato
+                                          Font: ="IBM Plex Sans"
                                           FontWeight: =FontWeight.Semibold
                                           Height: =Parent.TemplateHeight
                                           Text: =ThisItem.Title
@@ -1091,7 +1091,7 @@ ComponentDefinitions:
                                         Control: Label
                                         Properties:
                                           Color: =AppTheme.TextMuted
-                                          Font: =Font.Lato
+                                          Font: ="IBM Plex Sans"
                                           Height: =Parent.TemplateHeight
                                           Size: =11
                                           Text: =""
@@ -1103,7 +1103,7 @@ ComponentDefinitions:
                                           Align: =Align.Center
                                           Color: =AppTheme.StatusFreeText
                                           Fill: =RGBA(66, 190, 101, 0.12)
-                                          Font: =Font.Lato
+                                          Font: ="IBM Plex Sans"
                                           Height: =Parent.TemplateHeight
                                           PaddingLeft: =8
                                           PaddingRight: =8
@@ -1144,7 +1144,7 @@ ComponentDefinitions:
                                   Properties:
                                     AlignInContainer: =AlignInContainer.Stretch
                                     Color: =AppTheme.TextMuted
-                                    Font: =Font.Lato
+                                    Font: ="IBM Plex Sans"
                                     LayoutMinHeight: =0
                                     LayoutMinWidth: =0
                                     Size: =11
@@ -1172,7 +1172,7 @@ ComponentDefinitions:
                                           BorderThickness: =0
                                           Color: =AppTheme.TextSecondary
                                           Fill: =AppTheme.SurfaceAlt
-                                          Font: =Font.Lato
+                                          Font: ="IBM Plex Sans"
                                           FontWeight: =FontWeight.Normal
                                           Height: =36
                                           HoverColor: =AppTheme.TextPrimary
@@ -1203,7 +1203,7 @@ ComponentDefinitions:
                                           DisabledColor: =AppTheme.TextMuted
                                           DisabledFill: =AppTheme.SurfaceAlt
                                           Fill: =ColorValue(AppTheme.ButtonPrimary)
-                                          Font: =Font.Lato
+                                          Font: ="IBM Plex Sans"
                                           FontWeight: =FontWeight.Normal
                                           Height: =36
                                           HoverColor: =RGBA(255, 255, 255, 1)
@@ -1256,7 +1256,7 @@ ComponentDefinitions:
                                           AutoHeight: =true
                                           Color: =AppTheme.SideNavText
                                           DisplayMode: =DisplayMode.Disabled
-                                          Font: =Font.Lato
+                                          Font: ="IBM Plex Sans"
                                           LayoutMinHeight: =0
                                           LayoutMinWidth: =0
                                           Size: =11
@@ -1303,7 +1303,7 @@ ComponentDefinitions:
                                           AutoHeight: =true
                                           Color: =AppTheme.SideNavText
                                           DisplayMode: =DisplayMode.Disabled
-                                          Font: =Font.Lato
+                                          Font: ="IBM Plex Sans"
                                           LayoutMinHeight: =0
                                           LayoutMinWidth: =0
                                           Size: =11
@@ -1332,7 +1332,7 @@ ComponentDefinitions:
                                           Fill: =AppTheme.layer01Bg
                                           FocusedBorderColor: =RGBA(15, 98, 254, 1)
                                           FocusedBorderThickness: =2
-                                          Font: =Font.Lato
+                                          Font: ="IBM Plex Sans"
                                           HoverBorderColor: =AppTheme.TextSecondary
                                           HoverColor: =AppTheme.TextPrimary
                                           HoverFill: =AppTheme.SurfaceAlt
@@ -1368,7 +1368,7 @@ ComponentDefinitions:
                             Properties:
                               AlignInContainer: =AlignInContainer.Stretch
                               Color: =AppTheme.SideNavText
-                              Font: =Font.Lato
+                              Font: ="IBM Plex Sans"
                               FontWeight: =FontWeight.Bold
                               LayoutMinHeight: =0
                               LayoutMinWidth: =0
@@ -1505,7 +1505,7 @@ ComponentDefinitions:
                         Fill: =AppTheme.SurfaceAlt
                         FocusedBorderColor: =RGBA(15, 98, 254, 1)
                         FocusedBorderThickness: =2
-                        Font: =Font.Lato
+                        Font: ="IBM Plex Sans"
                         FontWeight: =FontWeight.Normal
                         HoverBorderColor: =AppTheme.TextSecondary
                         HoverColor: =AppTheme.TextPrimary
@@ -1568,7 +1568,7 @@ ComponentDefinitions:
                         Fill: =AppTheme.SurfaceAlt
                         FocusedBorderColor: =RGBA(15, 98, 254, 1)
                         FocusedBorderThickness: =2
-                        Font: =Font.Lato
+                        Font: ="IBM Plex Sans"
                         FontWeight: =FontWeight.Normal
                         HoverBorderColor: =AppTheme.TextSecondary
                         HoverColor: =AppTheme.TextPrimary
@@ -1637,7 +1637,7 @@ ComponentDefinitions:
                         Fill: =ColorValue(AppTheme.ButtonPrimary)
                         FocusedBorderColor: =RGBA(15, 98, 254, 1)
                         FocusedBorderThickness: =2
-                        Font: =Font.Lato
+                        Font: ="IBM Plex Sans"
                         FontWeight: =FontWeight.Normal
                         HoverBorderColor: =RGBA(13, 83, 217, 1)
                         HoverColor: =RGBA(255, 255, 255, 1)
@@ -1670,7 +1670,7 @@ ComponentDefinitions:
                         Fill: =ColorValue(AppTheme.ButtonPrimary)
                         FocusedBorderColor: =RGBA(15, 98, 254, 1)
                         FocusedBorderThickness: =2
-                        Font: =Font.Lato
+                        Font: ="IBM Plex Sans"
                         FontWeight: =FontWeight.Normal
                         HoverBorderColor: =RGBA(13, 83, 217, 1)
                         HoverColor: =RGBA(255, 255, 255, 1)
@@ -1838,7 +1838,7 @@ ComponentDefinitions:
                         AlignInContainer: =AlignInContainer.Stretch
                         AutoHeight: =true
                         Color: =AppTheme.TextPrimary
-                        Font: =Font.Lato
+                        Font: ="IBM Plex Sans"
                         LayoutMinHeight: =0
                         LayoutMinWidth: =0
                         Size: =12
@@ -1865,7 +1865,7 @@ ComponentDefinitions:
                               Fill: =AppTheme.Surface
                               FocusedBorderColor: =RGBA(15, 98, 254, 1)
                               FocusedBorderThickness: =2
-                              Font: =Font.Lato
+                              Font: ="IBM Plex Sans"
                               FontWeight: =FontWeight.Normal
                               HoverColor: =AppTheme.TextPrimary
                               HoverFill: =AppTheme.Border
@@ -1889,7 +1889,7 @@ ComponentDefinitions:
                               Fill: =ColorValue(AppTheme.ButtonDangerPrimary)
                               FocusedBorderColor: =RGBA(15, 98, 254, 1)
                               FocusedBorderThickness: =2
-                              Font: =Font.Lato
+                              Font: ="IBM Plex Sans"
                               FontWeight: =FontWeight.Normal
                               HoverColor: =RGBA(255, 255, 255, 1)
                               HoverFill: =RGBA(184, 25, 34, 1)

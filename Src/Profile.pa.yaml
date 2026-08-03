@@ -203,7 +203,7 @@ Screens:
                                           Color: =AppTheme.TextPrimary
                                           DisplayMode: =DisplayMode.Disabled
                                           FillPortions: =1
-                                          Font: =Font.Lato
+                                          Font: ="IBM Plex Sans"
                                           LayoutMinHeight: =0
                                           LayoutMinWidth: =0
                                           Size: =12
@@ -248,7 +248,7 @@ Screens:
                                           Color: =AppTheme.TextPrimary
                                           DisplayMode: =DisplayMode.Disabled
                                           FillPortions: =1
-                                          Font: =Font.Lato
+                                          Font: ="IBM Plex Sans"
                                           LayoutMinHeight: =0
                                           LayoutMinWidth: =0
                                           Size: =12
@@ -292,7 +292,7 @@ Screens:
                                           Color: =AppTheme.TextPrimary
                                           DisplayMode: =DisplayMode.Disabled
                                           FillPortions: =1
-                                          Font: =Font.Lato
+                                          Font: ="IBM Plex Sans"
                                           LayoutMinHeight: =0
                                           LayoutMinWidth: =0
                                           Size: =12
@@ -336,7 +336,7 @@ Screens:
                                         Properties:
                                           Color: =AppTheme.TextMuted
                                           FillPortions: =1
-                                          Font: =Font.Lato
+                                          Font: ="IBM Plex Sans"
                                           LayoutMinHeight: =0
                                           LayoutMinWidth: =0
                                           Size: =12
@@ -354,7 +354,7 @@ Screens:
                                           Fill: =AppTheme.layer01Bg
                                           FocusedBorderColor: =RGBA(15, 98, 254, 1)
                                           FocusedBorderThickness: =2
-                                          Font: =Font.Lato
+                                          Font: ="IBM Plex Sans"
                                           Items: =[15, 30, 60]
                                           Items.Value: =Value
                                           LayoutMinHeight: =0
@@ -388,7 +388,7 @@ Screens:
                                           Color: =AppTheme.TextPrimary
                                           DisplayMode: =DisplayMode.Disabled
                                           FillPortions: =1
-                                          Font: =Font.Lato
+                                          Font: ="IBM Plex Sans"
                                           LayoutMinHeight: =0
                                           LayoutMinWidth: =0
                                           Size: =12
@@ -460,7 +460,7 @@ Screens:
                                     Fill: =ColorValue(AppTheme.ButtonPrimary)
                                     FocusedBorderColor: =RGBA(15, 98, 254, 1)
                                     FocusedBorderThickness: =2
-                                    Font: =Font.Lato
+                                    Font: ="IBM Plex Sans"
                                     FontWeight: =FontWeight.Normal
                                     Height: =36
                                     HoverColor: =ColorValue(AppTheme.PrimaryText)
