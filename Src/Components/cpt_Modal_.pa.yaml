@@ -922,7 +922,7 @@ ComponentDefinitions:
                               DropShadow: =DropShadow.None
                               Fill: =AppTheme.Background
                               FillPortions: =0
-                              Height: =16 + conConflictHeader.Height + 12 + lbl_textTimelineLabel.Height + 12 + galConflictTimeline.Height + 12 + lbl_textAlternativeRoomsTime.Height + 12 + If(IsEmpty(AlternativeRoomsNow), lbl_textNoRoomsAvailable.Height, galAlternativeRooms.Height) + 12 + conConflictActions.Height + 16
+                              Height: =16 + conConflictHeader.Height + 12 + lbl_textTimelineLabel.Height + 12 + htxConflictTimeline.Height + 12 + lbl_textAlternativeRoomsTime.Height + 12 + If(IsEmpty(AlternativeRoomsNow), lbl_textNoRoomsAvailable.Height, galAlternativeRooms.Height) + 12 + conConflictActions.Height + 16
                               LayoutAlignItems: =LayoutAlignItems.Stretch
                               LayoutDirection: =LayoutDirection.Vertical
                               LayoutGap: =12
@@ -1004,78 +1004,46 @@ ComponentDefinitions:
                                     Size: =11
                                     Text: ="Timeline"
                                     Wrap: =false
-                              - galConflictTimeline:
-                                  Control: Gallery
-                                  Variant: Vertical
+                              - htxConflictTimeline:
+                                  Control: HtmlViewer
                                   Properties:
-                                    BorderColor: =AppTheme.Border
-                                    BorderThickness: =1
+                                    DisplayMode: =DisplayMode.View
                                     FillPortions: =0
                                     Height: =280
-                                    Items: |-
-                                      =ForAll(
-                                          Sequence(7),
-                                          {
-                                              SlotStart: DateAdd(varConflictingBooking.StartDateTime, (Value - 3) * 30, TimeUnit.Minutes),
-                                              SlotEnd: DateAdd(varConflictingBooking.StartDateTime, (Value - 2) * 30, TimeUnit.Minutes)
-                                          }
-                                      )
+                                    HtmlText: |-
+                                      ="<div style=""border: 1px solid " & AppThemeHex.Border & ";"">" &
+                                       Concat(
+                                           ForAll(
+                                               Sequence(7),
+                                               With({ _s: DateAdd(varConflictingBooking.StartDateTime, (Value - 3) * 30, TimeUnit.Minutes),
+                                                      _e: DateAdd(varConflictingBooking.StartDateTime, (Value - 2) * 30, TimeUnit.Minutes) },
+                                                 { Row:
+                                                     "<div style=""display: flex; align-items: center; height: 40px; padding: 0 8px; background-color: " &
+                                                     If(_s >= varConflictingBooking.StartDateTime && _e <= varConflictingBooking.EndDateTime,
+                                                        AppThemeHex.HeaderBackground, AppThemeHex.Layer01Bg) &
+                                                     ";"">" &
+                                                     CarbonSpan("flex: 0 0 52px;" & CarbonHtmlType.Label01, Text(_s, "HH:mm"), AppThemeHex.TextMuted) &
+                                                     CarbonSpan("flex: 1 1 auto; margin-left: 8px; white-space: nowrap; overflow: hidden;" & CarbonHtmlType.Label01,
+                                                         fnHtmlEscape(
+                                                             If(_s >= varConflictingBooking.StartDateTime && _s < varConflictingBooking.EndDateTime,
+                                                                If(_s = varConflictingBooking.StartDateTime,
+                                                                   If(varConflictingBooking.IsPrivate && varConflictingBooking.BookedByEmail <> Lower(User().Email),
+                                                                      "Private booking",
+                                                                      varConflictingBooking.Title & " - " & varConflictingBooking.BookedBy.DisplayName),
+                                                                   ""),
+                                                                If(_s = varNextFreeSlot, "Next free slot", "Free"))),
+                                                         If(_s >= varConflictingBooking.StartDateTime && _e <= varConflictingBooking.EndDateTime,
+                                                            AppThemeHex.PrimaryText,
+                                                            If(_s = varNextFreeSlot, AppThemeHex.StatusFreeText, AppThemeHex.TextSecondary))) &
+                                                     "</div>" }),
+                                           Row)
+                                       & "</div>"
                                     LayoutMinHeight: =0
                                     LayoutMinWidth: =0
-                                    ShowScrollbar: =false
-                                    TemplatePadding: =0
-                                    TemplateSize: =40
-                                  Children:
-                                    - rectSlotBg:
-                                        Control: Rectangle
-                                        Properties:
-                                          Fill: |-
-                                            =If(
-                                                ThisItem.SlotStart >= varConflictingBooking.StartDateTime &&
-                                                ThisItem.SlotEnd <= varConflictingBooking.EndDateTime,
-                                                AppTheme.HeaderBackground,
-                                                AppTheme.layer01Bg
-                                            )
-                                          Height: =Parent.TemplateHeight
-                                          Width: =Parent.Width
-                                    - lbl_textSlotStatus:
-                                        Control: Label
-                                        Properties:
-                                          Color: |-
-                                            =If(
-                                                ThisItem.SlotStart >= varConflictingBooking.StartDateTime &&
-                                                ThisItem.SlotEnd <= varConflictingBooking.EndDateTime,
-                                                ColorValue(AppTheme.PrimaryText),
-                                                If(ThisItem.SlotStart = varNextFreeSlot, AppTheme.StatusFreeText, AppTheme.TextSecondary)
-                                            )
-                                          Font: =Font.Lato
-                                          Height: =Parent.TemplateHeight
-                                          Size: =11
-                                          Text: |-
-                                            =If(
-                                                ThisItem.SlotStart >= varConflictingBooking.StartDateTime &&
-                                                ThisItem.SlotStart < varConflictingBooking.EndDateTime,
-                                                If(
-                                                    ThisItem.SlotStart = varConflictingBooking.StartDateTime,
-                                                    If(varConflictingBooking.IsPrivate && varConflictingBooking.BookedByEmail <> Lower(User().Email), "Private booking", varConflictingBooking.Title & " - " & varConflictingBooking.BookedBy.DisplayName),
-                                                    ""
-                                                ),
-                                                If(ThisItem.SlotStart = varNextFreeSlot, "Next free slot", "Free")
-                                            )
-                                          Width: =Parent.Width - 76
-                                          Wrap: =false
-                                          X: =68
-                                    - lbl_textSlotStartTime:
-                                        Control: Label
-                                        Properties:
-                                          Color: =AppTheme.TextMuted
-                                          Font: =Font.Lato
-                                          Height: =Parent.TemplateHeight
-                                          Size: =11
-                                          Text: =Text(ThisItem.SlotStart, "HH:mm")
-                                          Width: =52
-                                          Wrap: =false
-                                          X: =8
+                                    PaddingBottom: =0
+                                    PaddingLeft: =0
+                                    PaddingRight: =0
+                                    PaddingTop: =0
                               - lbl_textAlternativeRoomsTime:
                                   Control: Label
                                   Properties:
