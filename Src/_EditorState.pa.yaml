@@ -6,6 +6,7 @@ EditorState:
     - myBookings
     - Profile
     - Rooms
+    - RoomsTimeline
   ComponentDefinitionsOrder:
     - Shell_Header
     - cpt_Modal_

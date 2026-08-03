@@ -176,9 +176,9 @@ App:
                           TextPrimary: ColorValue(ThemeMapHex.Light.TextPrimary),
                           TextSecondary: ColorValue(ThemeMapHex.Light.TextSecondary),
                           TextMuted: ColorValue(ThemeMapHex.Light.TextMuted),
-                          Border: ColorValue("#e0e0e0"),
-                          Surface: ColorValue("#ffffff"),
-                          SurfaceAlt: ColorValue("#f4f4f4"),
+                          Border: ColorValue(ThemeMapHex.Light.Border),
+                          Surface: ColorValue(ThemeMapHex.Light.Surface),
+                          SurfaceAlt: ColorValue(ThemeMapHex.Light.SurfaceAlt),
                           StatusBusyText: ColorValue(ThemeMapHex.Light.StatusBusyText),
                           StatusBusyBg: ColorValue("#fff1f1"),
                           StatusFreeText: ColorValue(ThemeMapHex.Light.StatusFreeText),
@@ -238,9 +238,9 @@ App:
                           TextPrimary: ColorValue(ThemeMapHex.Dark.TextPrimary),
                           TextSecondary: ColorValue(ThemeMapHex.Dark.TextSecondary),
                           TextMuted: ColorValue(ThemeMapHex.Dark.TextMuted),
-                          Border: ColorValue("#393939"),
-                          Surface: ColorValue("#161616"),
-                          SurfaceAlt: ColorValue("#262626"),
+                          Border: ColorValue(ThemeMapHex.Dark.Border),
+                          Surface: ColorValue(ThemeMapHex.Dark.Surface),
+                          SurfaceAlt: ColorValue(ThemeMapHex.Dark.SurfaceAlt),
                           StatusBusyText: ColorValue(ThemeMapHex.Dark.StatusBusyText),
                           StatusBusyBg: ColorValue("#2d1515"),
                           StatusFreeText: ColorValue(ThemeMapHex.Dark.StatusFreeText),
@@ -338,8 +338,9 @@ App:
                       }
                   };
 
-                  /* ThemeMapHex is the source of truth for the seven lifted color tokens
-                     (TextPrimary/TextSecondary/TextMuted/StatusBusyText/StatusFreeText/Primary/PrimaryText) - plain
+                  /* ThemeMapHex is the source of truth for the ten lifted color tokens
+                     (TextPrimary/TextSecondary/TextMuted/StatusBusyText/StatusFreeText/Primary/PrimaryText/
+                     Border/Surface/SurfaceAlt - the last three lifted for the RoomsTimeline legend swatches, T8) - plain
                      hex strings, since a CSS string cannot embed a Color value. Same light/dark
                      branch shape as ThemeMap - KEEP IN SYNC with the corresponding ThemeMap
                      entries, which derive their Color values via ColorValue(ThemeMapHex.X.Y).
@@ -358,7 +359,10 @@ App:
                           StatusBusyText: "#da1e28",
                           StatusFreeText: "#198038",
                           Primary: ColourTokens.Light.Primary,
-                          PrimaryText: "#ffffff"
+                          PrimaryText: "#ffffff",
+                          Border: "#e0e0e0",
+                          Surface: "#ffffff",
+                          SurfaceAlt: "#f4f4f4"
                       },
                       Dark: {
                           TextPrimary: "#f4f4f4",
@@ -367,7 +371,10 @@ App:
                           StatusBusyText: "#ff8389",
                           StatusFreeText: "#42be65",
                           Primary: ColourTokens.Dark.Primary,
-                          PrimaryText: "#ffffff"
+                          PrimaryText: "#ffffff",
+                          Border: "#393939",
+                          Surface: "#161616",
+                          SurfaceAlt: "#262626"
                       }
                   };
 

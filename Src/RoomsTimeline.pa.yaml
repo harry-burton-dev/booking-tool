@@ -1,0 +1,1364 @@
+Screens:
+  RoomsTimeline:
+    Properties:
+      Fill: =RGBA(255, 255, 255, 1)
+      LoadingSpinnerColor: =RGBA(0, 120, 212, 1)
+      OnVisible: |-
+        =/* Stage-2 navigation contract (T8a PERF-3): callers must, BEFORE Navigate(RoomsTimeline, ...):
+             Set(varSelectedRoom, <room record from colRooms>)  - the room whose day is shown
+             Set(glbSelectedDate, <date>)                        - the old Rooms open-path set Today()
+           Selection state is screen-local (tlSel*, replaces Rooms' varTLSel*) and reset here.
+           varShowTimeline died with the split - navigation replaces it. */
+        UpdateContext({tlSelStart: Blank(), tlSelRunStart: Blank(), tlSelRunEnd: Blank(), tlSelMinutes: Blank()});
+        Set(varNowTick, Now());
+        /* Re-pull the shared bookings snapshot so colleagues' writes since App.OnStart
+           (or since this session's last write) show up without requiring a write of our own */
+        Refresh(Book_Bookings);
+        ClearCollect(colBookings, BookingsWindow);
+        /* The old open path chained Select(btn_LoadTimeline) after flipping varShowTimeline;
+           on a dedicated screen the initial row build belongs to OnVisible. */
+        Select(tl2BtnLoadTimeline)
+    Children:
+      - tl2ConShell:
+          Control: GroupContainer
+          Variant: ManualLayout
+          Properties:
+            DropShadow: =DropShadow.None
+            Height: =Parent.Height
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Width: =Parent.Width
+          Children:
+            - tl2CptHeader:
+                Control: CanvasComponent
+                ComponentName: Shell_Header
+                Properties:
+                  HeaderNavTab: ="Text"
+                  Height: =48
+                  InstanceScreenName: =""
+                  ShellIcons: =ShellIconSet
+                  Width: =App.Width
+            - tl2ConBody:
+                Control: GroupContainer
+                Variant: AutoLayout
+                Properties:
+                  Fill: =AppTheme.layer01Bg
+                  Height: =Parent.Height - 48
+                  LayoutAlignItems: =LayoutAlignItems.Center
+                  LayoutDirection: =LayoutDirection.Vertical
+                  PaddingBottom: =28
+                  PaddingLeft: =32
+                  PaddingRight: =32
+                  PaddingTop: =32
+                  Width: =Parent.Width
+                  Y: =48
+                Children:
+                  - tl2ConTimeline:
+                      Control: GroupContainer
+                      Variant: AutoLayout
+                      Properties:
+                        DropShadow: =DropShadow.None
+                        Height: =Parent.Height
+                        LayoutAlignItems: =LayoutAlignItems.Stretch
+                        LayoutDirection: =LayoutDirection.Vertical
+                        LayoutGap: =16
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        Width: =Parent.Width
+                      Children:
+                        - tl2ConPageHeader:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              DropShadow: =DropShadow.None
+                              Fill: =Color.Transparent
+                              FillPortions: =0
+                              Height: =76
+                              LayoutAlignItems: =LayoutAlignItems.Stretch
+                              LayoutDirection: =LayoutDirection.Vertical
+                              LayoutGap: =4
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                            Children:
+                              - tl2BtnBack:
+                                  Control: Classic/Button
+                                  Properties:
+                                    Align: =Align.Left
+                                    BorderStyle: =BorderStyle.None
+                                    BorderThickness: =0
+                                    Color: =ColorValue(AppTheme.Primary)
+                                    Fill: =Color.Transparent
+                                    FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                    FocusedBorderThickness: =2
+                                    Font: ="IBM Plex Sans"
+                                    FontWeight: =FontWeight.Normal
+                                    Height: =24
+                                    HoverColor: =ColorValue(AppTheme.Primary)
+                                    HoverFill: =Color.Transparent
+                                    OnSelect: |-
+                                      =/* Old btnTLBack flipped varShowTimeline false (staying on Rooms with the
+                                         room still selected); with navigation, Back() lands on Rooms whose
+                                         OnVisible blanks varSelectedRoom - stage 2 owns reconciling that delta. */
+                                      Set(varNowTick, Now());
+                                      UpdateContext({tlSelStart: Blank()});
+                                      Back(ScreenTransition.Fade)
+                                    PressedColor: =ColorValue(AppTheme.Primary)
+                                    PressedFill: =Color.Transparent
+                                    Size: =11
+                                    Text: ="← All rooms"
+                                    Width: =140
+                              - tl2HtxTitleRow:
+                                  Control: HtmlViewer
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Stretch
+                                    AutoHeight: =true
+                                    DisplayMode: =DisplayMode.View
+                                    HtmlText: |-
+                                      =/* T5 consolidation: lblTLTitle (24pt semibold) + lblTLStat (right meta)
+                                         collapsed into one flex row. */
+                                      CarbonFlexBetween(
+                                          CarbonSpan(
+                                              CarbonHtmlType.Heading04 & " font-weight: 600;",
+                                              fnHtmlEscape("Pick a time in " & varSelectedRoom.Title),
+                                              AppThemeHex.TextPrimary
+                                          ) &
+                                          CarbonSpan(
+                                              CarbonHtmlType.Label01,
+                                              fnHtmlEscape(
+                                                  With(
+                                                      {freeMin: WorkingDayMinutes - Sum(colRoomBookings, DateDiff(StartDateTime, EndDateTime, TimeUnit.Minutes))},
+                                                      If(
+                                                          freeMin <= 0,
+                                                          "fully booked",
+                                                          If(freeMin >= 60, Text(RoundDown(freeMin / 60, 0)) & "h ", "") & If(Mod(freeMin, 60) > 0, Text(Mod(freeMin, 60)) & "m ", "") & "free"
+                                                      )
+                                                  ) & " · " & CountRows(colRoomBookings) & " booked"
+                                              ),
+                                              AppThemeHex.TextMuted
+                                          )
+                                      )
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    PaddingBottom: =0
+                                    PaddingLeft: =0
+                                    PaddingRight: =0
+                                    PaddingTop: =0
+                        - tl2ConTimelineBody:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              DropShadow: =DropShadow.None
+                              Fill: =Color.Transparent
+                              LayoutAlignItems: =LayoutAlignItems.Stretch
+                              LayoutDirection: =If(App.Width < 1024, LayoutDirection.Vertical, LayoutDirection.Horizontal)
+                              LayoutGap: =16
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              PaddingBottom: =2
+                              PaddingLeft: =2
+                              PaddingRight: =2
+                              PaddingTop: =2
+                            Children:
+                              - tl2ConCard:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
+                                  Properties:
+                                    BorderColor: =AppTheme.Border
+                                    BorderThickness: =1
+                                    DropShadow: =DropShadow.None
+                                    Fill: =AppTheme.Surface
+                                    LayoutAlignItems: =LayoutAlignItems.Stretch
+                                    LayoutDirection: =LayoutDirection.Vertical
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                  Children:
+                                    - tl2ConCardHeader:
+                                        Control: GroupContainer
+                                        Variant: AutoLayout
+                                        Properties:
+                                          AlignInContainer: =AlignInContainer.SetByContainer
+                                          DropShadow: =DropShadow.None
+                                          Fill: =Color.Transparent
+                                          FillPortions: =0
+                                          Height: =56
+                                          LayoutAlignItems: =LayoutAlignItems.Center
+                                          LayoutDirection: =LayoutDirection.Horizontal
+                                          LayoutGap: =8
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          PaddingLeft: =16
+                                          PaddingRight: =16
+                                        Children:
+                                          - tl2LblDate:
+                                              Control: Label
+                                              Properties:
+                                                Color: =AppTheme.TextPrimary
+                                                FillPortions: =1
+                                                Font: ="IBM Plex Sans"
+                                                FontWeight: =FontWeight.Semibold
+                                                LayoutMaxWidth: =148
+                                                LayoutMinWidth: =96
+                                                Text: =Text(glbSelectedDate, "ddd dd mmmm")
+                                                Width: =96
+                                          - tl2ImgPrev:
+                                              Control: Image
+                                              Properties:
+                                                AccessibleLabel: ="Previous day"
+                                                AlignInContainer: =AlignInContainer.Center
+                                                Height: =24
+                                                Image: ="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAzMiAzMic+PHBhdGggZD0nTTIwIDI0TDEyIDE2IDIwIDgnIHN0cm9rZT0nIzUyNTI1Micgc3Ryb2tlLXdpZHRoPScyJyBmaWxsPSdub25lJyBzdHJva2UtbGluZWNhcD0ncm91bmQnIHN0cm9rZS1saW5lam9pbj0ncm91bmQnLz48L3N2Zz4="
+                                                OnSelect: |-
+                                                  =Set(glbSelectedDate, DateAdd(glbSelectedDate, -1, TimeUnit.Days));
+                                                  UpdateContext({tlSelStart: Blank()});
+                                                  Select(tl2BtnLoadTimeline)
+                                                TabIndex: =0
+                                                Width: =24
+                                          - tl2ImgNext:
+                                              Control: Image
+                                              Properties:
+                                                AccessibleLabel: ="Next day"
+                                                AlignInContainer: =AlignInContainer.Center
+                                                Height: =24
+                                                Image: ="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAzMiAzMic+PHBhdGggZD0nTTEyIDI0TDIwIDE2IDEyIDgnIHN0cm9rZT0nIzUyNTI1Micgc3Ryb2tlLXdpZHRoPScyJyBmaWxsPSdub25lJyBzdHJva2UtbGluZWNhcD0ncm91bmQnIHN0cm9rZS1saW5lam9pbj0ncm91bmQnLz48L3N2Zz4="
+                                                OnSelect: |-
+                                                  =Set(glbSelectedDate, DateAdd(glbSelectedDate, 1, TimeUnit.Days));
+                                                  UpdateContext({tlSelStart: Blank()});
+                                                  Select(tl2BtnLoadTimeline)
+                                                TabIndex: =0
+                                                Width: =24
+                                          - tl2BtnToday:
+                                              Control: Classic/Button
+                                              Properties:
+                                                BorderColor: =AppTheme.Border
+                                                BorderThickness: =0
+                                                Color: =If(glbSelectedDate = Today(), AppTheme.TextPrimary, ColorValue(AppTheme.Primary))
+                                                DisabledBorderColor: =AppTheme.Border
+                                                DisabledColor: =AppTheme.TextMuted
+                                                DisabledFill: =AppTheme.SurfaceAlt
+                                                DisplayMode: =If(glbSelectedDate = Today(), DisplayMode.Disabled, DisplayMode.Edit)
+                                                Fill: =If(glbSelectedDate = Today(), AppTheme.SurfaceAlt, Color.Transparent)
+                                                FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                                FocusedBorderThickness: =2
+                                                Font: ="IBM Plex Sans"
+                                                FontWeight: =FontWeight.Normal
+                                                Height: =42
+                                                HoverColor: =If(glbSelectedDate = Today(), AppTheme.TextPrimary, ColorValue(AppTheme.Primary))
+                                                HoverFill: =AppTheme.SurfaceAlt
+                                                OnSelect: |-
+                                                  =Set(glbSelectedDate, Today());
+                                                  UpdateContext({tlSelStart: Blank()});
+                                                  Select(tl2BtnLoadTimeline)
+                                                PressedColor: =AppTheme.TextPrimary
+                                                PressedFill: =AppTheme.SurfaceAlt
+                                                RadiusBottomLeft: =0
+                                                RadiusBottomRight: =0
+                                                RadiusTopLeft: =0
+                                                RadiusTopRight: =0
+                                                Size: =11
+                                                Text: ="Today"
+                                                Width: =64
+                                          - tl2DtpDate:
+                                              Control: ModernDatePicker
+                                              Properties:
+                                                Color: =AppTheme.TextPrimary
+                                                DefaultDate: =glbSelectedDate
+                                                Fill: =Color.Transparent
+                                                FontWeight: =FontWeight.Semibold
+                                                LayoutMinHeight: =16
+                                                LayoutMinWidth: =16
+                                                OnChange: |-
+                                                  =Set(glbSelectedDate, tl2DtpDate.SelectedDate);
+                                                  UpdateContext({tlSelStart: Blank()});
+                                                  Select(tl2BtnLoadTimeline)
+                                                Visible: =false
+                                                Width: =180
+                                          - tl2ConHeaderSpacer:
+                                              Control: GroupContainer
+                                              Variant: AutoLayout
+                                              Properties:
+                                                DropShadow: =DropShadow.None
+                                                Fill: =Color.Transparent
+                                                LayoutDirection: =LayoutDirection.Horizontal
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                          - tl2HtxLegend:
+                                              Control: HtmlViewer
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.Center
+                                                AutoHeight: =true
+                                                DisplayMode: =DisplayMode.View
+                                                HtmlText: |-
+                                                  =/* T5 consolidation: the 4 legend labels (Free/Booked swatch+text pairs)
+                                                     collapsed into one flex row. Free swatch keeps an inline span - it needs
+                                                     a border (Surface fill + Border stroke), which CarbonSwatch's single-hex
+                                                     signature cannot carry. Border/Surface/SurfaceAlt hex tokens lifted into
+                                                     ThemeMapHex for this site (T1 pattern). */
+                                                  "<div style=""display: flex; align-items: center; gap: 6px;"">" &
+                                                  "<span style=""display: inline-block; width: 12px; height: 12px; background-color: " & AppThemeHex.Surface & "; border: 1px solid " & AppThemeHex.Border & ";""></span>" &
+                                                  CarbonSpan(CarbonHtmlType.Label01, "Free", AppThemeHex.TextSecondary) &
+                                                  CarbonSwatch(AppThemeHex.SurfaceAlt, 12) &
+                                                  CarbonSpan(CarbonHtmlType.Label01, "Booked", AppThemeHex.TextSecondary) &
+                                                  "</div>"
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                PaddingBottom: =0
+                                                PaddingLeft: =0
+                                                PaddingRight: =0
+                                                PaddingTop: =0
+                                                Width: =170
+                                    - tl2ConCardDivider:
+                                        Control: GroupContainer
+                                        Variant: AutoLayout
+                                        Properties:
+                                          AlignInContainer: =AlignInContainer.SetByContainer
+                                          DropShadow: =DropShadow.None
+                                          Fill: =AppTheme.Border
+                                          FillPortions: =0
+                                          Height: =1
+                                          LayoutDirection: =LayoutDirection.Horizontal
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                    - tl2GalRows:
+                                        Control: Gallery
+                                        Variant: BrowseLayout_Flexible_SocialFeed_ver5.0
+                                        Properties:
+                                          AlignInContainer: =AlignInContainer.SetByContainer
+                                          Height: =Parent.Height - 57
+                                          Items: =colTimelineRows
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          TemplatePadding: =0
+                                          Width: =Parent.Width
+                                        Children:
+                                          - tl2ConRow:
+                                              Control: GroupContainer
+                                              Variant: AutoLayout
+                                              Properties:
+                                                Fill: =AppTheme.Surface
+                                                Height: =ThisItem.RowHeight
+                                                LayoutAlignItems: =LayoutAlignItems.Stretch
+                                                LayoutDirection: =LayoutDirection.Horizontal
+                                                RadiusBottomLeft: =0
+                                                RadiusBottomRight: =0
+                                                RadiusTopLeft: =0
+                                                RadiusTopRight: =0
+                                                Width: =Parent.TemplateWidth
+                                              Children:
+                                                - tl2ConGutter:
+                                                    Control: GroupContainer
+                                                    Variant: AutoLayout
+                                                    Properties:
+                                                      AlignInContainer: =AlignInContainer.Center
+                                                      Fill: =AppTheme.Surface
+                                                      Height: =Parent.Height
+                                                      LayoutDirection: =LayoutDirection.Vertical
+                                                      LayoutMaxWidth: =64
+                                                      LayoutMinWidth: =64
+                                                      RadiusBottomLeft: =0
+                                                      RadiusBottomRight: =0
+                                                      RadiusTopLeft: =0
+                                                      RadiusTopRight: =0
+                                                    Children:
+                                                      - tl2LblSlotTime:
+                                                          Control: Label
+                                                          Properties:
+                                                            Align: =Align.Right
+                                                            AlignInContainer: =AlignInContainer.Center
+                                                            Color: =AppTheme.TextMuted
+                                                            Height: =18
+                                                            LayoutMinHeight: =16
+                                                            PaddingBottom: =0
+                                                            PaddingLeft: =0
+                                                            PaddingRight: =8
+                                                            PaddingTop: =4
+                                                            Size: =11
+                                                            Text: =If(Mod(DateDiff(Timeline_DayStart, ThisItem.RowStart, TimeUnit.Minutes), 60) = 0, Text(ThisItem.RowStart, "HH:mm"), "")
+                                                            VerticalAlign: =VerticalAlign.Top
+                                                            Width: =Parent.Width
+                                                      - tl2LblNowTag:
+                                                          Control: Label
+                                                          Properties:
+                                                            Align: =Align.Center
+                                                            AlignInContainer: =AlignInContainer.End
+                                                            Color: =ColorValue(AppTheme.PrimaryText)
+                                                            Fill: =AppTheme.StatusBusyText
+                                                            Font: ="IBM Plex Sans"
+                                                            Height: =16
+                                                            LayoutMinHeight: =14
+                                                            Size: =10
+                                                            Text: =Text(varNowTick, "HH:mm")
+                                                            Visible: =varNowTick >= ThisItem.RowStart && varNowTick < ThisItem.RowEnd
+                                                            Width: =64
+                                                      - tl2LblSlotEnd:
+                                                          Control: Label
+                                                          Properties:
+                                                            Align: =Align.Right
+                                                            AlignInContainer: =AlignInContainer.Center
+                                                            Color: =AppTheme.TextMuted
+                                                            FillPortions: =1
+                                                            Height: =18
+                                                            LayoutMinHeight: =16
+                                                            PaddingBottom: =4
+                                                            PaddingLeft: =0
+                                                            PaddingRight: =8
+                                                            PaddingTop: =0
+                                                            Size: =11
+                                                            Text: |
+                                                              =If(Mod(DateDiff(Timeline_DayStart, ThisItem.RowEnd, TimeUnit.Minutes), 60) <> 0, Text(ThisItem.RowEnd, "HH:mm"), "")
+                                                            VerticalAlign: =VerticalAlign.Bottom
+                                                            Width: =Parent.Width
+                                                - tl2ConSlot:
+                                                    Control: GroupContainer
+                                                    Variant: ManualLayout
+                                                    Properties:
+                                                      Height: =Parent.Height
+                                                      LayoutMinHeight: =0
+                                                      LayoutMinWidth: =0
+                                                      RadiusBottomLeft: =0
+                                                      RadiusBottomRight: =0
+                                                      RadiusTopLeft: =0
+                                                      RadiusTopRight: =0
+                                                    Children:
+                                                      - tl2ConBooked:
+                                                          Control: GroupContainer
+                                                          Variant: AutoLayout
+                                                          Properties:
+                                                            Fill: =AppTheme.SurfaceAlt
+                                                            Height: =Parent.Height - 4
+                                                            LayoutAlignItems: =LayoutAlignItems.Stretch
+                                                            LayoutDirection: =LayoutDirection.Horizontal
+                                                            Visible: =ThisItem.RowType = "booked"
+                                                            Width: =Parent.Width - 16
+                                                            Y: =2
+                                                          Children:
+                                                            - tl2RecAccent:
+                                                                Control: GroupContainer
+                                                                Variant: AutoLayout
+                                                                Properties:
+                                                                  Fill: =If(fnIsPast(ThisItem.RowEnd), AppTheme.TextMuted, AppTheme.TextSecondary)
+                                                                  FillPortions: =0
+                                                                  LayoutDirection: =LayoutDirection.Horizontal
+                                                                  LayoutMaxWidth: =3
+                                                                  LayoutMinWidth: =3
+                                                                  RadiusBottomLeft: =0
+                                                                  RadiusBottomRight: =0
+                                                                  RadiusTopLeft: =0
+                                                                  RadiusTopRight: =0
+                                                                  Width: =3
+                                                            - tl2ConBookedText:
+                                                                Control: GroupContainer
+                                                                Variant: AutoLayout
+                                                                Properties:
+                                                                  Fill: =Color.Transparent
+                                                                  LayoutAlignItems: =LayoutAlignItems.Stretch
+                                                                  LayoutDirection: =LayoutDirection.Vertical
+                                                                  PaddingBottom: =2
+                                                                  PaddingLeft: =12
+                                                                  PaddingTop: =4
+                                                                  RadiusBottomLeft: =0
+                                                                  RadiusBottomRight: =0
+                                                                  RadiusTopLeft: =0
+                                                                  RadiusTopRight: =0
+                                                                Children:
+                                                                  - tl2LblBookingTitle:
+                                                                      Control: Label
+                                                                      Properties:
+                                                                        AutoHeight: =true
+                                                                        Color: =If(fnIsPast(ThisItem.RowEnd), AppTheme.TextMuted, AppTheme.TextPrimary)
+                                                                        FillPortions: =1
+                                                                        Font: ="IBM Plex Sans"
+                                                                        FontWeight: =FontWeight.Semibold
+                                                                        LayoutMinHeight: =18
+                                                                        LayoutMinWidth: =0
+                                                                        PaddingBottom: =0
+                                                                        PaddingLeft: =0
+                                                                        PaddingRight: =0
+                                                                        PaddingTop: =0
+                                                                        Size: =12
+                                                                        Text: =If(ThisItem.RowHeight < 48, ThisItem.Title & "  ·  " & Text(ThisItem.RowStart, "HH:mm") & " – " & Text(ThisItem.RowEnd, "HH:mm"), ThisItem.Title)
+                                                                        VerticalAlign: =VerticalAlign.Top
+                                                                  - tl2LblBookedBy:
+                                                                      Control: Label
+                                                                      Properties:
+                                                                        AutoHeight: =true
+                                                                        Color: =If(fnIsPast(ThisItem.RowEnd), AppTheme.TextMuted, AppTheme.TextSecondary)
+                                                                        FillPortions: =1
+                                                                        Font: ="IBM Plex Sans"
+                                                                        LayoutMinHeight: =16
+                                                                        Size: =11
+                                                                        Text: =ThisItem.BookedBy & "  ·  " & Text(ThisItem.RowStart, "HH:mm") & " – " & Text(ThisItem.RowEnd, "HH:mm")
+                                                                        VerticalAlign: =VerticalAlign.Top
+                                                                        Visible: =ThisItem.RowHeight >= 48
+                                                      - tl2BtnOpenBooking:
+                                                          Control: Classic/Button
+                                                          Properties:
+                                                            BorderColor: =Color.Transparent
+                                                            BorderStyle: =BorderStyle.None
+                                                            BorderThickness: =0
+                                                            Color: =Color.Transparent
+                                                            Fill: =Color.Transparent
+                                                            FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                                            FocusedBorderThickness: =2
+                                                            Font: ="IBM Plex Sans"
+                                                            Height: =Parent.Height - 4
+                                                            HoverColor: =Color.Transparent
+                                                            HoverFill: =RGBA(0, 0, 0, 0.04)
+                                                            OnSelect: |-
+                                                              =Set(gblSelectedBooking, LookUp(colBookings, ID = ThisItem.BookingID));
+                                                              Navigate(bookingDetail, ScreenTransition.Fade)
+                                                            PressedColor: =Color.Transparent
+                                                            PressedFill: =RGBA(0, 0, 0, 0.08)
+                                                            RadiusBottomLeft: =0
+                                                            RadiusBottomRight: =0
+                                                            RadiusTopLeft: =0
+                                                            RadiusTopRight: =0
+                                                            Text: |-
+                                                              ="Open booking details: " & ThisItem.Title
+                                                            Visible: =ThisItem.RowType = "booked" && !ThisItem.IsMasked
+                                                            Width: =Parent.Width - 16
+                                                            Y: =2
+                                                      - tl2ConFree:
+                                                          Control: GroupContainer
+                                                          Variant: ManualLayout
+                                                          Properties:
+                                                            Fill: =AppTheme.Surface
+                                                            Height: =Parent.Height - 4
+                                                            RadiusBottomLeft: =0
+                                                            RadiusBottomRight: =0
+                                                            RadiusTopLeft: =0
+                                                            RadiusTopRight: =0
+                                                            Visible: =ThisItem.RowType = "free"
+                                                            Width: =Parent.Width - 16
+                                                            Y: =2
+                                                          Children:
+                                                            - tl2BtnFree:
+                                                                Control: Classic/Button
+                                                                Properties:
+                                                                  BorderColor: =Color.Transparent
+                                                                  BorderStyle: =BorderStyle.None
+                                                                  BorderThickness: =0
+                                                                  Color: =AppTheme.TextMuted
+                                                                  DisplayMode: =If(fnIsPast(ThisItem.RowEnd), DisplayMode.Disabled, DisplayMode.Edit)
+                                                                  Fill: =Color.Transparent
+                                                                  FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                                                  FocusedBorderThickness: =2
+                                                                  Font: ="IBM Plex Sans"
+                                                                  Height: =Parent.Height
+                                                                  HoverColor: =AppTheme.TextPrimary
+                                                                  HoverFill: =RGBA(0, 0, 0, 0.04)
+                                                                  OnSelect: |-
+                                                                    =With(
+                                                                        {_slotStart: ThisItem.RowStart, _slotEnd: ThisItem.RowEnd, _now: Now()},
+                                                                        With(
+                                                                            {
+                                                                                _clamped: If(
+                                                                                    _slotStart < _now,
+                                                                                    DateAdd(_now, Mod(15 - Mod(DateDiff(_slotStart, _now, TimeUnit.Minutes), 15), 15), TimeUnit.Minutes),
+                                                                                    _slotStart
+                                                                                )
+                                                                            },
+                                                                            With(
+                                                                                {_start: If(_clamped < _slotEnd, _clamped, _slotStart)},
+                                                                                With(
+                                                                                    {
+                                                                                        /* BUG-5: free rows are clipped to hour cells; the true contiguous
+                                                                                           free run ends at the next BOOKED row (or day end), which is what
+                                                                                           the 90m/120m duration chips must compare against. */
+                                                                                        _runEnd: With(
+                                                                                            {_nextBooked: Min(Filter(colTimelineRows, RowType = "booked", RowStart >= _slotStart), RowStart)},
+                                                                                            If(
+                                                                                                IsBlank(_nextBooked),
+                                                                                                DateAdd(Timeline_DayStart, (DayEndHour - DayStartHour) * 60, TimeUnit.Minutes),
+                                                                                                _nextBooked
+                                                                                            )
+                                                                                        )
+                                                                                    },
+                                                                                    With(
+                                                                                        {_fit: DateDiff(_start, _runEnd, TimeUnit.Minutes)},
+                                                                                        UpdateContext({
+                                                                                            tlSelStart: _start,
+                                                                                            tlSelRunStart: ThisItem.RowStart,
+                                                                                            tlSelRunEnd: _runEnd,
+                                                                                            tlSelMinutes: If(
+                                                                                                !IsBlank(tlSelStart) && ThisItem.RowStart = tlSelRunStart && tlSelMinutes <= _fit,
+                                                                                                tlSelMinutes,
+                                                                                                If(_fit >= 60, 60, _fit >= 30, 30, _fit)
+                                                                                            )
+                                                                                        })
+                                                                                    )
+                                                                                )
+                                                                            )
+                                                                        )
+                                                                    )
+                                                                  PressedColor: =AppTheme.TextPrimary
+                                                                  PressedFill: =RGBA(0, 0, 0, 0.08)
+                                                                  RadiusBottomLeft: =0
+                                                                  RadiusBottomRight: =0
+                                                                  RadiusTopLeft: =0
+                                                                  RadiusTopRight: =0
+                                                                  Size: =11
+                                                                  Text: |-
+                                                                    =If(
+                                                                        !IsBlank(tlSelStart) && ThisItem.RowStart = tlSelRunStart,
+                                                                        "",
+                                                                        "Available " &
+                                                                        If(
+                                                                            ThisItem.RowMinutes >= 60,
+                                                                            Text(RoundDown(ThisItem.RowMinutes / 60, 0)) & "h" & If(Mod(ThisItem.RowMinutes, 60) > 0, " " & Text(Mod(ThisItem.RowMinutes, 60)) & "m", ""),
+                                                                            Text(ThisItem.RowMinutes) & "m"
+                                                                        )
+                                                                    )
+                                                                  Width: =Parent.Width
+                                                            - tl2ConPick:
+                                                                Control: GroupContainer
+                                                                Variant: ManualLayout
+                                                                Properties:
+                                                                  Fill: =ColorValue(AppTheme.Primary)
+                                                                  Height: =tlSelMinutes * 2
+                                                                  RadiusBottomLeft: =0
+                                                                  RadiusBottomRight: =0
+                                                                  RadiusTopLeft: =0
+                                                                  RadiusTopRight: =0
+                                                                  Visible: =!IsBlank(tlSelStart) && ThisItem.RowStart = tlSelRunStart
+                                                                  Width: =Parent.Width
+                                                                  Y: =DateDiff(ThisItem.RowStart, tlSelStart, TimeUnit.Minutes) * 2
+                                                                Children:
+                                                                  - tl2HtxPick:
+                                                                      Control: HtmlViewer
+                                                                      Properties:
+                                                                        AutoHeight: =true
+                                                                        DisplayMode: =DisplayMode.Edit
+                                                                        HtmlText: |-
+                                                                          =/* T5 consolidation: lblTLPickTitle + lblTLPickTime in one htx.
+                                                                             DisplayMode.Edit (not View like the read-only htx sites): the old
+                                                                             labels forwarded taps to the free-slot button and this must too. */
+                                                                          CarbonTextColored(CarbonHtmlType.HeadingCompact01, "Your booking", AppThemeHex.PrimaryText) &
+                                                                          If(
+                                                                              tlSelMinutes * 2 >= 48,
+                                                                              CarbonTextColored(
+                                                                                  CarbonHtmlType.Label01,
+                                                                                  fnHtmlEscape(
+                                                                                      Text(tlSelStart, "HH:mm") & " – " & Text(DateAdd(tlSelStart, tlSelMinutes, TimeUnit.Minutes), "HH:mm") & " · " &
+                                                                                      If(
+                                                                                          tlSelMinutes >= 60,
+                                                                                          Text(RoundDown(tlSelMinutes / 60, 0)) & "h" & If(Mod(tlSelMinutes, 60) > 0, " " & Text(Mod(tlSelMinutes, 60)) & "m", ""),
+                                                                                          Text(tlSelMinutes) & "m"
+                                                                                      )
+                                                                                  ),
+                                                                                  AppThemeHex.PrimaryText
+                                                                              ),
+                                                                              ""
+                                                                          )
+                                                                        OnSelect: =Select(tl2BtnFree)
+                                                                        PaddingBottom: =0
+                                                                        PaddingLeft: =0
+                                                                        PaddingRight: =0
+                                                                        PaddingTop: =0
+                                                                        Width: =Parent.Width - 24
+                                                                        X: =12
+                                                                        Y: =6
+                                                            - tl2LblRemain:
+                                                                Control: Label
+                                                                Properties:
+                                                                  Align: =Align.Center
+                                                                  Color: =AppTheme.TextMuted
+                                                                  Font: ="IBM Plex Sans"
+                                                                  Height: =Max(Parent.Height - (DateDiff(ThisItem.RowStart, tlSelStart, TimeUnit.Minutes) * 2 + tlSelMinutes * 2), 0)
+                                                                  OnSelect: =Select(tl2BtnFree)
+                                                                  Size: =11
+                                                                  Text: |-
+                                                                    =With(
+                                                                        {_res: DateDiff(DateAdd(tlSelStart, tlSelMinutes, TimeUnit.Minutes), ThisItem.RowEnd, TimeUnit.Minutes)},
+                                                                        If(
+                                                                            _res < 15,
+                                                                            "",
+                                                                            "Available " &
+                                                                            If(
+                                                                                _res >= 60,
+                                                                                Text(RoundDown(_res / 60, 0)) & "h" & If(Mod(_res, 60) > 0, " " & Text(Mod(_res, 60)) & "m", ""),
+                                                                                Text(_res) & "m"
+                                                                            )
+                                                                        )
+                                                                    )
+                                                                  Visible: =!IsBlank(tlSelStart) && ThisItem.RowStart = tlSelRunStart
+                                                                  Width: =Parent.Width
+                                                                  Y: =DateDiff(ThisItem.RowStart, tlSelStart, TimeUnit.Minutes) * 2 + tlSelMinutes * 2
+                                                      - tl2RecNowRule:
+                                                          Control: Rectangle
+                                                          Properties:
+                                                            Fill: =AppTheme.StatusBusyText
+                                                            Height: =2
+                                                            Visible: =varNowTick >= ThisItem.RowStart && varNowTick < ThisItem.RowEnd
+                                                            Width: =Parent.Width - 16
+                                                            Y: =DateDiff(ThisItem.RowStart, varNowTick, TimeUnit.Minutes) * 2
+                                    - tl2LblEmpty:
+                                        Control: Label
+                                        Properties:
+                                          Color: =AppTheme.TextMuted
+                                          Font: ="IBM Plex Sans"
+                                          Height: =24
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          Size: =12
+                                          Text: ="No availability data for this day"
+                                          Visible: =IsEmpty(colTimelineRows)
+                              - tl2ConSidebar:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
+                                  Properties:
+                                    DropShadow: =DropShadow.None
+                                    Fill: =Color.Transparent
+                                    FillPortions: =0
+                                    Height: =If(App.Width < 1024, 448, Parent.Height)
+                                    LayoutAlignItems: =LayoutAlignItems.Stretch
+                                    LayoutDirection: =LayoutDirection.Vertical
+                                    LayoutGap: =16
+                                    LayoutMaxWidth: =If(App.Width < 1024, App.Width, 320)
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    PaddingRight: =2
+                                    Width: =320
+                                  Children:
+                                    - tl2ConRoomCard:
+                                        Control: GroupContainer
+                                        Variant: AutoLayout
+                                        Properties:
+                                          BorderColor: =AppTheme.Border
+                                          BorderThickness: =1
+                                          DropShadow: =DropShadow.None
+                                          Fill: =AppTheme.Surface
+                                          FillPortions: =0
+                                          Height: =If(glbSelectedDate = Today(), 172, 148)
+                                          LayoutAlignItems: =LayoutAlignItems.Stretch
+                                          LayoutDirection: =LayoutDirection.Vertical
+                                          LayoutGap: =8
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          PaddingBottom: =16
+                                          PaddingLeft: =16
+                                          PaddingRight: =16
+                                          PaddingTop: =16
+                                        Children:
+                                          - tl2HtxStatusRow:
+                                              Control: HtmlViewer
+                                              Properties:
+                                                AutoHeight: =true
+                                                DisplayMode: =DisplayMode.View
+                                                FillPortions: =0
+                                                HtmlText: |-
+                                                  =/* T5 consolidation: conTLStatusRow dot+text in one htx; the shared
+                                                     LookUp lives in the TimelineCurrentBooking named formula (PERF-7).
+                                                     Round dot keeps the wave-2 inline border-radius span. */
+                                                  With(
+                                                      {_cur: TimelineCurrentBooking},
+                                                      "<div style=""display: flex; align-items: center; gap: 6px;"">" &
+                                                      "<span style=""display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: " &
+                                                      If(!IsBlank(_cur), AppThemeHex.StatusBusyText, AppThemeHex.StatusFreeText) &
+                                                      ";""></span>" &
+                                                      CarbonSpan(
+                                                          CarbonHtmlType.Label01,
+                                                          fnHtmlEscape(
+                                                              If(
+                                                                  !IsBlank(_cur),
+                                                                  "Booked until " & Text(_cur.EndDateTime, "HH:mm"),
+                                                                  With(
+                                                                      {_next: First(Sort(Filter(colRoomBookings, StartDateTime > varNowTick), StartDateTime, SortOrder.Ascending))},
+                                                                      If(
+                                                                          IsBlank(_next),
+                                                                          "Free for the rest of the day",
+                                                                          "Free until " & Text(_next.StartDateTime, "HH:mm")
+                                                                      )
+                                                                  )
+                                                              )
+                                                          ),
+                                                          AppThemeHex.TextSecondary
+                                                      ) &
+                                                      "</div>"
+                                                  )
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                PaddingBottom: =0
+                                                PaddingLeft: =0
+                                                PaddingRight: =0
+                                                PaddingTop: =0
+                                                Visible: =glbSelectedDate = Today()
+                                          - tl2HtxRoomInfo:
+                                              Control: HtmlViewer
+                                              Properties:
+                                                AutoHeight: =true
+                                                DisplayMode: =DisplayMode.View
+                                                FillPortions: =0
+                                                HtmlText: |-
+                                                  =/* T5 consolidation: lblTLRoomName + lblTLRoomDesc in one htx. */
+                                                  CarbonText(CarbonHtmlType.Heading03, fnHtmlEscape(varSelectedRoom.Title)) &
+                                                  CarbonTextSecondary(
+                                                      CarbonHtmlType.Label01,
+                                                      fnHtmlEscape(
+                                                          With(
+                                                              {_d: Trim(Coalesce(varSelectedRoom.description, ""))},
+                                                              If(
+                                                                  IsBlank(_d),
+                                                                  "seats " & Text(varSelectedRoom.Capacity),
+                                                                  "seats" in Lower(_d),
+                                                                  _d,
+                                                                  _d & " · seats " & Text(varSelectedRoom.Capacity)
+                                                              )
+                                                          )
+                                                      )
+                                                  )
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                PaddingBottom: =0
+                                                PaddingLeft: =0
+                                                PaddingRight: =0
+                                                PaddingTop: =0
+                                          - tl2GalRoomEquipment:
+                                              Control: Gallery
+                                              Variant: Horizontal
+                                              Properties:
+                                                Height: =24
+                                                Items: |-
+                                                  =With(
+                                                      {_equipmentText: varSelectedRoom.Equipment},
+                                                      Filter(
+                                                          Table(
+                                                              {Value: "Screen"},
+                                                              {Value: "VC"},
+                                                              {Value: "Whiteboard"},
+                                                              {Value: "Projector"}
+                                                          ),
+                                                          Lower(Value) in Lower(_equipmentText)
+                                                      )
+                                                  )
+                                                ShowScrollbar: =false
+                                                TemplatePadding: =2
+                                                TemplateSize: =84
+                                              Children:
+                                                - tl2LblRoomEquipTag:
+                                                    Control: Label
+                                                    Properties:
+                                                      Align: =Align.Center
+                                                      Color: =AppTheme.TextSecondary
+                                                      Fill: =AppTheme.SurfaceAlt
+                                                      Font: ="IBM Plex Sans"
+                                                      Height: =20
+                                                      Size: =9
+                                                      Text: =ThisItem.Value
+                                                      Width: =Parent.TemplateWidth - 4
+                                                      Wrap: =false
+                                    - tl2ConComposer:
+                                        Control: GroupContainer
+                                        Variant: AutoLayout
+                                        Properties:
+                                          BorderColor: =AppTheme.Border
+                                          BorderThickness: =1
+                                          DropShadow: =DropShadow.None
+                                          Fill: =AppTheme.Surface
+                                          FillPortions: =0
+                                          Height: =260
+                                          LayoutAlignItems: =LayoutAlignItems.Stretch
+                                          LayoutDirection: =LayoutDirection.Vertical
+                                          LayoutGap: =12
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          PaddingBottom: =16
+                                          PaddingLeft: =16
+                                          PaddingRight: =16
+                                          PaddingTop: =16
+                                        Children:
+                                          - tl2HtxComposerInfo:
+                                              Control: HtmlViewer
+                                              Properties:
+                                                AutoHeight: =true
+                                                DisplayMode: =DisplayMode.View
+                                                FillPortions: =0
+                                                HtmlText: |-
+                                                  =/* T5 consolidation: the composer's 4 pure-text labels (eyebrow, time,
+                                                     caption, duration heading) in one htx; the old container gap (12) is
+                                                     carried as margin-top wrappers. Chips + CTA stay interactive controls. */
+                                                  CarbonTextColored(CarbonHtmlType.Eyebrow, "YOUR BOOKING", AppThemeHex.TextMuted) &
+                                                  "<div style=""margin-top: 12px;"">" &
+                                                  CarbonTextColored(
+                                                      CarbonHtmlType.Heading04 & " font-weight: 600;",
+                                                      fnHtmlEscape(
+                                                          If(IsBlank(tlSelStart), "-- : --", Text(tlSelStart, "HH:mm") & " – " & Text(DateAdd(tlSelStart, tlSelMinutes, TimeUnit.Minutes), "HH:mm"))
+                                                      ),
+                                                      If(IsBlank(tlSelStart), AppThemeHex.TextMuted, AppThemeHex.TextPrimary)
+                                                  ) &
+                                                  "</div>" &
+                                                  "<div style=""margin-top: 12px;"">" &
+                                                  CarbonTextColored(
+                                                      CarbonHtmlType.Label01,
+                                                      fnHtmlEscape(
+                                                          If(IsBlank(tlSelStart), "Choose a start time on the timeline", Text(glbSelectedDate, "ddd dd mmmm") & " · " & varSelectedRoom.Title)
+                                                      ),
+                                                      AppThemeHex.TextSecondary
+                                                  ) &
+                                                  "</div>" &
+                                                  "<div style=""margin-top: 12px;"">" &
+                                                  CarbonTextColored(CarbonHtmlType.Label01, "Duration", AppThemeHex.TextMuted) &
+                                                  "</div>"
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                PaddingBottom: =0
+                                                PaddingLeft: =0
+                                                PaddingRight: =0
+                                                PaddingTop: =0
+                                          - tl2ConChips:
+                                              Control: GroupContainer
+                                              Variant: AutoLayout
+                                              Properties:
+                                                DropShadow: =DropShadow.None
+                                                Fill: =Color.Transparent
+                                                FillPortions: =0
+                                                Height: =48
+                                                LayoutAlignItems: =LayoutAlignItems.Stretch
+                                                LayoutDirection: =LayoutDirection.Horizontal
+                                                LayoutGap: =8
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                PaddingBottom: =4
+                                                PaddingLeft: =4
+                                                PaddingRight: =4
+                                                PaddingTop: =4
+                                              Children:
+                                                - tl2BtnChip30:
+                                                    Control: Classic/Button
+                                                    Properties:
+                                                      BorderColor: =AppTheme.Border
+                                                      BorderThickness: =0
+                                                      Color: =If(tlSelMinutes = 30, AppTheme.Surface, AppTheme.TextPrimary)
+                                                      DisabledBorderColor: =AppTheme.Border
+                                                      DisabledColor: =AppTheme.TextMuted
+                                                      DisabledFill: =AppTheme.SurfaceAlt
+                                                      DisplayMode: =If(IsBlank(tlSelStart) || DateAdd(tlSelStart, 30, TimeUnit.Minutes) > tlSelRunEnd, DisplayMode.Disabled, DisplayMode.Edit)
+                                                      Fill: =If(tlSelMinutes = 30, AppTheme.TextPrimary, AppTheme.Surface)
+                                                      FillPortions: =1
+                                                      FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                                      FocusedBorderThickness: =2
+                                                      Font: ="IBM Plex Sans"
+                                                      HoverColor: =If(tlSelMinutes = 30, AppTheme.Surface, AppTheme.TextPrimary)
+                                                      HoverFill: =If(tlSelMinutes = 30, AppTheme.TextPrimary, AppTheme.SurfaceAlt)
+                                                      LayoutMinWidth: =0
+                                                      OnSelect: |-
+                                                        =UpdateContext({tlSelMinutes: 30})
+                                                      PressedColor: =If(tlSelMinutes = 30, AppTheme.Surface, AppTheme.TextPrimary)
+                                                      PressedFill: =If(tlSelMinutes = 30, AppTheme.TextPrimary, AppTheme.SurfaceAlt)
+                                                      RadiusBottomLeft: =0
+                                                      RadiusBottomRight: =0
+                                                      RadiusTopLeft: =0
+                                                      RadiusTopRight: =0
+                                                      Size: =11
+                                                      Text: ="30m"
+                                                - tl2BtnChip60:
+                                                    Control: Classic/Button
+                                                    Properties:
+                                                      BorderColor: =AppTheme.Border
+                                                      BorderThickness: =0
+                                                      Color: =If(tlSelMinutes = 60, AppTheme.Surface, AppTheme.TextPrimary)
+                                                      DisabledBorderColor: =AppTheme.Border
+                                                      DisabledColor: =AppTheme.TextMuted
+                                                      DisabledFill: =AppTheme.SurfaceAlt
+                                                      DisplayMode: =If(IsBlank(tlSelStart) || DateAdd(tlSelStart, 60, TimeUnit.Minutes) > tlSelRunEnd, DisplayMode.Disabled, DisplayMode.Edit)
+                                                      Fill: =If(tlSelMinutes = 60, AppTheme.TextPrimary, AppTheme.Surface)
+                                                      FillPortions: =1
+                                                      FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                                      FocusedBorderThickness: =2
+                                                      Font: ="IBM Plex Sans"
+                                                      HoverColor: =If(tlSelMinutes = 60, AppTheme.Surface, AppTheme.TextPrimary)
+                                                      HoverFill: =If(tlSelMinutes = 60, AppTheme.TextPrimary, AppTheme.SurfaceAlt)
+                                                      LayoutMinWidth: =0
+                                                      OnSelect: |-
+                                                        =UpdateContext({tlSelMinutes: 60})
+                                                      PressedColor: =If(tlSelMinutes = 60, AppTheme.Surface, AppTheme.TextPrimary)
+                                                      PressedFill: =If(tlSelMinutes = 60, AppTheme.TextPrimary, AppTheme.SurfaceAlt)
+                                                      RadiusBottomLeft: =0
+                                                      RadiusBottomRight: =0
+                                                      RadiusTopLeft: =0
+                                                      RadiusTopRight: =0
+                                                      Size: =11
+                                                      Text: ="1h"
+                                                - tl2BtnChip90:
+                                                    Control: Classic/Button
+                                                    Properties:
+                                                      BorderColor: =AppTheme.Border
+                                                      BorderThickness: =0
+                                                      Color: =If(tlSelMinutes = 90, AppTheme.Surface, AppTheme.TextPrimary)
+                                                      DisabledBorderColor: =AppTheme.Border
+                                                      DisabledColor: =AppTheme.TextMuted
+                                                      DisabledFill: =AppTheme.SurfaceAlt
+                                                      DisplayMode: =If(IsBlank(tlSelStart) || DateAdd(tlSelStart, 90, TimeUnit.Minutes) > tlSelRunEnd, DisplayMode.Disabled, DisplayMode.Edit)
+                                                      Fill: =If(tlSelMinutes = 90, AppTheme.TextPrimary, AppTheme.Surface)
+                                                      FillPortions: =1
+                                                      FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                                      FocusedBorderThickness: =2
+                                                      Font: ="IBM Plex Sans"
+                                                      HoverColor: =If(tlSelMinutes = 90, AppTheme.Surface, AppTheme.TextPrimary)
+                                                      HoverFill: =If(tlSelMinutes = 90, AppTheme.TextPrimary, AppTheme.SurfaceAlt)
+                                                      LayoutMinWidth: =0
+                                                      OnSelect: |-
+                                                        =UpdateContext({tlSelMinutes: 90})
+                                                      PressedColor: =If(tlSelMinutes = 90, AppTheme.Surface, AppTheme.TextPrimary)
+                                                      PressedFill: =If(tlSelMinutes = 90, AppTheme.TextPrimary, AppTheme.SurfaceAlt)
+                                                      RadiusBottomLeft: =0
+                                                      RadiusBottomRight: =0
+                                                      RadiusTopLeft: =0
+                                                      RadiusTopRight: =0
+                                                      Size: =11
+                                                      Text: ="1h 30m"
+                                                - tl2BtnChip120:
+                                                    Control: Classic/Button
+                                                    Properties:
+                                                      BorderColor: =AppTheme.Border
+                                                      BorderThickness: =1
+                                                      Color: =If(tlSelMinutes = 120, AppTheme.Surface, AppTheme.TextPrimary)
+                                                      DisabledBorderColor: =AppTheme.Border
+                                                      DisabledColor: =AppTheme.TextMuted
+                                                      DisabledFill: =AppTheme.SurfaceAlt
+                                                      DisplayMode: =If(IsBlank(tlSelStart) || DateAdd(tlSelStart, 120, TimeUnit.Minutes) > tlSelRunEnd, DisplayMode.Disabled, DisplayMode.Edit)
+                                                      Fill: =If(tlSelMinutes = 120, AppTheme.TextPrimary, AppTheme.Surface)
+                                                      FillPortions: =1
+                                                      FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                                      FocusedBorderThickness: =2
+                                                      Font: ="IBM Plex Sans"
+                                                      HoverColor: =If(tlSelMinutes = 120, AppTheme.Surface, AppTheme.TextPrimary)
+                                                      HoverFill: =If(tlSelMinutes = 120, AppTheme.TextPrimary, AppTheme.SurfaceAlt)
+                                                      LayoutMinWidth: =0
+                                                      OnSelect: |-
+                                                        =UpdateContext({tlSelMinutes: 120})
+                                                      PressedColor: =If(tlSelMinutes = 120, AppTheme.Surface, AppTheme.TextPrimary)
+                                                      PressedFill: =If(tlSelMinutes = 120, AppTheme.TextPrimary, AppTheme.SurfaceAlt)
+                                                      RadiusBottomLeft: =0
+                                                      RadiusBottomRight: =0
+                                                      RadiusTopLeft: =0
+                                                      RadiusTopRight: =0
+                                                      Size: =11
+                                                      Text: ="2h"
+                                          - tl2BtnBookCta:
+                                              Control: Classic/Button
+                                              Properties:
+                                                BorderColor: =ColorValue(AppTheme.ButtonPrimary)
+                                                BorderThickness: =1
+                                                Color: =ColorValue(AppTheme.PrimaryText)
+                                                DisabledBorderColor: =AppTheme.Border
+                                                DisabledColor: =ColorValue(AppTheme.ButtonDisabledText)
+                                                DisabledFill: =ColorValue(AppTheme.ButtonDisabled)
+                                                DisplayMode: =If(IsBlank(tlSelStart), DisplayMode.Disabled, DisplayMode.Edit)
+                                                Fill: =ColorValue(AppTheme.ButtonPrimary)
+                                                FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                                FocusedBorderThickness: =2
+                                                Font: ="IBM Plex Sans"
+                                                Height: =48
+                                                OnSelect: |-
+                                                  =Set(varSelectedDate, glbSelectedDate);
+                                                  // RESET-SITE[roomsTimeline-composer] wizard state reset before opening step 2 (mirrors RESET-SITE[rooms-free-slot])
+                                                  Set(varTitle, Blank());
+                                                  Set(varConflict, false);
+                                                  Set(varBookingError, false);
+                                                  Set(varSubmitting, false);
+                                                  Set(varTitleTouched, false);
+                                                  Set(gbl_UI_Book_CancelConfirm, false);
+                                                  Set(gbl_Book_SubmitResult, "");
+                                                  Set(varConflictingBooking, Blank());
+                                                  Set(varNextFreeSlot, Blank());
+                                                  Set(gblEditingBookingID, 0);
+                                                  Set(varStartTime, tlSelStart);
+                                                  Set(varEndTime, DateAdd(tlSelStart, tlSelMinutes, TimeUnit.Minutes));
+                                                  Set(gbl_UI_Book_Modal_Step, WizardStep2);
+                                                  Set(gbl_UI_Book_Modal, true)
+                                                RadiusBottomLeft: =0
+                                                RadiusBottomRight: =0
+                                                RadiusTopLeft: =0
+                                                RadiusTopRight: =0
+                                                Size: =12
+                                                Text: =If(IsBlank(tlSelStart), "Select a time", "Book " & Text(tlSelStart, "HH:mm") & " – " & Text(DateAdd(tlSelStart, tlSelMinutes, TimeUnit.Minutes), "HH:mm"))
+                        - tl2BtnLoadTimeline:
+                            Control: Classic/Button
+                            Properties:
+                              AlignInContainer: =AlignInContainer.Stretch
+                              BorderColor: =Color.Transparent
+                              BorderStyle: =BorderStyle.None
+                              Color: =ColorValue(AppTheme.PrimaryText)
+                              DisabledBorderColor: =Color.Transparent
+                              DisabledColor: =AppTheme.TextMuted
+                              DisabledFill: =Color.Transparent
+                              Fill: =ColorValue(AppTheme.Primary)
+                              Font: ="IBM Plex Sans"
+                              HoverBorderColor: =Color.Transparent
+                              HoverColor: =ColorValue(AppTheme.PrimaryText)
+                              HoverFill: =ColorValue(AppTheme.Primary)
+                              OnSelect: |-
+                                =ClearCollect(colRoomBookings,
+                                    Filter(
+                                        colBookings,
+                                        Status = "Active",
+                                        fnOverlaps(StartDateTime, EndDateTime, Timeline_DayStart, Timeline_DayEnd),
+                                        RoomID.Id = varSelectedRoom.ID
+                                    )
+                                );
+                                UpdateIf(colRoomBookings, StartDateTime < Timeline_DayStart, {StartDateTime: Timeline_DayStart});
+                                UpdateIf(colRoomBookings, EndDateTime > Timeline_DayEnd, {EndDateTime: Timeline_DayEnd});
+                                ClearCollect(colRoomBookings, Sort(colRoomBookings, StartDateTime, SortOrder.Ascending));
+                                Clear(colTimelineRows);
+                                Collect(
+                                    colTimelineRows,
+                                    ForAll(
+                                        colRoomBookings As booking,
+                                        {
+                                            RowType: "booked",
+                                            RowStart: booking.StartDateTime,
+                                            RowEnd: booking.EndDateTime,
+                                            RowHeight: DateDiff(booking.StartDateTime, booking.EndDateTime, TimeUnit.Minutes) * 2,
+                                            RowMinutes: DateDiff(booking.StartDateTime, booking.EndDateTime, TimeUnit.Minutes),
+                                            Title: If(booking.IsPrivate && booking.BookedByEmail <> Lower(User().Email), "Busy", booking.Title),
+                                            BookedBy: If(booking.IsPrivate && booking.BookedByEmail <> Lower(User().Email), "", booking.BookedBy.DisplayName),
+                                            IsMine: booking.BookedBy.Email = User().Email,
+                                            BookingID: booking.ID,
+                                            IsMasked: booking.IsPrivate && booking.BookedByEmail <> Lower(User().Email)
+                                        }
+                                    )
+                                );
+                                // PERF-5-SKIP[conditional-cardinality] do not batch — multi-branch conditional Collects, 0-2 rows per iteration
+                                ForAll(
+                                    Sequence(DayEndHour - DayStartHour) As hr,
+                                    With(
+                                        {
+                                            cellStart: DateAdd(Timeline_DayStart, (hr.Value - 1) * 60, TimeUnit.Minutes),
+                                            cellEnd: DateAdd(Timeline_DayStart, hr.Value * 60, TimeUnit.Minutes)
+                                        },
+                                        With(
+                                            { overl: SortByColumns(Filter(colRoomBookings, fnOverlaps(StartDateTime, EndDateTime, cellStart, cellEnd)), "StartDateTime", SortOrder.Ascending) },
+                                            If(
+                                                IsEmpty(overl),
+                                                Collect(colTimelineRows, {
+                                                    RowType: "free",
+                                                    RowStart: cellStart,
+                                                    RowEnd: cellEnd,
+                                                    RowHeight: DateDiff(cellStart, cellEnd, TimeUnit.Minutes) * 2,
+                                                    RowMinutes: DateDiff(cellStart, cellEnd, TimeUnit.Minutes),
+                                                    Title: "",
+                                                    BookedBy: "",
+                                                    IsMine: false,
+                                                    BookingID: 0,
+                                                    IsMasked: false
+                                                }),
+                                                If(
+                                                    First(overl).StartDateTime > cellStart,
+                                                    Collect(colTimelineRows, {
+                                                        RowType: "free",
+                                                        RowStart: cellStart,
+                                                        RowEnd: First(overl).StartDateTime,
+                                                        RowHeight: DateDiff(cellStart, First(overl).StartDateTime, TimeUnit.Minutes) * 2,
+                                                        RowMinutes: DateDiff(cellStart, First(overl).StartDateTime, TimeUnit.Minutes),
+                                                        Title: "",
+                                                        BookedBy: "",
+                                                        IsMine: false,
+                                                        BookingID: 0,
+                                                        IsMasked: false
+                                                    })
+                                                );
+                                                ForAll(
+                                                    overl As b,
+                                                    With(
+                                                        { segStart: If(b.EndDateTime > cellStart, b.EndDateTime, cellStart) },
+                                                        With(
+                                                            {
+                                                                nb: LookUp(
+                                                                    SortByColumns(Filter(colRoomBookings, StartDateTime >= b.EndDateTime), "StartDateTime", SortOrder.Ascending),
+                                                                    StartDateTime < cellEnd,
+                                                                    StartDateTime
+                                                                )
+                                                            },
+                                                            With(
+                                                                { segEnd: If(IsBlank(nb), cellEnd, If(nb < cellEnd, nb, cellEnd)) },
+                                                                If(
+                                                                    segStart < segEnd &&
+                                                                        segStart >= cellStart &&
+                                                                        segEnd <= cellEnd &&
+                                                                        CountRows(Filter(overl, EndDateTime = b.EndDateTime, StartDateTime < b.StartDateTime)) = 0 &&
+                                                                        /* BUG-6: never emit a free row over any booking still covering this segment */
+                                                                        IsEmpty(Filter(colRoomBookings, StartDateTime < segEnd, EndDateTime > segStart)),
+                                                                    Collect(colTimelineRows, {
+                                                                        RowType: "free",
+                                                                        RowStart: segStart,
+                                                                        RowEnd: segEnd,
+                                                                        RowHeight: DateDiff(segStart, segEnd, TimeUnit.Minutes) * 2,
+                                                                        RowMinutes: DateDiff(segStart, segEnd, TimeUnit.Minutes),
+                                                                        Title: "",
+                                                                        BookedBy: "",
+                                                                        IsMine: false,
+                                                                        BookingID: 0,
+                                                                        IsMasked: false
+                                                                    })
+                                                                )
+                                                            )
+                                                        )
+                                                    )
+                                                )
+                                            )
+                                        )
+                                    )
+                                );
+                                ClearCollect(colTimelineRows, Sort(colTimelineRows, RowStart, SortOrder.Ascending))
+                              PressedBorderColor: =Color.Transparent
+                              PressedColor: =ColorValue(AppTheme.PrimaryText)
+                              PressedFill: =ColorValue(AppTheme.Primary)
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
+                              Visible: =false
+                              X: =40
+                              Y: =40
+      - cpt_Modal__book_tl2:
+          Control: CanvasComponent
+          ComponentName: cpt_Modal_
+          Properties:
+            Height: =App.Height
+            ModalTitleText: =
+            OnSubmit: |-
+              =If(cpt_Modal__book_tl2.ValidPayload,
+                  ClearCollect(colPayloadSnapshot, cpt_Modal__book_tl2.PatchPayload);
+                  Clear(colFailedBookings);
+                  /* BUG-1: fresh per-occurrence server reads, materialized before the main loop.
+                     Each slot-sized query is fully delegable; RoomID.Id (not delegable on
+                     SharePoint) and exact-overlap narrowing happen client-side on the collection.
+                     ClearCollect/Clear are illegal inside ForAll, hence the two-pass shape. */
+                  Clear(colOccOverlap);
+                  // PERF-5-SKIP[table-ingest] do not batch — each iteration Collects a Filter sub-table, not a record
+                  ForAll(
+                      colPayloadSnapshot As _w,
+                      Collect(
+                          colOccOverlap,
+                          Filter(
+                              Book_Bookings,
+                              Status = "Active",
+                              StartDateTime < _w.EndDateTime,
+                              EndDateTime > _w.StartDateTime
+                          )
+                      )
+                  );
+                  Set(varNewSeriesID, If(First(colPayloadSnapshot).RecurrenceType <> "", GUID(), Blank()));
+
+                  /* Loop through all snapshot occurrences */
+                  ForAll(
+                      colPayloadSnapshot As _occ,
+                      With(
+                          {
+                              _isWeekend: Weekday(_occ.StartDateTime, StartOfWeek.Sunday) = 1 || Weekday(_occ.StartDateTime, StartOfWeek.Sunday) = 7,
+                              _hasClash: !IsBlank(
+                                  LookUp(
+                                      Filter(colOccOverlap, fnOverlaps(StartDateTime, EndDateTime, _occ.StartDateTime, _occ.EndDateTime)),
+                                      RoomID.Id = _occ.RoomIdNumber
+                                  )
+                              )
+                          },
+                          With(
+                              {
+                                  /* Create booking; on success Collect() mirrors the row Patch
+                                     returns (server-assigned ID included) into colBookings;
+                                     record a write failure if it errors */
+                                  _patchOk: IfError(
+                                      Collect(colBookings, Patch(
+                                          Book_Bookings,
+                                          Defaults(Book_Bookings),
+                                          {
+                                              Title: _occ.Title,
+                                              BookedByEmail: _occ.BookedByEmail,
+                                              RoomID: {
+                                                  Id: _occ.RoomIdNumber,
+                                                  Value: _occ.RoomIdText
+                                              },
+                                              StartDateTime: _occ.StartDateTime,
+                                              EndDateTime: _occ.EndDateTime,
+                                              IsPrivate: _occ.IsPrivate,
+                                              // PROD-REVERT[booked-by-actor] person = actor; mock claims don't resolve
+                                              BookedBy: {
+                                                  '@odata.type': "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser",
+                                                  Claims: $"i:0#.f|membership|{Lower(User().Email)}",
+                                                  DisplayName: User().FullName,
+                                                  Email: Lower(User().Email),
+                                                  Department: "",
+                                                  JobTitle: "",
+                                                  Picture: ""
+                                              },
+                                              Status: If(_isWeekend || _hasClash, "Clash", "Active"),
+                                              SeriesID: If(IsBlank(varNewSeriesID), Blank(), Text(varNewSeriesID)),
+                                              RecurrenceType: _occ.RecurrenceType,
+                                              OccIndex: _occ.OccIndex,
+                                              IsException: false
+                                          }
+                                      ));
+                                      true,
+                                      Collect(
+                                          colFailedBookings,
+                                          {
+                                              BookingDate: Text(_occ.StartDateTime, "dd mmm yyyy"),
+                                              Reason: "error"
+                                          }
+                                      );
+                                      false
+                                  )
+                              },
+
+                              /* Slot already occupied or the occurrence lands on a weekend —
+                                 the row is still written, just as Clash instead of Active */
+                              If(
+                                  _patchOk && (_isWeekend || _hasClash),
+                                  Collect(
+                                      colFailedBookings,
+                                      {
+                                          BookingDate: Text(_occ.StartDateTime, "dd mmm yyyy"),
+                                          Reason: "clash"
+                                      }
+                                  )
+                              )
+                          )
+                      )
+                  );
+
+                  // PROD-REVERT[booking-create-roomsTimeline] SharePoint round-trip after series create
+                  // (created rows are mirrored into colBookings per-occurrence above; failed rows have no server row to mirror)
+                  Refresh(Book_Bookings);
+
+                  Set(varBookingError, !IsEmpty(Filter(colFailedBookings, Reason = "error")));
+
+                  /* Report the outcome back to the wizard */
+                  Set(
+                      gbl_Book_SubmitResult,
+                      If(varBookingError, "error", "success")
+                  );
+
+                  /* Tell user what happened; close the modal on all branches */
+                  If(
+                      varBookingError,
+                      Notify(
+                          "Some bookings failed to save. Please try again. Not created: " &
+                          Concat(Filter(colFailedBookings, Reason = "error"), BookingDate, ", "),
+                          NotificationType.Error,
+                          10000
+                      ),
+                      CountRows(Filter(colFailedBookings, Reason = "clash")) > 0,
+                      Notify(
+                          $"Created {CountRows(colPayloadSnapshot)} bookings — {CountRows(Filter(colFailedBookings, Reason = "clash"))} clash and need rescheduling. See My Bookings → Series.",
+                          NotificationType.Warning,
+                          10000
+                      ),
+                      Notify(
+                          "Booking(s) created successfully",
+                          NotificationType.Success
+                      )
+                  );
+                  Set(gbl_UI_Book_Modal, false);
+
+                  /* Stay on RoomsTimeline — rebuild the timeline so the new booking(s) show up.
+                     (Home navigates back to Home here instead.) */
+                  UpdateContext({tlSelStart: Blank()});
+                  Select(tl2BtnLoadTimeline)
+              )
+            OnSubmitEdit: ="Text"
+            OptionalLabelText: =" "
+            Visible: =gbl_UI_Book_Modal = true
+            Width: =App.Width
