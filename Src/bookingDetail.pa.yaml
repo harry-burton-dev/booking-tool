@@ -84,31 +84,27 @@ Screens:
                               Size: =11
                               Text: ="← Back to my bookings"
                               Width: =220
-                        - lblDetailTitle:
-                            Control: Label
+                        - htxDetailTitle:
+                            Control: HtmlViewer
                             Properties:
                               AlignInContainer: =AlignInContainer.Stretch
                               AutoHeight: =true
-                              Color: =AppTheme.TextPrimary
-                              Font: =Font.Lato
-                              FontWeight: =FontWeight.Semibold
-                              Height: =32
+                              DisplayMode: =DisplayMode.View
+                              HtmlText: |-
+                                =/* The two merged labels were NOT mutually exclusive - the title was always visible and the empty-state line added a second row when IsBlank(gblSelectedBooking), so both lines compose here. The 16px margin reproduces conDetail's LayoutGap. */
+                                CarbonText(CarbonHtmlType.Heading03 & " font-weight: 600;",
+                                    fnHtmlEscape(If(IsBlank(gblSelectedBooking), "No booking selected", gblSelectedBooking.Title))
+                                ) &
+                                If(IsBlank(gblSelectedBooking),
+                                    CarbonTextColored(CarbonHtmlType.Label01 & " margin-top: 16px;", "Open a booking from My bookings to see its details.", AppThemeHex.TextMuted),
+                                    ""
+                                )
                               LayoutMinHeight: =0
                               LayoutMinWidth: =0
-                              Size: =20
-                              Text: =If(IsBlank(gblSelectedBooking), "No booking selected", gblSelectedBooking.Title)
-                        - lblDetailEmpty:
-                            Control: Label
-                            Properties:
-                              AlignInContainer: =AlignInContainer.Stretch
-                              Color: =AppTheme.TextMuted
-                              Font: =Font.Lato
-                              Height: =24
-                              LayoutMinHeight: =0
-                              LayoutMinWidth: =0
-                              Size: =12
-                              Text: ="Open a booking from My bookings to see its details."
-                              Visible: =IsBlank(gblSelectedBooking)
+                              PaddingBottom: =0
+                              PaddingLeft: =0
+                              PaddingRight: =0
+                              PaddingTop: =0
                         - conDetailCard:
                             Control: GroupContainer
                             Variant: AutoLayout
