@@ -591,7 +591,6 @@ Screens:
                                       Set(varConflictingBooking, Blank());
                                       Set(varNextFreeSlot, Blank());
                                       Set(gblEditingBookingID, 0);
-                                      ClearCollect(varAlternativeRooms, Filter(colRooms, true = false));
                                       With(
                                           {_now: Now(), _todayStart: DateAdd(Today(), DayStartHour * 60, TimeUnit.Minutes)},
                                           With(
@@ -1050,7 +1049,6 @@ Screens:
                                       Set(varConflictingBooking, Blank());
                                       Set(varNextFreeSlot, Blank());
                                       Set(gblEditingBookingID, 0);
-                                      ClearCollect(varAlternativeRooms, Filter(colRooms, true = false));
                                       With(
                                           {_now: Now(), _todayStart: DateAdd(Today(), DayStartHour * 60, TimeUnit.Minutes)},
                                           With(

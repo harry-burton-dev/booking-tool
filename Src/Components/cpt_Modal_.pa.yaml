@@ -85,7 +85,6 @@ ComponentDefinitions:
                   Set(gbl_Book_SubmitResult, "");
                   Set(gbl_FixCycleSeriesID, "");
                   Set(gbl_UI_Book_Modal_Step, WizardStep1);
-                  ClearCollect(varAlternativeRooms, Filter(colRooms, true = false));
                   Set(gbl_UI_Book_Modal, false),
                   Set(gbl_UI_Book_CancelConfirm, true)
               )
@@ -325,19 +324,6 @@ ComponentDefinitions:
                                                         ),
                                                         RoomID.Id = varSelectedRoom.ID,
                                                         EndDateTime
-                                                    )
-                                                );
-                                                ClearCollect(
-                                                    varAlternativeRooms,
-                                                    Filter(
-                                                        colRooms As rm,
-                                                        rm.ID <> varSelectedRoom.ID &&
-                                                        IsEmpty(
-                                                            Filter(
-                                                                colOverlappingBookings,
-                                                                RoomID.Id = rm.ID
-                                                            )
-                                                        )
                                                     )
                                                 )
                                             );
@@ -631,19 +617,6 @@ ComponentDefinitions:
                                                 )
                                             );
 
-                                            ClearCollect(
-                                                varAlternativeRooms,
-                                                Filter(
-                                                    colRooms As rm,
-                                                    rm.ID <> varSelectedRoom.ID &&
-                                                    IsEmpty(
-                                                        Filter(
-                                                            colOverlappingBookings,
-                                                            RoomID.Id = rm.ID
-                                                        )
-                                                    )
-                                                )
-                                            );
                                             Set(varRebuilding, false)
                                           PressedColor: =AppTheme.TextPrimary
                                           PressedFill: =AppTheme.SurfaceAlt
@@ -756,19 +729,6 @@ ComponentDefinitions:
                                                 )
                                             );
 
-                                            ClearCollect(
-                                                varAlternativeRooms,
-                                                Filter(
-                                                    colRooms As rm,
-                                                    rm.ID <> varSelectedRoom.ID &&
-                                                    IsEmpty(
-                                                        Filter(
-                                                            colOverlappingBookings,
-                                                            RoomID.Id = rm.ID
-                                                        )
-                                                    )
-                                                )
-                                            );
                                             Set(varRebuilding, false)
                                           PressedColor: =AppTheme.TextPrimary
                                           PressedFill: =AppTheme.SurfaceAlt
@@ -962,7 +922,7 @@ ComponentDefinitions:
                               DropShadow: =DropShadow.None
                               Fill: =AppTheme.Background
                               FillPortions: =0
-                              Height: =16 + conConflictHeader.Height + 12 + lbl_textTimelineLabel.Height + 12 + galConflictTimeline.Height + 12 + lbl_textAlternativeRoomsTime.Height + 12 + If(IsEmpty(varAlternativeRooms), lbl_textNoRoomsAvailable.Height, galAlternativeRooms.Height) + 12 + conConflictActions.Height + 16
+                              Height: =16 + conConflictHeader.Height + 12 + lbl_textTimelineLabel.Height + 12 + galConflictTimeline.Height + 12 + lbl_textAlternativeRoomsTime.Height + 12 + If(IsEmpty(AlternativeRoomsNow), lbl_textNoRoomsAvailable.Height, galAlternativeRooms.Height) + 12 + conConflictActions.Height + 16
                               LayoutAlignItems: =LayoutAlignItems.Stretch
                               LayoutDirection: =LayoutDirection.Vertical
                               LayoutGap: =12
@@ -1132,14 +1092,14 @@ ComponentDefinitions:
                                   Control: Gallery
                                   Variant: Vertical
                                   Properties:
-                                    Height: =64 * CountRows(varAlternativeRooms)
-                                    Items: =varAlternativeRooms
+                                    Height: =64 * CountRows(AlternativeRoomsNow)
+                                    Items: =AlternativeRoomsNow
                                     LayoutMinHeight: =0
                                     LayoutMinWidth: =0
                                     ShowScrollbar: =false
                                     TemplatePadding: =0
                                     TemplateSize: =48
-                                    Visible: =!IsEmpty(varAlternativeRooms)
+                                    Visible: =!IsEmpty(AlternativeRoomsNow)
                                   Children:
                                     - rectAltRoomBg:
                                         Control: Rectangle
@@ -1221,7 +1181,7 @@ ComponentDefinitions:
                                     LayoutMinWidth: =0
                                     Size: =11
                                     Text: ="No rooms available at this time"
-                                    Visible: =IsEmpty(varAlternativeRooms)
+                                    Visible: =IsEmpty(AlternativeRoomsNow)
                                     Wrap: =false
                               - conConflictActions:
                                   Control: GroupContainer
@@ -1283,7 +1243,7 @@ ComponentDefinitions:
                                           LayoutMinHeight: =0
                                           LayoutMinWidth: =0
                                           OnSelect: |-
-                                            =Set(varSelectedRoom, First(varAlternativeRooms));
+                                            =Set(varSelectedRoom, First(AlternativeRoomsNow));
                                             Set(varConflict, false)
                                           PressedColor: =RGBA(255, 255, 255, 1)
                                           PressedFill: =RGBA(15, 66, 174, 1)
@@ -1292,8 +1252,8 @@ ComponentDefinitions:
                                           RadiusTopLeft: =2
                                           RadiusTopRight: =2
                                           Size: =11
-                                          Text: ="Book " & First(varAlternativeRooms).Title & " instead"
-                                          Visible: =!IsEmpty(varAlternativeRooms)
+                                          Text: ="Book " & First(AlternativeRoomsNow).Title & " instead"
+                                          Visible: =!IsEmpty(AlternativeRoomsNow)
                         - con_private:
                             Control: GroupContainer
                             Variant: AutoLayout
@@ -1615,7 +1575,6 @@ ComponentDefinitions:
                               Set(gbl_Book_SubmitResult, "");
                               Set(gbl_FixCycleSeriesID, "");
                               Set(gbl_UI_Book_Modal_Step, WizardStep1);
-                              ClearCollect(varAlternativeRooms, Filter(colRooms, true = false));
                               Set(gbl_UI_Book_Modal, false)
                           )
                         PressedBorderColor: =AppTheme.Border
@@ -1675,7 +1634,6 @@ ComponentDefinitions:
                               Set(gbl_Book_SubmitResult, "");
                               Set(gbl_FixCycleSeriesID, "");
                               Set(gbl_UI_Book_Modal_Step, WizardStep1);
-                              ClearCollect(varAlternativeRooms, Filter(colRooms, true = false));
                               Set(gbl_UI_Book_Modal, false),
                               Set(gbl_UI_Book_CancelConfirm, true)
                           )
@@ -1781,19 +1739,6 @@ ComponentDefinitions:
                                   ),
                                   RoomID.Id = varSelectedRoom.ID,
                                   EndDateTime
-                              )
-                          );
-                          ClearCollect(
-                              varAlternativeRooms,
-                              Filter(
-                                  colRooms As rm,
-                                  rm.ID <> varSelectedRoom.ID &&
-                                  IsEmpty(
-                                      Filter(
-                                          colOverlappingBookings,
-                                          RoomID.Id = rm.ID
-                                      )
-                                  )
                               )
                           );
                           If(!varConflict,
@@ -2005,7 +1950,6 @@ ComponentDefinitions:
                                 Set(gbl_Book_SubmitResult, "");
                                 Set(gbl_FixCycleSeriesID, "");
                                 Set(gbl_UI_Book_Modal_Step, WizardStep1);
-                                ClearCollect(varAlternativeRooms, Filter(colRooms, true = false));
                                 Set(gbl_UI_Book_Modal, false)
                               PressedColor: =RGBA(255, 255, 255, 1)
                               PressedFill: =RGBA(155, 21, 28, 1)

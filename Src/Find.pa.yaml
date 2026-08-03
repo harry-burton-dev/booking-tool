@@ -526,7 +526,6 @@ Screens:
                                                               Set(varConflictingBooking, Blank());
                                                               Set(varNextFreeSlot, Blank());
                                                               Set(gblEditingBookingID, 0);
-                                                              ClearCollect(varAlternativeRooms, Filter(colRooms, true = false));
 
                                                               /* Start = slot start, pushed to the next 15-minute mark if the
                                                                  slot has already begun; End = start + 60 min, capped at the

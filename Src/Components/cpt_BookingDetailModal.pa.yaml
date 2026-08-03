@@ -588,7 +588,6 @@ ComponentDefinitions:
                                       Set(gbl_Book_SubmitResult, "");
                                       Set(varConflictingBooking, Blank());
                                       Set(varNextFreeSlot, Blank());
-                                      ClearCollect(varAlternativeRooms, Filter(colRooms, true = false));
 
                                       /* Times-only edit: no series controls in this flow.
                                          tglRecurring/drpWeeks live inside cpt_Modal_ and cannot be

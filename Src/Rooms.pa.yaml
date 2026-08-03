@@ -1562,7 +1562,6 @@ Screens:
                                                   Set(varConflictingBooking, Blank());
                                                   Set(varNextFreeSlot, Blank());
                                                   Set(gblEditingBookingID, 0);
-                                                  ClearCollect(varAlternativeRooms, Filter(colRooms, true = false));
                                                   Set(varStartTime, varTLSelStart);
                                                   Set(varEndTime, DateAdd(varTLSelStart, varTLSelMinutes, TimeUnit.Minutes));
                                                   Set(gbl_UI_Book_Modal_Step, WizardStep2);
@@ -1800,7 +1799,6 @@ Screens:
                                 Set(varConflictingBooking, Blank());
                                 Set(varNextFreeSlot, Blank());
                                 Set(gblEditingBookingID, 0);
-                                ClearCollect(varAlternativeRooms, Filter(colRooms, ID <> ID));
                                 Set(gbl_UI_Book_Modal_Step, WizardStep2);
                                 Set(gbl_UI_Book_Modal, true)
                               Text: ="Book"

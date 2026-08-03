@@ -539,6 +539,23 @@ App:
                       )
                   );
 
+                  /* Booking-wizard conflict panel (cpt_Modal_, AccessAppScope): rooms free
+                     for the requested slot - every room other than the selected one with
+                     no row in the colOverlappingBookings working set. Each conflict site
+                     still materializes colOverlappingBookings imperatively first
+                     (colBookings snapshot on room/time change; Book_Bookings re-read on
+                     Confirm - BUG-1), so this always reflects the state the panel opened
+                     with. Consumers: conConflictPanel sizing, galAlternativeRooms,
+                     lbl_textNoRoomsAvailable, btnBookAlternative. Replaces the
+                     varAlternativeRooms collection that four wizard sites each rebuilt
+                     with this same Filter (PERF-7; its removal also clears the
+                     CollectingReadOnlyTable checker finding). */
+                  AlternativeRoomsNow = Filter(
+                      colRooms As rm,
+                      rm.ID <> varSelectedRoom.ID &&
+                      IsEmpty(Filter(colOverlappingBookings, RoomID.Id = rm.ID))
+                  );
+
                   // myBookings tab/stat counts (PERF-7). Each hoists a CountRows(Filter(...))
                   // that re-evaluated inline in a Label.Text. Cutoff is Now() via fnIsPast,
                   // matching the mb2Gal* tab contents these labels count.
