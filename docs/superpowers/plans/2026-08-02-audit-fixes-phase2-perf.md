@@ -285,6 +285,7 @@ The wordmark and avatar-initials HtmlViewers each render one short string — po
 
 - [ ] **Step 1:** Full-tree pa-lint + pa-schema-validate clean; acceptance greps from every task re-run against the final tree.
 - [ ] **Step 2:** App Checker SARIF diff vs Task 0 baseline (P10): performance findings ≤ baseline−15 (the 8 ForAll+Collect + 15 CollectDelegatableDataSource findings shrink), Rooms < 300 complexity, **zero new findings of any category**.
+  - T7 expectations: CollectingReadOnlyTable −1 (varAlternativeRooms eliminated); verify no NEW App.Formulas findings on `AlternativeRoomsNow`/`TimelineCurrentBooking` (named formulas over imperatively-materialized collections not seeded in OnStart — watch the first probe compile). Rung-6 player addition: trigger a conflict → check alternatives list → tap an alt room → list should exclude it immediately.
 - [ ] **Step 3:** Metrics table in the closing commit: control count (target ≈ 490–510 from 564), Label count, HtmlViewer count, `ClearCollect(colBookings` count (4), per-screen complexity.
 - [ ] **Step 4:** Publish per PUBLISHING-PROTOCOL.md (P6/P7): single publisher, guard lock, human Studio session co-attached, human save (rung 5), player checks (rung 6): the Task 2/3/4/7/8 player scripts above + a full booking round-trip and series cancel.
 - [ ] **Step 5:** Post-publish re-sync → `chore(sync): post-publish normalization`; push branch `perf/audit-phase2`; `guard.sh unlock`.
