@@ -625,40 +625,38 @@ Screens:
                                                                   Width: =Parent.Width
                                                                   Y: =DateDiff(ThisItem.RowStart, tlSelStart, TimeUnit.Minutes) * 2
                                                                 Children:
-                                                                  - tl2HtxPick:
-                                                                      Control: HtmlViewer
+                                                                  - tl2LblPickTitle:
+                                                                      Control: Label
                                                                       Properties:
-                                                                        AutoHeight: =true
-                                                                        DisplayMode: =DisplayMode.Edit
-                                                                        HtmlText: |-
-                                                                          =/* T5 consolidation: lblTLPickTitle + lblTLPickTime in one htx.
-                                                                             DisplayMode.Edit (not View like the read-only htx sites): the old
-                                                                             labels forwarded taps to the free-slot button and this must too. */
-                                                                          CarbonTextColored(CarbonHtmlType.HeadingCompact01, "Your booking", AppThemeHex.PrimaryText) &
-                                                                          If(
-                                                                              tlSelMinutes * 2 >= 48,
-                                                                              CarbonTextColored(
-                                                                                  CarbonHtmlType.Label01,
-                                                                                  fnHtmlEscape(
-                                                                                      Text(tlSelStart, "HH:mm") & " – " & Text(DateAdd(tlSelStart, tlSelMinutes, TimeUnit.Minutes), "HH:mm") & " · " &
-                                                                                      If(
-                                                                                          tlSelMinutes >= 60,
-                                                                                          Text(RoundDown(tlSelMinutes / 60, 0)) & "h" & If(Mod(tlSelMinutes, 60) > 0, " " & Text(Mod(tlSelMinutes, 60)) & "m", ""),
-                                                                                          Text(tlSelMinutes) & "m"
-                                                                                      )
-                                                                                  ),
-                                                                                  AppThemeHex.PrimaryText
-                                                                              ),
-                                                                              ""
-                                                                          )
+                                                                        Color: =ColorValue(AppTheme.PrimaryText)
+                                                                        Font: ="IBM Plex Sans"
+                                                                        FontWeight: =FontWeight.Semibold
+                                                                        Height: =18
                                                                         OnSelect: =Select(tl2BtnFree)
-                                                                        PaddingBottom: =0
-                                                                        PaddingLeft: =0
-                                                                        PaddingRight: =0
-                                                                        PaddingTop: =0
+                                                                        Size: =12
+                                                                        Text: ="Your booking"
                                                                         Width: =Parent.Width - 24
                                                                         X: =12
                                                                         Y: =6
+                                                                  - tl2LblPickTime:
+                                                                      Control: Label
+                                                                      Properties:
+                                                                        Color: =ColorValue(AppTheme.PrimaryText)
+                                                                        Font: ="IBM Plex Sans"
+                                                                        Height: =16
+                                                                        OnSelect: =Select(tl2BtnFree)
+                                                                        Size: =11
+                                                                        Text: |-
+                                                                          =Text(tlSelStart, "HH:mm") & " – " & Text(DateAdd(tlSelStart, tlSelMinutes, TimeUnit.Minutes), "HH:mm") & " · " &
+                                                                          If(
+                                                                              tlSelMinutes >= 60,
+                                                                              Text(RoundDown(tlSelMinutes / 60, 0)) & "h" & If(Mod(tlSelMinutes, 60) > 0, " " & Text(Mod(tlSelMinutes, 60)) & "m", ""),
+                                                                              Text(tlSelMinutes) & "m"
+                                                                          )
+                                                                        Visible: =tlSelMinutes * 2 >= 48
+                                                                        Width: =Parent.Width - 24
+                                                                        X: =12
+                                                                        Y: =26
                                                             - tl2LblRemain:
                                                                 Control: Label
                                                                 Properties:
