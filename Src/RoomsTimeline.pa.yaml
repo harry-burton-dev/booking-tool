@@ -276,8 +276,8 @@ Screens:
                                                   UpdateContext({tlSelStart: Blank()});
                                                   Select(tl2BtnLoadTimeline)
                                                 Visible: |-
-                                                  =/* Dead vestige carried from the old tree (dtpTLDate) for parity - always-hidden
-                                                     picker; candidate to delete in stage 2 alongside the old tree. */
+                                                  =/* Dead vestige carried for parity (always-hidden picker); old tree now
+                                                     removed - control itself still pending deletion, see T9 tidy. */
                                                   false
                                                 Width: =180
                                           - tl2ConHeaderSpacer:
@@ -1057,7 +1057,7 @@ Screens:
                                                 Height: =48
                                                 OnSelect: |-
                                                   =Set(varSelectedDate, glbSelectedDate);
-                                                  // RESET-SITE[roomsTimeline-composer] wizard state reset before opening step 2 (mirrors RESET-SITE[rooms-free-slot])
+                                                  // RESET-SITE[roomsTimeline-composer] wizard state reset before opening step 2
                                                   Set(varTitle, Blank());
                                                   Set(varConflict, false);
                                                   Set(varBookingError, false);
