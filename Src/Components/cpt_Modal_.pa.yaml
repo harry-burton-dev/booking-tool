@@ -1008,7 +1008,6 @@ ComponentDefinitions:
                                   Control: HtmlViewer
                                   Properties:
                                     DisplayMode: =DisplayMode.View
-                                    FillPortions: =0
                                     Height: =280
                                     HtmlText: |-
                                       ="<div style=""border: 1px solid " & AppThemeHex.Border & ";"">" &

@@ -112,8 +112,6 @@ ComponentDefinitions:
                         PaddingRight: =0
                         PaddingTop: =0
                         Width: =192
-                        X: =0
-                        Y: =0
             - con_Header_Nav:
                 Control: GroupContainer
                 Variant: AutoLayout
