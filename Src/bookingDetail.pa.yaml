@@ -366,8 +366,7 @@ Screens:
                                           AutoHeight: =true
                                           DisplayMode: =DisplayMode.View
                                           Height: =24
-                                          HtmlText: |-
-                                            =CarbonTextColored(CarbonHtmlType.Label01, "Cancel this booking? This can't be undone.", AppThemeHex.StatusBusyText)
+                                          HtmlText: =CarbonTextColored(CarbonHtmlType.Label01, "Cancel this booking? This can't be undone.", AppThemeHex.StatusBusyText)
                                           LayoutMinHeight: =0
                                           LayoutMinWidth: =0
                                           PaddingBottom: =0
@@ -482,8 +481,7 @@ Screens:
                                           AutoHeight: =true
                                           DisplayMode: =DisplayMode.View
                                           Height: =24
-                                          HtmlText: |-
-                                            =CarbonTextColored(CarbonHtmlType.Label01, If(gbl_UI_ScopePrompt = "edit", "This booking is part of a series. Apply the new time to:", "This booking is part of a series. Cancel:"), AppThemeHex.StatusWarnText)
+                                          HtmlText: =CarbonTextColored(CarbonHtmlType.Label01, If(gbl_UI_ScopePrompt = "edit", "This booking is part of a series. Apply the new time to:", "This booking is part of a series. Cancel:"), AppThemeHex.StatusWarnText)
                                           LayoutMinHeight: =0
                                           LayoutMinWidth: =0
                                           PaddingBottom: =0

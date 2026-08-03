@@ -66,19 +66,6 @@ Screens:
                               OnSelect: =Set(varFindSelectedDate, DateAdd(varFindSelectedDate, If(varFindViewMode = "Week", -7, -1), TimeUnit.Days)); Select(btnLoadFindBookings)
                               TabIndex: =0
                               Width: =40
-                        - htxFindDate:
-                            Control: HtmlViewer
-                            Properties:
-                              AlignInContainer: =AlignInContainer.Center
-                              AutoHeight: =true
-                              DisplayMode: =DisplayMode.View
-                              HtmlText: |-
-                                =CarbonText(CarbonHtmlType.HeadingCompact01, Text(varFindSelectedDate, "ddd dd mmm yyyy"))
-                              PaddingBottom: =0
-                              PaddingLeft: =0
-                              PaddingRight: =0
-                              PaddingTop: =0
-                              Width: =180
                         - imgDateForward_1:
                             Control: Image
                             Properties:
@@ -96,6 +83,18 @@ Screens:
                               DefaultSelectedItems: =[varFindViewMode]
                               Items: =["Day", "Week"]
                               OnChange: =Set(varFindViewMode, tabFindViewMode.Selected.Value); Select(btnLoadFindBookings)
+                        - htxFindDate:
+                            Control: HtmlViewer
+                            Properties:
+                              AlignInContainer: =AlignInContainer.Center
+                              AutoHeight: =true
+                              DisplayMode: =DisplayMode.View
+                              HtmlText: =CarbonText(CarbonHtmlType.HeadingCompact01, Text(varFindSelectedDate, "ddd dd mmm yyyy"))
+                              PaddingBottom: =0
+                              PaddingLeft: =0
+                              PaddingRight: =0
+                              PaddingTop: =0
+                              Width: =180
                         - drpFindCapacity:
                             Control: Classic/DropDown
                             Properties:
