@@ -1384,103 +1384,28 @@ Screens:
                                     RadiusTopLeft: =0
                                     RadiusTopRight: =0
                                   Children:
-                                    - lblHDOccColRoom:
-                                        Control: Label
+                                    - htxHDOccColHeader:
+                                        Control: HtmlViewer
                                         Properties:
-                                          Color: =AppTheme.TextMuted
-                                          Font: ="IBM Plex Sans"
-                                          Height: =16
-                                          Size: =11
-                                          Text: ="ROOM"
-                                          Width: =170
-                                          Wrap: =false
-                                          Y: =2
-                                    - lblHDOccHour08:
-                                        Control: Label
-                                        Properties:
-                                          Color: =AppTheme.TextMuted
-                                          Font: ="IBM Plex Sans"
-                                          Height: =16
-                                          Size: =11
-                                          Text: ="08"
-                                          Width: =24
-                                          Wrap: =false
-                                          X: =170
-                                          Y: =2
-                                    - lblHDOccHour10:
-                                        Control: Label
-                                        Properties:
-                                          Color: =AppTheme.TextMuted
-                                          Font: ="IBM Plex Sans"
-                                          Height: =16
-                                          Size: =11
-                                          Text: ="10"
-                                          Width: =24
-                                          Wrap: =false
-                                          X: =170 + (Parent.Width - 218) * 0.2
-                                          Y: =2
-                                    - lblHDOccHour12:
-                                        Control: Label
-                                        Properties:
-                                          Color: =AppTheme.TextMuted
-                                          Font: ="IBM Plex Sans"
-                                          Height: =16
-                                          Size: =11
-                                          Text: ="12"
-                                          Width: =24
-                                          Wrap: =false
-                                          X: =170 + (Parent.Width - 218) * 0.4
-                                          Y: =2
-                                    - lblHDOccHour14:
-                                        Control: Label
-                                        Properties:
-                                          Color: =AppTheme.TextMuted
-                                          Font: ="IBM Plex Sans"
-                                          Height: =16
-                                          Size: =11
-                                          Text: ="14"
-                                          Width: =24
-                                          Wrap: =false
-                                          X: =170 + (Parent.Width - 218) * 0.6
-                                          Y: =2
-                                    - lblHDOccHour16:
-                                        Control: Label
-                                        Properties:
-                                          Color: =AppTheme.TextMuted
-                                          Font: ="IBM Plex Sans"
-                                          Height: =16
-                                          Size: =11
-                                          Text: ="16"
-                                          Width: =24
-                                          Wrap: =false
-                                          X: =170 + (Parent.Width - 218) * 0.8
-                                          Y: =2
-                                    - lblHDOccHour18:
-                                        Control: Label
-                                        Properties:
-                                          Align: =Align.Right
-                                          Color: =AppTheme.TextMuted
-                                          Font: ="IBM Plex Sans"
-                                          Height: =16
-                                          Size: =11
-                                          Text: ="18"
-                                          Width: =24
-                                          Wrap: =false
-                                          X: =Parent.Width - 72
-                                          Y: =2
-                                    - lblHDOccColUsed:
-                                        Control: Label
-                                        Properties:
-                                          Align: =Align.Right
-                                          Color: =AppTheme.TextMuted
-                                          Font: ="IBM Plex Sans"
-                                          Height: =16
-                                          Size: =11
-                                          Text: ="USED"
-                                          Width: =48
-                                          Wrap: =false
-                                          X: =Parent.Width - 48
-                                          Y: =2
+                                          DisplayMode: =DisplayMode.View
+                                          Height: =20
+                                          HtmlText: |-
+                                            =/* calc() mirrors the deleted labels' X formulas verbatim: 170 + (Parent.Width - 218) * f, the same geometry galHDOccSegments uses (X: =170, Width: =Parent.TemplateWidth - 218). */
+                                            CarbonRelRow(20,
+                                                CarbonAbsSpan("0px", CarbonHtmlType.Eyebrow, "ROOM", AppThemeHex.TextMuted) &
+                                                CarbonAbsSpan("170px", CarbonHtmlType.Eyebrow, "08", AppThemeHex.TextMuted) &
+                                                CarbonAbsSpan("calc(170px + (100% - 218px)*0.2)", CarbonHtmlType.Eyebrow, "10", AppThemeHex.TextMuted) &
+                                                CarbonAbsSpan("calc(170px + (100% - 218px)*0.4)", CarbonHtmlType.Eyebrow, "12", AppThemeHex.TextMuted) &
+                                                CarbonAbsSpan("calc(170px + (100% - 218px)*0.6)", CarbonHtmlType.Eyebrow, "14", AppThemeHex.TextMuted) &
+                                                CarbonAbsSpan("calc(170px + (100% - 218px)*0.8)", CarbonHtmlType.Eyebrow, "16", AppThemeHex.TextMuted) &
+                                                CarbonAbsSpanRight("48px", CarbonHtmlType.Eyebrow, "18", AppThemeHex.TextMuted) &
+                                                CarbonAbsSpanRight("0px", CarbonHtmlType.Eyebrow, "USED", AppThemeHex.TextMuted)
+                                            )
+                                          PaddingBottom: =0
+                                          PaddingLeft: =0
+                                          PaddingRight: =0
+                                          PaddingTop: =0
+                                          Width: =Parent.Width
                               - galHDOccRooms:
                                   Control: Gallery
                                   Variant: Vertical
@@ -1575,17 +1500,21 @@ Screens:
                                     RadiusTopLeft: =0
                                     RadiusTopRight: =0
                                   Children:
-                                    - htxHDOccLegendNow:
+                                    - htxHDOccLegendAll:
                                         Control: HtmlViewer
                                         Properties:
                                           AlignInContainer: =AlignInContainer.Center
                                           AutoHeight: =true
                                           DisplayMode: =DisplayMode.View
                                           HtmlText: |-
-                                            =/* Free/Booked legend pairs stay Rectangle+Label pending a Border hex token (wave-3/T8 scope) */
+                                            =/* Now-marker fragment copied verbatim from the former now-only legend viewer; the Free/Booked swatch+label pairs now ride CarbonSwatch instead of Rectangle+Label. */
                                             "<div style=""display: flex; align-items: center; gap: 6px;"">" &
                                             "<span style=""display: inline-block; width: 10px; height: 10px; background-color: " & AppThemeHex.StatusBusyText & ";""></span>" &
                                             "<span style=""" & CarbonHtmlType.Label01 & " color: " & AppThemeHex.TextMuted & ";"">Now</span>" &
+                                            CarbonSwatch(AppThemeHex.Border, 10) &
+                                            CarbonSpan(CarbonHtmlType.Label01, "Free", AppThemeHex.TextMuted) &
+                                            CarbonSwatch(AppThemeHex.Primary, 10) &
+                                            CarbonSpan(CarbonHtmlType.Label01, "Booked", AppThemeHex.TextMuted) &
                                             "</div>"
                                           LayoutMinHeight: =0
                                           LayoutMinWidth: =0
@@ -1593,57 +1522,7 @@ Screens:
                                           PaddingLeft: =0
                                           PaddingRight: =0
                                           PaddingTop: =0
-                                          Width: =48
-                                    - recHDOccLegendFree:
-                                        Control: Rectangle
-                                        Properties:
-                                          AlignInContainer: =AlignInContainer.Center
-                                          BorderColor: =RGBA(0,0,0,0)
-                                          Fill: =AppTheme.Border
-                                          Height: =10
-                                          LayoutMinHeight: =0
-                                          LayoutMinWidth: =0
-                                          Width: =10
-                                    - lblHDOccLegendFree:
-                                        Control: Label
-                                        Properties:
-                                          AlignInContainer: =AlignInContainer.Center
-                                          Color: =AppTheme.TextMuted
-                                          Font: ="IBM Plex Sans"
-                                          Height: =16
-                                          LayoutMinHeight: =0
-                                          LayoutMinWidth: =0
-                                          PaddingLeft: =0
-                                          PaddingRight: =0
-                                          Size: =11
-                                          Text: ="Free"
-                                          Width: =32
-                                          Wrap: =false
-                                    - recHDOccLegendBooked:
-                                        Control: Rectangle
-                                        Properties:
-                                          AlignInContainer: =AlignInContainer.Center
-                                          BorderColor: =RGBA(0,0,0,0)
-                                          Fill: =ColorValue(AppTheme.Primary)
-                                          Height: =10
-                                          LayoutMinHeight: =0
-                                          LayoutMinWidth: =0
-                                          Width: =10
-                                    - lblHDOccLegendBooked:
-                                        Control: Label
-                                        Properties:
-                                          AlignInContainer: =AlignInContainer.Center
-                                          Color: =AppTheme.TextMuted
-                                          Font: ="IBM Plex Sans"
-                                          Height: =16
-                                          LayoutMinHeight: =0
-                                          LayoutMinWidth: =0
-                                          PaddingLeft: =0
-                                          PaddingRight: =0
-                                          Size: =11
-                                          Text: ="Booked"
-                                          Width: =48
-                                          Wrap: =false
+                                          Width: =172
       - cpt_Modal__book:
           Control: CanvasComponent
           ComponentName: cpt_Modal_
