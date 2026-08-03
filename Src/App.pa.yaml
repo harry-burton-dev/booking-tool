@@ -382,7 +382,9 @@ App:
                           HeaderNavItemText: "#f4f4f4", /* header band is dark in both themes - Light and Dark carry the same value */
                           WordmarkSecondary: "#c6c6c6", /* borrows ButtonDisabled (#c6c6c6) as wordmark secondary tint - retheme together; see T6 */
                           SideNavText: ColourTokens.Light.SideNavText,
-                          StatusWarnText: "#684e00"
+                          StatusWarnText: "#684e00",
+                          BattleRhythm: "#8a3ffc",
+                          BattleRhythmText: "#ffffff"
                       },
                       Dark: {
                           TextPrimary: "#f4f4f4",
@@ -400,7 +402,9 @@ App:
                           HeaderNavItemText: "#f4f4f4", /* header band is dark in both themes - Light and Dark carry the same value */
                           WordmarkSecondary: "#c6c6c6", /* borrows ButtonDisabled (#c6c6c6) as wordmark secondary tint - retheme together; see T6 */
                           SideNavText: ColourTokens.Dark.SideNavText,
-                          StatusWarnText: "#f1c21b"
+                          StatusWarnText: "#f1c21b",
+                          BattleRhythm: "#a56eff",
+                          BattleRhythmText: "#ffffff"
                       }
                   };
 
@@ -463,6 +467,9 @@ App:
                      lane HTML (flex left column) and the slot-button gallery X offset so the
                      hit targets stay aligned with the drawn lane. */
                   Timeline_RoomColPx = 200;
+                  /* Owner-coded timelines: opacity applied to blocks/segments whose end is before
+                     varNowTick. Text so the CSS splice is locale-immune. */
+                  Timeline_PastOpacityCss = "0.45";
                   varFindWindowStart = DateAdd(DateValue(Text(varFindSelectedDate,"yyyy-mm-dd")),DayStartHour*60,TimeUnit.Minutes);
                   varFindWindowEnd   = If(varFindViewMode="Day",DateAdd(DateValue(Text(varFindSelectedDate,"yyyy-mm-dd")),DayEndHour*60,TimeUnit.Minutes),DateAdd(DateValue(Text(varFindSelectedDate,"yyyy-mm-dd")),7*24*60-360,TimeUnit.Minutes));
                   varFindWeekStart   = DateAdd(varFindSelectedDate,-(Weekday(varFindSelectedDate,StartOfWeek.Monday)-1),TimeUnit.Days);
@@ -641,7 +648,8 @@ App:
                               BookedByEmail: b.BookedByEmail,
                               IsPrivate: b.IsPrivate,
                               StartDateTime: If(b.StartDateTime < varFindWindowStart, varFindWindowStart, b.StartDateTime),
-                              EndDateTime: If(b.EndDateTime > varFindWindowEnd, varFindWindowEnd, b.EndDateTime)
+                              EndDateTime: If(b.EndDateTime > varFindWindowEnd, varFindWindowEnd, b.EndDateTime),
+                              RecurrenceType: Coalesce(b.RecurrenceType, "")
                           }
                       ),
                       StartDateTime, SortOrder.Ascending
