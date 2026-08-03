@@ -1575,6 +1575,25 @@ Screens:
                                     RadiusTopLeft: =0
                                     RadiusTopRight: =0
                                   Children:
+                                    - htxHDOccLegendNow:
+                                        Control: HtmlViewer
+                                        Properties:
+                                          AlignInContainer: =AlignInContainer.Center
+                                          AutoHeight: =true
+                                          DisplayMode: =DisplayMode.View
+                                          HtmlText: |-
+                                            =/* Free/Booked legend pairs stay Rectangle+Label pending a Border hex token (wave-3/T8 scope) */
+                                            "<div style=""display: flex; align-items: center; gap: 6px;"">" &
+                                            "<span style=""display: inline-block; width: 10px; height: 10px; background-color: " & AppThemeHex.StatusBusyText & ";""></span>" &
+                                            "<span style=""" & CarbonHtmlType.Label01 & " color: " & AppThemeHex.TextMuted & ";"">Now</span>" &
+                                            "</div>"
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          PaddingBottom: =0
+                                          PaddingLeft: =0
+                                          PaddingRight: =0
+                                          PaddingTop: =0
+                                          Width: =48
                                     - recHDOccLegendFree:
                                         Control: Rectangle
                                         Properties:
@@ -1625,25 +1644,6 @@ Screens:
                                           Text: ="Booked"
                                           Width: =48
                                           Wrap: =false
-                                    - htxHDOccLegendNow:
-                                        Control: HtmlViewer
-                                        Properties:
-                                          AlignInContainer: =AlignInContainer.Center
-                                          AutoHeight: =true
-                                          DisplayMode: =DisplayMode.View
-                                          HtmlText: |-
-                                            =/* Free/Booked legend pairs stay Rectangle+Label pending a Border hex token (wave-3/T8 scope) */
-                                            "<div style=""display: flex; align-items: center; gap: 6px;"">" &
-                                            "<span style=""display: inline-block; width: 10px; height: 10px; background-color: " & AppThemeHex.StatusBusyText & ";""></span>" &
-                                            "<span style=""" & CarbonHtmlType.Label01 & " color: " & AppThemeHex.TextMuted & ";"">Now</span>" &
-                                            "</div>"
-                                          LayoutMinHeight: =0
-                                          LayoutMinWidth: =0
-                                          PaddingBottom: =0
-                                          PaddingLeft: =0
-                                          PaddingRight: =0
-                                          PaddingTop: =0
-                                          Width: =48
       - cpt_Modal__book:
           Control: CanvasComponent
           ComponentName: cpt_Modal_

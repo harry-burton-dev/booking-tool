@@ -411,8 +411,7 @@ Screens:
                                                             PaddingRight: =8
                                                             PaddingTop: =0
                                                             Size: =11
-                                                            Text: |-
-                                                              =If(Mod(DateDiff(Timeline_DayStart, ThisItem.RowEnd, TimeUnit.Minutes), 60) <> 0, Text(ThisItem.RowEnd, "HH:mm"), "")
+                                                            Text: =If(Mod(DateDiff(Timeline_DayStart, ThisItem.RowEnd, TimeUnit.Minutes), 60) <> 0, Text(ThisItem.RowEnd, "HH:mm"), "")
                                                             VerticalAlign: =VerticalAlign.Bottom
                                                             Width: =Parent.Width
                                                 - tl2ConSlot:
@@ -750,7 +749,6 @@ Screens:
                                               Properties:
                                                 AutoHeight: =true
                                                 DisplayMode: =DisplayMode.View
-                                                FillPortions: =0
                                                 HtmlText: |-
                                                   =/* T5 consolidation: conTLStatusRow dot+text in one htx; the shared
                                                      LookUp lives in the TimelineCurrentBooking named formula (PERF-7).
@@ -793,7 +791,6 @@ Screens:
                                               Properties:
                                                 AutoHeight: =true
                                                 DisplayMode: =DisplayMode.View
-                                                FillPortions: =0
                                                 HtmlText: |-
                                                   =/* T5 consolidation: lblTLRoomName + lblTLRoomDesc in one htx. */
                                                   CarbonText(CarbonHtmlType.Heading03, fnHtmlEscape(varSelectedRoom.Title)) &
@@ -877,7 +874,6 @@ Screens:
                                               Properties:
                                                 AutoHeight: =true
                                                 DisplayMode: =DisplayMode.View
-                                                FillPortions: =0
                                                 HtmlText: |-
                                                   =/* T5 consolidation: the composer's 4 pure-text labels (eyebrow, time,
                                                      caption, duration heading) in one htx; the old container gap (12) is

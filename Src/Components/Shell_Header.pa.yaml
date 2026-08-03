@@ -88,7 +88,6 @@ ComponentDefinitions:
                 Control: GroupContainer
                 Variant: ManualLayout
                 Properties:
-                  AlignInContainer: =AlignInContainer.Stretch
                   DropShadow: =DropShadow.None
                   FillPortions: =0
                   Height: =48
@@ -101,33 +100,26 @@ ComponentDefinitions:
                   - lbl_Header_Wordmark_Primary:
                       Control: Label
                       Properties:
-                        Align: =Align.Left
                         Color: =AppTheme.HeaderNavItemText
                         Font: ="IBM Plex Sans"
                         FontWeight: =FontWeight.Semibold
                         Height: =48
                         Size: =14
                         Text: ="MOC"
-                        VerticalAlign: =VerticalAlign.Middle
                         Width: =40
                         Wrap: =false
                         X: =16
-                        Y: =0
                   - lbl_Header_Wordmark_Secondary:
                       Control: Label
                       Properties:
-                        Align: =Align.Left
                         Color: =/* borrows ButtonDisabled (#c6c6c6) as wordmark secondary tint - retheme both together; see T6 */ ColorValue(AppTheme.ButtonDisabled)
                         Font: ="IBM Plex Sans"
-                        FontWeight: =FontWeight.Normal
                         Height: =48
                         Size: =14
                         Text: =" | BOOK"
-                        VerticalAlign: =VerticalAlign.Middle
                         Width: =136
                         Wrap: =false
                         X: =56
-                        Y: =0
             - con_Header_Nav:
                 Control: GroupContainer
                 Variant: AutoLayout
@@ -448,7 +440,6 @@ ComponentDefinitions:
                                     Height: =32
                                     Size: =12
                                     Text: =gblUserInitials
-                                    VerticalAlign: =VerticalAlign.Middle
                                     Width: =32
                                     Wrap: =false
                         - btn_Header_Avatar:

@@ -118,7 +118,6 @@ Screens:
                                                 Height: =64
                                                 Size: =20
                                                 Text: =gblUserInitials
-                                                VerticalAlign: =VerticalAlign.Middle
                                                 Width: =64
                                                 Wrap: =false
                                     - htxProfileIdentity:
@@ -173,8 +172,7 @@ Screens:
                                     AlignInContainer: =AlignInContainer.Stretch
                                     AutoHeight: =true
                                     DisplayMode: =DisplayMode.View
-                                    HtmlText: |-
-                                      =CarbonText(CarbonHtmlType.Heading02, "Notifications")
+                                    HtmlText: =CarbonText(CarbonHtmlType.Heading02, "Notifications")
                                     LayoutMinHeight: =0
                                     LayoutMinWidth: =0
                                     PaddingBottom: =0
