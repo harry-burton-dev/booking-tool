@@ -539,6 +539,16 @@ App:
                       )
                   );
 
+                  // myBookings tab/stat counts (PERF-7). Each hoists a CountRows(Filter(...))
+                  // that re-evaluated inline in a Label.Text. Cutoff is Now() via fnIsPast,
+                  // matching the mb2Gal* tab contents these labels count.
+                  // Consumers: mb2LblPageMeta stat line + mb2BtnTabUpcoming label.
+                  MyBookingsUpcomingCount = CountRows(Filter(MyBookings, !fnIsPast(EndDateTime)));
+                  // Consumer: mb2BtnTabPast label.
+                  MyBookingsPastCount = CountRows(Filter(MyBookings, fnIsPast(EndDateTime)));
+                  // Consumer: mb2BtnTabSeries label — one row per distinct SeriesID.
+                  MyBookingsSeriesCount = CountRows(GroupBy(Filter(MyBookings, !IsBlank(SeriesID)), SeriesID, SeriesRows));
+
                   FindBookings = Sort(
                       ForAll(
                           Filter(colBookings,

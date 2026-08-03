@@ -217,7 +217,7 @@ Screens:
                                     LayoutMinHeight: =0
                                     LayoutMinWidth: =0
                                     Size: =12
-                                    Text: =Text(CountRows(Filter(MyBookings, !fnIsPast(EndDateTime))), "[$-en-US]0") & " upcoming · Austin HQ"
+                                    Text: =Text(MyBookingsUpcomingCount, "[$-en-US]0") & " upcoming · Austin HQ"
                                     Width: =260
                                     Wrap: =false
                         - mb2ConNextUp:
@@ -396,7 +396,7 @@ Screens:
                                                 RadiusTopLeft: =0
                                                 RadiusTopRight: =0
                                                 Size: =12
-                                                Text: ="Upcoming " & Text(CountRows(Filter(MyBookings, !fnIsPast(EndDateTime))), "[$-en-US]0")
+                                                Text: ="Upcoming " & Text(MyBookingsUpcomingCount, "[$-en-US]0")
                                                 Width: =Parent.Width
                                           - mb2RectTabUpcomingBar:
                                               Control: Rectangle
@@ -457,7 +457,7 @@ Screens:
                                                 RadiusTopLeft: =0
                                                 RadiusTopRight: =0
                                                 Size: =12
-                                                Text: ="Past " & Text(CountRows(Filter(MyBookings, fnIsPast(EndDateTime))), "[$-en-US]0")
+                                                Text: ="Past " & Text(MyBookingsPastCount, "[$-en-US]0")
                                                 Width: =Parent.Width
                                           - mb2RectTabPastBar:
                                               Control: Rectangle
@@ -518,7 +518,7 @@ Screens:
                                                 RadiusTopLeft: =0
                                                 RadiusTopRight: =0
                                                 Size: =12
-                                                Text: ="Series " & Text(CountRows(GroupBy(Filter(MyBookings, !IsBlank(SeriesID)), SeriesID, SeriesRows)), "[$-en-US]0")
+                                                Text: ="Series " & Text(MyBookingsSeriesCount, "[$-en-US]0")
                                                 Width: =Parent.Width
                                           - mb2RectTabSeriesBar:
                                               Control: Rectangle
