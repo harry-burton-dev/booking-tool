@@ -85,24 +85,22 @@ Screens:
                               LayoutDirection: =LayoutDirection.Horizontal
                               Width: =Parent.Width
                             Children:
-                              - lblRoomsHeading:
-                                  Control: Label
+                              - htxRoomsHeading:
+                                  Control: HtmlViewer
                                   Properties:
-                                    Color: =AppTheme.TextPrimary
+                                    AlignInContainer: =AlignInContainer.Center
+                                    AutoHeight: =true
+                                    DisplayMode: =DisplayMode.View
                                     FillPortions: =1
-                                    Font: ="IBM Plex Sans"
-                                    FontWeight: =FontWeight.Semibold
-                                    Size: =20
-                                    Text: ="Choose a room"
-                              - lblRoomsResultSummary:
-                                  Control: Label
-                                  Properties:
-                                    Align: =Align.Right
-                                    Color: =AppTheme.TextSecondary
-                                    Font: ="IBM Plex Sans"
-                                    Size: =11
-                                    Text: =RoomsBrowseFilteredCount & " of " & RoomsBrowseTotalCount & " rooms · " & RoomsBrowseAvailableCount & " available now"
-                                    Width: =300
+                                    HtmlText: |-
+                                      =CarbonFlexBetween(
+                                          CarbonSpan(CarbonHtmlType.Heading03 & " font-weight: 600;", "Choose a room", AppThemeHex.TextPrimary) &
+                                          CarbonSpan(CarbonHtmlType.Label01, fnHtmlEscape(RoomsBrowseFilteredCount & " of " & RoomsBrowseTotalCount & " rooms · " & RoomsBrowseAvailableCount & " available now"), AppThemeHex.TextSecondary)
+                                      )
+                                    PaddingBottom: =0
+                                    PaddingLeft: =0
+                                    PaddingRight: =0
+                                    PaddingTop: =0
                         - conRoomsToolbar:
                             Control: GroupContainer
                             Variant: AutoLayout
