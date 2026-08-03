@@ -124,7 +124,7 @@ Screens:
                                     Text: |-
                                       =With(
                                           {
-                                              _freeCount: CountRows(Filter(colRooms As _r, IsBlank(LookUp(TodayBookings, RoomID.Id = _r.ID && fnOverlaps(StartDateTime, EndDateTime, varNowTick, varNowTick))))),
+                                              _freeCount: FreeNowCount,
                                               _totalCount: CountRows(colRooms),
                                               _pctBooked: Round(Average(RoomOccupancyToday, Pct) * 100, 0)
                                           },
@@ -385,22 +385,7 @@ Screens:
                                                 HtmlText: |-
                                                   ="<div style=""display: flex; justify-content: space-between; align-items: center;"">" &
                                                   "<span style=""" & CarbonHtmlType.Label01 & " color: " & AppThemeHex.TextMuted & ";"">" &
-                                                  fnHtmlEscape(
-                                                      Text(
-                                                          CountRows(
-                                                              Filter(
-                                                                  colRooms As _r,
-                                                                  IsBlank(
-                                                                      LookUp(
-                                                                          TodayBookings,
-                                                                          RoomID.Id = _r.ID && fnOverlaps(StartDateTime, EndDateTime, varNowTick, varNowTick)
-                                                                      )
-                                                                  )
-                                                              )
-                                                          ),
-                                                          "[$-en-US]0"
-                                                      ) & " free now"
-                                                  ) &
+                                                  fnHtmlEscape(Text(FreeNowCount, "[$-en-US]0") & " free now") &
                                                   "</span>" &
                                                   "<span style=""" & CarbonHtmlType.Heading02 & " color: " & AppThemeHex.TextSecondary & ";"">→</span>" &
                                                   "</div>"

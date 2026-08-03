@@ -502,6 +502,17 @@ App:
                       )
                   );
 
+                  // Rooms with no active booking covering this instant. Consumers: Home
+                  // lblHDStatLine ("N of M rooms free") and htxHDTileViewRow ("N free now")
+                  // — was the same O(rooms × bookings) Filter pasted at both sites (PERF-7).
+                  // varNowTick-based (directly and via TodayBookings), so it recalcs per
+                  // Home visit like the rest of the Home surface.
+                  FreeNowCount = CountRows(
+                      Filter(colRooms As _r,
+                          IsBlank(LookUp(TodayBookings, RoomID.Id = _r.ID && fnOverlaps(StartDateTime, EndDateTime, varNowTick, varNowTick)))
+                      )
+                  );
+
                   // 90-day lookback keeps the "All" tab bounded (delegation-safe on revert).
                   // Widened to include Clash rows (owner-facing surface only) - Find/Rooms
                   // timelines and all conflict checks stay Active-only.
