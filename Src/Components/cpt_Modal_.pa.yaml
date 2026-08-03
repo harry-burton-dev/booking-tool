@@ -310,7 +310,7 @@ ComponentDefinitions:
                                             If(!IsBlank(varStartTime) && !IsBlank(varEndTime),
                                                 ClearCollect(
                                                     colOverlappingBookings,
-                                                    Filter(colBookings, Status = "Active", fnOverlaps(StartDateTime, EndDateTime, varStartTime, varEndTime), ID <> gblEditingBookingID)
+                                                    Filter(AllBookings, Status = "Active", fnOverlaps(StartDateTime, EndDateTime, varStartTime, varEndTime), ID <> gblEditingBookingID)
                                                 );
                                                 Set(varConflict, !IsEmpty(Filter(colOverlappingBookings, RoomID.Id = varSelectedRoom.ID)));
                                                 Set(varConflictingBooking, LookUp(colOverlappingBookings, RoomID.Id = varSelectedRoom.ID));
@@ -318,7 +318,7 @@ ComponentDefinitions:
                                                     varNextFreeSlot,
                                                     LookUp(
                                                         Filter(
-                                                            colBookings,
+                                                            AllBookings,
                                                             Status = "Active",
                                                             StartDateTime >= varStartTime,
                                                             StartDateTime < DateAdd(varSelectedDate, 1, TimeUnit.Days),
@@ -593,7 +593,7 @@ ComponentDefinitions:
                                             ClearCollect(
                                                 colOverlappingBookings,
                                                 Filter(
-                                                    colBookings,
+                                                    AllBookings,
                                                     Status = "Active",
                                                     fnOverlaps(StartDateTime, EndDateTime, varStartTime, varEndTime),
                                                     ID <> gblEditingBookingID
@@ -608,7 +608,7 @@ ComponentDefinitions:
                                                 varNextFreeSlot,
                                                 LookUp(
                                                     Filter(
-                                                        colBookings,
+                                                        AllBookings,
                                                         Status = "Active",
                                                         StartDateTime >= varStartTime,
                                                         StartDateTime < DateAdd(varSelectedDate, 1, TimeUnit.Days),
@@ -705,7 +705,7 @@ ComponentDefinitions:
                                             ClearCollect(
                                                 colOverlappingBookings,
                                                 Filter(
-                                                    colBookings,
+                                                    AllBookings,
                                                     Status = "Active",
                                                     fnOverlaps(StartDateTime, EndDateTime, varStartTime, varEndTime),
                                                     ID <> gblEditingBookingID
@@ -720,7 +720,7 @@ ComponentDefinitions:
                                                 varNextFreeSlot,
                                                 LookUp(
                                                     Filter(
-                                                        colBookings,
+                                                        AllBookings,
                                                         Status = "Active",
                                                         StartDateTime >= varStartTime,
                                                         StartDateTime < DateAdd(varSelectedDate, 1, TimeUnit.Days),
@@ -1689,13 +1689,38 @@ ComponentDefinitions:
                              the server query draws a delegation warning that fails compile. */
                           ClearCollect(
                               colOverlappingBookings,
-                              Filter(
-                                  Book_Bookings,
-                                  Status = "Active",
-                                  StartDateTime < varEndTime,
-                                  EndDateTime > varStartTime
+                              ForAll(
+                                  Filter(
+                                      Book_Bookings,
+                                      Status = "Active",
+                                      StartDateTime < varEndTime,
+                                      EndDateTime > varStartTime
+                                  ) As b,
+                                  {
+                                      ID: b.ID,
+                                      Title: b.Title,
+                                      RoomID: {Id: b.RoomID.Id, Value: b.RoomID.Value},
+                                      BookedBy: b.BookedBy,
+                                      BookedByEmail: Coalesce(b.BookedByEmail, ""),
+                                      IsPrivate: b.IsPrivate,
+                                      StartDateTime: b.StartDateTime,
+                                      EndDateTime: b.EndDateTime,
+                                      Status: b.Status,
+                                      SeriesID: Coalesce(b.SeriesID, ""),
+                                      RecurrenceType: Coalesce(b.RecurrenceType, ""),
+                                      OccIndex: Coalesce(b.OccIndex, 0),
+                                      IsException: Coalesce(b.IsException, false),
+                                      IsVirtual: false
+                                  }
                               )
                           );
+                          /* BR masters are excluded from real-row conflicts only via their virtual expansion,
+                             so append the expanded occurrences that overlap the requested slot. */
+                          Collect(
+                              colOverlappingBookings,
+                              Filter(BRVirtual, fnOverlaps(StartDateTime, EndDateTime, varStartTime, varEndTime))
+                          );
+                          RemoveIf(colOverlappingBookings, fnIsBRRow(RecurrenceType) && !IsException && !IsVirtual);
                           RemoveIf(colOverlappingBookings, ID = gblEditingBookingID);
                           Set(varConflict, !IsEmpty(Filter(colOverlappingBookings, RoomID.Id = varSelectedRoom.ID)));
                           Set(varConflictingBooking, LookUp(colOverlappingBookings, RoomID.Id = varSelectedRoom.ID));
@@ -1703,7 +1728,7 @@ ComponentDefinitions:
                               varNextFreeSlot,
                               LookUp(
                                   Filter(
-                                      colBookings,
+                                      AllBookings,
                                       Status = "Active",
                                       StartDateTime >= varStartTime,
                                       StartDateTime < DateAdd(varSelectedDate, 1, TimeUnit.Days),

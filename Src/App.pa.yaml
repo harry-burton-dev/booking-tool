@@ -269,6 +269,10 @@ App:
                   WizardStep3 = "3";
 
                   AppVersionInfo = "Phase 6 · 2026-07-26";
+                  /* Admins are formula-declared by request - swap for a SharePoint list when needed.
+                     UI-level gating only: SharePoint list permissions are unchanged (see spec section 3). */
+                  AdminEmails = ["harry@harry-burton.ai"];
+                  IsAdmin = Lower(User().Email) in AdminEmails;
                   /* Sandbox sentinel - the production revert flips this to false (MOCK_DATA.md) */
                   IsSandbox = false;
 
@@ -561,7 +565,7 @@ App:
                   varFindWindowStart = DateAdd(DateValue(Text(varFindSelectedDate,"yyyy-mm-dd")),DayStartHour*60,TimeUnit.Minutes);
                   varFindWindowEnd   = If(varFindViewMode="Day",DateAdd(DateValue(Text(varFindSelectedDate,"yyyy-mm-dd")),DayEndHour*60,TimeUnit.Minutes),DateAdd(DateValue(Text(varFindSelectedDate,"yyyy-mm-dd")),7*24*60-360,TimeUnit.Minutes));
                   varFindWeekStart   = DateAdd(varFindSelectedDate,-(Weekday(varFindSelectedDate,StartOfWeek.Monday)-1),TimeUnit.Days);
-                  WeekBookings = Filter(colBookings,
+                  WeekBookings = Filter(AllBookings,
                       Status = "Active",
                       fnOverlaps(StartDateTime, EndDateTime, varFindWeekStart, DateAdd(varFindWeekStart, Timeline_WeekDayCount * 24 * 60, TimeUnit.Minutes))
                   );
@@ -577,7 +581,7 @@ App:
                   // person narrowing on BookedByEmail (plain text column = delegable eq).
 
                   TodayBookings = Sort(
-                      Filter(colBookings,
+                      Filter(AllBookings,
                           Status = "Active",
                           StartDateTime >= Date(Year(varNowTick), Month(varNowTick), Day(varNowTick)),
                           StartDateTime < DateAdd(Date(Year(varNowTick), Month(varNowTick), Day(varNowTick)), 1, TimeUnit.Days)
@@ -725,7 +729,7 @@ App:
 
                   FindBookings = Sort(
                       ForAll(
-                          Filter(colBookings,
+                          Filter(AllBookings,
                               Status = "Active",
                               fnOverlaps(StartDateTime, EndDateTime, varFindWindowStart, varFindWindowEnd)
                           ) As b,

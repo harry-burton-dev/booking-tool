@@ -292,6 +292,49 @@ ComponentDefinitions:
                               Height: =3
                               Width: =96
                               Y: =45
+                  - con_NavLink_Admin:
+                      Control: GroupContainer
+                      Variant: ManualLayout
+                      Properties:
+                        AlignInContainer: =AlignInContainer.Center
+                        DropShadow: =DropShadow.None
+                        FillPortions: =0
+                        Height: =48
+                        RadiusBottomLeft: =0
+                        RadiusBottomRight: =0
+                        RadiusTopLeft: =0
+                        RadiusTopRight: =0
+                        Visible: =IsAdmin
+                        Width: =96
+                      Children:
+                        - btn_NavLink_Admin:
+                            Control: Classic/Button
+                            Properties:
+                              BorderColor: =RGBA(0,0,0,0)
+                              BorderStyle: =BorderStyle.None
+                              Color: =AppTheme.HeaderNavItemText
+                              Fill: =RGBA(0,0,0,0)
+                              Font: ="IBM Plex Sans"
+                              FontWeight: =If(gblUI_Nav_currentTab = "Admin", FontWeight.Semibold,FontWeight.Lighter )
+                              Height: =48
+                              HoverFill: =AppTheme.HeaderNavItemHover
+                              OnSelect: |-
+                                =Set(gblUI_Nav_currentTab, Self.Text); Navigate(Admin)
+                              PressedFill: =AppTheme.HeaderNavItemPressed
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
+                              Size: =14
+                              Text: ="Admin"
+                              Width: =96
+                        - rct_NavLink_Admin_Indicator:
+                            Control: Rectangle
+                            Properties:
+                              Fill: =If(gblUI_Nav_currentTab = btn_NavLink_Admin.Text, ColorValue(AppTheme.Primary), RGBA(0,0,0,0))
+                              Height: =3
+                              Width: =96
+                              Y: =45
             - rct_Header_Spacer:
                 Control: Rectangle
                 Properties:

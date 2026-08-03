@@ -1,0 +1,459 @@
+Screens:
+  Admin:
+    Properties:
+      Fill: =AppTheme.Background
+      LoadingSpinnerColor: =ColorValue(AppTheme.Primary)
+      OnVisible: |-
+        =/* Navigate() is illegal in OnVisible - non-admins are gated by adConPage.Visible
+           plus the IsAdmin-hidden nav link instead. */
+        Refresh(Book_Bookings);
+        ClearCollect(colBookings, BookingsWindow);
+        ClearCollect(colBRMasters,
+            Filter(Book_Bookings, StartsWith(RecurrenceType, "BR-"), IsException = false, Status = "Active"))
+    Children:
+      - adConShell:
+          Control: GroupContainer
+          Variant: ManualLayout
+          Properties:
+            DropShadow: =DropShadow.None
+            Height: =Parent.Height
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Width: =Parent.Width
+          Children:
+            - adCptHeader:
+                Control: CanvasComponent
+                ComponentName: Shell_Header
+                Properties:
+                  HeaderNavTab: ="Text"
+                  Height: =48
+                  InstanceScreenName: =""
+                  ShellIcons: =ShellIconSet
+                  Width: =App.Width
+            - adConBody:
+                Control: GroupContainer
+                Variant: AutoLayout
+                Properties:
+                  Height: =Parent.Height - 48
+                  LayoutAlignItems: =LayoutAlignItems.Center
+                  LayoutDirection: =LayoutDirection.Vertical
+                  PaddingBottom: =32
+                  PaddingLeft: =32
+                  PaddingRight: =32
+                  PaddingTop: =32
+                  Width: =Parent.Width
+                  Y: =48
+                Children:
+                  - adConPage:
+                      Control: GroupContainer
+                      Variant: AutoLayout
+                      Properties:
+                        DropShadow: =DropShadow.None
+                        Fill: =AppTheme.Background
+                        Height: =Parent.Height
+                        LayoutAlignItems: =LayoutAlignItems.Stretch
+                        LayoutDirection: =LayoutDirection.Vertical
+                        LayoutGap: =16
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        PaddingBottom: =16
+                        PaddingLeft: =16
+                        PaddingRight: =16
+                        PaddingTop: =16
+                        RadiusBottomLeft: =0
+                        RadiusBottomRight: =0
+                        RadiusTopLeft: =0
+                        RadiusTopRight: =0
+                        Visible: =IsAdmin
+                        Width: =Parent.Width
+                      Children:
+                        - adHtxNoAccess:
+                            Control: HtmlViewer
+                            Properties:
+                              AutoHeight: =true
+                              DisplayMode: =DisplayMode.View
+                              HtmlText: =CarbonTextSecondary(CarbonHtmlType.Body01, "You need administrator access to view this page.")
+                              PaddingBottom: =0
+                              PaddingLeft: =0
+                              PaddingRight: =0
+                              PaddingTop: =0
+                              Visible: =!IsAdmin
+                              Width: =Parent.Width - 32
+                        - adConPageHeader:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              DropShadow: =DropShadow.None
+                              Fill: =Color.Transparent
+                              FillPortions: =0
+                              Height: =72
+                              LayoutAlignItems: =LayoutAlignItems.Center
+                              LayoutDirection: =LayoutDirection.Horizontal
+                              LayoutGap: =16
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
+                            Children:
+                              - adConTitleStack:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
+                                  Properties:
+                                    DropShadow: =DropShadow.None
+                                    Fill: =Color.Transparent
+                                    LayoutAlignItems: =LayoutAlignItems.Stretch
+                                    LayoutDirection: =LayoutDirection.Vertical
+                                    LayoutGap: =2
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                  Children:
+                                    - adConBreadcrumb:
+                                        Control: GroupContainer
+                                        Variant: AutoLayout
+                                        Properties:
+                                          DropShadow: =DropShadow.None
+                                          Fill: =Color.Transparent
+                                          FillPortions: =0
+                                          Height: =16
+                                          LayoutAlignItems: =LayoutAlignItems.Center
+                                          LayoutDirection: =LayoutDirection.Horizontal
+                                          LayoutGap: =4
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                        Children:
+                                          - adHtxBreadcrumb:
+                                              Control: HtmlViewer
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.Center
+                                                DisplayMode: =DisplayMode.View
+                                                Height: =16
+                                                HtmlText: |-
+                                                  ="<div style=""display: flex; align-items: center; gap: 4px;"">" &
+                                                  CarbonSpan(CarbonHtmlType.Label01, "Home", AppThemeHex.TextMuted) &
+                                                  CarbonSpan(CarbonHtmlType.Label01, "/", AppThemeHex.TextMuted) &
+                                                  CarbonSpan(CarbonHtmlType.Label01, "Admin", AppThemeHex.TextSecondary) &
+                                                  "</div>"
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                PaddingBottom: =0
+                                                PaddingLeft: =0
+                                                PaddingRight: =0
+                                                PaddingTop: =0
+                                                Width: =176
+                                    - adHtxPageTitle:
+                                        Control: HtmlViewer
+                                        Properties:
+                                          AlignInContainer: =AlignInContainer.Stretch
+                                          AutoHeight: =true
+                                          DisplayMode: =DisplayMode.View
+                                          HtmlText: =CarbonText(CarbonHtmlType.Heading04, "Admin")
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          PaddingBottom: =0
+                                          PaddingLeft: =0
+                                          PaddingRight: =0
+                                          PaddingTop: =0
+                        - adHtxStatLine:
+                            Control: HtmlViewer
+                            Properties:
+                              AlignInContainer: =AlignInContainer.Stretch
+                              AutoHeight: =true
+                              DisplayMode: =DisplayMode.View
+                              HtmlText: =CarbonTextSecondary(CarbonHtmlType.BodyCompact01, "Administration — bookings, Battle Rhythm, rooms")
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              PaddingBottom: =0
+                              PaddingLeft: =0
+                              PaddingRight: =0
+                              PaddingTop: =0
+                        - adConToolbar:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              DropShadow: =DropShadow.None
+                              Fill: =Color.Transparent
+                              FillPortions: =0
+                              Height: =48
+                              LayoutAlignItems: =LayoutAlignItems.Stretch
+                              LayoutDirection: =LayoutDirection.Horizontal
+                              LayoutGap: =16
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
+                            Children:
+                              - adConTabs:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
+                                  Properties:
+                                    DropShadow: =DropShadow.None
+                                    Fill: =Color.Transparent
+                                    FillPortions: =0
+                                    Height: =48
+                                    LayoutAlignItems: =LayoutAlignItems.Stretch
+                                    LayoutDirection: =LayoutDirection.Horizontal
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Width: =480
+                                  Children:
+                                    - adConTabBtnAll:
+                                        Control: GroupContainer
+                                        Variant: AutoLayout
+                                        Properties:
+                                          DropShadow: =DropShadow.None
+                                          Fill: =Color.Transparent
+                                          FillPortions: =0
+                                          Height: =48
+                                          LayoutAlignItems: =LayoutAlignItems.Stretch
+                                          LayoutDirection: =LayoutDirection.Vertical
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                          Width: =160
+                                        Children:
+                                          - adBtnTabAll:
+                                              Control: Classic/Button
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.Stretch
+                                                BorderColor: =Color.Transparent
+                                                BorderStyle: =BorderStyle.None
+                                                BorderThickness: =0
+                                                Color: =If(adTab = "All", AppTheme.TextPrimary, AppTheme.TextSecondary)
+                                                DisabledBorderColor: =Color.Transparent
+                                                DisabledColor: =AppTheme.TextMuted
+                                                DisabledFill: =AppTheme.SurfaceAlt
+                                                Fill: =If(adTab = "All", AppTheme.Background, AppTheme.SurfaceAlt)
+                                                FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                                FocusedBorderThickness: =2
+                                                Font: ="IBM Plex Sans"
+                                                FontWeight: =FontWeight.Normal
+                                                Height: =46
+                                                HoverBorderColor: =Color.Transparent
+                                                HoverColor: =AppTheme.TextPrimary
+                                                HoverFill: =AppTheme.Border
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                OnSelect: |-
+                                                  =UpdateContext({adTab: "All"})
+                                                PressedBorderColor: =Color.Transparent
+                                                PressedColor: =AppTheme.TextPrimary
+                                                PressedFill: =AppTheme.Border
+                                                RadiusBottomLeft: =0
+                                                RadiusBottomRight: =0
+                                                RadiusTopLeft: =0
+                                                RadiusTopRight: =0
+                                                Size: =12
+                                                Text: ="All bookings"
+                                                Width: =Parent.Width
+                                          - adRectTabAllBar:
+                                              Control: Rectangle
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.Stretch
+                                                BorderColor: =Color.Transparent
+                                                Fill: =If(adTab = "All", ColorValue(AppTheme.Primary), AppTheme.Border)
+                                                Height: =2
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                Width: =Parent.Width
+                                    - adConTabBtnBR:
+                                        Control: GroupContainer
+                                        Variant: AutoLayout
+                                        Properties:
+                                          DropShadow: =DropShadow.None
+                                          Fill: =Color.Transparent
+                                          FillPortions: =0
+                                          Height: =48
+                                          LayoutAlignItems: =LayoutAlignItems.Stretch
+                                          LayoutDirection: =LayoutDirection.Vertical
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                          Width: =160
+                                        Children:
+                                          - adBtnTabBR:
+                                              Control: Classic/Button
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.Stretch
+                                                BorderColor: =Color.Transparent
+                                                BorderStyle: =BorderStyle.None
+                                                BorderThickness: =0
+                                                Color: =If(adTab = "BR", AppTheme.TextPrimary, AppTheme.TextSecondary)
+                                                DisabledBorderColor: =Color.Transparent
+                                                DisabledColor: =AppTheme.TextMuted
+                                                DisabledFill: =AppTheme.SurfaceAlt
+                                                Fill: =If(adTab = "BR", AppTheme.Background, AppTheme.SurfaceAlt)
+                                                FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                                FocusedBorderThickness: =2
+                                                Font: ="IBM Plex Sans"
+                                                FontWeight: =FontWeight.Normal
+                                                Height: =46
+                                                HoverBorderColor: =Color.Transparent
+                                                HoverColor: =AppTheme.TextPrimary
+                                                HoverFill: =AppTheme.Border
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                OnSelect: |-
+                                                  =UpdateContext({adTab: "BR"})
+                                                PressedBorderColor: =Color.Transparent
+                                                PressedColor: =AppTheme.TextPrimary
+                                                PressedFill: =AppTheme.Border
+                                                RadiusBottomLeft: =0
+                                                RadiusBottomRight: =0
+                                                RadiusTopLeft: =0
+                                                RadiusTopRight: =0
+                                                Size: =12
+                                                Text: ="Battle Rhythm"
+                                                Width: =Parent.Width
+                                          - adRectTabBRBar:
+                                              Control: Rectangle
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.Stretch
+                                                BorderColor: =Color.Transparent
+                                                Fill: =If(adTab = "BR", ColorValue(AppTheme.Primary), AppTheme.Border)
+                                                Height: =2
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                Width: =Parent.Width
+                                    - adConTabBtnRooms:
+                                        Control: GroupContainer
+                                        Variant: AutoLayout
+                                        Properties:
+                                          DropShadow: =DropShadow.None
+                                          Fill: =Color.Transparent
+                                          FillPortions: =0
+                                          Height: =48
+                                          LayoutAlignItems: =LayoutAlignItems.Stretch
+                                          LayoutDirection: =LayoutDirection.Vertical
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                          Width: =160
+                                        Children:
+                                          - adBtnTabRooms:
+                                              Control: Classic/Button
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.Stretch
+                                                BorderColor: =Color.Transparent
+                                                BorderStyle: =BorderStyle.None
+                                                BorderThickness: =0
+                                                Color: =If(adTab = "Rooms", AppTheme.TextPrimary, AppTheme.TextSecondary)
+                                                DisabledBorderColor: =Color.Transparent
+                                                DisabledColor: =AppTheme.TextMuted
+                                                DisabledFill: =AppTheme.SurfaceAlt
+                                                Fill: =If(adTab = "Rooms", AppTheme.Background, AppTheme.SurfaceAlt)
+                                                FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                                FocusedBorderThickness: =2
+                                                Font: ="IBM Plex Sans"
+                                                FontWeight: =FontWeight.Normal
+                                                Height: =46
+                                                HoverBorderColor: =Color.Transparent
+                                                HoverColor: =AppTheme.TextPrimary
+                                                HoverFill: =AppTheme.Border
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                OnSelect: |-
+                                                  =UpdateContext({adTab: "Rooms"})
+                                                PressedBorderColor: =Color.Transparent
+                                                PressedColor: =AppTheme.TextPrimary
+                                                PressedFill: =AppTheme.Border
+                                                RadiusBottomLeft: =0
+                                                RadiusBottomRight: =0
+                                                RadiusTopLeft: =0
+                                                RadiusTopRight: =0
+                                                Size: =12
+                                                Text: ="Rooms"
+                                                Width: =Parent.Width
+                                          - adRectTabRoomsBar:
+                                              Control: Rectangle
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.Stretch
+                                                BorderColor: =Color.Transparent
+                                                Fill: =If(adTab = "Rooms", ColorValue(AppTheme.Primary), AppTheme.Border)
+                                                Height: =2
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                Width: =Parent.Width
+                        - adConTabAll:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              DropShadow: =DropShadow.None
+                              Fill: =Color.Transparent
+                              FillPortions: =1
+                              Height: =Parent.Height
+                              LayoutAlignItems: =LayoutAlignItems.Stretch
+                              LayoutDirection: =LayoutDirection.Vertical
+                              LayoutGap: =12
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
+                              Visible: =adTab = "All"
+                              Width: =Parent.Width
+                        - adConTabBR:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              DropShadow: =DropShadow.None
+                              Fill: =Color.Transparent
+                              FillPortions: =1
+                              Height: =Parent.Height
+                              LayoutAlignItems: =LayoutAlignItems.Stretch
+                              LayoutDirection: =LayoutDirection.Vertical
+                              LayoutGap: =12
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
+                              Visible: =adTab = "BR"
+                              Width: =Parent.Width
+                        - adConTabRooms:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              DropShadow: =DropShadow.None
+                              Fill: =Color.Transparent
+                              FillPortions: =1
+                              Height: =Parent.Height
+                              LayoutAlignItems: =LayoutAlignItems.Stretch
+                              LayoutDirection: =LayoutDirection.Vertical
+                              LayoutGap: =12
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
+                              Visible: =adTab = "Rooms"
+                              Width: =Parent.Width

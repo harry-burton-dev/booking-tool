@@ -7,7 +7,9 @@ Screens:
         =Refresh(Book_Bookings);
         /* Re-pull the shared bookings snapshot so colleagues' writes since App.OnStart
            (or since this session's last write) show up without requiring a write of our own */
-        ClearCollect(colBookings, BookingsWindow)
+        ClearCollect(colBookings, BookingsWindow);
+        ClearCollect(colBRMasters,
+            Filter(Book_Bookings, StartsWith(RecurrenceType, "BR-"), IsException = false, Status = "Active"))
     Children:
       - mb2ConShell:
           Control: GroupContainer

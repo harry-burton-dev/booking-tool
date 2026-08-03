@@ -519,8 +519,11 @@ Screens:
                                                             HoverColor: =Color.Transparent
                                                             HoverFill: =RGBA(0, 0, 0, 0.04)
                                                             OnSelect: |-
-                                                              =Set(gblSelectedBooking, LookUp(colBookings, ID = ThisItem.BookingID));
-                                                              Navigate(bookingDetail, ScreenTransition.Fade)
+                                                              =/* Virtual Battle Rhythm rows have negative BookingID and no colBookings row -
+                                                                 manage them from the Admin screen instead of bookingDetail. */
+                                                              If(ThisItem.BookingID > 0,
+                                                                  Set(gblSelectedBooking, LookUp(colBookings, ID = ThisItem.BookingID));
+                                                                  Navigate(bookingDetail, ScreenTransition.Fade))
                                                             PressedColor: =Color.Transparent
                                                             PressedFill: =RGBA(0, 0, 0, 0.08)
                                                             RadiusBottomLeft: =0
@@ -529,7 +532,7 @@ Screens:
                                                             RadiusTopRight: =0
                                                             Text: |-
                                                               ="Open booking details: " & ThisItem.Title
-                                                            Visible: =ThisItem.RowType = "booked" && !ThisItem.IsMasked
+                                                            Visible: =ThisItem.RowType = "booked" && !ThisItem.IsMasked && ThisItem.BookingID > 0
                                                             Width: =Parent.Width - 16
                                                             Y: =2
                                                       - tl2ConFree:
@@ -1100,7 +1103,7 @@ Screens:
                               OnSelect: |-
                                 =ClearCollect(colRoomBookings,
                                     Filter(
-                                        colBookings,
+                                        AllBookings,
                                         Status = "Active",
                                         fnOverlaps(StartDateTime, EndDateTime, Timeline_DayStart, Timeline_DayEnd),
                                         RoomID.Id = varSelectedRoom.ID
