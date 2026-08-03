@@ -116,7 +116,7 @@ App:
 
                   /* Shared HTML fragments for consolidated htx sites (T8 prep). Compositions are
                      verbatim copies of the wave-2 strings (htxHDOccHeader / htxHDNextProgLabels /
-                     htxHDOccLegendNow in Home) so rendering is identical:
+                     the legend now-marker, since merged into htxHDOccLegendAll in Home) so rendering is identical:
                      - CarbonSpan: inline styled span (css from CarbonHtmlType, text color hex).
                      - CarbonFlexBetween: space-between flex row wrapper.
                      - CarbonSwatch: square legend swatch, size parameterized. Round status dots
