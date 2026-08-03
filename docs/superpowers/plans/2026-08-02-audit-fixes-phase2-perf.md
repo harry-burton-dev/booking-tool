@@ -1,6 +1,6 @@
 # Audit Remediation — Phase 2 (Performance Program) Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **Execute with: `orchestrator-coding`** — NEVER superpowers:subagent-driven-development or superpowers:executing-plans (they mandate two reviewers per task and re-created the 2026-08-03 5.9M-token blowout). Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Execute the performance program from `docs/reviews/2026-07-31-app-audit.md` (remediation items 2, 6, 7 = PERF-1/3/4/5/6), plus the typography/HTML standardisation pass Harry requested on 2026-08-02: adopt the IBM Carbon typography kit (`CarbonHtmlType` + `CarbonText` UDFs) as named formulas, and collapse multi-Label text stacks ("3 labels where 1 would work") into single HTML text controls where that nets out positive. Folds in PERF-7 (duplicated expressions → named formulas) and PERF-8 (shell HtmlViewers) because they share files with the other tasks.
 

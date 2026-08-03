@@ -1,6 +1,6 @@
 # Audit Remediation — Phase 1 (Correctness) Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **Execute with: `orchestrator-coding`** — NEVER superpowers:subagent-driven-development or superpowers:executing-plans (they mandate two reviewers per task and re-created the 2026-08-03 5.9M-token blowout). Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Close the correctness holes from `docs/reviews/2026-07-31-app-audit.md` — stale-snapshot double-booking (BUG-1), data-row-limit truncation (BUG-2), series cancel/edit gaps (BUG-3/9), re-time clash writes (BUG-4), monthly weekend recurrence (BUG-10b), the four Rooms-timeline defects (BUG-5/6/7/22), wizard state leaks (BUG-13/14), and the two five-minute items (BUG-8, PERF-2).
 

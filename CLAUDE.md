@@ -57,8 +57,18 @@ writing code. That skill is **the** execution path here. Do **not** run
 `superpowers:subagent-driven-development` or `superpowers:executing-plans` in this repo: they
 mandate two review agents per task and know nothing about the compile gate. Running that path on
 2026-08-02 cost ~4.4M subagent tokens for ~400 changed lines. `superpowers:writing-plans` is
-still fine for authoring a multi-task plan — the plan then hands to `orchestrator-coding` to
-execute, and plan tasks carry a lane (see the skill).
+still fine for authoring a multi-task plan — but **replace its boilerplate header**: every plan
+here opens with `Execute with: orchestrator-coding`, carries a `Lane:` per task, `Risk: high`
+flags decided at authoring time, and a plan-level `Budget:` line (expected dispatches + token
+ceiling; 1.5× = stop and report). On 2026-08-03 a session obeyed a stale plan header over this
+file and spent 5.9M tokens / 45 dispatches on work worth ~12 — the plan header wins fights with
+this file, so the plan header must be right.
+
+Default is **no reviewer**: the toolchain (pa-lint, schema-validate, the compiler, SARIF diff)
+is the review, and a human fixes cosmetics in Studio faster than an agent dispatch. A reviewer
+agent runs only on tasks the plan flagged `Risk: high`. Review findings ≤10 lines and mechanical
+are applied by the orchestrator directly; **never resume an agent for comments, naming, or
+style** — resuming replays its whole accumulated context.
 
 On a Canvas App, workers lint but never compile and never commit (RULES O1). Because of that the
 orchestrator owns a **probe compile**: the first task introducing a new data-source query,

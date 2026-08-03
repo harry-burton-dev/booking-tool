@@ -49,6 +49,18 @@ if command -v git >/dev/null 2>&1; then
   add "Git lags live whenever a session published without committing. Verify, do not assume."
 fi
 
+# Poisoned plan headers: superpowers execute skills mandate 2 reviewers/task and re-created the
+# 2026-08-03 5.9M-token run by overriding CLAUDE.md from inside a plan file. Warn before planning.
+if [ -d "$REPO/docs/superpowers/plans" ]; then
+  bad="$(grep -l -E 'REQUIRED SUB-SKILL.*(subagent-driven-development|executing-plans)' "$REPO"/docs/superpowers/plans/*.md 2>/dev/null | wc -l | tr -d ' ')"
+  if [ "${bad:-0}" != "0" ]; then
+    add ""
+    add "WARNING: ${bad} plan file(s) in docs/superpowers/plans/ name a FORBIDDEN execute skill"
+    add "(subagent-driven-development / executing-plans). Plans execute with orchestrator-coding"
+    add "ONLY - fix the plan header before executing any of them."
+  fi
+fi
+
 add ""
 add "Guard is active: a PreToolUse hook re-syncs the server and BLOCKS compile_canvas if the"
 add "live app moved since your last sync, or if pa-lint finds known-defect-class issues."
