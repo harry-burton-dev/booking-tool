@@ -111,17 +111,18 @@ Screens:
                                               RowMinutes: DateDiff(b.StartDateTime, b.EndDateTime, TimeUnit.Minutes),
                                               Title:     If(b.IsPrivate && b.BookedByEmail <> Lower(User().Email), "Busy", b.Title),
                                               BookedBy:  If(b.IsPrivate && b.BookedByEmail <> Lower(User().Email), "", b.BookedBy.DisplayName),
-                                              IsMine:    Lower(Coalesce(b.BookedByEmail, "")) = Lower(User().Email)
+                                              IsMine:    Lower(Coalesce(b.BookedByEmail, "")) = Lower(User().Email),
+                                              IsBR:      StartsWith(Coalesce(b.RecurrenceType, ""), "BR-")
                                           })
                                       );
                                       If(IsEmpty(room),
                                           Collect(colFindRows, {RoomKey:rm.ID,RowType:"free",RowStart:_s,RowEnd:_e,
                                               RowHeight:DateDiff(_s,_e,TimeUnit.Minutes)*Timeline_PxPerMinute,
-                                              RowMinutes:DateDiff(_s,_e,TimeUnit.Minutes),Title:"",BookedBy:"",IsMine:false}),
+                                              RowMinutes:DateDiff(_s,_e,TimeUnit.Minutes),Title:"",BookedBy:"",IsMine:false,IsBR:false}),
                                           First(room).StartDateTime > _s,
                                           Collect(colFindRows, {RoomKey:rm.ID,RowType:"free",RowStart:_s,RowEnd:First(room).StartDateTime,
                                               RowHeight:DateDiff(_s,First(room).StartDateTime,TimeUnit.Minutes)*Timeline_PxPerMinute,
-                                              RowMinutes:DateDiff(_s,First(room).StartDateTime,TimeUnit.Minutes),Title:"",BookedBy:"",IsMine:false})
+                                              RowMinutes:DateDiff(_s,First(room).StartDateTime,TimeUnit.Minutes),Title:"",BookedBy:"",IsMine:false,IsBR:false})
                                       );
                                       // PERF-5-SKIP[conditional-cardinality] do not batch — If branches Collect 0-1 rows per iteration
                                       ForAll(room As b,
@@ -129,11 +130,11 @@ Screens:
                                               If(IsBlank(next) && b.EndDateTime < _e,
                                                   Collect(colFindRows, {RoomKey:rm.ID,RowType:"free",RowStart:b.EndDateTime,RowEnd:_e,
                                                       RowHeight:DateDiff(b.EndDateTime,_e,TimeUnit.Minutes)*Timeline_PxPerMinute,
-                                                      RowMinutes:DateDiff(b.EndDateTime,_e,TimeUnit.Minutes),Title:"",BookedBy:"",IsMine:false}),
+                                                      RowMinutes:DateDiff(b.EndDateTime,_e,TimeUnit.Minutes),Title:"",BookedBy:"",IsMine:false,IsBR:false}),
                                                   !IsBlank(next) && next > b.EndDateTime,
                                                   Collect(colFindRows, {RoomKey:rm.ID,RowType:"free",RowStart:b.EndDateTime,RowEnd:next,
                                                       RowHeight:DateDiff(b.EndDateTime,next,TimeUnit.Minutes)*Timeline_PxPerMinute,
-                                                      RowMinutes:DateDiff(b.EndDateTime,next,TimeUnit.Minutes),Title:"",BookedBy:"",IsMine:false})
+                                                      RowMinutes:DateDiff(b.EndDateTime,next,TimeUnit.Minutes),Title:"",BookedBy:"",IsMine:false,IsBR:false})
                                               )
                                           )
                                       )
@@ -183,6 +184,7 @@ Screens:
                                                                           With({_hit: LookUp(overl, fnOverlaps(StartDateTime, EndDateTime, _ss, DateAdd(_ss, 30, TimeUnit.Minutes)))},
                                                                               {seg: "<span style='flex:1 1 0;background:" &
                                                                                   If(IsBlank(_hit), AppThemeHex.Border,
+                                                                                     StartsWith(Coalesce(_hit.RecurrenceType, ""), "BR-"), AppThemeHex.BattleRhythm,
                                                                                      Lower(Coalesce(_hit.BookedByEmail, "")) = Lower(User().Email), AppThemeHex.Primary,
                                                                                      AppThemeHex.TextSecondary) &
                                                                                   ";'></span>"}
@@ -897,9 +899,9 @@ Screens:
                                                         ) &
                                                         Concat(
                                                             ForAll(Filter(_rows, RowType = "booked") As b,
-                                                                {h: "<div style='position:absolute; top:8px; bottom:8px; left:" & Round(DateDiff(varFindWindowStart, b.RowStart, TimeUnit.Minutes) / _winMin * 100, 3) & "%; width:" & Round(b.RowMinutes / _winMin * 100, 3) & "%; box-sizing:border-box; background:" & If(b.IsMine, AppThemeHex.Primary, AppThemeHex.Border) & "; box-shadow:" & If(b.IsMine, "none", "inset 3px 0 0 0 " & AppThemeHex.TextSecondary) & "; padding:0 10px; display:flex; flex-direction:column; justify-content:center; gap:1px; overflow:hidden; z-index:2;'>" &
-                                                                    "<div style='" & CarbonHtmlType.Label01 & " font-weight:600; color:" & If(b.IsMine, AppThemeHex.PrimaryText, AppThemeHex.TextPrimary) & "; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;'>" & fnHtmlEscape(b.Title) & "</div>" &
-                                                                    "<div style='" & CarbonHtmlType.Code01 & " font-size:11px; color:" & If(b.IsMine, ColourTokens.Light.Accent, AppThemeHex.TextMuted) & "; white-space:nowrap;'>" & Text(b.RowStart, "HH:mm") & "–" & Text(b.RowEnd, "HH:mm") & If(b.BookedBy <> "", " · " & fnHtmlEscape(b.BookedBy), "") & "</div>" &
+                                                                {h: "<div style='position:absolute; top:8px; bottom:8px; left:" & Round(DateDiff(varFindWindowStart, b.RowStart, TimeUnit.Minutes) / _winMin * 100, 3) & "%; width:" & Round(b.RowMinutes / _winMin * 100, 3) & "%; box-sizing:border-box; background:" & If(b.IsBR, AppThemeHex.BattleRhythm, b.IsMine, AppThemeHex.Primary, AppThemeHex.Border) & "; box-shadow:" & If(b.IsBR || b.IsMine, "none", "inset 3px 0 0 0 " & AppThemeHex.TextSecondary) & "; opacity:" & If(b.RowEnd < varNowTick, Timeline_PastOpacityCss, "1") & "; padding:0 10px; display:flex; flex-direction:column; justify-content:center; gap:1px; overflow:hidden; z-index:2;'>" &
+                                                                    "<div style='" & CarbonHtmlType.Label01 & " font-weight:600; color:" & If(b.IsBR, AppThemeHex.BattleRhythmText, b.IsMine, AppThemeHex.PrimaryText, AppThemeHex.TextPrimary) & "; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;'>" & fnHtmlEscape(b.Title) & "</div>" &
+                                                                    "<div style='" & CarbonHtmlType.Code01 & " font-size:11px; color:" & If(b.IsBR, AppThemeHex.BattleRhythmText, b.IsMine, ColourTokens.Light.Accent, AppThemeHex.TextMuted) & "; white-space:nowrap;'>" & Text(b.RowStart, "HH:mm") & "–" & Text(b.RowEnd, "HH:mm") & If(b.BookedBy <> "", " · " & fnHtmlEscape(b.BookedBy), "") & "</div>" &
                                                                     "</div>"}
                                                             ),
                                                             h
@@ -911,7 +913,7 @@ Screens:
                                                         "<div style='display:flex; height:100%; width:100%;'>" &
                                                         Concat(
                                                             ForAll(_wk As c,
-                                                                {h: "<div style='flex:1 1 0; min-width:0; border-left:1px solid " & AppThemeHex.Border & "; padding:10px 12px; box-sizing:border-box; display:flex; flex-direction:column; gap:6px; justify-content:center; overflow:hidden;'>" &
+                                                                {h: "<div style='flex:1 1 0; min-width:0; border-left:1px solid " & AppThemeHex.Border & "; padding:10px 12px; box-sizing:border-box; opacity:" & If(c.RowEnd < varNowTick, Timeline_PastOpacityCss, "1") & "; display:flex; flex-direction:column; gap:6px; justify-content:center; overflow:hidden;'>" &
                                                                     "<div style='display:flex; align-items:baseline; justify-content:space-between; gap:8px;'>" &
                                                                     "<span style='" & CarbonHtmlType.HeadingCompact01 & " font-size:13px; color:" & If(c.BookedMinutes = 0, AppThemeHex.StatusFreeText, AppThemeHex.TextPrimary) & "; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;'>" & If(c.BookedMinutes = 0, "Free all day", c.Title) & "</span>" &
                                                                     If(c.BookedMinutes > 0, "<span style='" & CarbonHtmlType.Code01 & " font-size:11px; color:" & AppThemeHex.TextMuted & "; white-space:nowrap;'>" & Round(c.BookedMinutes / _winMin * 100, 0) & "%</span>", "") &
@@ -1061,6 +1063,8 @@ Screens:
                                 "<span style='display:flex; align-items:center; gap:6px; " & CarbonHtmlType.Label01 & " color:" & AppThemeHex.TextMuted & ";'><span style='display:inline-block; width:12px; height:8px; background:" & AppThemeHex.Surface & "; border:1px solid " & AppThemeHex.Border & ";'></span>Available — click to book</span>" &
                                 "<span style='display:flex; align-items:center; gap:6px; " & CarbonHtmlType.Label01 & " color:" & AppThemeHex.TextMuted & ";'><span style='display:inline-block; width:12px; height:8px; background:" & AppThemeHex.Border & "; box-shadow:inset 3px 0 0 0 " & AppThemeHex.TextSecondary & ";'></span>Booked</span>" &
                                 "<span style='display:flex; align-items:center; gap:6px; " & CarbonHtmlType.Label01 & " color:" & AppThemeHex.TextMuted & ";'><span style='display:inline-block; width:12px; height:8px; background:" & AppThemeHex.Primary & ";'></span>Your booking</span>" &
+                                "<span style='display:flex; align-items:center; gap:6px; " & CarbonHtmlType.Label01 & " color:" & AppThemeHex.TextMuted & ";'><span style='display:inline-block; width:12px; height:8px; background:" & AppThemeHex.BattleRhythm & ";'></span>Battle Rhythm</span>" &
+                                "<span style='display:flex; align-items:center; gap:6px; " & CarbonHtmlType.Label01 & " color:" & AppThemeHex.TextMuted & ";'><span style='display:inline-block; width:12px; height:8px; background:" & AppThemeHex.Border & "; opacity:0.45;'></span>Past</span>" &
                                 "<span style='display:flex; align-items:center; gap:6px; " & CarbonHtmlType.Label01 & " color:" & AppThemeHex.TextMuted & ";'><span style='display:inline-block; width:2px; height:12px; background:" & AppThemeHex.StatusBusyText & ";'></span>Now</span>" &
                                 "</div>" &
                                 "<span style='" & CarbonHtmlType.Code01 & " color:" & AppThemeHex.TextMuted & "; white-space:nowrap;'>" & Text(Time(DayStartHour, 0, 0), "HH:mm") & "–" & Text(Time(DayEndHour, 0, 0), "HH:mm") & " · Mon–Fri</span>" &

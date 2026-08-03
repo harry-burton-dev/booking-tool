@@ -151,6 +151,22 @@ App:
                   // fnIsPast: strictly before "now". Exactly negates the original ">= Now()" sites.
                   fnIsPast(d:DateTime):Boolean = d < Now();
 
+                  /* Battle Rhythm (BR-*) helpers. Masters: RecurrenceType BR-Weekly|BR-Fortnightly|BR-Monthly,
+                     IsException=false. Exceptions: RecurrenceType "BR-Exception", IsException=true, OccIndex=k.
+                     k is cadence periods since the master anchor (OccIndex 0 = the anchor occurrence).
+                     NOTE "BR-Exception" also matches the "BR-" prefix - master tests must add IsException=false. */
+                  fnIsBRRow(rt:Text):Boolean = StartsWith(Coalesce(rt, ""), "BR-");
+                  fnBROccStart(anchor:DateTime, cadence:Text, k:Number):DateTime =
+                      Switch(cadence,
+                          "BR-Weekly",      DateAdd(anchor, 7 * k, TimeUnit.Days),
+                          "BR-Fortnightly", DateAdd(anchor, 14 * k, TimeUnit.Days),
+                          DateAdd(anchor, k, TimeUnit.Months));
+                  fnBROccIndex(anchor:DateTime, cadence:Text, d:DateTime):Number =
+                      Switch(cadence,
+                          "BR-Weekly",      RoundDown(DateDiff(anchor, d, TimeUnit.Days) / 7, 0),
+                          "BR-Fortnightly", RoundDown(DateDiff(anchor, d, TimeUnit.Days) / 14, 0),
+                          DateDiff(anchor, d, TimeUnit.Months));
+
                   DayStartHour = 8;
                   DayEndHour = 18;
                   SlotMinutes = 15;
@@ -174,6 +190,78 @@ App:
                       Book_Bookings,
                       EndDateTime >= BookingsWindowStart,
                       StartDateTime <= BookingsWindowEnd
+                  );
+
+                  /* Virtual BR occurrences over the bookings window. One in-memory record per non-deviated
+                     occurrence of each Active master; a (SeriesID, OccIndex) match against an exception row in
+                     colBookings suppresses that occurrence (the exception row itself renders, or not, on its own
+                     Status). Negative ID marks virtual rows un-Patchable; consumers detect them via IsVirtual. */
+                  BRVirtual = Ungroup(
+                      ForAll(colBRMasters As m,
+                          With(
+                              {
+                                  _dur: DateDiff(m.StartDateTime, m.EndDateTime, TimeUnit.Minutes),
+                                  _maxK: Max(0, fnBROccIndex(m.StartDateTime, m.RecurrenceType, BookingsWindowEnd)),
+                                  _exc: Filter(colBookings, SeriesID = m.SeriesID, IsException)
+                              },
+                              {
+                                  occs: ForAll(
+                                      Filter(Sequence(_maxK + 1, 0) As _k,
+                                          fnBROccStart(m.StartDateTime, m.RecurrenceType, _k.Value) >= BookingsWindowStart,
+                                          IsBlank(LookUp(_exc, OccIndex = _k.Value))
+                                      ) As _kk,
+                                      With({_s: fnBROccStart(m.StartDateTime, m.RecurrenceType, _kk.Value)},
+                                          {
+                                              ID: -(m.ID * 10000 + _kk.Value),
+                                              Title: m.Title,
+                                              RoomID: {Id: m.RoomID.Id, Value: m.RoomID.Value},
+                                              BookedBy: m.BookedBy,
+                                              BookedByEmail: Coalesce(m.BookedByEmail, ""),
+                                              IsPrivate: false,
+                                              StartDateTime: _s,
+                                              EndDateTime: DateAdd(_s, _dur, TimeUnit.Minutes),
+                                              Status: "Active",
+                                              SeriesID: m.SeriesID,
+                                              RecurrenceType: m.RecurrenceType,
+                                              OccIndex: _kk.Value,
+                                              IsException: false,
+                                              IsVirtual: true
+                                          }
+                                      )
+                                  )
+                              }
+                          )
+                      ),
+                      occs
+                  );
+
+                  /* THE read surface for timelines and conflict checks: real rows (masters excluded - only their
+                     expansion renders/blocks) reshaped to the plain schema, unioned with BRVirtual. MyBookings
+                     deliberately stays on colBookings (with a master exclusion - see MyBookings). */
+                  AllBookings = Ungroup(
+                      Table(
+                          {r: ForAll(
+                                  Filter(colBookings, !(fnIsBRRow(RecurrenceType) && !IsException)) As b,
+                                  {
+                                      ID: b.ID,
+                                      Title: b.Title,
+                                      RoomID: {Id: b.RoomID.Id, Value: b.RoomID.Value},
+                                      BookedBy: b.BookedBy,
+                                      BookedByEmail: Coalesce(b.BookedByEmail, ""),
+                                      IsPrivate: b.IsPrivate,
+                                      StartDateTime: b.StartDateTime,
+                                      EndDateTime: b.EndDateTime,
+                                      Status: b.Status,
+                                      SeriesID: Coalesce(b.SeriesID, ""),
+                                      RecurrenceType: Coalesce(b.RecurrenceType, ""),
+                                      OccIndex: Coalesce(b.OccIndex, 0),
+                                      IsException: Coalesce(b.IsException, false),
+                                      IsVirtual: false
+                                  }
+                              )},
+                          {r: BRVirtual}
+                      ),
+                      r
                   );
 
                   WizardStep1 = "1";
@@ -585,6 +673,7 @@ App:
                   MyBookings = Sort(
                       Filter(colBookings,
                           Status = "Active" || Status = "Clash",
+                          !(fnIsBRRow(RecurrenceType) && !IsException),
                           EndDateTime >= DateAdd(Today(), -90, TimeUnit.Days),
                           BookedByEmail = Lower(User().Email)
                       ),
@@ -860,7 +949,9 @@ App:
 
                   Concurrent(
                       ClearCollect(colRooms, Book_Rooms),
-                      ClearCollect(colBookings, BookingsWindow)
+                      ClearCollect(colBookings, BookingsWindow),
+                      ClearCollect(colBRMasters,
+                          Filter(Book_Bookings, StartsWith(RecurrenceType, "BR-"), IsException = false, Status = "Active"))
                   );
 
 
