@@ -397,6 +397,13 @@ App:
                   Timeline_SlotMinutes = SlotMinutes;
                   Timeline_SlotCount = 40;
 
+                  // In-progress booking on the Rooms timeline's selected room/day
+                  // (colRoomBookings is materialized by Rooms btn_LoadTimeline, already
+                  // clamped to the day window). Consumers: Rooms lblTLStatusDot.Color +
+                  // lblTLStatusText.Text, which each computed this same LookUp (PERF-7).
+                  // Blank when no booking spans varNowTick.
+                  TimelineCurrentBooking = LookUp(colRoomBookings, StartDateTime <= varNowTick && EndDateTime > varNowTick);
+
 
 
 

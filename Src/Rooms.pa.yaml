@@ -1259,7 +1259,7 @@ Screens:
                                                 - lblTLStatusDot:
                                                     Control: Label
                                                     Properties:
-                                                      Color: =If(!IsBlank(LookUp(colRoomBookings, StartDateTime <= varNowTick && EndDateTime > varNowTick)), AppTheme.StatusBusyText, AppTheme.StatusFreeText)
+                                                      Color: =If(!IsBlank(TimelineCurrentBooking), AppTheme.StatusBusyText, AppTheme.StatusFreeText)
                                                       Font: ="IBM Plex Sans"
                                                       Height: =18
                                                       Size: =10
@@ -1274,7 +1274,7 @@ Screens:
                                                       Size: =11
                                                       Text: |-
                                                         =With(
-                                                            {_cur: LookUp(colRoomBookings, StartDateTime <= varNowTick && EndDateTime > varNowTick)},
+                                                            {_cur: TimelineCurrentBooking},
                                                             If(
                                                                 !IsBlank(_cur),
                                                                 "Booked until " & Text(_cur.EndDateTime, "HH:mm"),
