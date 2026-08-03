@@ -113,6 +113,18 @@ App:
                   CarbonTextSecondary(css:Text, content:Text):Text = "<div style=""" & css & " color: " & AppThemeHex.TextSecondary & ";"">" & content & "</div>";
                   CarbonTextColored(css:Text, content:Text, hex:Text):Text = "<div style=""" & css & " color: " & hex & ";"">" & content & "</div>";
 
+                  /* Shared HTML fragments for consolidated htx sites (T8 prep). Compositions are
+                     verbatim copies of the wave-2 strings (htxHDOccHeader / htxHDNextProgLabels /
+                     htxHDOccLegendNow in Home) so rendering is identical:
+                     - CarbonSpan: inline styled span (css from CarbonHtmlType, text color hex).
+                     - CarbonFlexBetween: space-between flex row wrapper.
+                     - CarbonSwatch: square legend swatch, size parameterized. Round status dots
+                       and bordered swatches keep their inline spans - border-radius/border cannot
+                       ride the single-hex signature. */
+                  CarbonSpan(css:Text, content:Text, hex:Text):Text = "<span style=""" & css & " color: " & hex & ";"">" & content & "</span>";
+                  CarbonFlexBetween(content:Text):Text = "<div style=""display: flex; justify-content: space-between; align-items: center;"">" & content & "</div>";
+                  CarbonSwatch(hex:Text, px:Number):Text = "<span style=""display: inline-block; width: " & px & "px; height: " & px & "px; background-color: " & hex & ";""></span>";
+
                   //------------------------------------------------------------
                   //--- Shared predicates, policy constants, wizard step keys ---
                   //------------------------------------------------------------
