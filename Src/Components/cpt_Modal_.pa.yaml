@@ -1129,7 +1129,7 @@ ComponentDefinitions:
                                             Set(varConflict,
                                                 !IsBlank(
                                                     LookUp(
-                                                        colBookings,
+                                                        AllBookings,
                                                         RoomID.Id = ThisItem.ID &&
                                                         Status = "Active" &&
                                                         ID <> gblEditingBookingID &&
@@ -1687,6 +1687,14 @@ ComponentDefinitions:
                              taken by ANOTHER user since screen entry is caught here. The edit-mode
                              self-exclusion happens collection-side: an ID <> predicate layered on
                              the server query draws a delegation warning that fails compile. */
+                          /* Refresh BR masters first so the BRVirtual rows appended below expand
+                             from server-fresh masters, not the OnStart snapshot (review-A 3a).
+                             Known limit: an exception row created by another user since the
+                             snapshot can appear both as its real row (server read) and as the
+                             still-unsuppressed virtual occurrence - both block, so the conflict
+                             verdict is unaffected; only the conflicting-booking label may lag. */
+                          ClearCollect(colBRMasters,
+                              Filter(Book_Bookings, StartsWith(RecurrenceType, "BR-"), IsException = false, Status = "Active"));
                           ClearCollect(
                               colOverlappingBookings,
                               ForAll(

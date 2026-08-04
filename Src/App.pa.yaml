@@ -139,6 +139,10 @@ App:
                      properties. Change a width here, header and rows move together. */
                   MB2TableCols = { Room: 190, Date: 100, Time: 110, Status: 110, Action: 110 };
 
+                  /* Admin all-bookings table columns - same single-source-of-truth pattern as MB2TableCols:
+                     consumed by BOTH adHtxTableHead's flex spans and the adGalBookings row-label Width/X. */
+                  AdminTableCols = { Room: 170, Date: 100, Time: 110, Owner: 190, Status: 110, Action: 110 };
+
                   //------------------------------------------------------------
                   //--- Shared predicates, policy constants, wizard step keys ---
                   //------------------------------------------------------------

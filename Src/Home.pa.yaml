@@ -1551,6 +1551,9 @@ Screens:
                           )
                       )
                   );
+                  /* BR-aware clash inputs: master anchor rows must not block (only their expansion
+                     does) - drop them; virtual BR occurrences are checked via BRVirtual in _hasClash. */
+                  RemoveIf(colOccOverlap, StartsWith(Coalesce(RecurrenceType, ""), "BR-") && !IsException);
                   Set(varNewSeriesID, If(First(colPayloadSnapshot).RecurrenceType <> "", GUID(), Blank()));
 
                   /* Loop through all snapshot occurrences */
@@ -1562,6 +1565,11 @@ Screens:
                               _hasClash: !IsBlank(
                                   LookUp(
                                       Filter(colOccOverlap, fnOverlaps(StartDateTime, EndDateTime, _occ.StartDateTime, _occ.EndDateTime)),
+                                      RoomID.Id = _occ.RoomIdNumber
+                                  )
+                              ) || !IsBlank(
+                                  LookUp(
+                                      Filter(BRVirtual, fnOverlaps(StartDateTime, EndDateTime, _occ.StartDateTime, _occ.EndDateTime)),
                                       RoomID.Id = _occ.RoomIdNumber
                                   )
                               )
