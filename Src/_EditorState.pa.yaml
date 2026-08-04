@@ -7,6 +7,7 @@ EditorState:
     - Find
     - myBookings
     - Profile
+    - Admin
   ComponentDefinitionsOrder:
     - Shell_Header
     - cpt_Modal_

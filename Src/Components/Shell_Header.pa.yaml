@@ -318,8 +318,7 @@ ComponentDefinitions:
                               FontWeight: =If(gblUI_Nav_currentTab = "Admin", FontWeight.Semibold,FontWeight.Lighter )
                               Height: =48
                               HoverFill: =AppTheme.HeaderNavItemHover
-                              OnSelect: |-
-                                =Set(gblUI_Nav_currentTab, Self.Text); Navigate(Admin)
+                              OnSelect: =Set(gblUI_Nav_currentTab, Self.Text); Navigate(Admin)
                               PressedFill: =AppTheme.HeaderNavItemPressed
                               RadiusBottomLeft: =0
                               RadiusBottomRight: =0
