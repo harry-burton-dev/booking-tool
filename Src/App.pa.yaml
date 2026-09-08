@@ -155,25 +155,335 @@ App:
                   // fnIsPast: strictly before "now". Exactly negates the original ">= Now()" sites.
                   fnIsPast(d:DateTime):Boolean = d < Now();
 
-                  /* Battle Rhythm (BR-*) helpers. Masters: RecurrenceType BR-Weekly|BR-Fortnightly|BR-Monthly,
-                     IsException=false. Exceptions: RecurrenceType "BR-Exception", IsException=true, OccIndex=k.
-                     k is cadence periods since the master anchor (OccIndex 0 = the anchor occurrence).
-                     NOTE "BR-Exception" also matches the "BR-" prefix - master tests must add IsException=false. */
+                  // fnIsMine: case-insensitive, blank-safe ownership check (BUG-21 - was three
+                  // different comparisons across screens, one of which lowercased only one side).
+                  fnIsMine(email:Text):Boolean = Lower(Coalesce(email, "")) = Lower(User().Email);
+
+                  /* Battle Rhythm (BR-*) helpers. Masters: any RecurrenceType starting "BR-" except
+                     "BR-Exception", with IsException=false. Exceptions: "BR-Exception", IsException=true, OccIndex=k.
+                     Rich rule encoding: BR-RULE;F=<D|W|M|MW>;I=<n>;BD=<1..7>;BM=<1..31>;BP=<1..4|-1>;C=<n>;U=<yyyymmdd>
+                     (every key optional except F; no C and no U means a permanent series).
+                     Legacy masters stay valid: BR-Weekly = F=W,I=1; BR-Fortnightly = F=W,I=2; BR-Monthly = F=M.
+                     k is rule periods since the master anchor (OccIndex 0 = the anchor occurrence). */
                   fnIsBRRow(rt:Text):Boolean = StartsWith(Coalesce(rt, ""), "BR-");
                   fnBROccStart(anchor:DateTime, cadence:Text, k:Number):DateTime =
-                      Switch(cadence,
-                          "BR-Weekly",      DateAdd(anchor, 7 * k, TimeUnit.Days),
-                          "BR-Fortnightly", DateAdd(anchor, 14 * k, TimeUnit.Days),
-                          DateAdd(anchor, k, TimeUnit.Months));
+                      fnOccStart(anchor, cadence, k);
+                  /* NOTE (T-10): on a multi-weekday rule (WD= with more than one digit) this is a
+                     LOWER BOUND - it returns the index of the FIRST slot of d's week, which is at
+                     most fnRuleNd - 1 below the true index of d. Callers using it as an upper bound
+                     must therefore add fnRuleNd(...), not 1. Single-day rules are unchanged. */
                   fnBROccIndex(anchor:DateTime, cadence:Text, d:DateTime):Number =
-                      Switch(cadence,
-                          "BR-Weekly",      RoundDown(DateDiff(anchor, d, TimeUnit.Days) / 7, 0),
-                          "BR-Fortnightly", RoundDown(DateDiff(anchor, d, TimeUnit.Days) / 14, 0),
-                          DateDiff(anchor, d, TimeUnit.Months));
+                      With({_f: fnRuleFreq(cadence), _n: fnRuleInterval(cadence)},
+                          Switch(_f,
+                              "D", RoundDown(DateDiff(anchor, d, TimeUnit.Days) / _n, 0),
+                              "W",
+                                  With({_wd: fnRuleWD(cadence, anchor)},
+                                      With({_nd: Len(_wd), _p: Max(0, Coalesce(Find(Text(Weekday(anchor)), _wd), 1) - 1), _ws: DateAdd(DateValue(anchor), -(Weekday(anchor) - 1), TimeUnit.Days)},
+                                          If(_nd <= 1,
+                                              RoundDown(DateDiff(anchor, d, TimeUnit.Days) / (7 * _n), 0),
+                                              RoundDown(DateDiff(_ws, d, TimeUnit.Days) / (7 * _n), 0) * _nd - _p))),
+                              RoundDown(DateDiff(anchor, d, TimeUnit.Months) / _n, 0)));
 
-                  DayStartHour = 8;
-                  DayEndHour = 18;
-                  SlotMinutes = 15;
+                  /* --- BR-RULE parsing / expansion primitives (see encoding above) --- */
+                  fnRuleGet(rt:Text, key:Text):Text =
+                      With({_h: Coalesce(rt, "") & ";", _t: ";" & key & "="},
+                          With({_p: Find(_t, _h)},
+                              If(IsBlank(_p) || _p = 0, Blank(),
+                                  With({_r: Mid(_h, _p + Len(_t))},
+                                      Left(_r, Find(";", _r) - 1)))));
+                  fnRuleIsMaster(rt:Text):Boolean =
+                      StartsWith(Coalesce(rt, ""), "BR-") && Coalesce(rt, "") <> "BR-Exception";
+                  fnRuleFreq(rt:Text):Text =
+                      Switch(rt,
+                          "BR-Weekly", "W",
+                          "BR-Fortnightly", "W",
+                          "BR-Monthly", "M",
+                          Coalesce(fnRuleGet(rt, "F"), "W"));
+                  fnRuleInterval(rt:Text):Number =
+                      If(rt = "BR-Fortnightly", 2, Max(1, Value(Coalesce(fnRuleGet(rt, "I"), "1"))));
+                  fnRuleBD(rt:Text, anchor:DateTime):Number =
+                      Coalesce(Value(fnRuleGet(rt, "BD")), Weekday(anchor));
+                  fnRuleBM(rt:Text, anchor:DateTime):Number =
+                      Coalesce(Value(fnRuleGet(rt, "BM")), Day(anchor));
+                  fnRuleBP(rt:Text):Number = Coalesce(Value(fnRuleGet(rt, "BP")), 1);
+                  /* T-10: WD= is the multi-weekday key on F=W rules - ascending Weekday() digits
+                     (1 = Sunday ... 7 = Saturday), e.g. ";WD=246" = Mon/Wed/Fri. Absent means "the
+                     anchor's weekday only", which is exactly the pre-T-10 behaviour, so fnRuleNd = 1
+                     is the untouched single-day path everywhere below. WD always contains the
+                     anchor's own weekday (the writers guarantee it). */
+                  fnRuleWD(rt:Text, anchor:DateTime):Text =
+                      Coalesce(fnRuleGet(rt, "WD"), Text(Weekday(anchor)));
+                  fnRuleNd(rt:Text, anchor:DateTime):Number =
+                      Len(fnRuleWD(rt, anchor));
+                  fnRuleCount(rt:Text):Number =
+                      With({_c: fnRuleGet(rt, "C")}, If(IsBlank(_c) || _c = "", Blank(), Value(_c)));
+                  fnRuleUntil(rt:Text):Date =
+                      With({_u: fnRuleGet(rt, "U")},
+                          If(IsBlank(_u),
+                              Blank(),
+                              Date(Value(Left(_u, 4)), Value(Mid(_u, 5, 2)), Value(Mid(_u, 7, 2)))));
+                  fnRuleIsPermanent(rt:Text):Boolean =
+                      fnRuleIsMaster(rt) && IsBlank(fnRuleGet(rt, "C")) && IsBlank(fnRuleGet(rt, "U"));
+                  fnOrdinal(n:Number):Text =
+                      Switch(n, 1, "first", 2, "second", 3, "third", 4, "fourth", -1, "last", Text(n));
+
+                  /* Date of occurrence k (k=0 is the anchor's own date). Blank when the period has no
+                     valid date - Power Fx rolls e.g. Feb 30 forward, so those months are skipped. */
+                  fnOccDate(anchor:DateTime, rt:Text, k:Number):Date =
+                      With({_a: DateValue(anchor), _n: fnRuleInterval(rt), _f: fnRuleFreq(rt)},
+                          Switch(_f,
+                              "D", DateAdd(_a, k * _n, TimeUnit.Days),
+                              /* Multi-weekday weeks: k indexes OCCURRENCES, not weeks. Slots run
+                                 ascending inside a week, so occurrence _p + k sits in week
+                                 RoundDown((_p + k) / _nd) counted from the anchor's own week (_ws is
+                                 that week's Sunday) at slot Mod(_p + k, _nd). k = 0 lands back on the
+                                 anchor by construction, since _p is the anchor's own slot. */
+                              "W",
+                                  With({_wd: fnRuleWD(rt, anchor)},
+                                      With({_nd: Len(_wd), _p: Max(0, Coalesce(Find(Text(Weekday(_a)), _wd), 1) - 1), _ws: DateAdd(_a, -(Weekday(_a) - 1), TimeUnit.Days)},
+                                          If(_nd <= 1,
+                                              DateAdd(_a, k * _n * 7, TimeUnit.Days),
+                                              With({_idx: _p + k},
+                                                  DateAdd(_ws, RoundDown(_idx / _nd, 0) * 7 * _n + (Value(Mid(_wd, Mod(_idx, _nd) + 1, 1)) - 1), TimeUnit.Days))))),
+                              "MW",
+                                  With({_first: Date(Year(_a), Month(_a) + k * _n, 1), _bd: fnRuleBD(rt, anchor), _bp: fnRuleBP(rt)},
+                                      If(_bp > 0,
+                                          With({_d: DateAdd(_first, Mod(_bd - Weekday(_first) + 7, 7) + (_bp - 1) * 7, TimeUnit.Days)},
+                                              If(Month(_d) = Month(_first), _d, Blank())),
+                                          With({_last: DateAdd(Date(Year(_first), Month(_first) + 1, 1), -1, TimeUnit.Days)},
+                                              DateAdd(_last, -Mod(Weekday(_last) - _bd + 7, 7), TimeUnit.Days)))),
+                              With({_bm: fnRuleBM(rt, anchor)},
+                                  With({_d: Date(Year(_a), Month(_a) + k * _n, _bm)},
+                                      If(Day(_d) = _bm, _d, Blank())))));
+                  fnOccStart(anchor:DateTime, rt:Text, k:Number):DateTime =
+                      With({_d: fnOccDate(anchor, rt, k)},
+                          If(IsBlank(_d), Blank(), DateAdd(_d, Hour(anchor) * 60 + Minute(anchor), TimeUnit.Minutes)));
+
+                  /* Highest k worth generating: a frequency-dependent cap, tightened by an explicit C=.
+                     T-13/B2: on F=W the cap counts OCCURRENCES, not weeks, so a multi-weekday rule
+                     needs one cap-unit per booking day or it stops short (WD=246 covered ~17 weeks
+                     instead of 52). WD is read straight off the rule string - absent means one day,
+                     which is the untouched single-day cap. */
+                  fnRuleKmax(rt:Text):Number =
+                      With({_f: fnRuleFreq(rt), _n: fnRuleInterval(rt), _c: fnRuleCount(rt)},
+                          With({_cap: Switch(_f,
+                                  "D", RoundDown(800 / _n, 0),
+                                  "W", RoundDown(120 * Max(1, Len(Coalesce(fnRuleGet(rt, "WD"), "1"))) / _n, 0),
+                                  RoundDown(30 / _n, 0))},
+                              If(IsBlank(_c), _cap, _c - 1)));
+
+                  /* Human-readable cadence label. Covers one-offs, the pre-BR real-row series strings,
+                     exception rows and every BR-RULE master. 2026-03-01 is a Sunday (Weekday 1). */
+                  fnRuleLabel(rt:Text, anchor:DateTime):Text =
+                      With({_rt: Coalesce(rt, "")},
+                          If(_rt = "", "One-off",
+                          If(_rt = "Weekly", "Weekly",
+                          If(_rt = "BiWeekly", "Every 2 weeks",
+                          If(_rt = "Monthly", "Monthly",
+                          If(_rt = "BR-Exception", "Moved occurrence",
+                          If(!fnRuleIsMaster(_rt), _rt,
+                              With({_f: fnRuleFreq(_rt), _n: fnRuleInterval(_rt), _c: fnRuleCount(_rt), _u: fnRuleUntil(_rt)},
+                                  With({_cad: Switch(_f,
+                                          "D", If(_n = 1, "Daily", "Every " & _n & " days"),
+                                          "W",
+                                              With({_wd: fnRuleWD(_rt, anchor)},
+                                                  With({_days: Concat(Sequence(Len(_wd)) As _i, Text(DateAdd(Date(2026, 3, 1), Value(Mid(_wd, _i.Value, 1)) - 1, TimeUnit.Days), "[$-en-US]ddd") & ", ")},
+                                                      If(_n = 1, "Weekly", "Every " & _n & " weeks") &
+                                                      If(Len(_wd) > 1, " on " & Left(_days, Len(_days) - 2), ""))),
+                                          "MW", If(_n = 1, "Monthly", "Every " & _n & " months") & " on the " & fnOrdinal(fnRuleBP(_rt)) & " " & Text(DateAdd(Date(2026, 3, 1), fnRuleBD(_rt, anchor) - 1, TimeUnit.Days), "[$-en-US]dddd"),
+                                          If(_n = 1, "Monthly", "Every " & _n & " months") & " on day " & fnRuleBM(_rt, anchor))},
+                                      _cad &
+                                      If(fnRuleIsPermanent(_rt), " · permanent",
+                                      If(!IsBlank(_c), " · " & _c & " times",
+                                      If(!IsBlank(_u), " · until " & Text(_u, "dd mmm yyyy"), "")))))
+                          )))))));
+
+                  /* --- T-09: rule surgery for the "this and following" split ---------------
+                     fnRuleCanon upgrades a legacy BR-Weekly/BR-Fortnightly/BR-Monthly string
+                     (no keys at all) to an explicit BR-RULE so the key-level edits below have
+                     something to bite on; an existing BR-RULE passes through untouched.
+                     fnRuleStripEnd drops whichever end marker is present (C wins over U, so
+                     giving a series an end date means removing C as well as any old U).
+                     fnRuleWithUntil ends a series on a given date.
+                     fnRuleRebase builds the rule of the NEW series whose occurrence 0 is
+                     newAnchor, split off at index k of the old one. */
+                  fnRuleCanon(rt:Text, anchor:DateTime):Text =
+                      If(StartsWith(Coalesce(rt, ""), "BR-RULE"), rt,
+                         "BR-RULE;F=" & fnRuleFreq(rt) & ";I=" & fnRuleInterval(rt) &
+                         If(fnRuleFreq(rt) = "M", ";BM=" & Day(anchor), ""));
+
+                  /* "§" never occurs in a rule, so an absent key substitutes a needle that
+                     cannot match - a no-op pass rather than a branch. */
+                  fnRuleStripEnd(rt:Text):Text =
+                      With({_c: fnRuleGet(rt, "C"), _u: fnRuleGet(rt, "U")},
+                          Substitute(Substitute(rt, If(IsBlank(_c), "§", ";C=" & _c), ""), If(IsBlank(_u), "§", ";U=" & _u), ""));
+
+                  fnRuleWithUntil(rt:Text, anchor:DateTime, u:DateTime):Text =
+                      fnRuleStripEnd(fnRuleCanon(rt, anchor)) & ";U=" & Text(u, "yyyymmdd");
+
+                  /* Only the date-shaped keys that are actually present are re-derived, and only
+                     when the split occurrence's date actually moved; every other key (F, I, and
+                     anything a later ticket adds) passes through untouched. The end marker is
+                     re-appended last: C shrinks by k, otherwise the old U carries over,
+                     otherwise the new series stays permanent. */
+                  fnRuleRebase(rt:Text, anchor:DateTime, newAnchor:DateTime, k:Number):Text =
+                      With(
+                          {
+                              _base: fnRuleStripEnd(fnRuleCanon(rt, anchor)),
+                              _moved: DateValue(newAnchor) <> fnOccDate(anchor, rt, k),
+                              _c: fnRuleCount(rt),
+                              _u: fnRuleGet(rt, "U")
+                          },
+                          With(
+                              {
+                                  _bm: fnRuleGet(_base, "BM"),
+                                  _bd: fnRuleGet(_base, "BD"),
+                                  _bp: fnRuleGet(_base, "BP"),
+                                  _wd: fnRuleGet(_base, "WD"),
+                                  /* weekday of the occurrence being split off (not the master anchor's) */
+                                  _kwd: Text(Weekday(fnOccDate(anchor, rt, k)))
+                              },
+                              With(
+                                  {
+                                      _keys: If(!_moved, _base,
+                                          Substitute(
+                                          Substitute(
+                                              Substitute(
+                                                  Substitute(
+                                                      _base,
+                                                      If(IsBlank(_bm), "§", ";BM=" & _bm),
+                                                      If(IsBlank(_bm), "", ";BM=" & Day(newAnchor))),
+                                                  If(IsBlank(_bd), "§", ";BD=" & _bd),
+                                                  If(IsBlank(_bd), "", ";BD=" & Weekday(newAnchor))),
+                                              If(IsBlank(_bp), "§", ";BP=" & _bp),
+                                              If(IsBlank(_bp), "", ";BP=" & If(Day(newAnchor) >= 29, -1, RoundUp(Day(newAnchor) / 7, 0)))),
+                                          /* WD: swap the split occurrence's weekday for the new anchor's and re-sort,
+                                             so the new anchor is always a member of its own weekday set */
+                                          If(IsBlank(_wd), "§", ";WD=" & _wd),
+                                          If(IsBlank(_wd), "",
+                                              ";WD=" & Concat(Sequence(7) As _d,
+                                                  If(Text(_d.Value) = Text(Weekday(newAnchor)) ||
+                                                     Coalesce(Find(Text(_d.Value), Substitute(_wd, _kwd, "")), 0) > 0,
+                                                      Text(_d.Value), "")))))
+                                  },
+                                  _keys &
+                                  If(!IsBlank(_c), ";C=" & (_c - k),
+                                     If(!IsBlank(_u), ";U=" & _u, ""))
+                              )
+                          )
+                      );
+
+                  /* Recurrence panel contract — the shared surface the wizard/permanent panel binds to.
+                     Anchors come from the wizard globals in "recurring" mode and from the explicit
+                     permanent-panel anchor globals in "permanent" mode (Admin has no wizard pickers). */
+                  RecurAnchorStart = If(gblRecurMode = "permanent", gblRecurAnchorStart, Coalesce(varStartTime, Now()));
+
+                  RecurAnchorEnd = If(gblRecurMode = "permanent", gblRecurAnchorEnd, Coalesce(varEndTime, DateAdd(RecurAnchorStart, 60, TimeUnit.Minutes)));
+
+                  RecurRoomId = If(gblRecurMode = "permanent", gblRecurRoomId, Value(varSelectedRoom.ID));
+
+                  RecurFreqCode = If(gblRecurFreq = "M" && gblRecurMonthMode = "weekday", "MW", gblRecurFreq);
+
+                  /* T-10: the weekday set the chips are editing, normalised for the rule writer -
+                     ascending Weekday() digits, the anchor's own weekday always present (it is the
+                     one chip that cannot be switched off), and weekend digits dropped when the site
+                     policy blocks weekends. gblRecurWD is the raw, unordered chip accumulator. */
+                  RecurWD =
+                      With({_aw: Text(Weekday(RecurAnchorStart)), _sel: Coalesce(gblRecurWD, "")},
+                          Concat(Sequence(7) As _d,
+                              If(Text(_d.Value) = _aw ||
+                                 (Find(Text(_d.Value), _sel) > 0 && (WeekendPolicy = "allow" || (_d.Value >= 2 && _d.Value <= 6))),
+                                  Text(_d.Value), "")));
+
+                  RecurRule =
+                      With({_d: DateValue(RecurAnchorStart)},
+                          "BR-RULE;F=" & RecurFreqCode &
+                          ";I=" & Max(1, gblRecurInterval) &
+                          If(RecurFreqCode = "W" && Len(RecurWD) > 1, ";WD=" & RecurWD, "") &
+                          If(RecurFreqCode = "M", ";BM=" & Day(_d), "") &
+                          If(RecurFreqCode = "MW", ";BD=" & Weekday(_d) & ";BP=" & If(Day(_d) >= 29, -1, RoundUp(Day(_d) / 7, 0)), "") &
+                          If(gblRecurMode = "permanent" || gblRecurEndMode = "never", "",
+                              If(gblRecurEndMode = "date", ";U=" & Text(gblRecurUntil, "yyyymmdd"), ";C=" & Max(2, gblRecurCount))));
+
+                  RecurLabel = fnRuleLabel(RecurRule, RecurAnchorStart);
+
+                  /* Weekday-only expansion capped at 52 rows (_kmax + 1). Inside the clash Filter,
+                     StartDateTime/EndDateTime bind to the AllBookings row; the occurrence window
+                     comes from _q. */
+                  RecurOccurrences =
+                      With({_kmax: Min(fnRuleKmax(RecurRule), 51), _dur: DateDiff(RecurAnchorStart, RecurAnchorEnd, TimeUnit.Minutes), _until: fnRuleUntil(RecurRule)},
+                          ForAll(
+                              Filter(
+                                  ForAll(Sequence(_kmax + 1, 0) As _k,
+                                      {K: _k.Value, S: fnOccStart(RecurAnchorStart, RecurRule, _k.Value)}
+                                  ) As _o,
+                                  !IsBlank(_o.S),
+                                  WeekendPolicy = "allow" || (Weekday(_o.S) >= 2 && Weekday(_o.S) <= 6),
+                                  IsBlank(_until) || DateValue(_o.S) <= _until
+                              ) As _q,
+                              {
+                                  K: _q.K,
+                                  StartDateTime: _q.S,
+                                  EndDateTime: DateAdd(_q.S, _dur, TimeUnit.Minutes),
+                                  IsClash: !IsEmpty(
+                                      Filter(AllBookings,
+                                          Status = "Active",
+                                          RoomID.Id = RecurRoomId,
+                                          fnOverlaps(StartDateTime, EndDateTime, _q.S, DateAdd(_q.S, _dur, TimeUnit.Minutes))
+                                      )
+                                  )
+                              }
+                          ));
+
+                  RecurPreview = FirstN(RecurOccurrences, 8);
+
+                  RecurCount = CountRows(RecurOccurrences);
+
+                  RecurClashCount = CountRows(Filter(RecurOccurrences, IsClash));
+
+                  RecurAllowed = gblRecurMode = "permanent" || IsAdmin || gblRecurEndMode <> "never";
+
+                  /* --- T-06: booking route, wizard defaults, favourite rooms ---------------
+                     The wizard still advances by step number 1 -> 2 -> 3. Only WHICH container
+                     is the Room step and which is the When step swaps with the route, so every
+                     "this is the Room step" / "this is the When step" test goes through the two
+                     mappings below rather than through a bare step literal. */
+                  WizardStepRoom = If(gblBookRoute = "time", WizardStep2, WizardStep1);
+                  WizardStepWhen = If(gblBookRoute = "time", WizardStep1, WizardStep2);
+
+                  /* Per-user booking defaults from Book_UserSettings (gblUserSettings). */
+                  DefaultBookRoute = Coalesce(gblUserSettings.BookingRoute.Value, "room");
+                  /* The route the user did NOT make their default - Home offers both entry
+                     points and orders the two booking tiles by DefaultBookRoute. */
+                  OtherBookRoute = If(DefaultBookRoute = "time", "room", "time");
+                  WizardDefaultDurationMin = Coalesce(gblUserSettings.DefaultDurationMin, 60);
+                  WizardDefaultStartHour = Coalesce(gblUserSettings.DefaultStartHour, DayStartHour);
+                  WizardDefaultRoomId = Coalesce(gblUserSettings.DefaultRoomID, 0);
+
+                  /* FavouriteRoomIDs is a single Text column holding a comma-separated list of
+                     colRooms IDs; parsed once here so every consumer tests membership the same way. */
+                  FavouriteRoomIds =
+                      ForAll(
+                          Filter(
+                              Split(Coalesce(gblUserSettings.FavouriteRoomIDs, ""), ",") As _s,
+                              !IsBlank(Trim(_s.Value))
+                          ) As _f,
+                          {Id: Value(Trim(_f.Value))}
+                      );
+                  fnIsFavourite(roomId:Number):Boolean = !IsBlank(LookUp(FavouriteRoomIds, Id = roomId));
+
+                  /* Rooms browse list with the Favourites chip applied (gblRoomsFavOnly). */
+                  RoomsBrowseFavFiltered =
+                      Filter(RoomsBrowseData As _rmf, !gblRoomsFavOnly || fnIsFavourite(_rmf.ID));
+
+
+                  DayStartHour = SettingNumber("DayStartHour", 8);
+                  DayEndHour = SettingNumber("DayEndHour", 18);
+                  SlotMinutes = SettingNumber("SlotMinutes", 15);
+                  /* "block" (the default) marks Saturday/Sunday occurrences as clashes;
+                     "allow" lets weekend bookings through everywhere. */
+                  WeekendPolicy = Coalesce(SettingText("WeekendPolicy"), "block");
+                  SiteName = Coalesce(SettingText("SiteName"), "MOC");
                   MaxBookingMinutes = 240;
 
                   /* The one bounded source for the colBookings snapshot. Rolling window:
@@ -190,6 +500,11 @@ App:
                      single-row mirrors use blank-safe UpdateIf (no-op if the row is not local). */
                   BookingsWindowStart = DateAdd(Today(), -90, TimeUnit.Days);
                   BookingsWindowEnd   = DateAdd(Today(), 24, TimeUnit.Months);
+                  /* Virtual expansion horizon for PERMANENT (open-ended) series (Harry, 2026-09-04:
+                     3 months). Bounded series and real rows keep the 24-month window. KNOWN LIMIT:
+                     bookings made further ahead than this will not see permanent-series occurrences
+                     as busy - widen here if that bites. */
+                  BRVirtualEnd = DateAdd(Today(), 3, TimeUnit.Months);
                   BookingsWindow = Filter(
                       Book_Bookings,
                       EndDateTime >= BookingsWindowStart,
@@ -205,33 +520,52 @@ App:
                           With(
                               {
                                   _dur: DateDiff(m.StartDateTime, m.EndDateTime, TimeUnit.Minutes),
-                                  _maxK: Max(0, fnBROccIndex(m.StartDateTime, m.RecurrenceType, BookingsWindowEnd)),
+                                  /* k range is window-relative for open-ended series (an old anchor must not
+                                     age out of the virtual horizon); count-bounded series use C-1. */
+                                  _k0: Max(0, fnBROccIndex(m.StartDateTime, m.RecurrenceType, BookingsWindowStart) - 1),
+                                  /* fnBROccIndex is a lower bound on multi-weekday rules, so the upper
+                                     end of the k range widens by one k per booking day (T-10), not by 1.
+                                     Permanent (open-ended) series stop at BRVirtualEnd; bounded series keep the
+                     24-month window (B1 - Harry's decision covers permanent bookings only). */
+                                  _kmax: If(IsBlank(fnRuleCount(m.RecurrenceType)),
+                                            Max(0, fnBROccIndex(m.StartDateTime, m.RecurrenceType, If(fnRuleIsPermanent(m.RecurrenceType), BRVirtualEnd, BookingsWindowEnd)) + fnRuleNd(m.RecurrenceType, m.StartDateTime)),
+                                            fnRuleKmax(m.RecurrenceType)),
+                                  _until: fnRuleUntil(m.RecurrenceType),
+                                  _perm: fnRuleIsPermanent(m.RecurrenceType),
+                                  _roomTitle: LookUp(colRooms, ID = m.RoomID.Id).Title,
                                   _exc: Filter(colBookings, SeriesID = m.SeriesID, IsException)
                               },
                               {
                                   occs: ForAll(
-                                      Filter(Sequence(_maxK + 1, 0) As _k,
-                                          fnBROccStart(m.StartDateTime, m.RecurrenceType, _k.Value) >= BookingsWindowStart,
-                                          IsBlank(LookUp(_exc, OccIndex = _k.Value))
-                                      ) As _kk,
-                                      With({_s: fnBROccStart(m.StartDateTime, m.RecurrenceType, _kk.Value)},
-                                          {
-                                              ID: -(m.ID * 10000 + _kk.Value),
-                                              Title: m.Title,
-                                              RoomID: {Id: m.RoomID.Id, Value: m.RoomID.Value},
-                                              BookedBy: m.BookedBy,
-                                              BookedByEmail: Coalesce(m.BookedByEmail, ""),
-                                              IsPrivate: false,
-                                              StartDateTime: _s,
-                                              EndDateTime: DateAdd(_s, _dur, TimeUnit.Minutes),
-                                              Status: "Active",
-                                              SeriesID: m.SeriesID,
-                                              RecurrenceType: m.RecurrenceType,
-                                              OccIndex: _kk.Value,
-                                              IsException: false,
-                                              IsVirtual: true
-                                          }
-                                      )
+                                      Filter(
+                                          ForAll(Sequence(Max(0, _kmax - _k0 + 1), _k0) As _k,
+                                              {k: _k.Value, s: fnOccStart(m.StartDateTime, m.RecurrenceType, _k.Value)}
+                                          ) As _kk,
+                                          !IsBlank(_kk.s),
+                                          WeekendPolicy = "allow" || (Weekday(_kk.s) >= 2 && Weekday(_kk.s) <= 6),
+                                          _kk.s >= BookingsWindowStart,
+                                          _kk.s <= If(_perm, BRVirtualEnd, BookingsWindowEnd),
+                                          IsBlank(_until) || DateValue(_kk.s) <= _until,
+                                          IsBlank(LookUp(_exc, OccIndex = _kk.k))
+                                      ) As _o,
+                                      {
+                                          ID: -(m.ID * 10000 + _o.k),
+                                          Title: m.Title,
+                                          RoomID: {Id: m.RoomID.Id, Value: m.RoomID.Value},
+                                          'RoomID: Title': {Value: _roomTitle},
+                                          BookedBy: m.BookedBy,
+                                          BookedByEmail: Coalesce(m.BookedByEmail, ""),
+                                          IsPrivate: Coalesce(m.IsPrivate, false),
+                                          StartDateTime: _o.s,
+                                          EndDateTime: DateAdd(_o.s, _dur, TimeUnit.Minutes),
+                                          Status: "Active",
+                                          SeriesID: m.SeriesID,
+                                          RecurrenceType: m.RecurrenceType,
+                                          OccIndex: _o.k,
+                                          IsException: false,
+                                          IsVirtual: true,
+                                          IsPermanent: _perm
+                                      }
                                   )
                               }
                           )
@@ -240,8 +574,8 @@ App:
                   );
 
                   /* THE read surface for timelines and conflict checks: real rows (masters excluded - only their
-                     expansion renders/blocks) reshaped to the plain schema, unioned with BRVirtual. MyBookings
-                     deliberately stays on colBookings (with a master exclusion - see MyBookings). */
+                     expansion renders/blocks) reshaped to the plain schema, unioned with BRVirtual.
+                     MyBookings now reads this too (see MyBookings). */
                   AllBookings = Ungroup(
                       Table(
                           {r: ForAll(
@@ -250,6 +584,7 @@ App:
                                       ID: b.ID,
                                       Title: b.Title,
                                       RoomID: {Id: b.RoomID.Id, Value: b.RoomID.Value},
+                                      'RoomID: Title': {Value: b.'RoomID: Title'.Value},
                                       BookedBy: b.BookedBy,
                                       BookedByEmail: Coalesce(b.BookedByEmail, ""),
                                       IsPrivate: b.IsPrivate,
@@ -260,7 +595,8 @@ App:
                                       RecurrenceType: Coalesce(b.RecurrenceType, ""),
                                       OccIndex: Coalesce(b.OccIndex, 0),
                                       IsException: Coalesce(b.IsException, false),
-                                      IsVirtual: false
+                                      IsVirtual: false,
+                                      IsPermanent: If(Coalesce(b.IsException, false), fnRuleIsPermanent(LookUp(colBRMasters, SeriesID = b.SeriesID).RecurrenceType), false)
                                   }
                               )},
                           {r: BRVirtual}
@@ -273,10 +609,24 @@ App:
                   WizardStep3 = "3";
 
                   AppVersionInfo = "Phase 6 · 2026-07-26";
-                  /* Admins are formula-declared by request - swap for a SharePoint list when needed.
+                  /* AdminEmails stays as the bootstrap super-admin list: these two addresses are
+                     always admins and cannot be removed from the Admin > Settings tab, so the app can
+                     never lock every admin out. Everyone else comes from Book_AppSettings.
                      UI-level gating only: SharePoint list permissions are unchanged (see spec section 3). */
-                  AdminEmails = ["harry@harry-burton.ai"];
-                  IsAdmin = Lower(User().Email) in AdminEmails;
+                  AdminEmails = ["harry@harry-burton.ai", "harry.burton100@mod.gov.uk"];
+
+                  /* Typed accessors over the Book_AppSettings key/value list (colAppSettings is pulled in OnStart). */
+                  SettingText(key:Text):Text = LookUp(colAppSettings, Title = key).Value;
+                  SettingNumber(key:Text, dflt:Number):Number = With({_v: SettingText(key)}, If(IsBlank(_v), dflt, Value(_v)));
+
+                  /* What's new: the settings date is the release stamp; a user has seen it when their
+                     Book_UserSettings.LastSeenWhatsNew matches. Blank date = no announcement to show. */
+                  WhatsNewDate = Coalesce(SettingText("WhatsNewDate"), "");
+                  WhatsNewSeen = Coalesce(gblUserSettings.LastSeenWhatsNew, "") = WhatsNewDate;
+
+                  AdminEmailList = Filter(colAppSettings, Title = "AdminEmail");
+
+                  IsAdmin = Lower(User().Email) in AdminEmails || !IsBlank(LookUp(AdminEmailList, Lower(Value) = Lower(User().Email)));
                   /* Sandbox sentinel - the production revert flips this to false (MOCK_DATA.md) */
                   IsSandbox = false;
 
@@ -678,12 +1028,18 @@ App:
                   // 90-day lookback keeps the "All" tab bounded (delegation-safe on revert).
                   // Widened to include Clash rows (owner-facing surface only) - Find/Rooms
                   // timelines and all conflict checks stay Active-only.
+                  // Reads AllBookings, so virtual BR occurrences show up alongside real rows;
+                  // the master exclusion is kept (AllBookings already drops them) for clarity.
                   MyBookings = Sort(
-                      Filter(colBookings,
+                      Filter(AllBookings,
                           Status = "Active" || Status = "Clash",
-                          !(fnIsBRRow(RecurrenceType) && !IsException),
+                          /* no master exclusion here: AllBookings already drops master rows, and virtual
+                             occurrences carry the master's RecurrenceType with IsException=false - the old
+                             predicate silently removed every occurrence of a user's own series (BUG 2026-09-03) */
                           EndDateTime >= DateAdd(Today(), -90, TimeUnit.Days),
-                          BookedByEmail = Lower(User().Email)
+                          // permanent bookings have no owner and never belong in a person's list
+                          !IsPermanent,
+                          fnIsMine(BookedByEmail)
                       ),
                       StartDateTime, SortOrder.Ascending
                   );
@@ -746,7 +1102,8 @@ App:
                               IsPrivate: b.IsPrivate,
                               StartDateTime: If(b.StartDateTime < varFindWindowStart, varFindWindowStart, b.StartDateTime),
                               EndDateTime: If(b.EndDateTime > varFindWindowEnd, varFindWindowEnd, b.EndDateTime),
-                              RecurrenceType: Coalesce(b.RecurrenceType, "")
+                              RecurrenceType: Coalesce(b.RecurrenceType, ""),
+                              IsPermanent: b.IsPermanent
                           }
                       ),
                       StartDateTime, SortOrder.Ascending
@@ -904,12 +1261,6 @@ App:
                   //--- Sandbox mock data (mirrors Book_Rooms/Book_Bookings) ---
                   //--------------------------------------------------------
 
-                  /* Per-user settings - mirrors intended Book_UserSettings list (see MOCK_DATA.md).
-                     Single blank-email row is bound to the signed-in user in App.OnStart. */
-                  MockUserSettingsSeed = Table(
-                      {Email: "", NotifyConfirm: true, NotifyCancel: true, NotifyReminder: false, ReminderMinutes: 15, NotifyDigest: false}
-                  );
-
                   /* Sandbox stand-in for Office365Users.SearchUserV2 (P-8/S-6).
                      First row is a select-prompt sentinel: blank Mail keeps the
                      Confirm gate closed until a real person is picked.
@@ -933,6 +1284,7 @@ App:
       =Set(glbIsDarkMode, false);
 
                   Set(gblUI_Nav_currentTab, "Home");
+                  Set(gbl_UI_Update, false);
                   Set(glbSelectedDate, Today());
                   Set(varNowTick, Now());
                   Set(varMyBookingsFilter, "Upcoming");
@@ -949,6 +1301,10 @@ App:
                   );
                   /* 0 = create mode; >0 = booking being edited */
                   Set(gblEditingBookingID, 0);
+                  /* T-09: the room staged alongside gbl_PendingStart/End while the series scope
+                     prompt is open. 0 / "" = nothing staged (every reset site restores these). */
+                  Set(gbl_PendingRoomId, 0);
+                  Set(gbl_PendingRoomText, "");
                   /* Seed the Find-screen globals the App-level named formulas
                      (varFindWindowStart/End, varFindWeekStart, WeekBookings) read —
                      without these, any consumer outside Find gets poisoned blanks (BUG-8). */
@@ -959,15 +1315,77 @@ App:
                       ClearCollect(colRooms, Book_Rooms),
                       ClearCollect(colBookings, BookingsWindow),
                       ClearCollect(colBRMasters,
-                          Filter(Book_Bookings, StartsWith(RecurrenceType, "BR-"), IsException = false, Status = "Active"))
+                          Filter(Book_Bookings, StartsWith(RecurrenceType, "BR-"), IsException = false, Status = "Active")),
+                      /* Small key/value settings list - the CollectDelegatableDataSource finding is
+                         accepted here for the same reason as colRooms above. */
+                      ClearCollect(colAppSettings, Book_AppSettings)
                   );
+
+                  /* T-08: keep NextOccurrence on BR masters ahead of Now() so the reminder flow
+                     can trigger on a plain date column without parsing BR-RULE or expanding a
+                     series. Stale masters only; the next occurrence is searched from the current
+                     rule index over a 16-index window (T-10: enough for one k per booking day).
+                     ONE batched Patch keyed by ID (same shape as the series-cancel batch) -
+                     ForAllWithMutation-clean. */
+                  IfError(
+                      If(!IsEmpty(colBRMasters),
+                          Patch(Book_Bookings,
+                              Filter(
+                              ForAll(
+                                  Filter(colBRMasters, IsBlank(NextOccurrence) || NextOccurrence < Now()) As m,
+                                  {
+                                      ID: m.ID,
+                                      NextOccurrence:
+                                          With({_k0: Max(0, fnBROccIndex(m.StartDateTime, m.RecurrenceType, Now()))},
+                                              First(
+                                                  Filter(
+                                                      ForAll(Sequence(16, _k0) As _q, {S: fnOccStart(m.StartDateTime, m.RecurrenceType, _q.Value)}),
+                                                      !IsBlank(S) && S >= Now()
+                                                  )
+                                              ).S)
+                                  }), !IsBlank(NextOccurrence)))),
+                      false);
 
 
                   Set(gblUserInitials, Upper(Left(User().FullName, 1) & If(CountRows(Split(User().FullName, " ")) > 1, Left(Last(Split(User().FullName, " ")).Value, 1), "")));
-                  ClearCollect(colUserSettings, MockUserSettingsSeed);
-                  UpdateIf(colUserSettings, Email = "", {Email: Lower(User().Email)});
-                  Set(gblUserSettings, LookUp(colUserSettings, Email = Lower(User().Email)));
+                  /* Per-user settings live in Book_UserSettings, keyed on the Email text column.
+                     First run for a user creates their row (Title carries the email too). */
+                  ClearCollect(colUserSettings, Filter(Book_UserSettings, Email = Lower(User().Email)));
+                  If(
+                      IsEmpty(colUserSettings),
+                      Collect(
+                          colUserSettings,
+                          Patch(
+                              Book_UserSettings,
+                              Defaults(Book_UserSettings),
+                              {Title: Lower(User().Email), Email: Lower(User().Email)}
+                          )
+                      )
+                  );
+                  Set(gblUserSettings, First(colUserSettings));
+                  /* Saved Theme choice wins over the light default set at the top of OnStart. */
+                  Set(glbIsDarkMode, Switch(gblUserSettings.Theme.Value, "dark", true, "light", false, false));
                   ClearCollect(colPeople, MockPeopleSeed);
                   Set(varBookForEmail, "");
                   Set(varBookForName, "");
+                  // Recurrence panel contract defaults (new globals must be Set here or the compile fails).
+                  Set(gblRecurMode, "");
+                  Set(gblRecurFreq, "W");
+                  Set(gblRecurInterval, 1);
+                  Set(gblRecurWD, "");
+                  Set(gblRecurMonthMode, "day");
+                  Set(gblRecurEndMode, "count");
+                  Set(gblRecurCount, 6);
+                  Set(gblRecurUntil, DateAdd(Today(), 3, TimeUnit.Months));
+                  Set(gblRecurAnchorStart, Now());
+                  Set(gblRecurAnchorEnd, DateAdd(Now(), 60, TimeUnit.Minutes));
+                  Set(gblRecurRoomId, 0);
+                  /* T-06: the booking route is a session preference seeded from the saved
+                     default; the wizard reset sites deliberately leave gblBookRoute alone.
+                     gblRoomsFavOnly drives the Favourites chip on the Rooms browse screen. */
+                  Set(gblBookRoute, DefaultBookRoute);
+                  Set(gblRoomsFavOnly, false);
+                  /* What's new shows once per release per user (settings + user row loaded above) */
+                  Set(gbl_UI_Update, !WhatsNewSeen && WhatsNewDate <> "");
+    StartScreen: =Home
     Theme: =PowerAppsTheme

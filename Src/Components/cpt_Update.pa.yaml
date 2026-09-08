@@ -1,0 +1,198 @@
+ComponentDefinitions:
+  cpt_Update:
+    DefinitionType: CanvasComponent
+    AccessAppScope: true
+    Properties:
+      Height: =App.Height
+      Width: =App.Width
+    Children:
+      - updScrim:
+          Control: Rectangle
+          Properties:
+            Fill: =AppTheme.ModalScrim
+            Height: =Parent.Height
+            OnSelect: =Set(gbl_UI_Update, false)
+            Visible: =!WhatsNewSeen && WhatsNewDate <> ""
+            Width: =Parent.Width
+      - updCard:
+          Control: GroupContainer
+          Variant: AutoLayout
+          Properties:
+            BorderColor: =AppTheme.Border
+            BorderThickness: =1
+            DropShadow: =DropShadow.Regular
+            Fill: =AppTheme.Surface
+            Height: =Min(Parent.Height - 64, 460)
+            LayoutAlignItems: =LayoutAlignItems.Stretch
+            LayoutDirection: =LayoutDirection.Vertical
+            LayoutGap: =16
+            PaddingBottom: =24
+            PaddingLeft: =32
+            PaddingRight: =32
+            PaddingTop: =24
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Visible: =!WhatsNewSeen && WhatsNewDate <> ""
+            Width: =Min(Parent.Width - 32, 560)
+            X: =(Parent.Width - Self.Width) / 2
+            Y: =(Parent.Height - Self.Height) / 2
+          Children:
+            - updHeader:
+                Control: GroupContainer
+                Variant: AutoLayout
+                Properties:
+                  DropShadow: =DropShadow.None
+                  Fill: =RGBA(0,0,0,0) /* DS-EXEMPT transparent layout container, no painted surface */
+                  FillPortions: =0
+                  Height: =84
+                  LayoutDirection: =LayoutDirection.Horizontal
+                  LayoutGap: =8
+                  LayoutMinHeight: =0
+                  LayoutMinWidth: =0
+                Children:
+                  - updHeaderText:
+                      Control: GroupContainer
+                      Variant: AutoLayout
+                      Properties:
+                        DropShadow: =DropShadow.None
+                        Fill: =RGBA(0,0,0,0) /* DS-EXEMPT transparent layout container, no painted surface */
+                        LayoutAlignItems: =LayoutAlignItems.Stretch
+                        LayoutDirection: =LayoutDirection.Vertical
+                        LayoutGap: =4
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                      Children:
+                        - updHtxTitle:
+                            Control: HtmlViewer
+                            Properties:
+                              AutoHeight: =true
+                              DisplayMode: =DisplayMode.View
+                              HtmlText: |-
+                                =CarbonTextColored(CarbonHtmlType.Eyebrow, "WHAT'S NEW · " & Upper(fnHtmlEscape(WhatsNewDate)), AppThemeHex.TextMuted) &
+                                CarbonText(CarbonHtmlType.Heading04 & " font-weight: 600;", "What's new in Book")
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              PaddingBottom: =0
+                              PaddingLeft: =0
+                              PaddingRight: =0
+                              PaddingTop: =0
+                  - updBtnClose:
+                      Control: Classic/Button
+                      Properties:
+                        AlignInContainer: =AlignInContainer.Start
+                        BorderColor: =AppTheme.Border
+                        BorderThickness: =0
+                        Color: =AppTheme.TextSecondary
+                        Fill: =RGBA(0,0,0,0) /* DS-EXEMPT Carbon ghost icon button, no resting fill */
+                        FocusedBorderColor: =ColorValue(AppTheme.ButtonPrimary)
+                        FocusedBorderThickness: =2
+                        Font: ="IBM Plex Sans"
+                        FontWeight: =FontWeight.Normal
+                        HoverColor: =AppTheme.TextPrimary
+                        HoverFill: =AppTheme.SurfaceAlt
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        OnSelect: |-
+                          =/* Record this release as seen for this user, then close. */
+                          IfError(
+                              Patch(Book_UserSettings, gblUserSettings, {LastSeenWhatsNew: WhatsNewDate}); true,
+                              false
+                          );
+                          Set(gblUserSettings, LookUp(Book_UserSettings, ID = gblUserSettings.ID));
+                          Set(gbl_UI_Update, false)
+                        PressedColor: =AppTheme.TextPrimary
+                        PressedFill: =AppTheme.Border
+                        RadiusBottomLeft: =0
+                        RadiusBottomRight: =0
+                        RadiusTopLeft: =0
+                        RadiusTopRight: =0
+                        Size: =14
+                        Text: ="✕"
+                        Width: =40
+            - updBody:
+                Control: GroupContainer
+                Variant: AutoLayout
+                Properties:
+                  DropShadow: =DropShadow.None
+                  Fill: =RGBA(0,0,0,0) /* DS-EXEMPT transparent layout container, no painted surface */
+                  LayoutAlignItems: =LayoutAlignItems.Stretch
+                  LayoutDirection: =LayoutDirection.Vertical
+                  LayoutMinHeight: =0
+                  LayoutMinWidth: =0
+                  LayoutOverflowY: =LayoutOverflow.Scroll
+                Children:
+                  - updHtxBody:
+                      Control: HtmlViewer
+                      Properties:
+                        AutoHeight: =true
+                        DisplayMode: =DisplayMode.View
+                        HtmlText: |-
+                          =With(
+                              {
+                                  _li: "<li style='display: flex; gap: 8px; margin: 0 0 12px 0; " & CarbonHtmlType.Body01 & " line-height: 1.5; color: " & AppThemeHex.TextSecondary & ";'>",
+                                  _dot: "<span style='flex: 0 0 auto; color: " & AppThemeHex.Primary & ";'>•</span><span>"
+                              },
+                              "<ul style='list-style: none; margin: 0; padding: 0;'>" &
+                              Concat(
+                                  Filter(
+                                      Split(Substitute(Coalesce(SettingText("WhatsNewText"), ""), Char(13), ""), Char(10)),
+                                      !IsBlank(Trim(Value))
+                                  ),
+                                  _li & _dot & fnHtmlEscape(Trim(Value)) & "</span></li>"
+                              ) &
+                              "</ul>"
+                          )
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        PaddingBottom: =0
+                        PaddingLeft: =0
+                        PaddingRight: =0
+                        PaddingTop: =0
+            - updFooter:
+                Control: GroupContainer
+                Variant: AutoLayout
+                Properties:
+                  DropShadow: =DropShadow.None
+                  Fill: =RGBA(0,0,0,0) /* DS-EXEMPT transparent layout container, no painted surface */
+                  FillPortions: =0
+                  Height: =40
+                  LayoutAlignItems: =LayoutAlignItems.Stretch
+                  LayoutDirection: =LayoutDirection.Horizontal
+                  LayoutJustifyContent: =LayoutJustifyContent.End
+                  LayoutMinHeight: =0
+                  LayoutMinWidth: =0
+                Children:
+                  - updBtnGotIt:
+                      Control: Classic/Button
+                      Properties:
+                        BorderColor: =ColorValue(AppTheme.ButtonPrimary)
+                        BorderThickness: =1
+                        Color: =ColorValue(AppTheme.PrimaryText)
+                        Fill: =ColorValue(AppTheme.ButtonPrimary)
+                        FocusedBorderColor: =ColorValue(AppTheme.ButtonPrimary)
+                        FocusedBorderThickness: =2
+                        Font: ="IBM Plex Sans"
+                        FontWeight: =FontWeight.Normal
+                        HoverColor: =ColorValue(AppTheme.PrimaryText)
+                        HoverFill: =ColorValue(AppTheme.ButtonPrimaryActive)
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        OnSelect: |-
+                          =/* Record this release as seen for this user, then close. */
+                          IfError(
+                              Patch(Book_UserSettings, gblUserSettings, {LastSeenWhatsNew: WhatsNewDate}); true,
+                              false
+                          );
+                          Set(gblUserSettings, LookUp(Book_UserSettings, ID = gblUserSettings.ID));
+                          Set(gbl_UI_Update, false)
+                        PressedColor: =ColorValue(AppTheme.PrimaryText)
+                        PressedFill: =ColorValue(AppTheme.ButtonPrimaryActive)
+                        RadiusBottomLeft: =0
+                        RadiusBottomRight: =0
+                        RadiusTopLeft: =0
+                        RadiusTopRight: =0
+                        Size: =11
+                        Text: ="Got it"
+                        Width: =120

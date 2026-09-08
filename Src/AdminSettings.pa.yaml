@@ -1,0 +1,1636 @@
+Screens:
+  AdminSettings:
+    Properties:
+      Fill: =AppTheme.Background
+      LoadingSpinnerColor: =ColorValue(AppTheme.Primary)
+      OnVisible: |-
+        =/* Navigate() is illegal in OnVisible - non-admins are gated by asConPage.Visible
+           plus the IsAdmin-hidden Settings tab on Admin instead. */
+        IfError(
+            ClearCollect(colAppSettings, Book_AppSettings),
+            Notify("Couldn't refresh settings — showing the last snapshot", NotificationType.Warning)
+        );
+        /* Re-seed every input from the freshly pulled settings on each entry. */
+        UpdateContext({asWeekend: WeekendPolicy});
+        /* T-11: the migration dry run never survives a screen entry - re-scan is mandatory */
+        UpdateContext({asMigScanned: false});
+        UpdateContext({asMigConfirm: false});
+        Clear(colLegacyPlan);
+        Clear(colLegacyRows);
+        Reset(asInpSiteName);
+        Reset(asDrpDayStart);
+        Reset(asDrpDayEnd);
+        Reset(asDrpSlot);
+        Reset(asDteWhatsNew);
+        Reset(asInpWhatsNewText);
+        Reset(adSetInpAdminEmail)
+    Children:
+      - asConShell:
+          Control: GroupContainer
+          Variant: ManualLayout
+          Properties:
+            DropShadow: =DropShadow.None
+            Height: =Parent.Height
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Width: =Parent.Width
+          Children:
+            - asCptHeader:
+                Control: CanvasComponent
+                ComponentName: Shell_Header
+                Properties:
+                  HeaderNavTab: ="Text"
+                  Height: =48
+                  InstanceScreenName: =""
+                  ShellIcons: =ShellIconSet
+                  Width: =App.Width
+            - asConBody:
+                Control: GroupContainer
+                Variant: AutoLayout
+                Properties:
+                  Height: =Parent.Height - 48
+                  LayoutAlignItems: =LayoutAlignItems.Center
+                  LayoutDirection: =LayoutDirection.Vertical
+                  PaddingBottom: =32
+                  PaddingLeft: =32
+                  PaddingRight: =32
+                  PaddingTop: =32
+                  Width: =Parent.Width
+                  Y: =48
+                Children:
+                  - asHtxNoAccess:
+                      Control: HtmlViewer
+                      Properties:
+                        AutoHeight: =true
+                        DisplayMode: =DisplayMode.View
+                        HtmlText: =CarbonTextSecondary(CarbonHtmlType.Body01, "You need administrator access to view this page.")
+                        PaddingBottom: =0
+                        PaddingLeft: =0
+                        PaddingRight: =0
+                        PaddingTop: =0
+                        Visible: =!IsAdmin
+                        Width: =Parent.Width - 64
+                  - asConPage:
+                      Control: GroupContainer
+                      Variant: AutoLayout
+                      Properties:
+                        DropShadow: =DropShadow.None
+                        Fill: =AppTheme.Background
+                        Height: =Parent.Height
+                        LayoutAlignItems: =LayoutAlignItems.Stretch
+                        LayoutDirection: =LayoutDirection.Vertical
+                        LayoutGap: =16
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        LayoutOverflowY: =LayoutOverflow.Scroll
+                        PaddingBottom: =16
+                        PaddingLeft: =16
+                        PaddingRight: =16
+                        PaddingTop: =16
+                        RadiusBottomLeft: =0
+                        RadiusBottomRight: =0
+                        RadiusTopLeft: =0
+                        RadiusTopRight: =0
+                        Visible: =IsAdmin
+                        Width: =Parent.Width
+                      Children:
+                        - asConPageHeader:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              DropShadow: =DropShadow.None
+                              Fill: =Color.Transparent
+                              FillPortions: =0
+                              Height: =72
+                              LayoutAlignItems: =LayoutAlignItems.Center
+                              LayoutDirection: =LayoutDirection.Horizontal
+                              LayoutGap: =16
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
+                            Children:
+                              - asConTitleStack:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
+                                  Properties:
+                                    DropShadow: =DropShadow.None
+                                    Fill: =Color.Transparent
+                                    LayoutAlignItems: =LayoutAlignItems.Stretch
+                                    LayoutDirection: =LayoutDirection.Vertical
+                                    LayoutGap: =2
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                  Children:
+                                    - asConBreadcrumb:
+                                        Control: GroupContainer
+                                        Variant: AutoLayout
+                                        Properties:
+                                          DropShadow: =DropShadow.None
+                                          Fill: =Color.Transparent
+                                          FillPortions: =0
+                                          Height: =16
+                                          LayoutAlignItems: =LayoutAlignItems.Center
+                                          LayoutDirection: =LayoutDirection.Horizontal
+                                          LayoutGap: =4
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                        Children:
+                                          - asHtxBreadcrumb:
+                                              Control: HtmlViewer
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.Center
+                                                DisplayMode: =DisplayMode.View
+                                                Height: =16
+                                                HtmlText: |-
+                                                  ="<div style=""display: flex; align-items: center; gap: 4px;"">" &
+                                                  CarbonSpan(CarbonHtmlType.Label01, "Home", AppThemeHex.TextMuted) &
+                                                  CarbonSpan(CarbonHtmlType.Label01, "/", AppThemeHex.TextMuted) &
+                                                  CarbonSpan(CarbonHtmlType.Label01, "Admin", AppThemeHex.TextMuted) &
+                                                  CarbonSpan(CarbonHtmlType.Label01, "/", AppThemeHex.TextMuted) &
+                                                  CarbonSpan(CarbonHtmlType.Label01, "Settings", AppThemeHex.TextSecondary) &
+                                                  "</div>"
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                PaddingBottom: =0
+                                                PaddingLeft: =0
+                                                PaddingRight: =0
+                                                PaddingTop: =0
+                                                Width: =240
+                                    - asHtxPageTitle:
+                                        Control: HtmlViewer
+                                        Properties:
+                                          AlignInContainer: =AlignInContainer.Stretch
+                                          AutoHeight: =true
+                                          DisplayMode: =DisplayMode.View
+                                          HtmlText: =CarbonText(CarbonHtmlType.Heading04, "Settings")
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          PaddingBottom: =0
+                                          PaddingLeft: =0
+                                          PaddingRight: =0
+                                          PaddingTop: =0
+                              - asBtnBack:
+                                  Control: Classic/Button
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Center
+                                    BorderColor: =AppTheme.Border
+                                    BorderThickness: =1
+                                    Color: =AppTheme.TextPrimary
+                                    Fill: =Color.Transparent
+                                    FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                    FocusedBorderThickness: =2
+                                    Font: ="IBM Plex Sans"
+                                    FontWeight: =FontWeight.Normal
+                                    HoverColor: =AppTheme.TextPrimary
+                                    HoverFill: =AppTheme.Border
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    OnSelect: =Navigate(Admin, ScreenTransition.None)
+                                    PressedColor: =AppTheme.TextPrimary
+                                    PressedFill: =AppTheme.Border
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Size: =12
+                                    Text: ="Back to Admin"
+                                    Width: =140
+                        - asConForm:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              DropShadow: =DropShadow.None
+                              Fill: =Color.Transparent
+                              FillPortions: =0
+                              LayoutAlignItems: =LayoutAlignItems.Stretch
+                              LayoutDirection: =LayoutDirection.Vertical
+                              LayoutGap: =12
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
+                              Width: =Parent.Width
+                            Children:
+                              - asHtxFormHead:
+                                  Control: HtmlViewer
+                                  Properties:
+                                    DisplayMode: =DisplayMode.View
+                                    Height: =24
+                                    HtmlText: =CarbonText(CarbonHtmlType.Heading02, "App settings")
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    PaddingBottom: =0
+                                    PaddingLeft: =0
+                                    PaddingRight: =0
+                                    PaddingTop: =0
+                                    Width: =Parent.Width
+                              - asHtxFormIntro:
+                                  Control: HtmlViewer
+                                  Properties:
+                                    DisplayMode: =DisplayMode.View
+                                    Height: =20
+                                    HtmlText: =CarbonTextSecondary(CarbonHtmlType.BodyCompact01, "These apply to everyone. Changes take effect the next time a screen is opened.")
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    PaddingBottom: =0
+                                    PaddingLeft: =0
+                                    PaddingRight: =0
+                                    PaddingTop: =0
+                                    Width: =Parent.Width
+                              - asConRowSite:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
+                                  Properties:
+                                    DropShadow: =DropShadow.None
+                                    Fill: =Color.Transparent
+                                    FillPortions: =0
+                                    Height: =48
+                                    LayoutAlignItems: =LayoutAlignItems.Center
+                                    LayoutDirection: =LayoutDirection.Horizontal
+                                    LayoutGap: =8
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Width: =Parent.Width
+                                  Children:
+                                    - asLblSiteName:
+                                        Control: Label
+                                        Properties:
+                                          Color: =AppTheme.TextPrimary
+                                          Font: ="IBM Plex Sans"
+                                          Height: =20
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          Size: =11
+                                          Text: ="Site name"
+                                          Width: =180
+                                          Wrap: =false
+                                    - asInpSiteName:
+                                        Control: Classic/TextInput
+                                        Properties:
+                                          AccessibleLabel: ="Site name shown in the header"
+                                          BorderColor: =AppTheme.Border
+                                          BorderThickness: =1
+                                          Color: =AppTheme.TextPrimary
+                                          Default: =SiteName
+                                          Fill: =AppTheme.layer01Bg
+                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                          FocusedBorderThickness: =2
+                                          Font: ="IBM Plex Sans"
+                                          Height: =48
+                                          HintText: ="MOC"
+                                          HoverBorderColor: =AppTheme.TextSecondary
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          Size: =11
+                                          Width: =240
+                              - asConRowHours:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
+                                  Properties:
+                                    DropShadow: =DropShadow.None
+                                    Fill: =Color.Transparent
+                                    FillPortions: =0
+                                    Height: =48
+                                    LayoutAlignItems: =LayoutAlignItems.Center
+                                    LayoutDirection: =LayoutDirection.Horizontal
+                                    LayoutGap: =8
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Width: =Parent.Width
+                                  Children:
+                                    - asLblHours:
+                                        Control: Label
+                                        Properties:
+                                          Color: =AppTheme.TextPrimary
+                                          Font: ="IBM Plex Sans"
+                                          Height: =20
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          Size: =11
+                                          Text: ="Opening hours"
+                                          Width: =180
+                                          Wrap: =false
+                                    - asDrpDayStart:
+                                        Control: Classic/DropDown
+                                        Properties:
+                                          AccessibleLabel: ="First bookable hour"
+                                          BorderColor: =AppTheme.Border
+                                          BorderThickness: =1
+                                          ChevronBackground: =AppTheme.layer01Bg
+                                          ChevronFill: =AppTheme.TextPrimary
+                                          Color: =AppTheme.TextPrimary
+                                          Default: =Text(DayStartHour)
+                                          Fill: =AppTheme.layer01Bg
+                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                          FocusedBorderThickness: =2
+                                          Font: ="IBM Plex Sans"
+                                          Height: =48
+                                          Items: |-
+                                            =ForAll(Sequence(17, 6), {Value: Text(Value)})
+                                          Items.Value: =Value
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          Size: =11
+                                          Width: =90
+                                    - asLblHoursTo:
+                                        Control: Label
+                                        Properties:
+                                          Color: =AppTheme.TextSecondary
+                                          Font: ="IBM Plex Sans"
+                                          Height: =20
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          Size: =11
+                                          Text: ="to"
+                                          Width: =24
+                                          Wrap: =false
+                                    - asDrpDayEnd:
+                                        Control: Classic/DropDown
+                                        Properties:
+                                          AccessibleLabel: ="Last bookable hour"
+                                          BorderColor: =AppTheme.Border
+                                          BorderThickness: =1
+                                          ChevronBackground: =AppTheme.layer01Bg
+                                          ChevronFill: =AppTheme.TextPrimary
+                                          Color: =AppTheme.TextPrimary
+                                          Default: =Text(DayEndHour)
+                                          Fill: =AppTheme.layer01Bg
+                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                          FocusedBorderThickness: =2
+                                          Font: ="IBM Plex Sans"
+                                          Height: =48
+                                          Items: |-
+                                            =ForAll(Sequence(17, 6), {Value: Text(Value)})
+                                          Items.Value: =Value
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          Size: =11
+                                          Width: =90
+                                    - asLblHoursError:
+                                        Control: Label
+                                        Properties:
+                                          Color: =ColorValue(AppTheme.ButtonDangerPrimary)
+                                          Font: ="IBM Plex Sans"
+                                          Height: =20
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          Size: =11
+                                          Text: ="Closing hour must be after opening hour."
+                                          Visible: =Value(asDrpDayEnd.Selected.Value) <= Value(asDrpDayStart.Selected.Value)
+                                          Width: =280
+                                          Wrap: =false
+                              - asConRowSlot:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
+                                  Properties:
+                                    DropShadow: =DropShadow.None
+                                    Fill: =Color.Transparent
+                                    FillPortions: =0
+                                    Height: =48
+                                    LayoutAlignItems: =LayoutAlignItems.Center
+                                    LayoutDirection: =LayoutDirection.Horizontal
+                                    LayoutGap: =8
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Width: =Parent.Width
+                                  Children:
+                                    - asLblSlot:
+                                        Control: Label
+                                        Properties:
+                                          Color: =AppTheme.TextPrimary
+                                          Font: ="IBM Plex Sans"
+                                          Height: =20
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          Size: =11
+                                          Text: ="Slot size (minutes)"
+                                          Width: =180
+                                          Wrap: =false
+                                    - asDrpSlot:
+                                        Control: Classic/DropDown
+                                        Properties:
+                                          AccessibleLabel: ="Slot size in minutes"
+                                          BorderColor: =AppTheme.Border
+                                          BorderThickness: =1
+                                          ChevronBackground: =AppTheme.layer01Bg
+                                          ChevronFill: =AppTheme.TextPrimary
+                                          Color: =AppTheme.TextPrimary
+                                          Default: =Text(SlotMinutes)
+                                          Fill: =AppTheme.layer01Bg
+                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                          FocusedBorderThickness: =2
+                                          Font: ="IBM Plex Sans"
+                                          Height: =48
+                                          Items: |-
+                                            =Table({Value: "5"}, {Value: "10"}, {Value: "15"}, {Value: "30"})
+                                          Items.Value: =Value
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          Size: =11
+                                          Width: =90
+                              - asConRowWeekend:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
+                                  Properties:
+                                    DropShadow: =DropShadow.None
+                                    Fill: =Color.Transparent
+                                    FillPortions: =0
+                                    Height: =48
+                                    LayoutAlignItems: =LayoutAlignItems.Center
+                                    LayoutDirection: =LayoutDirection.Horizontal
+                                    LayoutGap: =8
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Width: =Parent.Width
+                                  Children:
+                                    - asLblWeekend:
+                                        Control: Label
+                                        Properties:
+                                          Color: =AppTheme.TextPrimary
+                                          Font: ="IBM Plex Sans"
+                                          Height: =20
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          Size: =11
+                                          Text: ="Weekend bookings"
+                                          Width: =180
+                                          Wrap: =false
+                                    - asBtnWeekendAllow:
+                                        Control: Classic/Button
+                                        Properties:
+                                          BorderColor: =AppTheme.Border
+                                          BorderThickness: =1
+                                          Color: =If(asWeekend = "allow", ColorValue(AppTheme.PrimaryText), AppTheme.TextPrimary)
+                                          Fill: =If(asWeekend = "allow", ColorValue(AppTheme.ButtonPrimary), Color.Transparent)
+                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                          FocusedBorderThickness: =2
+                                          Font: ="IBM Plex Sans"
+                                          FontWeight: =FontWeight.Normal
+                                          HoverColor: =AppTheme.TextPrimary
+                                          HoverFill: =AppTheme.Border
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          OnSelect: |-
+                                            =UpdateContext({asWeekend: "allow"})
+                                          PressedColor: =AppTheme.TextPrimary
+                                          PressedFill: =AppTheme.Border
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                          Size: =11
+                                          Text: ="Allow"
+                                          Width: =110
+                                    - asBtnWeekendBlock:
+                                        Control: Classic/Button
+                                        Properties:
+                                          BorderColor: =AppTheme.Border
+                                          BorderThickness: =1
+                                          Color: =If(asWeekend <> "allow", ColorValue(AppTheme.PrimaryText), AppTheme.TextPrimary)
+                                          Fill: =If(asWeekend <> "allow", ColorValue(AppTheme.ButtonPrimary), Color.Transparent)
+                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                          FocusedBorderThickness: =2
+                                          Font: ="IBM Plex Sans"
+                                          FontWeight: =FontWeight.Normal
+                                          HoverColor: =AppTheme.TextPrimary
+                                          HoverFill: =AppTheme.Border
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          OnSelect: |-
+                                            =UpdateContext({asWeekend: "block"})
+                                          PressedColor: =AppTheme.TextPrimary
+                                          PressedFill: =AppTheme.Border
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                          Size: =11
+                                          Text: ="Block"
+                                          Width: =110
+                              - asConRowWhatsNewDate:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
+                                  Properties:
+                                    DropShadow: =DropShadow.None
+                                    Fill: =Color.Transparent
+                                    FillPortions: =0
+                                    Height: =48
+                                    LayoutAlignItems: =LayoutAlignItems.Center
+                                    LayoutDirection: =LayoutDirection.Horizontal
+                                    LayoutGap: =8
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Width: =Parent.Width
+                                  Children:
+                                    - asLblWhatsNewDate:
+                                        Control: Label
+                                        Properties:
+                                          Color: =AppTheme.TextPrimary
+                                          Font: ="IBM Plex Sans"
+                                          Height: =20
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          Size: =11
+                                          Text: ="What's new date"
+                                          Width: =180
+                                          Wrap: =false
+                                    - asDteWhatsNew:
+                                        Control: Classic/DatePicker
+                                        Properties:
+                                          BorderColor: =AppTheme.Border
+                                          BorderThickness: =1
+                                          Color: =AppTheme.TextPrimary
+                                          DefaultDate: |-
+                                            =/* Stored as yyyy-mm-dd text; rebuilt numerically so no locale parse is involved. */
+                                            If(
+                                                Len(WhatsNewDate) = 10,
+                                                Date(Value(Left(WhatsNewDate, 4)), Value(Mid(WhatsNewDate, 6, 2)), Value(Mid(WhatsNewDate, 9, 2))),
+                                                Today()
+                                            )
+                                          Fill: =AppTheme.layer01Bg
+                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                          FocusedBorderThickness: =2
+                                          Font: ="IBM Plex Sans"
+                                          Height: =48
+                                          IconBackground: =AppTheme.HeaderBackground
+                                          IconFill: =AppTheme.HeaderAccent
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          Size: =11
+                                          Width: =160
+                                    - asLblWhatsNewHint:
+                                        Control: Label
+                                        Properties:
+                                          Color: =AppTheme.TextMuted
+                                          Font: ="IBM Plex Sans"
+                                          Height: =20
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          Size: =11
+                                          Text: ="Changing this shows the dialog once to every user."
+                                          Width: =320
+                                          Wrap: =false
+                              - asLblWhatsNewText:
+                                  Control: Label
+                                  Properties:
+                                    Color: =AppTheme.TextPrimary
+                                    Font: ="IBM Plex Sans"
+                                    Height: =20
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Size: =11
+                                    Text: ="What's new text (one bullet per line)"
+                                    Width: =Parent.Width
+                                    Wrap: =false
+                              - asInpWhatsNewText:
+                                  Control: Classic/TextInput
+                                  Properties:
+                                    AccessibleLabel: ="What's new bullets, one per line"
+                                    BorderColor: =AppTheme.Border
+                                    BorderThickness: =1
+                                    Color: =AppTheme.TextPrimary
+                                    Default: =Coalesce(SettingText("WhatsNewText"), "")
+                                    Fill: =AppTheme.layer01Bg
+                                    FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                    FocusedBorderThickness: =2
+                                    Font: ="IBM Plex Sans"
+                                    Height: =140
+                                    HintText: ="One bullet per line"
+                                    HoverBorderColor: =AppTheme.TextSecondary
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Mode: =TextMode.MultiLine
+                                    Size: =11
+                                    Width: =Parent.Width
+                              - asBtnSave:
+                                  Control: Classic/Button
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Start
+                                    BorderColor: =ColorValue(AppTheme.ButtonPrimary)
+                                    BorderThickness: =0
+                                    Color: =ColorValue(AppTheme.PrimaryText)
+                                    DisabledColor: =AppTheme.TextMuted
+                                    DisabledFill: =AppTheme.SurfaceAlt
+                                    DisplayMode: =If(Value(asDrpDayEnd.Selected.Value) > Value(asDrpDayStart.Selected.Value), DisplayMode.Edit, DisplayMode.Disabled)
+                                    Fill: =ColorValue(AppTheme.ButtonPrimary)
+                                    FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                    FocusedBorderThickness: =2
+                                    Font: ="IBM Plex Sans"
+                                    FontWeight: =FontWeight.Normal
+                                    Height: =48
+                                    HoverColor: =ColorValue(AppTheme.PrimaryText)
+                                    HoverFill: =ColorValue(AppTheme.ButtonPrimaryActive)
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    OnSelect: |-
+                                      =/* One upsert per key: match on Title (a delegable literal predicate),
+                                         create the row when the key has never been written. */
+                                      IfError(
+                                          With({_r: LookUp(Book_AppSettings, Title = "SiteName")},
+                                              If(IsBlank(_r),
+                                                  Patch(Book_AppSettings, Defaults(Book_AppSettings), {Title: "SiteName", Value: Trim(asInpSiteName.Text)}),
+                                                  Patch(Book_AppSettings, _r, {Value: Trim(asInpSiteName.Text)})));
+                                          With({_r: LookUp(Book_AppSettings, Title = "DayStartHour")},
+                                              If(IsBlank(_r),
+                                                  Patch(Book_AppSettings, Defaults(Book_AppSettings), {Title: "DayStartHour", Value: asDrpDayStart.Selected.Value}),
+                                                  Patch(Book_AppSettings, _r, {Value: asDrpDayStart.Selected.Value})));
+                                          With({_r: LookUp(Book_AppSettings, Title = "DayEndHour")},
+                                              If(IsBlank(_r),
+                                                  Patch(Book_AppSettings, Defaults(Book_AppSettings), {Title: "DayEndHour", Value: asDrpDayEnd.Selected.Value}),
+                                                  Patch(Book_AppSettings, _r, {Value: asDrpDayEnd.Selected.Value})));
+                                          With({_r: LookUp(Book_AppSettings, Title = "SlotMinutes")},
+                                              If(IsBlank(_r),
+                                                  Patch(Book_AppSettings, Defaults(Book_AppSettings), {Title: "SlotMinutes", Value: asDrpSlot.Selected.Value}),
+                                                  Patch(Book_AppSettings, _r, {Value: asDrpSlot.Selected.Value})));
+                                          With({_r: LookUp(Book_AppSettings, Title = "WeekendPolicy")},
+                                              If(IsBlank(_r),
+                                                  Patch(Book_AppSettings, Defaults(Book_AppSettings), {Title: "WeekendPolicy", Value: If(asWeekend = "allow", "allow", "block")}),
+                                                  Patch(Book_AppSettings, _r, {Value: If(asWeekend = "allow", "allow", "block")})));
+                                          With({_r: LookUp(Book_AppSettings, Title = "WhatsNewDate")},
+                                              If(IsBlank(_r),
+                                                  Patch(Book_AppSettings, Defaults(Book_AppSettings), {Title: "WhatsNewDate", Value: Text(asDteWhatsNew.SelectedDate, "yyyy-mm-dd")}),
+                                                  Patch(Book_AppSettings, _r, {Value: Text(asDteWhatsNew.SelectedDate, "yyyy-mm-dd")})));
+                                          With({_r: LookUp(Book_AppSettings, Title = "WhatsNewText")},
+                                              If(IsBlank(_r),
+                                                  Patch(Book_AppSettings, Defaults(Book_AppSettings), {Title: "WhatsNewText", Value: asInpWhatsNewText.Text}),
+                                                  Patch(Book_AppSettings, _r, {Value: asInpWhatsNewText.Text})));
+                                          ClearCollect(colAppSettings, Book_AppSettings);
+                                          Notify("Settings saved.", NotificationType.Success),
+                                          Notify("Couldn't save settings.", NotificationType.Error)
+                                      )
+                                    PressedColor: =ColorValue(AppTheme.PrimaryText)
+                                    PressedFill: =ColorValue(AppTheme.ButtonPrimaryActive)
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Size: =12
+                                    Text: ="Save settings"
+                        - adSetConPane:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              DropShadow: =DropShadow.None
+                              Fill: =Color.Transparent
+                              FillPortions: =0
+                              Height: =460
+                              LayoutAlignItems: =LayoutAlignItems.Stretch
+                              LayoutDirection: =LayoutDirection.Vertical
+                              LayoutGap: =24
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
+                              Width: =Parent.Width
+                            Children:
+                              - adSetConAdmins:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
+                                  Properties:
+                                    DropShadow: =DropShadow.None
+                                    Fill: =Color.Transparent
+                                    FillPortions: =0
+                                    LayoutAlignItems: =LayoutAlignItems.Stretch
+                                    LayoutDirection: =LayoutDirection.Vertical
+                                    LayoutGap: =12
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Width: =Parent.Width
+                                  Children:
+                                    - adSetHtxAdminsHead:
+                                        Control: HtmlViewer
+                                        Properties:
+                                          DisplayMode: =DisplayMode.View
+                                          Height: =24
+                                          HtmlText: =CarbonText(CarbonHtmlType.Heading02, "Admins")
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          PaddingBottom: =0
+                                          PaddingLeft: =0
+                                          PaddingRight: =0
+                                          PaddingTop: =0
+                                          Width: =Parent.Width
+                                    - adSetHtxAdminsIntro:
+                                        Control: HtmlViewer
+                                        Properties:
+                                          DisplayMode: =DisplayMode.View
+                                          Height: =20
+                                          HtmlText: =CarbonTextSecondary(CarbonHtmlType.BodyCompact01, CountRows(AdminEmailList) & " admins from the settings list, plus " & CountRows(AdminEmails) & " built into the app")
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          PaddingBottom: =0
+                                          PaddingLeft: =0
+                                          PaddingRight: =0
+                                          PaddingTop: =0
+                                          Width: =Parent.Width
+                                    - adSetGalAdmins:
+                                        Control: Gallery
+                                        Variant: Vertical
+                                        Properties:
+                                          Fill: =AppTheme.Background
+                                          FillPortions: =0
+                                          Height: =240
+                                          Items: =SortByColumns(AdminEmailList, "Value", SortOrder.Ascending)
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          TemplatePadding: =0
+                                          TemplateSize: =48
+                                          Width: =Parent.Width
+                                        Children:
+                                          - adSetRectRowBg:
+                                              Control: Rectangle
+                                              Properties:
+                                                BorderColor: =Color.Transparent
+                                                Fill: =AppTheme.Surface
+                                                Height: =Parent.TemplateHeight
+                                                Width: =Parent.TemplateWidth
+                                          - adSetRectRowDivider:
+                                              Control: Rectangle
+                                              Properties:
+                                                BorderColor: =Color.Transparent
+                                                Fill: =AppTheme.Border
+                                                Height: =1
+                                                Width: =Parent.TemplateWidth
+                                                Y: =Parent.TemplateHeight - 1
+                                          - adSetLblRowEmail:
+                                              Control: Label
+                                              Properties:
+                                                Color: =AppTheme.TextPrimary
+                                                Font: ="IBM Plex Sans"
+                                                Height: =20
+                                                Size: =12
+                                                Text: =ThisItem.Value
+                                                Width: =Parent.TemplateWidth - 160
+                                                Wrap: =false
+                                                X: =32
+                                                Y: =14
+                                          - adSetBtnAdminRemove:
+                                              Control: Classic/Button
+                                              Properties:
+                                                BorderColor: =ColorValue(AppTheme.ButtonDangerPrimary)
+                                                BorderThickness: =1
+                                                Color: =ColorValue(AppTheme.ButtonDangerPrimary)
+                                                DisabledBorderColor: =AppTheme.Border
+                                                DisabledColor: =AppTheme.TextMuted
+                                                DisabledFill: =Color.Transparent
+                                                DisplayMode: =If(Lower(ThisItem.Value) = Lower(User().Email), DisplayMode.Disabled, DisplayMode.Edit)
+                                                Fill: =Color.Transparent
+                                                FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                                FocusedBorderThickness: =2
+                                                Font: ="IBM Plex Sans"
+                                                FontWeight: =FontWeight.Normal
+                                                Height: =32
+                                                HoverBorderColor: =ColorValue(AppTheme.ButtonDangerPrimary)
+                                                HoverColor: =ColorValue(AppTheme.PrimaryText)
+                                                HoverFill: =ColorValue(AppTheme.ButtonDangerPrimary)
+                                                OnSelect: |-
+                                                  =IfError(
+                                                      Remove(Book_AppSettings, LookUp(Book_AppSettings, ID = ThisItem.ID));
+                                                      ClearCollect(colAppSettings, Book_AppSettings);
+                                                      Notify("Admin removed.", NotificationType.Success),
+                                                      Notify("Couldn't remove admin.", NotificationType.Error)
+                                                  )
+                                                PressedBorderColor: =ColorValue(AppTheme.ButtonDangerPrimary)
+                                                PressedColor: =ColorValue(AppTheme.PrimaryText)
+                                                PressedFill: =ColorValue(AppTheme.ButtonDangerPrimary)
+                                                RadiusBottomLeft: =0
+                                                RadiusBottomRight: =0
+                                                RadiusTopLeft: =0
+                                                RadiusTopRight: =0
+                                                Size: =11
+                                                Text: ="Remove"
+                                                Width: =80
+                                                X: =Parent.TemplateWidth - 108
+                                                Y: =8
+                                    - adSetConAddRow:
+                                        Control: GroupContainer
+                                        Variant: AutoLayout
+                                        Properties:
+                                          DropShadow: =DropShadow.None
+                                          Fill: =Color.Transparent
+                                          FillPortions: =0
+                                          Height: =48
+                                          LayoutAlignItems: =LayoutAlignItems.Center
+                                          LayoutDirection: =LayoutDirection.Horizontal
+                                          LayoutGap: =8
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                          Width: =Parent.Width
+                                        Children:
+                                          - adSetInpAdminEmail:
+                                              Control: Classic/TextInput
+                                              Properties:
+                                                AccessibleLabel: ="New admin email address"
+                                                BorderColor: =AppTheme.Border
+                                                BorderThickness: =1
+                                                Color: =AppTheme.TextPrimary
+                                                Default: =""
+                                                Fill: =AppTheme.layer01Bg
+                                                FillPortions: =1
+                                                FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                                FocusedBorderThickness: =2
+                                                Font: ="IBM Plex Sans"
+                                                Height: =48
+                                                HintText: ="name@mod.gov.uk"
+                                                HoverBorderColor: =AppTheme.TextSecondary
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                Size: =11
+                                          - adSetBtnAdminAdd:
+                                              Control: Classic/Button
+                                              Properties:
+                                                BorderColor: =ColorValue(AppTheme.ButtonPrimary)
+                                                BorderThickness: =0
+                                                Color: =ColorValue(AppTheme.PrimaryText)
+                                                Fill: =ColorValue(AppTheme.ButtonPrimary)
+                                                FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                                FocusedBorderThickness: =2
+                                                Font: ="IBM Plex Sans"
+                                                FontWeight: =FontWeight.Normal
+                                                Height: =48
+                                                HoverColor: =ColorValue(AppTheme.PrimaryText)
+                                                HoverFill: =ColorValue(AppTheme.ButtonPrimaryActive)
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                OnSelect: |-
+                                                  =With({_e: Lower(Trim(adSetInpAdminEmail.Text))},
+                                                      If(!IsMatch(_e, Match.Email),
+                                                          Notify("Enter a valid email address.", NotificationType.Error),
+                                                          _e in AdminEmails || !IsBlank(LookUp(AdminEmailList, Lower(Value) = _e)),
+                                                          Notify("That address is already an admin.", NotificationType.Warning),
+                                                          Patch(Book_AppSettings, Defaults(Book_AppSettings), {Title: "AdminEmail", Value: _e});
+                                                          ClearCollect(colAppSettings, Book_AppSettings);
+                                                          Reset(adSetInpAdminEmail);
+                                                          Notify("Admin added", NotificationType.Success)
+                                                      )
+                                                  )
+                                                PressedColor: =ColorValue(AppTheme.PrimaryText)
+                                                PressedFill: =ColorValue(AppTheme.ButtonPrimaryActive)
+                                                RadiusBottomLeft: =0
+                                                RadiusBottomRight: =0
+                                                RadiusTopLeft: =0
+                                                RadiusTopRight: =0
+                                                Size: =12
+                                                Text: ="Add admin"
+                                                Width: =120
+                                    - adSetLblNote:
+                                        Control: Label
+                                        Properties:
+                                          Color: =AppTheme.TextMuted
+                                          Font: ="IBM Plex Sans"
+                                          Height: =20
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          Size: =11
+                                          Text: ="Bootstrap admins from the app formula cannot be removed here."
+                                          Width: =Parent.Width
+                        - asMigConCard:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              DropShadow: =DropShadow.None
+                              Fill: =Color.Transparent
+                              FillPortions: =0
+                              LayoutAlignItems: =LayoutAlignItems.Stretch
+                              LayoutDirection: =LayoutDirection.Vertical
+                              LayoutGap: =12
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
+                              Width: =Parent.Width
+                            Children:
+                              - asMigHtxHead:
+                                  Control: HtmlViewer
+                                  Properties:
+                                    DisplayMode: =DisplayMode.View
+                                    Height: =24
+                                    HtmlText: =CarbonText(CarbonHtmlType.Heading02, "Maintenance")
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    PaddingBottom: =0
+                                    PaddingLeft: =0
+                                    PaddingRight: =0
+                                    PaddingTop: =0
+                                    Width: =Parent.Width
+                              - asMigHtxIntro:
+                                  Control: HtmlViewer
+                                  Properties:
+                                    DisplayMode: =DisplayMode.View
+                                    HtmlText: =CarbonTextSecondary(CarbonHtmlType.BodyCompact01, "Convert old one-row-per-occurrence series into rule-based masters. Run the dry run first; nothing is written until you confirm. Migrate everything below, or migrate a single series from its row.")
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    PaddingBottom: =0
+                                    PaddingLeft: =0
+                                    PaddingRight: =0
+                                    PaddingTop: =0
+                                    Width: =Parent.Width
+                              - asMigConBtnRow:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
+                                  Properties:
+                                    DropShadow: =DropShadow.None
+                                    Fill: =Color.Transparent
+                                    FillPortions: =0
+                                    Height: =48
+                                    LayoutAlignItems: =LayoutAlignItems.Center
+                                    LayoutDirection: =LayoutDirection.Horizontal
+                                    LayoutGap: =8
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Width: =Parent.Width
+                                  Children:
+                                    - asMigBtnScan:
+                                        Control: Classic/Button
+                                        Properties:
+                                          BorderColor: =ColorValue(AppTheme.ButtonTertiary)
+                                          BorderThickness: =1
+                                          Color: =ColorValue(AppTheme.ButtonTertiary)
+                                          DisplayMode: =If(asMigConfirm, DisplayMode.Disabled, DisplayMode.Edit)
+                                          Fill: =Color.Transparent
+                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                          FocusedBorderThickness: =2
+                                          Font: ="IBM Plex Sans"
+                                          FontWeight: =FontWeight.Normal
+                                          HoverBorderColor: =ColorValue(AppTheme.ButtonTertiaryActive)
+                                          HoverColor: =ColorValue(AppTheme.ButtonTertiaryActive)
+                                          HoverFill: =AppTheme.SurfaceAlt
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          OnSelect: |-
+                                            =IfError(
+                                                /* 1. Legacy candidates. The three "=" tests OR'd together stay delegable
+                                                   on SharePoint; the rest of the exclusions run on the local copy. */
+                                                ClearCollect(
+                                                    colLegacyRows,
+                                                    Filter(
+                                                        Book_Bookings,
+                                                        RecurrenceType = "Weekly" || RecurrenceType = "BiWeekly" || RecurrenceType = "Monthly"
+                                                    )
+                                                );
+                                                RemoveIf(colLegacyRows, Status = "Migrated" || Coalesce(IsException, false) || IsBlank(SeriesID));
+                                                /* F1: 500 is the assumed data-row limit - at or past it the scan has already
+                                                   lost rows, so any plan built from this collection would be wrong. */
+                                                If(
+                                                    CountRows(colLegacyRows) >= 500,
+                                                    Notify("Too many legacy rows to scan safely (500+). Migration needs to run in smaller batches — contact the developer.", NotificationType.Error);
+                                                    Clear(colLegacyRows);
+                                                    Clear(colLegacyPlan);
+                                                    UpdateContext({asMigScanned: false}),
+                                                    /* 2. One plan row per SeriesID. Distinct + Filter instead of GroupBy so the
+                                                       person/lookup columns never have to survive a nested-table regroup. */
+                                                    ClearCollect(
+                                                        colLegacyPlan,
+                                                        ForAll(
+                                                            Distinct(colLegacyRows, SeriesID) As _s,
+                                                            With(
+                                                                {_rows: Filter(colLegacyRows As _lr, _lr.SeriesID = _s.Value)},
+                                                                With(
+                                                                    {_first: First(Sort(_rows, StartDateTime, SortOrder.Ascending))},
+                                                                    With(
+                                                                        {
+                                                                            _anchor: _first.StartDateTime,
+                                                                            _dur: DateDiff(_first.StartDateTime, _first.EndDateTime, TimeUnit.Minutes),
+                                                                            _rowCount: CountRows(_rows),
+                                                                            _rooms: CountRows(Distinct(_rows, RoomID.Id)),
+                                                                            _titles: CountRows(Distinct(_rows, Title)),
+                                                                            _cancelled: CountRows(Filter(_rows, Status = "Cancelled")),
+                                                                            _clash: CountRows(Filter(_rows, Status = "Clash")),
+                                                                            _hasMaster: !IsBlank(LookUp(colBRMasters, SeriesID = _s.Value))
+                                                                        },
+                                                                        /* _base carries no C= yet - fnBROccIndex only reads F and I,
+                                                                           so k can be measured before N is known. */
+                                                                        With(
+                                                                            {
+                                                                                _base: Switch(
+                                                                                    _first.RecurrenceType,
+                                                                                    "Weekly", "BR-RULE;F=W;I=1",
+                                                                                    "BiWeekly", "BR-RULE;F=W;I=2",
+                                                                                    "BR-RULE;F=M;I=1;BM=" & Day(_first.StartDateTime)
+                                                                                )
+                                                                            },
+                                                                            With(
+                                                                                {
+                                                                                    _ks: ForAll(
+                                                                                        _rows As _r,
+                                                                                        With(
+                                                                                            {_k: fnBROccIndex(_anchor, _base, _r.StartDateTime)},
+                                                                                            {
+                                                                                                K: _k,
+                                                                                                Dev: fnOccStart(_anchor, _base, _k) <> _r.StartDateTime
+                                                                                                     || DateDiff(_r.StartDateTime, _r.EndDateTime, TimeUnit.Minutes) <> _dur
+                                                                                            }
+                                                                                        )
+                                                                                    )
+                                                                                },
+                                                                                With(
+                                                                                    {
+                                                                                        _n: Max(_ks, K) + 1,
+                                                                                        _dev: CountRows(Filter(_ks, Dev)),
+                                                                                        _dupe: CountRows(_ks) <> CountRows(Distinct(_ks, K))
+                                                                                    },
+                                                                                    {
+                                                                                        SeriesID: _s.Value,
+                                                                                        Title: _first.Title,
+                                                                                        RoomIdNumber: _first.RoomID.Id,
+                                                                                        RoomIdText: _first.RoomID.Value,
+                                                                                        RoomTitle: Coalesce(LookUp(colRooms, ID = _first.RoomID.Id).Title, _first.RoomID.Value),
+                                                                                        OwnerEmail: Coalesce(_first.BookedByEmail, ""),
+                                                                                        FirstRowId: _first.ID,
+                                                                                        IsPrivate: Coalesce(_first.IsPrivate, false),
+                                                                                        Cadence: Switch(_first.RecurrenceType, "Weekly", "Weekly", "BiWeekly", "Every 2 weeks", "Monthly"),
+                                                                                        Rule: _base & ";C=" & _n,
+                                                                                        Anchor: _anchor,
+                                                                                        DurationMin: _dur,
+                                                                                        N: _n,
+                                                                                        RowCount: _rowCount,
+                                                                                        Deviations: _dev,
+                                                                                        CancelledCount: _cancelled,
+                                                                                        ClashCount: _clash,
+                                                                                        Verdict: If(
+                                                                                            _rooms > 1, "Skip: mixed rooms",
+                                                                                            _titles > 1, "Skip: mixed titles",
+                                                                                            _rowCount > 52, "Skip: more than 52 rows",
+                                                                                            _dupe, "Skip: duplicate slot",
+                                                                                            _hasMaster, "Skip: master already exists",
+                                                                                            "OK"
+                                                                                        )
+                                                                                    }
+                                                                                )
+                                                                            )
+                                                                        )
+                                                                    )
+                                                                )
+                                                            )
+                                                        )
+                                                    );
+                                                    UpdateContext({asMigScanned: true});
+                                                    UpdateContext({asMigConfirm: false})
+                                                ),
+                                                Notify("Couldn't scan legacy series.", NotificationType.Error)
+                                            )
+                                          PressedBorderColor: =ColorValue(AppTheme.ButtonTertiaryActive)
+                                          PressedColor: =ColorValue(AppTheme.ButtonTertiaryActive)
+                                          PressedFill: =AppTheme.SurfaceAlt
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                          Size: =12
+                                          Text: ="Scan legacy series"
+                                          Width: =180
+                                    - asMigBtnRun:
+                                        Control: Classic/Button
+                                        Properties:
+                                          BorderColor: =ColorValue(AppTheme.ButtonPrimary)
+                                          BorderThickness: =0
+                                          Color: =ColorValue(AppTheme.PrimaryText)
+                                          DisabledColor: =AppTheme.TextMuted
+                                          DisabledFill: =AppTheme.SurfaceAlt
+                                          DisplayMode: =If(asMigScanned && CountRows(Filter(colLegacyPlan, Verdict = "OK")) > 0, DisplayMode.Edit, DisplayMode.Disabled)
+                                          Fill: =ColorValue(AppTheme.ButtonPrimary)
+                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                          FocusedBorderThickness: =2
+                                          Font: ="IBM Plex Sans"
+                                          FontWeight: =FontWeight.Normal
+                                          HoverColor: =ColorValue(AppTheme.PrimaryText)
+                                          HoverFill: =ColorValue(AppTheme.ButtonPrimaryActive)
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          OnSelect: |-
+                                            =UpdateContext({asMigConfirm: true})
+                                          PressedColor: =ColorValue(AppTheme.PrimaryText)
+                                          PressedFill: =ColorValue(AppTheme.ButtonPrimaryActive)
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                          Size: =12
+                                          Text: ="Migrate " & CountRows(Filter(colLegacyPlan, Verdict = "OK")) & " series"
+                                          Visible: =!asMigConfirm
+                                          Width: =180
+                              - asMigHtxSummary:
+                                  Control: HtmlViewer
+                                  Properties:
+                                    DisplayMode: =DisplayMode.View
+                                    Height: =20
+                                    HtmlText: |-
+                                      =CarbonTextSecondary(
+                                          CarbonHtmlType.BodyCompact01,
+                                          If(
+                                              !asMigScanned, "Not scanned yet.",
+                                              IsEmpty(colLegacyPlan), "No legacy series found.",
+                                              CountRows(colLegacyPlan) & " series found &nbsp;&middot;&nbsp; " &
+                                              CountRows(Filter(colLegacyPlan, Verdict = "OK")) & " will migrate &nbsp;&middot;&nbsp; " &
+                                              CountRows(Filter(colLegacyPlan, Verdict <> "OK")) & " skipped"
+                                          )
+                                      )
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    PaddingBottom: =0
+                                    PaddingLeft: =0
+                                    PaddingRight: =0
+                                    PaddingTop: =0
+                                    Width: =Parent.Width
+                              - asMigGalPlan:
+                                  Control: Gallery
+                                  Variant: Vertical
+                                  Properties:
+                                    Fill: =AppTheme.Background
+                                    FillPortions: =0
+                                    Height: =240
+                                    Items: =SortByColumns(colLegacyPlan, "Title", SortOrder.Ascending)
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    TemplatePadding: =0
+                                    TemplateSize: =48
+                                    Visible: =asMigScanned && !IsEmpty(colLegacyPlan)
+                                    Width: =Parent.Width
+                                  Children:
+                                    - asMigRectRowBg:
+                                        Control: Rectangle
+                                        Properties:
+                                          BorderColor: =Color.Transparent
+                                          Fill: =AppTheme.Surface
+                                          Height: =Parent.TemplateHeight
+                                          Width: =Parent.TemplateWidth
+                                    - asMigLblRowVerdict:
+                                        Control: Label
+                                        Properties:
+                                          Color: =If(ThisItem.Verdict = "OK", AppTheme.TextPrimary, AppTheme.StatusWarnText)
+                                          Font: ="IBM Plex Sans"
+                                          Height: =20
+                                          Size: =11
+                                          Text: =ThisItem.Verdict
+                                          Width: =(Parent.TemplateWidth - 48) * 0.12 - 8 - 116
+                                          Wrap: =false
+                                          X: =32 + (Parent.TemplateWidth - 48) * 0.88
+                                          Y: =14
+                                    - asMigBtnRowOne:
+                                        Control: Classic/Button
+                                        Properties:
+                                          BorderColor: =ColorValue(AppTheme.ButtonTertiary)
+                                          BorderThickness: =1
+                                          Color: =ColorValue(AppTheme.ButtonTertiary)
+                                          DisplayMode: =If(asMigConfirm, DisplayMode.Disabled, DisplayMode.Edit)
+                                          Fill: =Color.Transparent
+                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                          FocusedBorderThickness: =2
+                                          Font: ="IBM Plex Sans"
+                                          FontWeight: =FontWeight.Normal
+                                          Height: =28
+                                          HoverBorderColor: =ColorValue(AppTheme.ButtonTertiaryActive)
+                                          HoverColor: =ColorValue(AppTheme.ButtonTertiaryActive)
+                                          HoverFill: =AppTheme.SurfaceAlt
+                                          OnSelect: |-
+                                            =With(
+                                                {_sid: ThisItem.SeriesID},
+                                                IfError(
+                                                    With(
+                                                        {_ok: Filter(colLegacyPlan, Verdict = "OK", SeriesID = _sid)},
+                                                        /* c. Retire the legacy rows FIRST. Reversible - the rows are kept and only
+                                                           their Status changes, so nothing here is a Remove(). Retiring before the
+                                                           creates means a part-way failure leaves rows marked Migrated with no master
+                                                           (recoverable) rather than a live legacy series shadowed by a new master. */
+                                                        Patch(
+                                                            Book_Bookings,
+                                                            ForAll(
+                                                                Filter(colLegacyRows As _lz, !IsBlank(LookUp(_ok As _o2, _o2.SeriesID = _lz.SeriesID))) As _z,
+                                                                {ID: _z.ID, Status: "Migrated"}
+                                                            )
+                                                        );
+                                                        /* a. One batched create per master. Records carry no ID, so the
+                                                           two-argument Patch(ds, table) form creates rather than updates. */
+                                                        Patch(
+                                                            Book_Bookings,
+                                                            ForAll(
+                                                                _ok As _p,
+                                                                {
+                                                                    Title: _p.Title,
+                                                                    RoomID: {Id: _p.RoomIdNumber, Value: _p.RoomIdText},
+                                                                    StartDateTime: _p.Anchor,
+                                                                    EndDateTime: DateAdd(_p.Anchor, _p.DurationMin, TimeUnit.Minutes),
+                                                                    BookedBy: LookUp(colLegacyRows, ID = _p.FirstRowId).BookedBy,
+                                                                    BookedByEmail: _p.OwnerEmail,
+                                                                    IsPrivate: _p.IsPrivate,
+                                                                    Status: "Active",
+                                                                    SeriesID: _p.SeriesID,
+                                                                    RecurrenceType: _p.Rule,
+                                                                    OccIndex: 0,
+                                                                    IsException: false,
+                                                                    WantsInvite: false,
+                                                                    RecurrenceLabel: fnRuleLabel(_p.Rule, _p.Anchor),
+                                                                    NextOccurrence: Coalesce(
+                                                                        First(
+                                                                            Filter(
+                                                                                ForAll(
+                                                                                    Sequence(8, Max(0, fnBROccIndex(_p.Anchor, _p.Rule, Now()))) As _q,
+                                                                                    {K: _q.Value, S: fnOccStart(_p.Anchor, _p.Rule, _q.Value)}
+                                                                                ),
+                                                                                !IsBlank(S) && S >= Now() && K < _p.N
+                                                                            )
+                                                                        ).S,
+                                                                        _p.Anchor
+                                                                    )
+                                                                }
+                                                            )
+                                                        );
+                                                        /* b. One batched create for every occurrence the rule cannot
+                                                           reproduce: cancelled, clashed, or moved/re-timed. */
+                                                        Patch(
+                                                            Book_Bookings,
+                                                            ForAll(
+                                                                Filter(
+                                                                    ForAll(
+                                                                        Filter(colLegacyRows As _r0, !IsBlank(LookUp(_ok As _o0, _o0.SeriesID = _r0.SeriesID))) As _r,
+                                                                        With(
+                                                                            {_pl: LookUp(_ok As _o, _o.SeriesID = _r.SeriesID)},
+                                                                            With(
+                                                                                {_k: fnBROccIndex(_pl.Anchor, _pl.Rule, _r.StartDateTime)},
+                                                                                {
+                                                                                    Ok: !IsBlank(_pl),
+                                                                                    K: _k,
+                                                                                    Dev: fnOccStart(_pl.Anchor, _pl.Rule, _k) <> _r.StartDateTime
+                                                                                         || DateDiff(_r.StartDateTime, _r.EndDateTime, TimeUnit.Minutes) <> _pl.DurationMin,
+                                                                                    RTitle: _r.Title,
+                                                                                    RRoomId: _r.RoomID.Id,
+                                                                                    RRoomText: _r.RoomID.Value,
+                                                                                    RId: _r.ID,
+                                                                                    REmail: Coalesce(_r.BookedByEmail, ""),
+                                                                                    RPrivate: Coalesce(_r.IsPrivate, false),
+                                                                                    RStart: _r.StartDateTime,
+                                                                                    REnd: _r.EndDateTime,
+                                                                                    RStatus: _r.Status,
+                                                                                    RSeries: _r.SeriesID
+                                                                                }
+                                                                            )
+                                                                        )
+                                                                    ),
+                                                                    Ok,
+                                                                    RStatus = "Cancelled" || RStatus = "Clash" || Dev
+                                                                ) As _x,
+                                                                {
+                                                                    Title: _x.RTitle,
+                                                                    RoomID: {Id: _x.RRoomId, Value: _x.RRoomText},
+                                                                    StartDateTime: _x.RStart,
+                                                                    EndDateTime: _x.REnd,
+                                                                    BookedBy: LookUp(colLegacyRows, ID = _x.RId).BookedBy,
+                                                                    BookedByEmail: _x.REmail,
+                                                                    IsPrivate: _x.RPrivate,
+                                                                    Status: _x.RStatus,
+                                                                    SeriesID: _x.RSeries,
+                                                                    RecurrenceType: "BR-Exception",
+                                                                    OccIndex: _x.K,
+                                                                    IsException: true
+                                                                }
+                                                            )
+                                                        );
+                                                        /* MIRROR: masters live in colBRMasters, exceptions in colBookings */
+                                                        ClearCollect(colBRMasters, Filter(Book_Bookings, StartsWith(RecurrenceType, "BR-"), IsException = false, Status = "Active"));
+                                                        ClearCollect(colBookings, BookingsWindow);
+                                                        /* Row-scoped: drop only this series from the plan/scan, keep the rest for review */
+                                                        RemoveIf(colLegacyPlan, SeriesID = _sid);
+                                                        RemoveIf(colLegacyRows, SeriesID = _sid);
+                                                        If(IsEmpty(colLegacyPlan), UpdateContext({asMigScanned: false}));
+                                                        Notify("Migrated 1 series.", NotificationType.Success)
+                                                    ),
+                                                    Notify("Migration stopped part-way. Re-run the scan: series that already have a master are skipped; rows marked Migrated without a master need the developer.", NotificationType.Error)
+                                                )
+                                            )
+                                          PressedBorderColor: =ColorValue(AppTheme.ButtonTertiaryActive)
+                                          PressedColor: =ColorValue(AppTheme.ButtonTertiaryActive)
+                                          PressedFill: =AppTheme.SurfaceAlt
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                          Size: =11
+                                          Text: ="Migrate this one"
+                                          Visible: =ThisItem.Verdict = "OK"
+                                          Width: =100
+                                          X: =Parent.TemplateWidth - 100 - 16
+                                          Y: =10
+                                    - asMigRectRowDivider:
+                                        Control: Rectangle
+                                        Properties:
+                                          BorderColor: =Color.Transparent
+                                          Fill: =AppTheme.Border
+                                          Height: =1
+                                          Width: =Parent.TemplateWidth
+                                          Y: =Parent.TemplateHeight - 1
+                                    - asMigLblRowTitle:
+                                        Control: Label
+                                        Properties:
+                                          Color: =AppTheme.TextPrimary
+                                          Font: ="IBM Plex Sans"
+                                          Height: =20
+                                          Size: =12
+                                          Text: =ThisItem.Title
+                                          Width: =(Parent.TemplateWidth - 48) * 0.28 - 8
+                                          Wrap: =false
+                                          X: =32
+                                          Y: =14
+                                    - asMigLblRowRoom:
+                                        Control: Label
+                                        Properties:
+                                          Color: =ColorValue(AppTheme.Primary)
+                                          Font: ="IBM Plex Sans"
+                                          Height: =20
+                                          Size: =12
+                                          Text: =ThisItem.RoomTitle
+                                          Width: =(Parent.TemplateWidth - 48) * 0.14 - 8
+                                          Wrap: =false
+                                          X: =32 + (Parent.TemplateWidth - 48) * 0.28
+                                          Y: =14
+                                    - asMigLblRowOwner:
+                                        Control: Label
+                                        Properties:
+                                          Color: =AppTheme.TextSecondary
+                                          Font: ="IBM Plex Sans"
+                                          Height: =20
+                                          Size: =12
+                                          Text: =ThisItem.OwnerEmail
+                                          Width: =(Parent.TemplateWidth - 48) * 0.20 - 8
+                                          Wrap: =false
+                                          X: =32 + (Parent.TemplateWidth - 48) * 0.42
+                                          Y: =14
+                                    - asMigLblRowCadence:
+                                        Control: Label
+                                        Properties:
+                                          Color: =AppTheme.TextPrimary
+                                          Font: ="IBM Plex Sans"
+                                          Height: =20
+                                          Size: =12
+                                          Text: =ThisItem.Cadence
+                                          Width: =(Parent.TemplateWidth - 48) * 0.12 - 8
+                                          Wrap: =false
+                                          X: =32 + (Parent.TemplateWidth - 48) * 0.62
+                                          Y: =14
+                                    - asMigLblRowCounts:
+                                        Control: Label
+                                        Properties:
+                                          Color: =AppTheme.TextSecondary
+                                          Font: ="IBM Plex Sans"
+                                          Height: =20
+                                          Size: =11
+                                          Text: =ThisItem.RowCount & " rows, " & ThisItem.Deviations & " deviations, " & ThisItem.CancelledCount & " cancelled"
+                                          Width: =(Parent.TemplateWidth - 48) * 0.14 - 8
+                                          Wrap: =false
+                                          X: =32 + (Parent.TemplateWidth - 48) * 0.74
+                                          Y: =14
+                              - asMigConConfirm:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
+                                  Properties:
+                                    DropShadow: =DropShadow.None
+                                    Fill: =AppTheme.SurfaceAlt
+                                    FillPortions: =0
+                                    Height: =64
+                                    LayoutAlignItems: =LayoutAlignItems.Center
+                                    LayoutDirection: =LayoutDirection.Horizontal
+                                    LayoutGap: =8
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    PaddingBottom: =12
+                                    PaddingLeft: =16
+                                    PaddingRight: =16
+                                    PaddingTop: =12
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Visible: =asMigConfirm
+                                    Width: =Parent.Width
+                                  Children:
+                                    - asMigLblConfirm:
+                                        Control: Label
+                                        Properties:
+                                          Color: =AppTheme.TextPrimary
+                                          FillPortions: =1
+                                          Font: ="IBM Plex Sans"
+                                          Height: =24
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          PaddingLeft: =0
+                                          Size: =12
+                                          Text: ="This rewrites " & CountRows(Filter(colLegacyPlan, Verdict = "OK")) & " series. Continue?"
+                                          Wrap: =false
+                                    - asMigBtnConfirmNo:
+                                        Control: Classic/Button
+                                        Properties:
+                                          BorderColor: =AppTheme.Border
+                                          BorderThickness: =1
+                                          Color: =AppTheme.TextPrimary
+                                          Fill: =Color.Transparent
+                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                          FocusedBorderThickness: =2
+                                          Font: ="IBM Plex Sans"
+                                          FontWeight: =FontWeight.Normal
+                                          HoverBorderColor: =AppTheme.TextSecondary
+                                          HoverColor: =AppTheme.TextPrimary
+                                          HoverFill: =AppTheme.Surface
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          OnSelect: |-
+                                            =UpdateContext({asMigConfirm: false})
+                                          PressedBorderColor: =AppTheme.TextSecondary
+                                          PressedColor: =AppTheme.TextPrimary
+                                          PressedFill: =AppTheme.Surface
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                          Size: =12
+                                          Text: ="Cancel"
+                                          Width: =100
+                                    - asMigBtnConfirmYes:
+                                        Control: Classic/Button
+                                        Properties:
+                                          BorderColor: =ColorValue(AppTheme.ButtonPrimary)
+                                          BorderThickness: =0
+                                          Color: =ColorValue(AppTheme.PrimaryText)
+                                          Fill: =ColorValue(AppTheme.ButtonPrimary)
+                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                          FocusedBorderThickness: =2
+                                          Font: ="IBM Plex Sans"
+                                          FontWeight: =FontWeight.Normal
+                                          HoverColor: =ColorValue(AppTheme.PrimaryText)
+                                          HoverFill: =ColorValue(AppTheme.ButtonPrimaryActive)
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          OnSelect: |-
+                                            =IfError(
+                                                With(
+                                                    {_ok: Filter(colLegacyPlan, Verdict = "OK")},
+                                                    With(
+                                                        {_cnt: CountRows(Filter(colLegacyPlan, Verdict = "OK"))},
+                                                        /* c. Retire the legacy rows FIRST. Reversible - the rows are kept and only
+                                                           their Status changes, so nothing here is a Remove(). Retiring before the
+                                                           creates means a part-way failure leaves rows marked Migrated with no master
+                                                           (recoverable) rather than a live legacy series shadowed by a new master. */
+                                                        Patch(
+                                                            Book_Bookings,
+                                                            ForAll(
+                                                                Filter(colLegacyRows As _lz, !IsBlank(LookUp(_ok As _o2, _o2.SeriesID = _lz.SeriesID))) As _z,
+                                                                {ID: _z.ID, Status: "Migrated"}
+                                                            )
+                                                        );
+                                                        /* a. One batched create per master. Records carry no ID, so the
+                                                           two-argument Patch(ds, table) form creates rather than updates. */
+                                                        Patch(
+                                                            Book_Bookings,
+                                                            ForAll(
+                                                                _ok As _p,
+                                                                {
+                                                                    Title: _p.Title,
+                                                                    RoomID: {Id: _p.RoomIdNumber, Value: _p.RoomIdText},
+                                                                    StartDateTime: _p.Anchor,
+                                                                    EndDateTime: DateAdd(_p.Anchor, _p.DurationMin, TimeUnit.Minutes),
+                                                                    BookedBy: LookUp(colLegacyRows, ID = _p.FirstRowId).BookedBy,
+                                                                    BookedByEmail: _p.OwnerEmail,
+                                                                    IsPrivate: _p.IsPrivate,
+                                                                    Status: "Active",
+                                                                    SeriesID: _p.SeriesID,
+                                                                    RecurrenceType: _p.Rule,
+                                                                    OccIndex: 0,
+                                                                    IsException: false,
+                                                                    WantsInvite: false,
+                                                                    RecurrenceLabel: fnRuleLabel(_p.Rule, _p.Anchor),
+                                                                    NextOccurrence: Coalesce(
+                                                                        First(
+                                                                            Filter(
+                                                                                ForAll(
+                                                                                    Sequence(8, Max(0, fnBROccIndex(_p.Anchor, _p.Rule, Now()))) As _q,
+                                                                                    {K: _q.Value, S: fnOccStart(_p.Anchor, _p.Rule, _q.Value)}
+                                                                                ),
+                                                                                !IsBlank(S) && S >= Now() && K < _p.N
+                                                                            )
+                                                                        ).S,
+                                                                        _p.Anchor
+                                                                    )
+                                                                }
+                                                            )
+                                                        );
+                                                        /* b. One batched create for every occurrence the rule cannot
+                                                           reproduce: cancelled, clashed, or moved/re-timed. */
+                                                        Patch(
+                                                            Book_Bookings,
+                                                            ForAll(
+                                                                Filter(
+                                                                    ForAll(
+                                                                        Filter(colLegacyRows As _r0, !IsBlank(LookUp(_ok As _o0, _o0.SeriesID = _r0.SeriesID))) As _r,
+                                                                        With(
+                                                                            {_pl: LookUp(_ok As _o, _o.SeriesID = _r.SeriesID)},
+                                                                            With(
+                                                                                {_k: fnBROccIndex(_pl.Anchor, _pl.Rule, _r.StartDateTime)},
+                                                                                {
+                                                                                    Ok: !IsBlank(_pl),
+                                                                                    K: _k,
+                                                                                    Dev: fnOccStart(_pl.Anchor, _pl.Rule, _k) <> _r.StartDateTime
+                                                                                         || DateDiff(_r.StartDateTime, _r.EndDateTime, TimeUnit.Minutes) <> _pl.DurationMin,
+                                                                                    RTitle: _r.Title,
+                                                                                    RRoomId: _r.RoomID.Id,
+                                                                                    RRoomText: _r.RoomID.Value,
+                                                                                    RId: _r.ID,
+                                                                                    REmail: Coalesce(_r.BookedByEmail, ""),
+                                                                                    RPrivate: Coalesce(_r.IsPrivate, false),
+                                                                                    RStart: _r.StartDateTime,
+                                                                                    REnd: _r.EndDateTime,
+                                                                                    RStatus: _r.Status,
+                                                                                    RSeries: _r.SeriesID
+                                                                                }
+                                                                            )
+                                                                        )
+                                                                    ),
+                                                                    Ok,
+                                                                    RStatus = "Cancelled" || RStatus = "Clash" || Dev
+                                                                ) As _x,
+                                                                {
+                                                                    Title: _x.RTitle,
+                                                                    RoomID: {Id: _x.RRoomId, Value: _x.RRoomText},
+                                                                    StartDateTime: _x.RStart,
+                                                                    EndDateTime: _x.REnd,
+                                                                    BookedBy: LookUp(colLegacyRows, ID = _x.RId).BookedBy,
+                                                                    BookedByEmail: _x.REmail,
+                                                                    IsPrivate: _x.RPrivate,
+                                                                    Status: _x.RStatus,
+                                                                    SeriesID: _x.RSeries,
+                                                                    RecurrenceType: "BR-Exception",
+                                                                    OccIndex: _x.K,
+                                                                    IsException: true
+                                                                }
+                                                            )
+                                                        );
+                                                        /* MIRROR: masters live in colBRMasters, exceptions in colBookings */
+                                                        ClearCollect(colBRMasters, Filter(Book_Bookings, StartsWith(RecurrenceType, "BR-"), IsException = false, Status = "Active"));
+                                                        ClearCollect(colBookings, BookingsWindow);
+                                                        Clear(colLegacyPlan);
+                                                        Clear(colLegacyRows);
+                                                        UpdateContext({asMigScanned: false});
+                                                        UpdateContext({asMigConfirm: false});
+                                                        Notify("Migrated " & _cnt & " series.", NotificationType.Success)
+                                                    )
+                                                ),
+                                                UpdateContext({asMigConfirm: false});
+                                                Notify("Migration stopped part-way. Re-run the scan: series that already have a master are skipped; rows marked Migrated without a master need the developer.", NotificationType.Error)
+                                            )
+                                          PressedColor: =ColorValue(AppTheme.PrimaryText)
+                                          PressedFill: =ColorValue(AppTheme.ButtonPrimaryActive)
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                          Size: =12
+                                          Text: ="Yes, migrate"
+                                          Width: =140

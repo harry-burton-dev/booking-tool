@@ -9,10 +9,13 @@ Screens:
 
         /* Re-pull the shared bookings snapshot so colleagues' writes since App.OnStart
            (or since this session's last write) show up without requiring a write of our own */
-        Refresh(Book_Bookings);
-        ClearCollect(colBookings, BookingsWindow);
-        ClearCollect(colBRMasters,
-            Filter(Book_Bookings, StartsWith(RecurrenceType, "BR-"), IsException = false, Status = "Active"));
+        IfError(
+            Refresh(Book_Bookings);
+            ClearCollect(colBookings, BookingsWindow);
+            ClearCollect(colBRMasters,
+                Filter(Book_Bookings, StartsWith(RecurrenceType, "BR-"), IsException = false, Status = "Active")),
+            Notify("Couldn't refresh bookings — showing the last snapshot", NotificationType.Warning)
+        );
 
         Set(gblRoomsSearch, "");
         Set(gblRoomsMinCapacity, 0);
@@ -56,7 +59,7 @@ Screens:
                   PaddingBottom: =28
                   PaddingLeft: =32
                   PaddingRight: =32
-                  PaddingTop: =32
+                  PaddingTop: =16
                   Width: =Parent.Width
                   Y: =48
                 Children:
@@ -67,22 +70,97 @@ Screens:
                         DropShadow: =DropShadow.None
                         LayoutAlignItems: =LayoutAlignItems.Center
                         LayoutDirection: =LayoutDirection.Vertical
-                        LayoutGap: =12
+                        LayoutGap: =16
                         LayoutMinHeight: =16
-                        LayoutMinWidth: =16
-                        PaddingTop: =16
+                        LayoutMinWidth: =0
                         RadiusBottomLeft: =0
                         RadiusBottomRight: =0
                         RadiusTopLeft: =0
                         RadiusTopRight: =0
                       Children:
+                        - RoomsConBreadcrumb:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              AlignInContainer: =AlignInContainer.Start
+                              DropShadow: =DropShadow.None
+                              Fill: =Color.Transparent
+                              FillPortions: =0
+                              Height: =24
+                              LayoutAlignItems: =LayoutAlignItems.Stretch
+                              LayoutDirection: =LayoutDirection.Horizontal
+                              LayoutGap: =4
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
+                            Children:
+                              - RoomsBtnCrumbHome:
+                                  Control: Classic/Button
+                                  Properties:
+                                    Align: =Align.Left
+                                    AlignInContainer: =AlignInContainer.Start
+                                    BorderColor: =Color.Transparent
+                                    BorderStyle: =BorderStyle.None
+                                    BorderThickness: =0
+                                    Color: =ColorValue(AppTheme.Primary)
+                                    DisabledBorderColor: =Color.Transparent
+                                    DisabledColor: =AppTheme.TextMuted
+                                    DisabledFill: =Color.Transparent
+                                    Fill: =Color.Transparent
+                                    FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                    FocusedBorderThickness: =2
+                                    Font: ="IBM Plex Sans"
+                                    FontWeight: =FontWeight.Normal
+                                    Height: =16
+                                    HoverBorderColor: =Color.Transparent
+                                    HoverColor: =ColorValue(AppTheme.ButtonPrimaryActive)
+                                    HoverFill: =Color.Transparent
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    OnSelect: =Navigate(Home, ScreenTransition.Fade)
+                                    PaddingBottom: =0
+                                    PaddingLeft: =0
+                                    PaddingRight: =0
+                                    PaddingTop: =0
+                                    PressedBorderColor: =Color.Transparent
+                                    PressedColor: =ColorValue(AppTheme.ButtonPrimaryActive)
+                                    PressedFill: =Color.Transparent
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Size: =11
+                                    Text: ="Home"
+                                    Width: =48
+                              - htxRoomsCrumbTail:
+                                  Control: HtmlViewer
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Stretch
+                                    DisplayMode: =DisplayMode.View
+                                    FillPortions: =1
+                                    Height: =16
+                                    HtmlText: |-
+                                      ="<div style=""display: flex; align-items: center; gap: 4px;"">" &
+                                      CarbonSpan(CarbonHtmlType.Label01, "/", AppThemeHex.TextMuted) &
+                                      CarbonSpan(CarbonHtmlType.Label01, "Rooms", AppThemeHex.TextSecondary) &
+                                      "</div>"
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    PaddingBottom: =0
+                                    PaddingLeft: =0
+                                    PaddingRight: =0
+                                    PaddingTop: =0
+                                    Width: =176
                         - conRoomsHeading:
                             Control: GroupContainer
                             Variant: AutoLayout
                             Properties:
                               DropShadow: =DropShadow.None
                               FillPortions: =0
-                              Height: =64
+                              Height: =32
                               LayoutAlignItems: =LayoutAlignItems.Center
                               LayoutDirection: =LayoutDirection.Horizontal
                               Width: =Parent.Width
@@ -96,8 +174,8 @@ Screens:
                                     FillPortions: =1
                                     HtmlText: |-
                                       =CarbonFlexBetween(
-                                          CarbonSpan(CarbonHtmlType.Heading03 & " font-weight: 600;", "Choose a room", AppThemeHex.TextPrimary) &
-                                          CarbonSpan(CarbonHtmlType.Label01, fnHtmlEscape(RoomsBrowseFilteredCount & " of " & RoomsBrowseTotalCount & " rooms · " & RoomsBrowseAvailableCount & " available now"), AppThemeHex.TextSecondary)
+                                          CarbonSpan(CarbonHtmlType.Heading04, "Choose a room", AppThemeHex.TextPrimary) &
+                                          CarbonSpan(CarbonHtmlType.Body01, fnHtmlEscape(RoomsBrowseFilteredCount & " of " & RoomsBrowseTotalCount & " rooms · " & RoomsBrowseAvailableCount & " available now"), AppThemeHex.TextSecondary)
                                       )
                                     PaddingBottom: =0
                                     PaddingLeft: =0
@@ -112,6 +190,10 @@ Screens:
                               Height: =If(App.Width < 768, 240, 48)
                               LayoutAlignItems: =LayoutAlignItems.Center
                               LayoutDirection: =If(App.Width < 768, LayoutDirection.Vertical, LayoutDirection.Horizontal)
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
                               Width: =Parent.Width
                             Children:
                               - txtRoomsSearch:
@@ -159,6 +241,7 @@ Screens:
                                     OnChange: =Set(gblRoomsMinCapacity, Switch(Self.Selected.Value, "4+", 4, "8+", 8, "14+", 14, "20+", 20, 0))
                                     SelectionFill: =AppTheme.ButtonDangerHover
                                     Size: =11
+                                    Visible: =false
                                     Width: =160
                               - drpRoomsSort:
                                   Control: Classic/DropDown
@@ -180,6 +263,7 @@ Screens:
                                     Items.Value: =Value
                                     OnChange: =Set(gblRoomsSort, Self.Selected.Value)
                                     Size: =11
+                                    Visible: =false
                                     Width: =180
                               - tglRoomsAvailable:
                                   Control: Toggle
@@ -190,6 +274,27 @@ Screens:
                                     OnCheck: =Set(gblRoomsAvailableOnly, true)
                                     OnUncheck: =Set(gblRoomsAvailableOnly, false)
                                     Width: =200
+                              - rmBtnFavFilter:
+                                  Control: Classic/Button
+                                  Properties:
+                                    BorderColor: =If(gblRoomsFavOnly, ColorValue(AppTheme.Primary), AppTheme.Border)
+                                    BorderThickness: =1
+                                    Color: =If(gblRoomsFavOnly, ColorValue(AppTheme.PrimaryText), AppTheme.TextPrimary)
+                                    Fill: =If(gblRoomsFavOnly, ColorValue(AppTheme.ButtonPrimary), AppTheme.SurfaceAlt)
+                                    FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                    FocusedBorderThickness: =2
+                                    Font: ="IBM Plex Sans"
+                                    Height: =32
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    OnSelect: =Set(gblRoomsFavOnly, !gblRoomsFavOnly)
+                                    RadiusBottomLeft: =16
+                                    RadiusBottomRight: =16
+                                    RadiusTopLeft: =16
+                                    RadiusTopRight: =16
+                                    Size: =10
+                                    Text: =If(gblRoomsFavOnly, "★ Favourites only", "☆ Favourites")
+                                    Width: =150
                         - conRoomsEquipmentFilters:
                             Control: GroupContainer
                             Variant: AutoLayout
@@ -200,6 +305,7 @@ Screens:
                               LayoutAlignItems: =LayoutAlignItems.Center
                               LayoutDirection: =LayoutDirection.Horizontal
                               LayoutGap: =8
+                              Visible: =false
                               Width: =Parent.Width
                             Children:
                               - lblRoomsEquipmentHeading:
@@ -252,17 +358,16 @@ Screens:
                                           Size: =10
                                           Text: =ThisItem.Value
                                           Width: =Parent.TemplateWidth - 4
-                                          Y: =8
                         - gal_rooms_view:
                             Control: Gallery
                             Variant: Vertical
                             Properties:
                               AlignInContainer: =AlignInContainer.Start
                               Height: =Parent.Height
-                              Items: =RoomsBrowseData
+                              Items: =RoomsBrowseFavFiltered
                               TemplatePadding: =8
                               TemplateSize: =216
-                              Visible: =!IsEmpty(RoomsBrowseData)
+                              Visible: =!IsEmpty(RoomsBrowseFavFiltered)
                               Width: =Parent.Width
                               WrapCount: =If(App.Width >= 1200, 4, App.Width >= 768, 2, 1)
                             Children:
@@ -467,7 +572,9 @@ Screens:
                                                 !IsBlank(varSelectedRoom) && varSelectedRoom.ID = ThisItem.ID,
                                                 Set(varSelectedRoom, Blank()),
                                                 Set(varSelectedRoom, LookUp(colRooms, ID = ThisItem.ID))
-                                            )
+                                            );
+                                            Set(glbSelectedDate, Today());
+                                            Navigate(RoomsTimeline, ScreenTransition.None);
                                           PaddingBottom: =0
                                           PaddingLeft: =0
                                           PaddingRight: =0
@@ -500,6 +607,77 @@ Screens:
                                           Width: =12
                                           X: =16
                                           Y: =16
+                                    - rmLblFavStar:
+                                        Control: Label
+                                        Properties:
+                                          Align: =Align.Center
+                                          Color: =If(fnIsFavourite(ThisItem.ID), ColorValue("#f1c21b"), AppTheme.TextMuted)
+                                          Font: ="IBM Plex Sans"
+                                          Height: =24
+                                          Text: =If(fnIsFavourite(ThisItem.ID), "★", "☆")
+                                          Width: =24
+                                          X: =Parent.Width - 68
+                                          Y: =12
+                                    - rmBtnFav:
+                                        Control: Classic/Button
+                                        Properties:
+                                          BorderColor: =Color.Transparent
+                                          BorderStyle: =BorderStyle.None
+                                          BorderThickness: =0
+                                          Color: =Color.Transparent
+                                          DisabledBorderColor: =Color.Transparent
+                                          DisabledColor: =Color.Transparent
+                                          DisabledFill: =Color.Transparent
+                                          Fill: =Color.Transparent
+                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                          FocusedBorderThickness: =2
+                                          Font: ="IBM Plex Sans"
+                                          Height: =24
+                                          HoverBorderColor: =Color.Transparent
+                                          HoverColor: =Color.Transparent
+                                          HoverFill: =Color.Transparent
+                                          OnSelect: |-
+                                            =/* FavouriteRoomIDs is rewritten whole from the parsed list, so the stored
+                                               text is always a clean comma-separated set with no stray separators. */
+                                            IfError(
+                                                Patch(
+                                                    Book_UserSettings,
+                                                    gblUserSettings,
+                                                    {
+                                                        FavouriteRoomIDs:
+                                                            If(
+                                                                fnIsFavourite(ThisItem.ID),
+                                                                Concat(Filter(FavouriteRoomIds, Id <> ThisItem.ID), Text(Id, "[$-en-US]0"), ","),
+                                                                Concat(FavouriteRoomIds, Text(Id, "[$-en-US]0"), ",") &
+                                                                    If(IsEmpty(FavouriteRoomIds), "", ",") &
+                                                                    Text(ThisItem.ID, "[$-en-US]0")
+                                                            )
+                                                    }
+                                                ),
+                                                Notify("Couldn't save setting", NotificationType.Error)
+                                            );
+                                            Set(gblUserSettings, LookUp(Book_UserSettings, ID = gblUserSettings.ID))
+                                          PaddingBottom: =0
+                                          PaddingLeft: =0
+                                          PaddingRight: =0
+                                          PaddingTop: =0
+                                          PressedBorderColor: =Color.Transparent
+                                          PressedColor: =Color.Transparent
+                                          PressedFill: =Color.Transparent
+                                          RadiusBottomLeft: =12
+                                          RadiusBottomRight: =12
+                                          RadiusTopLeft: =12
+                                          RadiusTopRight: =12
+                                          Size: =10
+                                          Text: |-
+                                            =If(
+                                                fnIsFavourite(ThisItem.ID),
+                                                "Remove " & ThisItem.Title & " from favourites",
+                                                "Add " & ThisItem.Title & " to favourites"
+                                            )
+                                          Width: =24
+                                          X: =Parent.Width - 68
+                                          Y: =12
                         - conRoomsEmptyState:
                             Control: GroupContainer
                             Variant: AutoLayout
@@ -507,7 +685,7 @@ Screens:
                               LayoutAlignItems: =LayoutAlignItems.Center
                               LayoutDirection: =LayoutDirection.Vertical
                               LayoutJustifyContent: =LayoutJustifyContent.Center
-                              Visible: =IsEmpty(RoomsBrowseData)
+                              Visible: =IsEmpty(RoomsBrowseFavFiltered)
                               Width: =Parent.Width
                             Children:
                               - lblRoomsNoMatches:
@@ -546,100 +724,6 @@ Screens:
                                       Reset(tglRoomsAvailable)
                                     Text: ="Clear filters"
                                     Width: =144
-                  - conRoomsSelectionBar:
-                      Control: GroupContainer
-                      Variant: AutoLayout
-                      Properties:
-                        BorderColor: =AppTheme.Border
-                        BorderThickness: =1
-                        DropShadow: =DropShadow.None
-                        Fill: =AppTheme.Surface
-                        FillPortions: =0
-                        Height: =If(App.Width < 768, 208, 64)
-                        LayoutAlignItems: =LayoutAlignItems.Center
-                        LayoutDirection: =If(App.Width < 768, LayoutDirection.Vertical, LayoutDirection.Horizontal)
-                        PaddingLeft: =32
-                        PaddingRight: =32
-                        Visible: =!IsBlank(varSelectedRoom)
-                        Width: =Parent.Width
-                      Children:
-                        - lblRoomsSelectedSummary:
-                            Control: Label
-                            Properties:
-                              Color: =AppTheme.TextPrimary
-                              FillPortions: =1
-                              Font: ="IBM Plex Sans"
-                              Size: =12
-                              Text: |-
-                                =varSelectedRoom.Title &
-                                " · seats " & Text(varSelectedRoom.Capacity) &
-                                If(IsBlank(varSelectedRoom.description), "", " · " & varSelectedRoom.description)
-                        - btnRoomsViewToday:
-                            Control: Classic/Button
-                            Properties:
-                              BorderColor: =ColorValue(AppTheme.ButtonTertiary)
-                              BorderThickness: =1
-                              Color: =ColorValue(AppTheme.ButtonTertiary)
-                              Fill: =Color.Transparent
-                              FocusedBorderColor: =ColorValue(AppTheme.Primary)
-                              FocusedBorderThickness: =2
-                              Font: ="IBM Plex Sans"
-                              Height: =48
-                              OnSelect: |-
-                                =/* varSelectedRoom is already set - this bar only renders with a room
-                                   selected. RoomsTimeline.OnVisible owns varNowTick, the tlSel* reset
-                                   and the row build (T8b PERF-3). */
-                                Set(glbSelectedDate, Today());
-                                Navigate(RoomsTimeline, ScreenTransition.None)
-                              Text: ="View today"
-                              Width: =144
-                        - btnRoomsViewWeek:
-                            Control: Classic/Button
-                            Properties:
-                              BorderColor: =AppTheme.Border
-                              BorderThickness: =1
-                              Color: =ColorValue(AppTheme.ButtonDisabledText)
-                              DisabledBorderColor: =AppTheme.Border
-                              DisabledColor: =ColorValue(AppTheme.ButtonDisabledText)
-                              DisabledFill: =ColorValue(AppTheme.ButtonDisabled)
-                              DisplayMode: =DisplayMode.Disabled
-                              Fill: =ColorValue(AppTheme.ButtonDisabled)
-                              Font: ="IBM Plex Sans"
-                              Height: =48
-                              OnSelect: =Blank()
-                              Text: ="View week"
-                              Tooltip: ="Week view is not available yet"
-                              Width: =144
-                        - btnRoomsBook:
-                            Control: Classic/Button
-                            Properties:
-                              BorderColor: =ColorValue(AppTheme.ButtonPrimary)
-                              BorderThickness: =1
-                              Color: =ColorValue(AppTheme.PrimaryText)
-                              Fill: =ColorValue(AppTheme.ButtonPrimary)
-                              FocusedBorderColor: =ColorValue(AppTheme.Primary)
-                              FocusedBorderThickness: =2
-                              Font: ="IBM Plex Sans"
-                              Height: =48
-                              OnSelect: |-
-                                =Set(varSelectedDate, Blank());
-                                // RESET-SITE[rooms-book-bar] wizard state reset before opening step 2
-                                Set(varStartTime, Blank());
-                                Set(varEndTime, Blank());
-                                Set(varTitle, Blank());
-                                Set(varConflict, false);
-                                Set(varBookingError, false);
-                                Set(varSubmitting, false);
-                                Set(varTitleTouched, false);
-                                Set(gbl_UI_Book_CancelConfirm, false);
-                                Set(gbl_Book_SubmitResult, "");
-                                Set(varConflictingBooking, Blank());
-                                Set(varNextFreeSlot, Blank());
-                                Set(gblEditingBookingID, 0);
-                                Set(gbl_UI_Book_Modal_Step, WizardStep2);
-                                Set(gbl_UI_Book_Modal, true)
-                              Text: ="Book"
-                              Width: =144
       - cpt_Modal__book_rooms:
           Control: CanvasComponent
           ComponentName: cpt_Modal_
@@ -678,7 +762,7 @@ Screens:
                       colPayloadSnapshot As _occ,
                       With(
                           {
-                              _isWeekend: Weekday(_occ.StartDateTime, StartOfWeek.Sunday) = 1 || Weekday(_occ.StartDateTime, StartOfWeek.Sunday) = 7,
+                              _isWeekend: (Weekday(_occ.StartDateTime, StartOfWeek.Sunday) = 1 || Weekday(_occ.StartDateTime, StartOfWeek.Sunday) = 7) && WeekendPolicy <> "allow",
                               _hasClash: !IsBlank(
                                   LookUp(
                                       Filter(colOccOverlap, fnOverlaps(StartDateTime, EndDateTime, _occ.StartDateTime, _occ.EndDateTime)),
@@ -695,47 +779,55 @@ Screens:
                               {
                                   /* Create booking; on success Collect() mirrors the row Patch
                                      returns (server-assigned ID included) into colBookings;
-                                     record a write failure if it errors */
-                                  _patchOk: IfError(
-                                      Collect(colBookings, Patch(
-                                          Book_Bookings,
-                                          Defaults(Book_Bookings),
-                                          {
-                                              Title: _occ.Title,
-                                              BookedByEmail: _occ.BookedByEmail,
-                                              RoomID: {
-                                                  Id: _occ.RoomIdNumber,
-                                                  Value: _occ.RoomIdText
-                                              },
-                                              StartDateTime: _occ.StartDateTime,
-                                              EndDateTime: _occ.EndDateTime,
-                                              IsPrivate: _occ.IsPrivate,
-                                              // PROD-REVERT[booked-by-actor] person = actor; mock claims don't resolve
-                                              BookedBy: {
-                                                  '@odata.type': "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser",
-                                                  Claims: $"i:0#.f|membership|{Lower(User().Email)}",
-                                                  DisplayName: User().FullName,
-                                                  Email: Lower(User().Email),
-                                                  Department: "",
-                                                  JobTitle: "",
-                                                  Picture: ""
-                                              },
-                                              Status: If(_isWeekend || _hasClash, "Clash", "Active"),
-                                              SeriesID: If(IsBlank(varNewSeriesID), Blank(), Text(varNewSeriesID)),
-                                              RecurrenceType: _occ.RecurrenceType,
-                                              OccIndex: _occ.OccIndex,
-                                              IsException: false
-                                          }
-                                      ));
-                                      true,
-                                      Collect(
-                                          colFailedBookings,
-                                          {
-                                              BookingDate: Text(_occ.StartDateTime, "dd mmm yyyy"),
-                                              Reason: "error"
-                                          }
-                                      );
-                                      false
+                                     record a write failure if it errors.
+                                     Series occurrences that are clean are NOT written — the master
+                                     row below expands them at read time; only weekend/clash
+                                     occurrences become stored exception rows. */
+                                  _patchOk: If(
+                                      IsBlank(varNewSeriesID) || _isWeekend || _hasClash,
+                                      IfError(
+                                          Collect(colBookings, Patch(
+                                              Book_Bookings,
+                                              Defaults(Book_Bookings),
+                                              {
+                                                  Title: _occ.Title,
+                                                  BookedByEmail: _occ.BookedByEmail,
+                                                  RoomID: {
+                                                      Id: _occ.RoomIdNumber,
+                                                      Value: _occ.RoomIdText
+                                                  },
+                                                  StartDateTime: _occ.StartDateTime,
+                                                  EndDateTime: _occ.EndDateTime,
+                                                  IsPrivate: _occ.IsPrivate,
+                                                  // PROD-REVERT[booked-by-actor] person = actor; mock claims don't resolve
+                                                  BookedBy: {
+                                                      '@odata.type': "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser",
+                                                      Claims: $"i:0#.f|membership|{Lower(User().Email)}",
+                                                      DisplayName: User().FullName,
+                                                      Email: Lower(User().Email),
+                                                      Department: "",
+                                                      JobTitle: "",
+                                                      Picture: ""
+                                                  },
+                                                  Status: If(_isWeekend || _hasClash, "Clash", "Active"),
+                                                  SeriesID: If(IsBlank(varNewSeriesID), Blank(), Text(varNewSeriesID)),
+                                                  RecurrenceType: If(IsBlank(varNewSeriesID), _occ.RecurrenceType, "BR-Exception"),
+                                                  OccIndex: _occ.OccIndex,
+                                                  IsException: !IsBlank(varNewSeriesID),
+                                                  WantsInvite: _occ.WantsInvite
+                                              }
+                                          ));
+                                          true,
+                                          Collect(
+                                              colFailedBookings,
+                                              {
+                                                  BookingDate: Text(_occ.StartDateTime, "dd mmm yyyy"),
+                                                  Reason: "error"
+                                              }
+                                          );
+                                          false
+                                      ),
+                                      true
                                   )
                               },
 
@@ -751,6 +843,63 @@ Screens:
                                       }
                                   )
                               )
+                          )
+                      )
+                  );
+
+                  /* Series: exactly one master row carrying the rule in RecurrenceType.
+                     Occurrences are expanded at read time by BRVirtual; clashing ones were
+                     written as exception rows in the loop above. */
+                  If(
+                      !IsBlank(varNewSeriesID),
+                      With(
+                          {_first: First(colPayloadSnapshot)},
+                          IfError(
+                              Collect(colBookings, Patch(
+                                  Book_Bookings,
+                                  Defaults(Book_Bookings),
+                                  {
+                                      Title: _first.Title,
+                                      BookedByEmail: _first.BookedByEmail,
+                                      RoomID: {
+                                          Id: _first.RoomIdNumber,
+                                          Value: _first.RoomIdText
+                                      },
+                                      StartDateTime: _first.StartDateTime,
+                                      EndDateTime: _first.EndDateTime,
+                                      IsPrivate: _first.IsPrivate,
+                                      // PROD-REVERT[booked-by-actor] person = actor; mock claims don't resolve
+                                      BookedBy: {
+                                          '@odata.type': "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser",
+                                          Claims: $"i:0#.f|membership|{Lower(User().Email)}",
+                                          DisplayName: User().FullName,
+                                          Email: Lower(User().Email),
+                                          Department: "",
+                                          JobTitle: "",
+                                          Picture: ""
+                                      },
+                                      Status: "Active",
+                                      SeriesID: Text(varNewSeriesID),
+                                      RecurrenceType: _first.RecurrenceType,
+                                      OccIndex: 0,
+                                      IsException: false,
+                                      WantsInvite: _first.WantsInvite,
+                                      RecurrenceLabel: fnRuleLabel(_first.RecurrenceType, _first.StartDateTime),
+                                      NextOccurrence: _first.StartDateTime
+                                  }
+                              )),
+                              Collect(
+                                  colFailedBookings,
+                                  {
+                                      BookingDate: Text(_first.StartDateTime, "dd mmm yyyy"),
+                                      Reason: "error"
+                                  }
+                              )
+                          );
+                          Refresh(Book_Bookings);
+                          ClearCollect(
+                              colBRMasters,
+                              Filter(Book_Bookings, StartsWith(RecurrenceType, "BR-"), IsException = false, Status = "Active")
                           )
                       )
                   );
@@ -774,6 +923,21 @@ Screens:
                           "Some bookings failed to save. Please try again. Not created: " &
                           Concat(Filter(colFailedBookings, Reason = "error"), BookingDate, ", "),
                           NotificationType.Error,
+                          10000
+                      ),
+                      !IsBlank(varNewSeriesID),
+                      Notify(
+                          If(fnRuleIsPermanent(First(colPayloadSnapshot).RecurrenceType), "Permanent booking created", $"Series booked · {CountRows(colPayloadSnapshot)} occurrences") &
+                          If(
+                              CountRows(Filter(colFailedBookings, Reason = "clash")) > 0,
+                              $", {CountRows(Filter(colFailedBookings, Reason = "clash"))} clash(es) to resolve",
+                              ""
+                          ),
+                          If(
+                              CountRows(Filter(colFailedBookings, Reason = "clash")) > 0,
+                              NotificationType.Warning,
+                              NotificationType.Success
+                          ),
                           10000
                       ),
                       CountRows(Filter(colFailedBookings, Reason = "clash")) > 0,

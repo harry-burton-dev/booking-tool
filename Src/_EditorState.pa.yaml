@@ -2,13 +2,16 @@ EditorState:
   ScreensOrder:
     - Rooms
     - RoomsTimeline
-    - Home
     - bookingDetail
-    - Find
+    - Admin
+    - AdminPermanentNew
+    - AdminSettings
+    - Home
     - myBookings
     - Profile
-    - Admin
+    - Find
   ComponentDefinitionsOrder:
-    - Shell_Header
-    - cpt_Modal_
     - cpt_BookingDetailModal
+    - cpt_Update
+    - cpt_Modal_
+    - Shell_Header

@@ -4,12 +4,15 @@ Screens:
       Fill: =AppTheme.Background
       LoadingSpinnerColor: =ColorValue(AppTheme.Primary)
       OnVisible: |-
-        =Refresh(Book_Bookings);
-        /* Re-pull the shared bookings snapshot so colleagues' writes since App.OnStart
+        =/* Re-pull the shared bookings snapshot so colleagues' writes since App.OnStart
            (or since this session's last write) show up without requiring a write of our own */
-        ClearCollect(colBookings, BookingsWindow);
-        ClearCollect(colBRMasters,
-            Filter(Book_Bookings, StartsWith(RecurrenceType, "BR-"), IsException = false, Status = "Active"))
+        IfError(
+            Refresh(Book_Bookings);
+            ClearCollect(colBookings, BookingsWindow);
+            ClearCollect(colBRMasters,
+                Filter(Book_Bookings, StartsWith(RecurrenceType, "BR-"), IsException = false, Status = "Active")),
+            Notify("Couldn't refresh bookings — showing the last snapshot", NotificationType.Warning)
+        )
     Children:
       - mb2ConShell:
           Control: GroupContainer
@@ -123,7 +126,7 @@ Screens:
                                           - mb2BtnCrumbHome:
                                               Control: Classic/Button
                                               Properties:
-                                                AlignInContainer: =AlignInContainer.Center
+                                                AlignInContainer: =AlignInContainer.Stretch
                                                 BorderColor: =Color.Transparent
                                                 BorderStyle: =BorderStyle.None
                                                 BorderThickness: =0
@@ -156,11 +159,13 @@ Screens:
                                                 RadiusTopRight: =0
                                                 Size: =11
                                                 Text: ="Home"
-                                                Width: =72
+                                                VerticalAlign: =VerticalAlign.Bottom
+                                                Width: =58
                                           - htxMb2CrumbTail:
                                               Control: HtmlViewer
                                               Properties:
-                                                AlignInContainer: =AlignInContainer.Center
+                                                AlignInContainer: =AlignInContainer.Stretch
+                                                AutoHeight: =true
                                                 DisplayMode: =DisplayMode.View
                                                 Height: =16
                                                 HtmlText: |-
@@ -179,6 +184,7 @@ Screens:
                                         Control: Label
                                         Properties:
                                           AlignInContainer: =AlignInContainer.Stretch
+                                          AutoHeight: =true
                                           Color: =AppTheme.TextPrimary
                                           Fill: =Color.Transparent
                                           Font: ="IBM Plex Sans"
@@ -201,7 +207,7 @@ Screens:
                                     LayoutMinHeight: =0
                                     LayoutMinWidth: =0
                                     Size: =12
-                                    Text: =Text(MyBookingsUpcomingCount, "[$-en-US]0") & " upcoming · Austin HQ"
+                                    Text: =Text(MyBookingsUpcomingCount, "[$-en-US]0") & " upcoming"
                                     Width: =260
                                     Wrap: =false
                         - mb2ConNextUp:
@@ -988,7 +994,9 @@ Screens:
                                         ),
                                         SeriesTitle, First(SeriesRows).Title,
                                         SeriesRoom, First(SeriesRows).'RoomID: Title'.Value,
-                                        SeriesPattern, First(SeriesRows).RecurrenceType,
+                                        // the master row is the authority on cadence; materialised series fall back to a member
+                                        SeriesPattern, Coalesce(LookUp(colBRMasters As _bm, _bm.SeriesID = SeriesID).RecurrenceType, First(SeriesRows).RecurrenceType),
+                                        SeriesAnchor, Coalesce(LookUp(colBRMasters As _bm, _bm.SeriesID = SeriesID).StartDateTime, First(SeriesRows).StartDateTime),
                                         NextDate, Min(Filter(SeriesRows, !fnIsPast(EndDateTime) && Status <> "Cancelled"), StartDateTime),
                                         ActiveCount, CountRows(Filter(SeriesRows, Status = "Active")),
                                         ClashCount, CountRows(Filter(SeriesRows, Status = "Clash")),
@@ -1047,7 +1055,7 @@ Screens:
                                     Font: ="IBM Plex Sans"
                                     Height: =16
                                     Size: =12
-                                    Text: =Switch(ThisItem.SeriesPattern, "Weekly", "Weekly", "BiWeekly", "Every 2 weeks", "Monthly", "Monthly", ThisItem.SeriesPattern) & " · Next " & If(IsBlank(ThisItem.NextDate), "—", Text(ThisItem.NextDate, "[$-en-US]d mmm yyyy"))
+                                    Text: =fnRuleLabel(ThisItem.SeriesPattern, ThisItem.SeriesAnchor) & " · Next " & If(IsBlank(ThisItem.NextDate), "—", Text(ThisItem.NextDate, "[$-en-US]d mmm yyyy"))
                                     Width: =Max(Parent.Width - 312, 120)
                                     Wrap: =false
                                     X: =32
@@ -1194,15 +1202,36 @@ Screens:
                                       // (refinement runs on the materialized collection — predicates layered on the live query draw compile-failing delegation warnings)
                                       ClearCollect(colSeriesServerRows, Filter(Book_Bookings, SeriesID = gbl_UI_CancelSeriesConfirmID));
                                       // _targets captured once: the same rows drive the server loop and the mirror (one predicate, no Now() drift)
+                                      // Master rows are excluded — the _endSeries block below owns them.
+                                      With(
+                                          {_master: LookUp(colBRMasters, SeriesID = gbl_UI_CancelSeriesConfirmID), _masterSid: gbl_UI_CancelSeriesConfirmID},
                                       With(
                                           {
+                                              _endSeries: !IsBlank(_master) && (fnIsMine(_master.BookedByEmail) || IsAdmin),
                                               _targets: Filter(
                                                   colSeriesServerRows,
                                                   StartDateTime >= Now(),
                                                   Status <> "Cancelled",
-                                                  BookedByEmail = Lower(User().Email)
+                                                  Status <> "Migrated",
+                                                  fnIsMine(BookedByEmail),
+                                                  !(fnIsBRRow(RecurrenceType) && !IsException)
                                               )
                                           },
+                                      /* Ending a rule-driven series: cancel the master (which stops every
+                                         remaining virtual occurrence at once) plus its future exceptions. */
+                                      If(
+                                          _endSeries,
+                                          Patch(Book_Bookings, {ID: _master.ID}, {Status: "Cancelled"});
+                                          Patch(
+                                              Book_Bookings,
+                                              ForAll(
+                                                  Filter(Book_Bookings, SeriesID = _masterSid, IsException = true, Status = "Active", StartDateTime > Now()) As _ex,
+                                                  {ID: _ex.ID, Status: "Cancelled"}
+                                              )
+                                          );
+                                          UpdateIf(colBookings, SeriesID = _masterSid && IsException && Status = "Active" && StartDateTime > Now(), {Status: "Cancelled"});
+                                          ClearCollect(colBRMasters, Filter(Book_Bookings, StartsWith(RecurrenceType, "BR-"), IsException = false, Status = "Active"))
+                                      );
                                       With(
                                           {
                                               _results: ForAll(
@@ -1230,6 +1259,8 @@ Screens:
                                           );
                                           Set(gbl_UI_CancelSeriesConfirmID, Blank());
                                           If(
+                                              _endSeries,
+                                              Notify("Series ended", NotificationType.Success),
                                               CountRows(_results) = 0,
                                               Notify("Nothing to cancel — no upcoming occurrences you own in this series.", NotificationType.Warning),
                                               CountRows(Filter(_results, !Value)) = 0,
@@ -1239,6 +1270,7 @@ Screens:
                                                   NotificationType.Error
                                               )
                                           )
+                                      )
                                       )
                                       )
                                     PressedColor: =ColorValue(AppTheme.PrimaryText)

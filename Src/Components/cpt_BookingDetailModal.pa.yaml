@@ -165,6 +165,7 @@ ComponentDefinitions:
                           =If(
                               fnIsPast(gblSelectedBooking.EndDateTime), "Past",
                               gblSelectedBooking.Status = "Clash", "Clash",
+                              gblSelectedBooking.IsPermanent, "Permanent",
                               "Upcoming"
                           )
                         Width: =88
@@ -385,7 +386,7 @@ ComponentDefinitions:
                                     DisplayMode: =DisplayMode.View
                                     HtmlText: |-
                                       =CarbonTextColored(CarbonHtmlType.Label01, "Booked by", AppThemeHex.TextMuted) &
-                                      CarbonText(CarbonHtmlType.HeadingCompact01, fnHtmlEscape(gblSelectedBooking.BookedBy.DisplayName))
+                                      CarbonText(CarbonHtmlType.HeadingCompact01, fnHtmlEscape(If(gblSelectedBooking.IsPermanent, "Permanent booking", gblSelectedBooking.BookedBy.DisplayName)))
                                     LayoutMinHeight: =0
                                     LayoutMinWidth: =0
                                     PaddingBottom: =0
@@ -472,7 +473,7 @@ ComponentDefinitions:
                                     DisplayMode: =DisplayMode.View
                                     HtmlText: |-
                                       =CarbonTextColored(CarbonHtmlType.Label01, "Series", AppThemeHex.TextMuted) &
-                                      CarbonText(CarbonHtmlType.HeadingCompact01, If(IsBlank(gblSelectedBooking.RecurrenceType), "Repeats", fnHtmlEscape(gblSelectedBooking.RecurrenceType)))
+                                      CarbonText(CarbonHtmlType.HeadingCompact01, If(IsBlank(gblSelectedBooking.RecurrenceType), "Repeats", fnHtmlEscape(fnRuleLabel(gblSelectedBooking.RecurrenceType, gblSelectedBooking.StartDateTime))))
                                     LayoutMinHeight: =0
                                     LayoutMinWidth: =0
                                     PaddingBottom: =0
@@ -496,7 +497,9 @@ ComponentDefinitions:
                   PaddingLeft: =16
                   PaddingRight: =16
                   PaddingTop: =12
-                  Visible: =!IsBlank(gblSelectedBooking) && !fnIsPast(gblSelectedBooking.EndDateTime)
+                  Visible: |-
+                    =!IsBlank(gblSelectedBooking) && !fnIsPast(gblSelectedBooking.EndDateTime) &&
+                    (!gblSelectedBooking.IsPermanent || IsAdmin)
                 Children:
                   - bdmFooterActions:
                       Control: GroupContainer
@@ -562,6 +565,7 @@ ComponentDefinitions:
                               LayoutJustifyContent: =LayoutJustifyContent.End
                               LayoutMinHeight: =0
                               LayoutMinWidth: =0
+                              Visible: =false
                             Children:
                               - bdmBtnChangeTime:
                                   Control: Classic/Button
@@ -605,7 +609,7 @@ ComponentDefinitions:
                                       Set(gbl_UI_Detail_ConfirmMode, "");
                                       Set(gbl_UI_Detail_Modal, false);
 
-                                      Set(gbl_UI_Book_Modal_Step, WizardStep2);
+                                      Set(gbl_UI_Book_Modal_Step, WizardStepWhen);
                                       Set(gbl_UI_Book_Modal, true);
                                       Navigate(bookingDetail, ScreenTransition.Fade)
                                     PressedColor: =ColorValue(AppTheme.PrimaryText)
@@ -705,17 +709,59 @@ ComponentDefinitions:
                                     LayoutMinWidth: =0
                                     OnSelect: |-
                                       =// PROD-REVERT[booking-cancel] soft delete via Patch; Remove() retired per WS4
-                                      IfError(
-                                          Patch(Book_Bookings, LookUp(Book_Bookings, ID = gblSelectedBooking.ID), {Status: "Cancelled"}),
-                                          Notify("Couldn't cancel this booking. Please try again.", NotificationType.Error),
-                                          Refresh(Book_Bookings);
-                                          UpdateIf(colBookings, ID = gblSelectedBooking.ID, {Status: "Cancelled"});
-                                          Set(gblSelectedBooking, Blank());
-                                          Notify("Booking cancelled", NotificationType.Success);
-                                          Set(gbl_FixCycleSeriesID, "");
-                                          // RESET-SITE[detail-modal-close] cancel completed, dismiss the modal
-                                          Set(gbl_UI_Detail_ConfirmMode, "");
-                                          Set(gbl_UI_Detail_Modal, false)
+                                      If(
+                                          gblSelectedBooking.ID < 0,
+                                          /* Virtual occurrence: nothing to patch — materialise a Cancelled
+                                             exception row, which suppresses occurrence k of the master. */
+                                          IfError(
+                                              With(
+                                                  {
+                                                      _m: LookUp(colBRMasters, ID = RoundDown(-gblSelectedBooking.ID / 10000, 0)),
+                                                      _k: Mod(-gblSelectedBooking.ID, 10000)
+                                                  },
+                                                  Collect(
+                                                      colBookings,
+                                                      Patch(
+                                                          Book_Bookings,
+                                                          Defaults(Book_Bookings),
+                                                          {
+                                                              Title: _m.Title,
+                                                              BookedByEmail: _m.BookedByEmail,
+                                                              RoomID: {Id: _m.RoomID.Id, Value: _m.RoomID.Value},
+                                                              StartDateTime: gblSelectedBooking.StartDateTime,
+                                                              EndDateTime: gblSelectedBooking.EndDateTime,
+                                                              IsPrivate: Coalesce(_m.IsPrivate, false),
+                                                              BookedBy: _m.BookedBy,
+                                                              Status: "Cancelled",
+                                                              SeriesID: _m.SeriesID,
+                                                              RecurrenceType: "BR-Exception",
+                                                              OccIndex: _k,
+                                                              IsException: true
+                                                          }
+                                                      )
+                                                  )
+                                              ),
+                                              Notify("Couldn't cancel this booking. Please try again.", NotificationType.Error),
+                                              Refresh(Book_Bookings);
+                                              Set(gblSelectedBooking, Blank());
+                                              Notify("Booking cancelled", NotificationType.Success);
+                                              Set(gbl_FixCycleSeriesID, "");
+                                              // RESET-SITE[detail-modal-close] cancel completed, dismiss the modal
+                                              Set(gbl_UI_Detail_ConfirmMode, "");
+                                              Set(gbl_UI_Detail_Modal, false)
+                                          ),
+                                          IfError(
+                                              Patch(Book_Bookings, LookUp(Book_Bookings, ID = gblSelectedBooking.ID), {Status: "Cancelled"}),
+                                              Notify("Couldn't cancel this booking. Please try again.", NotificationType.Error),
+                                              Refresh(Book_Bookings);
+                                              UpdateIf(colBookings, ID = gblSelectedBooking.ID, {Status: "Cancelled"});
+                                              Set(gblSelectedBooking, Blank());
+                                              Notify("Booking cancelled", NotificationType.Success);
+                                              Set(gbl_FixCycleSeriesID, "");
+                                              // RESET-SITE[detail-modal-close] cancel completed, dismiss the modal
+                                              Set(gbl_UI_Detail_ConfirmMode, "");
+                                              Set(gbl_UI_Detail_Modal, false)
+                                          )
                                       )
                                     PressedColor: =ColorValue(AppTheme.PrimaryText)
                                     PressedFill: =ColorValue(AppTheme.ButtonDangerActive)
@@ -790,17 +836,59 @@ ComponentDefinitions:
                                     LayoutMinWidth: =0
                                     OnSelect: |-
                                       =// PROD-REVERT[booking-cancel] soft delete via Patch; Remove() retired per WS4
-                                      IfError(
-                                          Patch(Book_Bookings, LookUp(Book_Bookings, ID = gblSelectedBooking.ID), {Status: "Cancelled"}),
-                                          Notify("Couldn't cancel this booking. Please try again.", NotificationType.Error),
-                                          Refresh(Book_Bookings);
-                                          UpdateIf(colBookings, ID = gblSelectedBooking.ID, {Status: "Cancelled"});
-                                          Set(gblSelectedBooking, Blank());
-                                          Notify("Booking cancelled", NotificationType.Success);
-                                          Set(gbl_FixCycleSeriesID, "");
-                                          // RESET-SITE[detail-modal-close] cancel completed, dismiss the modal
-                                          Set(gbl_UI_Detail_ConfirmMode, "");
-                                          Set(gbl_UI_Detail_Modal, false)
+                                      If(
+                                          gblSelectedBooking.ID < 0,
+                                          /* Virtual occurrence: nothing to patch — materialise a Cancelled
+                                             exception row, which suppresses occurrence k of the master. */
+                                          IfError(
+                                              With(
+                                                  {
+                                                      _m: LookUp(colBRMasters, ID = RoundDown(-gblSelectedBooking.ID / 10000, 0)),
+                                                      _k: Mod(-gblSelectedBooking.ID, 10000)
+                                                  },
+                                                  Collect(
+                                                      colBookings,
+                                                      Patch(
+                                                          Book_Bookings,
+                                                          Defaults(Book_Bookings),
+                                                          {
+                                                              Title: _m.Title,
+                                                              BookedByEmail: _m.BookedByEmail,
+                                                              RoomID: {Id: _m.RoomID.Id, Value: _m.RoomID.Value},
+                                                              StartDateTime: gblSelectedBooking.StartDateTime,
+                                                              EndDateTime: gblSelectedBooking.EndDateTime,
+                                                              IsPrivate: Coalesce(_m.IsPrivate, false),
+                                                              BookedBy: _m.BookedBy,
+                                                              Status: "Cancelled",
+                                                              SeriesID: _m.SeriesID,
+                                                              RecurrenceType: "BR-Exception",
+                                                              OccIndex: _k,
+                                                              IsException: true
+                                                          }
+                                                      )
+                                                  )
+                                              ),
+                                              Notify("Couldn't cancel this booking. Please try again.", NotificationType.Error),
+                                              Refresh(Book_Bookings);
+                                              Set(gblSelectedBooking, Blank());
+                                              Notify("Booking cancelled", NotificationType.Success);
+                                              Set(gbl_FixCycleSeriesID, "");
+                                              // RESET-SITE[detail-modal-close] cancel completed, dismiss the modal
+                                              Set(gbl_UI_Detail_ConfirmMode, "");
+                                              Set(gbl_UI_Detail_Modal, false)
+                                          ),
+                                          IfError(
+                                              Patch(Book_Bookings, LookUp(Book_Bookings, ID = gblSelectedBooking.ID), {Status: "Cancelled"}),
+                                              Notify("Couldn't cancel this booking. Please try again.", NotificationType.Error),
+                                              Refresh(Book_Bookings);
+                                              UpdateIf(colBookings, ID = gblSelectedBooking.ID, {Status: "Cancelled"});
+                                              Set(gblSelectedBooking, Blank());
+                                              Notify("Booking cancelled", NotificationType.Success);
+                                              Set(gbl_FixCycleSeriesID, "");
+                                              // RESET-SITE[detail-modal-close] cancel completed, dismiss the modal
+                                              Set(gbl_UI_Detail_ConfirmMode, "");
+                                              Set(gbl_UI_Detail_Modal, false)
+                                          )
                                       )
                                     PressedColor: =AppTheme.TextPrimary
                                     PressedFill: =AppTheme.Border
@@ -836,15 +924,35 @@ ComponentDefinitions:
                                           {_sid: gblSelectedBooking.SeriesID},
                                           ClearCollect(colSeriesServerRows, Filter(Book_Bookings, SeriesID = _sid));
                                           // _targets captured once: the same rows drive the server loop and the mirror (one predicate, no Now() drift)
+                                          // Master rows are excluded — the _endSeries block below owns them.
+                                          With(
+                                              {_master: LookUp(colBRMasters, SeriesID = _sid)},
                                           With(
                                               {
+                                                  _endSeries: !IsBlank(_master) && (Lower(_master.BookedByEmail) = Lower(User().Email) || IsAdmin),
                                                   _targets: Filter(
                                                       colSeriesServerRows,
                                                       StartDateTime >= Now(),
                                                       Status <> "Cancelled",
-                                                      BookedByEmail = Lower(User().Email)
+                                                      BookedByEmail = Lower(User().Email),
+                                                      !(fnIsBRRow(RecurrenceType) && !IsException)
                                                   )
                                               },
+                                          /* Ending a rule-driven series: cancel the master (which stops every
+                                             remaining virtual occurrence at once) plus its future exceptions. */
+                                          If(
+                                              _endSeries,
+                                              Patch(Book_Bookings, {ID: _master.ID}, {Status: "Cancelled"});
+                                              Patch(
+                                                  Book_Bookings,
+                                                  ForAll(
+                                                      Filter(Book_Bookings, SeriesID = _sid, IsException = true, Status = "Active", StartDateTime > Now()) As _ex,
+                                                      {ID: _ex.ID, Status: "Cancelled"}
+                                                  )
+                                              );
+                                              UpdateIf(colBookings, SeriesID = _sid && IsException && Status = "Active" && StartDateTime > Now(), {Status: "Cancelled"});
+                                              ClearCollect(colBRMasters, Filter(Book_Bookings, StartsWith(RecurrenceType, "BR-"), IsException = false, Status = "Active"))
+                                          );
                                           With(
                                               {
                                                   _results: ForAll(
@@ -872,6 +980,8 @@ ComponentDefinitions:
                                               );
                                               Set(gblSelectedBooking, Blank());
                                               If(
+                                                  _endSeries,
+                                                  Notify("Series ended", NotificationType.Success),
                                                   CountRows(_results) = 0,
                                                   Notify("Nothing to cancel — no upcoming occurrences you own in this series.", NotificationType.Warning),
                                                   CountRows(Filter(_results, !Value)) = 0,
@@ -885,6 +995,7 @@ ComponentDefinitions:
                                               // RESET-SITE[detail-modal-close] cancel completed, dismiss the modal
                                               Set(gbl_UI_Detail_ConfirmMode, "");
                                               Set(gbl_UI_Detail_Modal, false)
+                                          )
                                           )
                                           )
                                       )

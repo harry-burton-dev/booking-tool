@@ -5,6 +5,13 @@ Screens:
       LoadingSpinnerColor: =RGBA(0, 120, 212, 1)
       OnVisible: =Set(varNowTick, Now())
     Children:
+      - cpt_Update_1:
+          Control: CanvasComponent
+          ComponentName: cpt_Update
+          Properties:
+            Height: =App.Height
+            Visible: =gbl_UI_Update = true
+            Width: =App.Width
       - con_shell:
           Control: GroupContainer
           Variant: ManualLayout
@@ -70,8 +77,7 @@ Screens:
                               DropShadow: =DropShadow.None
                               Fill: =RGBA(0,0,0,0)
                               FillPortions: =0
-                              Height: =84
-                              LayoutAlignItems: =LayoutAlignItems.Center
+                              Height: =36
                               LayoutDirection: =LayoutDirection.Horizontal
                               LayoutGap: =16
                               LayoutMinHeight: =0
@@ -81,6 +87,7 @@ Screens:
                                   Control: GroupContainer
                                   Variant: AutoLayout
                                   Properties:
+                                    AlignInContainer: =AlignInContainer.SetByContainer
                                     DropShadow: =DropShadow.None
                                     Fill: =RGBA(0,0,0,0)
                                     LayoutAlignItems: =LayoutAlignItems.Stretch
@@ -96,7 +103,7 @@ Screens:
                                           AutoHeight: =true
                                           DisplayMode: =DisplayMode.View
                                           HtmlText: |-
-                                            =CarbonTextColored(CarbonHtmlType.Eyebrow, "AUSTIN HQ", AppThemeHex.TextSecondary) &
+                                            =
                                             CarbonText(
                                                 CarbonHtmlType.Heading04,
                                                 With(
@@ -126,9 +133,20 @@ Screens:
                                           {
                                               _freeCount: FreeNowCount,
                                               _totalCount: CountRows(colRooms),
-                                              _pctBooked: Round(Average(RoomOccupancyToday, Pct) * 100, 0)
+                                              _pctBooked: Round(
+                                                  Coalesce(
+                                                      Average(RoomOccupancyToday, Pct),
+                                                      0
+                                                  ) * 100,
+                                                  0
+                                              )
                                           },
-                                          Text(_freeCount, "[$-en-US]0") & " of " & Text(_totalCount, "[$-en-US]0") & " rooms free · " & Text(_pctBooked, "[$-en-US]0") & "% booked today"
+                                          Text(_freeCount, "[$-en-US]0") &
+                                          " of " &
+                                          Text(_totalCount, "[$-en-US]0") &
+                                          " rooms free · " &
+                                          Text(_pctBooked, "[$-en-US]0") &
+                                          "% booked today"
                                       )
                                     Width: =340
                                     Wrap: =false
@@ -137,7 +155,7 @@ Screens:
                             Variant: AutoLayout
                             Properties:
                               DropShadow: =DropShadow.None
-                              Fill: =AppTheme.Border
+                              Fill: =Color.Transparent
                               FillPortions: =0
                               Height: =130
                               LayoutAlignItems: =LayoutAlignItems.Stretch
@@ -145,10 +163,10 @@ Screens:
                               LayoutGap: =1
                               LayoutMinHeight: =0
                               LayoutMinWidth: =0
-                              PaddingBottom: =1
-                              PaddingLeft: =1
-                              PaddingRight: =1
-                              PaddingTop: =1
+                              PaddingBottom: =4
+                              PaddingLeft: =4
+                              PaddingRight: =4
+                              PaddingTop: =4
                               RadiusBottomLeft: =0
                               RadiusBottomRight: =0
                               RadiusTopLeft: =0
@@ -195,8 +213,10 @@ Screens:
                                                 AutoHeight: =true
                                                 DisplayMode: =DisplayMode.View
                                                 HtmlText: |-
-                                                  =CarbonTextColored(CarbonHtmlType.Heading02, "Book a room", AppThemeHex.PrimaryText) &
-                                                  CarbonTextColored(CarbonHtmlType.Label01, "Start a new booking", AppThemeHex.PrimaryText)
+                                                  =/* This tile always carries the user's default route (DefaultBookRoute);
+                                                     conHDTileBookTime carries the other one. */
+                                                  CarbonTextColored(CarbonHtmlType.Heading02, If(DefaultBookRoute = "time", "Book by time", "Book a room"), AppThemeHex.PrimaryText) &
+                                                  CarbonTextColored(CarbonHtmlType.Label01, If(DefaultBookRoute = "time", "Pick a slot, see free rooms", "Start a new booking"), AppThemeHex.PrimaryText)
                                                 LayoutMinHeight: =0
                                                 LayoutMinWidth: =0
                                                 PaddingBottom: =0
@@ -246,7 +266,8 @@ Screens:
                                           HoverColor: =RGBA(0,0,0,0)
                                           HoverFill: =RGBA(0,0,0,0.08)
                                           OnSelect: |-
-                                            =Set(gbl_UI_Book_Modal_Step, WizardStep1);
+                                            =Set(gblBookRoute, DefaultBookRoute);
+                                            Set(gbl_UI_Book_Modal_Step, WizardStep1);
                                             // RESET-SITE[home-book-tile] wizard state reset before opening step 1
                                             Set(varSelectedRoom, Blank());
                                             Set(varSelectedDate, Today());
@@ -263,10 +284,13 @@ Screens:
                                             Set(varNextFreeSlot, Blank());
                                             Set(gblEditingBookingID, 0);
 
+                                            /* Defaults on open: the day floor is the saved start hour and the
+                                               slot length the saved duration (WizardDefaultStartHour /
+                                               WizardDefaultDurationMin, each falling back to the old constants). */
                                             With(
                                                 {
                                                     _now: Now(),
-                                                    _todayStart: DateAdd(Today(), DayStartHour * 60, TimeUnit.Minutes)
+                                                    _todayStart: DateAdd(Today(), WizardDefaultStartHour * 60, TimeUnit.Minutes)
                                                 },
                                                 With(
                                                     {
@@ -293,10 +317,25 @@ Screens:
                                                         If(
                                                             _start <= DateAdd(_todayStart, 540, TimeUnit.Minutes),
                                                             Set(varStartTime, _start);
-                                                            Set(varEndTime, DateAdd(_start, 60, TimeUnit.Minutes))
+                                                            Set(varEndTime, DateAdd(_start, WizardDefaultDurationMin, TimeUnit.Minutes))
                                                         )
                                                     )
                                                 )
+                                            );
+
+                                            /* Preselect the saved default room, but only when it is free for the
+                                               slot we just defaulted to. */
+                                            If(
+                                                WizardDefaultRoomId > 0 && !IsBlank(varStartTime) && !IsBlank(varEndTime) &&
+                                                    IsEmpty(
+                                                        Filter(
+                                                            AllBookings,
+                                                            Status = "Active",
+                                                            RoomID.Id = WizardDefaultRoomId,
+                                                            fnOverlaps(StartDateTime, EndDateTime, varStartTime, varEndTime)
+                                                        )
+                                                    ),
+                                                Set(varSelectedRoom, LookUp(colRooms, ID = WizardDefaultRoomId))
                                             );
 
                                             Set(gbl_UI_Book_Modal, true);
@@ -311,14 +350,199 @@ Screens:
                                           RadiusBottomRight: =0
                                           RadiusTopLeft: =0
                                           RadiusTopRight: =0
-                                          Text: ="Book a room — start a new booking"
+                                          Text: |-
+                                            =If(
+                                                DefaultBookRoute = "time",
+                                                "Book by time — pick a slot, then see free rooms",
+                                                "Book a room — start a new booking"
+                                            )
+                                          Width: =Parent.Width
+                              - conHDTileBookTime:
+                                  Control: GroupContainer
+                                  Variant: ManualLayout
+                                  Properties:
+                                    DropShadow: =DropShadow.None
+                                    Fill: =AppTheme.layer01Bg
+                                    Height: =128
+                                    LayoutMinHeight: =128
+                                    LayoutMinWidth: =0
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                  Children:
+                                    - conHDTileBookTimeContent:
+                                        Control: GroupContainer
+                                        Variant: AutoLayout
+                                        Properties:
+                                          DropShadow: =DropShadow.None
+                                          Fill: =RGBA(0,0,0,0)
+                                          Height: =Parent.Height
+                                          LayoutAlignItems: =LayoutAlignItems.Stretch
+                                          LayoutDirection: =LayoutDirection.Vertical
+                                          LayoutGap: =2
+                                          PaddingBottom: =16
+                                          PaddingLeft: =16
+                                          PaddingRight: =16
+                                          PaddingTop: =16
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                          Width: =Parent.Width
+                                        Children:
+                                          - htxHDTileBookTime:
+                                              Control: HtmlViewer
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.Stretch
+                                                AutoHeight: =true
+                                                DisplayMode: =DisplayMode.View
+                                                HtmlText: |-
+                                                  =/* Carries whichever route is NOT the user's default (OtherBookRoute),
+                                                     so the two booking tiles always read in the user's preferred order. */
+                                                  CarbonText(CarbonHtmlType.Heading02, If(OtherBookRoute = "time", "Book by time", "Book a room")) &
+                                                  CarbonTextSecondary(CarbonHtmlType.Label01, If(OtherBookRoute = "time", "Pick a slot, see free rooms", "Start a new booking"))
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                PaddingBottom: =0
+                                                PaddingLeft: =0
+                                                PaddingRight: =0
+                                                PaddingTop: =0
+                                          - conHDTileBookTimeSpacer:
+                                              Control: GroupContainer
+                                              Variant: AutoLayout
+                                              Properties:
+                                                DropShadow: =DropShadow.None
+                                                LayoutDirection: =LayoutDirection.Horizontal
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                          - htxHDTileBookTimeRow:
+                                              Control: HtmlViewer
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.Stretch
+                                                AutoHeight: =true
+                                                DisplayMode: =DisplayMode.View
+                                                HtmlText: |-
+                                                  ="<div style=""display: flex; justify-content: space-between; align-items: center;"">" &
+                                                  "<span style=""" & CarbonHtmlType.Label01 & " color: " & AppThemeHex.TextMuted & ";"">Step 1 of 3</span>" &
+                                                  "<span style=""" & CarbonHtmlType.Heading02 & " color: " & AppThemeHex.TextSecondary & ";"">→</span>" &
+                                                  "</div>"
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                PaddingBottom: =0
+                                                PaddingLeft: =0
+                                                PaddingRight: =0
+                                                PaddingTop: =0
+                                    - btnHDTileBookTime:
+                                        Control: Classic/Button
+                                        Properties:
+                                          BorderColor: =RGBA(0,0,0,0)
+                                          BorderStyle: =BorderStyle.None
+                                          BorderThickness: =0
+                                          Color: =RGBA(0,0,0,0)
+                                          DisabledBorderColor: =RGBA(0,0,0,0)
+                                          DisabledColor: =RGBA(0,0,0,0)
+                                          DisabledFill: =RGBA(0,0,0,0)
+                                          Fill: =RGBA(0,0,0,0)
+                                          FocusedBorderColor: =RGBA(15,98,254,1)
+                                          FocusedBorderThickness: =2
+                                          Height: =Parent.Height
+                                          HoverBorderColor: =RGBA(0,0,0,0)
+                                          HoverColor: =RGBA(0,0,0,0)
+                                          HoverFill: =RGBA(0,0,0,0.04)
+                                          OnSelect: |-
+                                            =Set(gblBookRoute, OtherBookRoute);
+                                            Set(gbl_UI_Book_Modal_Step, WizardStep1);
+                                            // RESET-SITE[home-book-time-tile] wizard state reset before opening step 1
+                                            Set(varSelectedRoom, Blank());
+                                            Set(varSelectedDate, Today());
+                                            Set(varStartTime, Blank());
+                                            Set(varEndTime, Blank());
+                                            Set(varTitle, Blank());
+                                            Set(varConflict, false);
+                                            Set(varBookingError, false);
+                                            Set(varSubmitting, false);
+                                            Set(varTitleTouched, false);
+                                            Set(gbl_UI_Book_CancelConfirm, false);
+                                            Set(gbl_Book_SubmitResult, "");
+                                            Set(varConflictingBooking, Blank());
+                                            Set(varNextFreeSlot, Blank());
+                                            Set(gblEditingBookingID, 0);
+
+                                            With(
+                                                {
+                                                    _now: Now(),
+                                                    _todayStart: DateAdd(Today(), WizardDefaultStartHour * 60, TimeUnit.Minutes)
+                                                },
+                                                With(
+                                                    {
+                                                        _next: DateAdd(
+                                                            _now,
+                                                            Mod(
+                                                                15 - Mod(
+                                                                    DateDiff(_todayStart, _now, TimeUnit.Minutes),
+                                                                    15
+                                                                ),
+                                                                15
+                                                            ),
+                                                            TimeUnit.Minutes
+                                                        )
+                                                    },
+                                                    With(
+                                                        {
+                                                            _start: If(
+                                                                _next < _todayStart,
+                                                                _todayStart,
+                                                                _next
+                                                            )
+                                                        },
+                                                        If(
+                                                            _start <= DateAdd(_todayStart, 540, TimeUnit.Minutes),
+                                                            Set(varStartTime, _start);
+                                                            Set(varEndTime, DateAdd(_start, WizardDefaultDurationMin, TimeUnit.Minutes))
+                                                        )
+                                                    )
+                                                )
+                                            );
+
+                                            If(
+                                                WizardDefaultRoomId > 0 && !IsBlank(varStartTime) && !IsBlank(varEndTime) &&
+                                                    IsEmpty(
+                                                        Filter(
+                                                            AllBookings,
+                                                            Status = "Active",
+                                                            RoomID.Id = WizardDefaultRoomId,
+                                                            fnOverlaps(StartDateTime, EndDateTime, varStartTime, varEndTime)
+                                                        )
+                                                    ),
+                                                Set(varSelectedRoom, LookUp(colRooms, ID = WizardDefaultRoomId))
+                                            );
+
+                                            Set(gbl_UI_Book_Modal, true);
+                                          PaddingBottom: =0
+                                          PaddingLeft: =0
+                                          PaddingRight: =0
+                                          PaddingTop: =0
+                                          PressedBorderColor: =RGBA(0,0,0,0)
+                                          PressedColor: =RGBA(0,0,0,0)
+                                          PressedFill: =RGBA(0,0,0,0.08)
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                          Text: |-
+                                            =If(
+                                                OtherBookRoute = "time",
+                                                "Book by time — pick a slot, then see free rooms",
+                                                "Book a room — start a new booking"
+                                            )
                                           Width: =Parent.Width
                               - conHDTileView:
                                   Control: GroupContainer
                                   Variant: ManualLayout
                                   Properties:
                                     DropShadow: =DropShadow.None
-                                    Fill: =AppTheme.Surface
+                                    Fill: =AppTheme.layer01Bg
                                     Height: =128
                                     LayoutMinHeight: =128
                                     LayoutMinWidth: =0
@@ -426,7 +650,7 @@ Screens:
                                   Variant: ManualLayout
                                   Properties:
                                     DropShadow: =DropShadow.None
-                                    Fill: =AppTheme.Surface
+                                    Fill: =AppTheme.layer01Bg
                                     Height: =128
                                     LayoutMinHeight: =128
                                     LayoutMinWidth: =0
@@ -542,6 +766,10 @@ Screens:
                               LayoutGap: =16
                               LayoutMinHeight: =300
                               LayoutMinWidth: =0
+                              PaddingBottom: =4
+                              PaddingLeft: =4
+                              PaddingRight: =4
+                              PaddingTop: =4
                               RadiusBottomLeft: =0
                               RadiusBottomRight: =0
                               RadiusTopLeft: =0
@@ -619,6 +847,7 @@ Screens:
                                                 DisabledColor: =AppTheme.TextMuted
                                                 DisabledFill: =RGBA(0,0,0,0)
                                                 Fill: =RGBA(0,0,0,0)
+                                                FillPortions: =1
                                                 FocusedBorderColor: =ColorValue(AppTheme.Primary)
                                                 FocusedBorderThickness: =2
                                                 Font: ="IBM Plex Sans"
@@ -643,6 +872,7 @@ Screens:
                                                 RadiusTopRight: =0
                                                 Size: =14
                                                 Text: ="View all"
+                                                Visible: =false
                                                 Width: =64
                                     - conHDNextBody:
                                         Control: GroupContainer
@@ -721,7 +951,7 @@ Screens:
                                                               {_place: Trim(Coalesce(LookUp(colRooms, ID = NextBookingRecord.RoomID.Id).description, ""))},
                                                               Trim(Coalesce(NextBookingRecord.Title, "")) &
                                                               If(IsBlank(_place), "", " · " & _place) &
-                                                              " · hosted by " &
+                                                              " · booked by " &
                                                               If(
                                                                   Lower(NextBookingRecord.BookedByEmail) = Lower(User().Email),
                                                                   "You",
@@ -741,6 +971,7 @@ Screens:
                                               Control: GroupContainer
                                               Variant: ManualLayout
                                               Properties:
+                                                AlignInContainer: =AlignInContainer.SetByContainer
                                                 DropShadow: =DropShadow.None
                                                 Fill: =RGBA(0,0,0,0)
                                                 FillPortions: =0
@@ -810,132 +1041,6 @@ Screens:
                                                 PaddingRight: =0
                                                 PaddingTop: =0
                                                 Visible: =NextBookingRecord.StartDateTime <= varNowTick && NextBookingRecord.EndDateTime > varNowTick
-                                          - conHDNextActions:
-                                              Control: GroupContainer
-                                              Variant: AutoLayout
-                                              Properties:
-                                                DropShadow: =DropShadow.None
-                                                Fill: =RGBA(0,0,0,0)
-                                                FillPortions: =0
-                                                Height: =40
-                                                LayoutAlignItems: =LayoutAlignItems.Stretch
-                                                LayoutDirection: =LayoutDirection.Horizontal
-                                                LayoutGap: =8
-                                                LayoutMinHeight: =0
-                                                LayoutMinWidth: =0
-                                                RadiusBottomLeft: =0
-                                                RadiusBottomRight: =0
-                                                RadiusTopLeft: =0
-                                                RadiusTopRight: =0
-                                                Visible: =!IsBlank(NextBookingRecord)
-                                              Children:
-                                                - btnHDNextExtend:
-                                                    Control: Classic/Button
-                                                    Properties:
-                                                      BorderColor: =AppTheme.Border
-                                                      BorderThickness: =0
-                                                      Color: =AppTheme.TextPrimary
-                                                      DisabledBorderColor: =AppTheme.Border
-                                                      DisabledColor: =AppTheme.TextMuted
-                                                      DisabledFill: =AppTheme.SurfaceAlt
-                                                      Fill: =AppTheme.SurfaceAlt
-                                                      FillPortions: =1
-                                                      FocusedBorderColor: =ColorValue(AppTheme.Primary)
-                                                      FocusedBorderThickness: =2
-                                                      Font: ="IBM Plex Sans"
-                                                      FontWeight: =FontWeight.Normal
-                                                      HoverColor: =AppTheme.TextPrimary
-                                                      HoverFill: =AppTheme.Border
-                                                      LayoutMinHeight: =0
-                                                      LayoutMinWidth: =0
-                                                      OnSelect: |-
-                                                        =With(
-                                                            {
-                                                                _id: NextBookingRecord.ID,
-                                                                _roomId: NextBookingRecord.RoomID.Id,
-                                                                _start: NextBookingRecord.StartDateTime,
-                                                                _newEnd: DateAdd(NextBookingRecord.EndDateTime, 15, TimeUnit.Minutes)
-                                                            },
-                                                            If(
-                                                                DateDiff(_start, _newEnd, TimeUnit.Minutes) > MaxBookingMinutes,
-                                                                Notify("Bookings are capped at " & RoundDown(MaxBookingMinutes / 60, 0) & " hours. Your booking is unchanged.", NotificationType.Warning, 6000),
-                                                                !IsBlank(
-                                                                    LookUp(
-                                                                        Filter(
-                                                                            colBookings,
-                                                                            Status = "Active",
-                                                                            fnOverlaps(StartDateTime, EndDateTime, _start, _newEnd),
-                                                                            ID <> _id
-                                                                        ),
-                                                                        RoomID.Id = _roomId
-                                                                    )
-                                                                ),
-                                                                Notify("That slot is no longer free. Your booking is unchanged.", NotificationType.Warning, 6000),
-                                                                // PROD-REVERT[booking-edit] prod form: Patch(Book_Bookings, ...) below
-                                                                IfError(
-                                                                    Patch(
-                                                                        Book_Bookings,
-                                                                        LookUp(Book_Bookings, ID = _id),
-                                                                        {EndDateTime: _newEnd}
-                                                                    ),
-                                                                    Notify("Couldn't update this booking. Please try again.", NotificationType.Error),
-                                                                    Refresh(Book_Bookings);
-                                                                    UpdateIf(colBookings, ID = _id, {EndDateTime: _newEnd});
-                                                                    Set(varNowTick, Now());
-                                                                    Notify("Booking extended by 15 minutes", NotificationType.Success)
-                                                                )
-                                                            )
-                                                        )
-                                                      PressedColor: =AppTheme.TextPrimary
-                                                      PressedFill: =AppTheme.Border
-                                                      RadiusBottomLeft: =0
-                                                      RadiusBottomRight: =0
-                                                      RadiusTopLeft: =0
-                                                      RadiusTopRight: =0
-                                                      Size: =12
-                                                      Text: ="Extend 15m"
-                                                - btnHDNextRelease:
-                                                    Control: Classic/Button
-                                                    Properties:
-                                                      BorderColor: =AppTheme.Border
-                                                      BorderThickness: =0
-                                                      Color: =AppTheme.StatusBusyText
-                                                      DisabledBorderColor: =AppTheme.Border
-                                                      DisabledColor: =AppTheme.TextMuted
-                                                      DisabledFill: =AppTheme.SurfaceAlt
-                                                      Fill: =AppTheme.SurfaceAlt
-                                                      FillPortions: =1
-                                                      FocusedBorderColor: =ColorValue(AppTheme.Primary)
-                                                      FocusedBorderThickness: =2
-                                                      Font: ="IBM Plex Sans"
-                                                      FontWeight: =FontWeight.Normal
-                                                      HoverColor: =AppTheme.StatusBusyText
-                                                      HoverFill: =AppTheme.StatusBusyBg
-                                                      LayoutMinHeight: =0
-                                                      LayoutMinWidth: =0
-                                                      OnSelect: |-
-                                                        =// PROD-REVERT[booking-cancel] soft delete via Patch; Remove() retired per WS4
-                                                        // _id captured once: NextBookingRecord derives from colBookings, so the
-                                                        // mirror must not re-evaluate it while the collection is being updated
-                                                        With(
-                                                            {_id: NextBookingRecord.ID},
-                                                            IfError(
-                                                                Patch(Book_Bookings, LookUp(Book_Bookings, ID = _id), {Status: "Cancelled"}),
-                                                                Notify("Couldn't cancel this booking. Please try again.", NotificationType.Error),
-                                                                Refresh(Book_Bookings);
-                                                                UpdateIf(colBookings, ID = _id, {Status: "Cancelled"});
-                                                                Set(varNowTick, Now());
-                                                                Notify("Booking cancelled", NotificationType.Success)
-                                                            )
-                                                        )
-                                                      PressedColor: =AppTheme.StatusBusyText
-                                                      PressedFill: =AppTheme.StatusBusyBg
-                                                      RadiusBottomLeft: =0
-                                                      RadiusBottomRight: =0
-                                                      RadiusTopLeft: =0
-                                                      RadiusTopRight: =0
-                                                      Size: =12
-                                                      Text: ="Release room"
                                     - conHDNextEmpty:
                                         Control: GroupContainer
                                         Variant: AutoLayout
@@ -1160,6 +1265,7 @@ Screens:
                                           LayoutMinHeight: =0
                                           LayoutMinWidth: =0
                                           ShowScrollbar: =false
+                                          TemplateFill: =Color.Transparent
                                           TemplatePadding: =0
                                           TemplateSize: =104
                                           WrapCount: =3
@@ -1170,6 +1276,7 @@ Screens:
                                                 BorderColor: =RGBA(0,0,0,0)
                                                 Fill: =AppTheme.Border
                                                 Height: =1
+                                                Visible: =false
                                                 Width: =Parent.TemplateWidth
                                                 Y: =Parent.TemplateHeight - 1
                                           - recHDRoomsNowCellDivider:
@@ -1178,6 +1285,7 @@ Screens:
                                                 BorderColor: =RGBA(0,0,0,0)
                                                 Fill: =AppTheme.Border
                                                 Height: =Parent.TemplateHeight - 1
+                                                Visible: =false
                                                 Width: =1
                                                 X: =Parent.TemplateWidth - 1
                                           - lblHDRoomsNowDot:
@@ -1213,7 +1321,7 @@ Screens:
                                                 Color: =AppTheme.TextPrimary
                                                 Font: ="IBM Plex Sans"
                                                 FontWeight: =FontWeight.Semibold
-                                                Height: =22
+                                                Height: =28
                                                 PaddingLeft: =0
                                                 Size: =16
                                                 Text: =ThisItem.Title
@@ -1243,13 +1351,12 @@ Screens:
                                                 Width: =Parent.TemplateWidth - 22
                                                 Wrap: =false
                                                 X: =8
-                                                Y: =58
+                                                Y: =62
                                           - btnHDRoomsNowOverlay:
                                               Control: Classic/Button
                                               Properties:
-                                                BorderColor: =RGBA(0,0,0,0)
-                                                BorderStyle: =BorderStyle.None
-                                                BorderThickness: =0
+                                                BorderColor: =AppTheme.Border
+                                                BorderThickness: =1
                                                 Color: =RGBA(0,0,0,0)
                                                 DisabledBorderColor: =RGBA(0,0,0,0)
                                                 DisabledColor: =RGBA(0,0,0,0)
@@ -1271,6 +1378,8 @@ Screens:
                                                 RadiusTopRight: =0
                                                 Text: =ThisItem.Title & ". " & lblHDRoomsNowStatus.Text & ". View availability"
                                                 Width: =Parent.TemplateWidth - 1
+                                                X: =1
+                                                Y: =1
                         - conHDOccupancy:
                             Control: GroupContainer
                             Variant: AutoLayout
@@ -1324,7 +1433,7 @@ Screens:
                                             ="<div style=""display: flex; justify-content: space-between; align-items: center;"">" &
                                             "<span style=""" & CarbonHtmlType.HeadingCompact01 & " color: " & AppThemeHex.TextPrimary & ";"">Today's occupancy</span>" &
                                             "<span style=""" & CarbonHtmlType.Label01 & " color: " & AppThemeHex.TextSecondary & ";"">" &
-                                            fnHtmlEscape("Avg " & Text(Average(RoomOccupancyToday, Pct) * 100, "[$-en-US]0") & "%") &
+                                            fnHtmlEscape("Avg " & Text(Coalesce(Average(RoomOccupancyToday, Pct), 0) * 100, "[$-en-US]0") & "%") &
                                             "</span>" &
                                             "</div>"
                                           LayoutMinHeight: =0
@@ -1387,6 +1496,7 @@ Screens:
                                     - htxHDOccColHeader:
                                         Control: HtmlViewer
                                         Properties:
+                                          AutoHeight: =true
                                           DisplayMode: =DisplayMode.View
                                           Height: =20
                                           HtmlText: |-
@@ -1424,6 +1534,7 @@ Screens:
                                     - lblHDOccRoomName:
                                         Control: Label
                                         Properties:
+                                          AutoHeight: =true
                                           Color: =AppTheme.TextPrimary
                                           Font: ="IBM Plex Sans"
                                           Height: =20
@@ -1431,7 +1542,7 @@ Screens:
                                           Text: =ThisItem.Title
                                           Width: =162
                                           Wrap: =false
-                                          Y: =12
+                                          Y: =7
                                     - galHDOccSegments:
                                         Control: Gallery
                                         Variant: Horizontal
@@ -1450,7 +1561,7 @@ Screens:
                                               Properties:
                                                 BorderColor: =RGBA(0,0,0,0)
                                                 Fill: =If(ThisItem.IsBooked, ColorValue(AppTheme.Primary), AppTheme.Border)
-                                                Height: =14
+                                                Height: =12
                                                 Width: =Parent.TemplateWidth - 2
                                     - recHDOccNow:
                                         Control: Rectangle
@@ -1561,7 +1672,7 @@ Screens:
                       colPayloadSnapshot As _occ,
                       With(
                           {
-                              _isWeekend: Weekday(_occ.StartDateTime, StartOfWeek.Sunday) = 1 || Weekday(_occ.StartDateTime, StartOfWeek.Sunday) = 7,
+                              _isWeekend: (Weekday(_occ.StartDateTime, StartOfWeek.Sunday) = 1 || Weekday(_occ.StartDateTime, StartOfWeek.Sunday) = 7) && WeekendPolicy <> "allow",
                               _hasClash: !IsBlank(
                                   LookUp(
                                       Filter(colOccOverlap, fnOverlaps(StartDateTime, EndDateTime, _occ.StartDateTime, _occ.EndDateTime)),
@@ -1578,47 +1689,55 @@ Screens:
                               {
                                   /* Create booking; on success Collect() mirrors the row Patch
                                      returns (server-assigned ID included) into colBookings;
-                                     record a write failure if it errors */
-                                  _patchOk: IfError(
-                                      Collect(colBookings, Patch(
-                                          Book_Bookings,
-                                          Defaults(Book_Bookings),
-                                          {
-                                              Title: _occ.Title,
-                                              BookedByEmail: _occ.BookedByEmail,
-                                              RoomID: {
-                                                  Id: _occ.RoomIdNumber,
-                                                  Value: _occ.RoomIdText
-                                              },
-                                              StartDateTime: _occ.StartDateTime,
-                                              EndDateTime: _occ.EndDateTime,
-                                              IsPrivate: _occ.IsPrivate,
-                                              // PROD-REVERT[booked-by-actor] person = actor; mock claims don't resolve
-                                              BookedBy: {
-                                                  '@odata.type': "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser",
-                                                  Claims: $"i:0#.f|membership|{Lower(User().Email)}",
-                                                  DisplayName: User().FullName,
-                                                  Email: Lower(User().Email),
-                                                  Department: "",
-                                                  JobTitle: "",
-                                                  Picture: ""
-                                              },
-                                              Status: If(_isWeekend || _hasClash, "Clash", "Active"),
-                                              SeriesID: If(IsBlank(varNewSeriesID), Blank(), Text(varNewSeriesID)),
-                                              RecurrenceType: _occ.RecurrenceType,
-                                              OccIndex: _occ.OccIndex,
-                                              IsException: false
-                                          }
-                                      ));
-                                      true,
-                                      Collect(
-                                          colFailedBookings,
-                                          {
-                                              BookingDate: Text(_occ.StartDateTime, "dd mmm yyyy"),
-                                              Reason: "error"
-                                          }
-                                      );
-                                      false
+                                     record a write failure if it errors.
+                                     Series occurrences that are clean are NOT written — the master
+                                     row below expands them at read time; only weekend/clash
+                                     occurrences become stored exception rows. */
+                                  _patchOk: If(
+                                      IsBlank(varNewSeriesID) || _isWeekend || _hasClash,
+                                      IfError(
+                                          Collect(colBookings, Patch(
+                                              Book_Bookings,
+                                              Defaults(Book_Bookings),
+                                              {
+                                                  Title: _occ.Title,
+                                                  BookedByEmail: _occ.BookedByEmail,
+                                                  RoomID: {
+                                                      Id: _occ.RoomIdNumber,
+                                                      Value: _occ.RoomIdText
+                                                  },
+                                                  StartDateTime: _occ.StartDateTime,
+                                                  EndDateTime: _occ.EndDateTime,
+                                                  IsPrivate: _occ.IsPrivate,
+                                                  // PROD-REVERT[booked-by-actor] person = actor; mock claims don't resolve
+                                                  BookedBy: {
+                                                      '@odata.type': "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser",
+                                                      Claims: $"i:0#.f|membership|{Lower(User().Email)}",
+                                                      DisplayName: User().FullName,
+                                                      Email: Lower(User().Email),
+                                                      Department: "",
+                                                      JobTitle: "",
+                                                      Picture: ""
+                                                  },
+                                                  Status: If(_isWeekend || _hasClash, "Clash", "Active"),
+                                                  SeriesID: If(IsBlank(varNewSeriesID), Blank(), Text(varNewSeriesID)),
+                                                  RecurrenceType: If(IsBlank(varNewSeriesID), _occ.RecurrenceType, "BR-Exception"),
+                                                  OccIndex: _occ.OccIndex,
+                                                  IsException: !IsBlank(varNewSeriesID),
+                                                  WantsInvite: _occ.WantsInvite
+                                              }
+                                          ));
+                                          true,
+                                          Collect(
+                                              colFailedBookings,
+                                              {
+                                                  BookingDate: Text(_occ.StartDateTime, "dd mmm yyyy"),
+                                                  Reason: "error"
+                                              }
+                                          );
+                                          false
+                                      ),
+                                      true
                                   )
                               },
 
@@ -1634,6 +1753,63 @@ Screens:
                                       }
                                   )
                               )
+                          )
+                      )
+                  );
+
+                  /* Series: exactly one master row carrying the rule in RecurrenceType.
+                     Occurrences are expanded at read time by BRVirtual; clashing ones were
+                     written as exception rows in the loop above. */
+                  If(
+                      !IsBlank(varNewSeriesID),
+                      With(
+                          {_first: First(colPayloadSnapshot)},
+                          IfError(
+                              Collect(colBookings, Patch(
+                                  Book_Bookings,
+                                  Defaults(Book_Bookings),
+                                  {
+                                      Title: _first.Title,
+                                      BookedByEmail: _first.BookedByEmail,
+                                      RoomID: {
+                                          Id: _first.RoomIdNumber,
+                                          Value: _first.RoomIdText
+                                      },
+                                      StartDateTime: _first.StartDateTime,
+                                      EndDateTime: _first.EndDateTime,
+                                      IsPrivate: _first.IsPrivate,
+                                      // PROD-REVERT[booked-by-actor] person = actor; mock claims don't resolve
+                                      BookedBy: {
+                                          '@odata.type': "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser",
+                                          Claims: $"i:0#.f|membership|{Lower(User().Email)}",
+                                          DisplayName: User().FullName,
+                                          Email: Lower(User().Email),
+                                          Department: "",
+                                          JobTitle: "",
+                                          Picture: ""
+                                      },
+                                      Status: "Active",
+                                      SeriesID: Text(varNewSeriesID),
+                                      RecurrenceType: _first.RecurrenceType,
+                                      OccIndex: 0,
+                                      IsException: false,
+                                      WantsInvite: _first.WantsInvite,
+                                      RecurrenceLabel: fnRuleLabel(_first.RecurrenceType, _first.StartDateTime),
+                                      NextOccurrence: _first.StartDateTime
+                                  }
+                              )),
+                              Collect(
+                                  colFailedBookings,
+                                  {
+                                      BookingDate: Text(_first.StartDateTime, "dd mmm yyyy"),
+                                      Reason: "error"
+                                  }
+                              )
+                          );
+                          Refresh(Book_Bookings);
+                          ClearCollect(
+                              colBRMasters,
+                              Filter(Book_Bookings, StartsWith(RecurrenceType, "BR-"), IsException = false, Status = "Active")
                           )
                       )
                   );
@@ -1659,6 +1835,21 @@ Screens:
                           NotificationType.Error,
                           10000
                       ),
+                      !IsBlank(varNewSeriesID),
+                      Notify(
+                          If(fnRuleIsPermanent(First(colPayloadSnapshot).RecurrenceType), "Permanent booking created", $"Series booked · {CountRows(colPayloadSnapshot)} occurrences") &
+                          If(
+                              CountRows(Filter(colFailedBookings, Reason = "clash")) > 0,
+                              $", {CountRows(Filter(colFailedBookings, Reason = "clash"))} clash(es) to resolve",
+                              ""
+                          ),
+                          If(
+                              CountRows(Filter(colFailedBookings, Reason = "clash")) > 0,
+                              NotificationType.Warning,
+                              NotificationType.Success
+                          ),
+                          10000
+                      ),
                       CountRows(Filter(colFailedBookings, Reason = "clash")) > 0,
                       Notify(
                           $"Created {CountRows(colPayloadSnapshot)} bookings — {CountRows(Filter(colFailedBookings, Reason = "clash"))} clash and need rescheduling. See My Bookings → Series.",
@@ -1677,3 +1868,11 @@ Screens:
             OptionalLabelText: =" "
             Visible: =gbl_UI_Book_Modal = true
             Width: =App.Width
+      - tmrNowTick:
+          Control: Timer
+          Properties:
+            AutoStart: =true
+            OnTimerEnd: =Set(varNowTick, Now())
+            Repeat: =true
+            Visible: =false
+            Width: =40

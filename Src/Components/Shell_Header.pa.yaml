@@ -105,7 +105,7 @@ ComponentDefinitions:
                         Height: =48
                         HtmlText: |-
                           ="<div style=""display: flex; align-items: center; height: 48px; padding-left: 16px;"">" &
-                           CarbonSpan("font-size: 14px; font-family: " & CarbonFontFamily & "; font-weight: 600;", "MOC", AppThemeHex.HeaderNavItemText) &
+                           CarbonSpan("font-size: 14px; font-family: " & CarbonFontFamily & "; font-weight: 600;", Upper(fnHtmlEscape(SiteName)), AppThemeHex.HeaderNavItemText) &
                            CarbonSpan("font-size: 14px; font-family: " & CarbonFontFamily & "; font-weight: 400;", "&nbsp;| BOOK", AppThemeHex.WordmarkSecondary) &
                            "</div>"
                         PaddingBottom: =0
@@ -263,6 +263,7 @@ ComponentDefinitions:
                         RadiusBottomRight: =0
                         RadiusTopLeft: =0
                         RadiusTopRight: =0
+                        Visible: =false
                         Width: =96
                       Children:
                         - btn_NavLink_Find:
@@ -483,6 +484,7 @@ ComponentDefinitions:
                               BorderColor: =RGBA(0,0,0,0)
                               BorderStyle: =BorderStyle.None
                               Color: =RGBA(0,0,0,0)
+                              DisplayMode: =DisplayMode.View
                               Fill: =If(gblUI_Nav_currentTab = "Profile", AppTheme.HeaderNavItemActiveBg, RGBA(0,0,0,0))
                               Height: =48
                               HoverFill: =AppTheme.HeaderNavItemHover

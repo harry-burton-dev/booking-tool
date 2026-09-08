@@ -11,10 +11,13 @@ Screens:
 
         /* Re-pull the shared bookings snapshot so colleagues' writes since App.OnStart
            (or since this session's last write) show up without requiring a write of our own */
-        Refresh(Book_Bookings);
-        ClearCollect(colBookings, BookingsWindow);
-        ClearCollect(colBRMasters,
-            Filter(Book_Bookings, StartsWith(RecurrenceType, "BR-"), IsException = false, Status = "Active"));
+        IfError(
+            Refresh(Book_Bookings);
+            ClearCollect(colBookings, BookingsWindow);
+            ClearCollect(colBRMasters,
+                Filter(Book_Bookings, StartsWith(RecurrenceType, "BR-"), IsException = false, Status = "Active")),
+            Notify("Couldn't refresh bookings — showing the last snapshot", NotificationType.Warning)
+        );
 
         Select(btnLoadFindBookings)
     Children:
@@ -102,7 +105,7 @@ Screens:
                           Clear(colFindRows);
                           With({_s: varFindWindowStart, _e: varFindWindowEnd},
                               ForAll(FindRooms As rm,
-                                  With({room: Filter(FindBookings, RoomID.Id = rm.ID)},
+                                  With({room: Sort(Filter(FindBookings, RoomID.Id = rm.ID), StartDateTime)},
                                       Collect(colFindRows,
                                           ForAll(room As b, {
                                               RoomKey:   rm.ID,
@@ -111,10 +114,11 @@ Screens:
                                               RowEnd:    b.EndDateTime,
                                               RowHeight: DateDiff(b.StartDateTime, b.EndDateTime, TimeUnit.Minutes) * Timeline_PxPerMinute,
                                               RowMinutes: DateDiff(b.StartDateTime, b.EndDateTime, TimeUnit.Minutes),
-                                              Title:     If(b.IsPrivate && b.BookedByEmail <> Lower(User().Email), "Busy", b.Title),
-                                              BookedBy:  If(b.IsPrivate && b.BookedByEmail <> Lower(User().Email), "", b.BookedBy.DisplayName),
-                                              IsMine:    Lower(Coalesce(b.BookedByEmail, "")) = Lower(User().Email),
-                                              IsBR:      StartsWith(Coalesce(b.RecurrenceType, ""), "BR-")
+                                              Title:     If(b.IsPrivate && !fnIsMine(b.BookedByEmail), "Busy", b.Title),
+                                              BookedBy:  If(b.IsPrivate && !fnIsMine(b.BookedByEmail), "", b.BookedBy.DisplayName),
+                                              IsMine:    fnIsMine(b.BookedByEmail),
+                                              // colour marks a PERMANENT series, not any recurrence
+                                              IsBR:      b.IsPermanent
                                           })
                                       );
                                       If(IsEmpty(room),
@@ -143,7 +147,9 @@ Screens:
                                   )
                               )
                           );
-                          ClearCollect(colFindRows, SortByColumns(colFindRows, "RoomKey", SortOrder.Ascending, "RowStart", SortOrder.Ascending));
+                          With({_sortedFindRows: SortByColumns(colFindRows, "RoomKey", SortOrder.Ascending, "RowStart", SortOrder.Ascending)},
+                              ClearCollect(colFindRows, _sortedFindRows)
+                          );
                           Clear(colFindWeekRows);
                           If(varFindViewMode = "Week",
                               // PERF-5-SKIP[partial] inner room loop batched; day loop stays — see T3
@@ -186,8 +192,8 @@ Screens:
                                                                           With({_hit: LookUp(overl, fnOverlaps(StartDateTime, EndDateTime, _ss, DateAdd(_ss, 30, TimeUnit.Minutes)))},
                                                                               {seg: "<span style='flex:1 1 0;background:" &
                                                                                   If(IsBlank(_hit), AppThemeHex.Border,
-                                                                                     StartsWith(Coalesce(_hit.RecurrenceType, ""), "BR-"), AppThemeHex.BattleRhythm,
-                                                                                     Lower(Coalesce(_hit.BookedByEmail, "")) = Lower(User().Email), AppThemeHex.Primary,
+                                                                                     _hit.IsPermanent, AppThemeHex.BattleRhythm,
+                                                                                     fnIsMine(_hit.BookedByEmail), AppThemeHex.Primary,
                                                                                      AppThemeHex.TextSecondary) &
                                                                                   ";'></span>"}
                                                                           )
@@ -349,6 +355,7 @@ Screens:
                                     - btnFindPrev_f3:
                                         Control: Classic/Button
                                         Properties:
+                                          AlignInContainer: =AlignInContainer.Center
                                           BorderColor: =AppTheme.Border
                                           BorderThickness: =1
                                           Color: =AppTheme.TextPrimary
@@ -469,6 +476,7 @@ Screens:
                                     RadiusBottomRight: =0
                                     RadiusTopLeft: =0
                                     RadiusTopRight: =0
+                                    Visible: =false
                                     Width: =239
                                   Children:
                                     - lblFindSeats_f3:
@@ -603,6 +611,7 @@ Screens:
                                     RadiusBottomRight: =0
                                     RadiusTopLeft: =0
                                     RadiusTopRight: =0
+                                    Visible: =false
                                     Width: =332
                                   Children:
                                     - lblFindEquip_f3:
@@ -765,6 +774,7 @@ Screens:
                         - htxFindGridHead_f3:
                             Control: HtmlViewer
                             Properties:
+                              AlignInContainer: =AlignInContainer.Stretch
                               DisplayMode: =DisplayMode.View
                               Height: =If(varFindViewMode = "Week", 48, 32)
                               HtmlText: |-
@@ -796,6 +806,7 @@ Screens:
                                     ) &
                                     "</div>"
                                 )
+                              LayoutMinWidth: =0
                               PaddingBottom: =0
                               PaddingLeft: =0
                               PaddingRight: =0
@@ -1039,6 +1050,7 @@ Screens:
                                                       "Book " & ThisItem.SlotRoomTitle & " from " & Text(DateAdd(varFindWindowStart, (ThisItem.Value - 1) * 15, TimeUnit.Minutes), "HH:mm"),
                                                       "Open " & Text(DateAdd(varFindWeekStart, ThisItem.Value - 1, TimeUnit.Days), "ddd dd mmm")
                                                   )
+                                                Visible: =false
                                                 Width: =Parent.TemplateWidth
                         - conFindLegendRule_f3:
                             Control: GroupContainer
@@ -1058,6 +1070,7 @@ Screens:
                         - htxFindLegend_f3:
                             Control: HtmlViewer
                             Properties:
+                              AlignInContainer: =AlignInContainer.Stretch
                               DisplayMode: =DisplayMode.View
                               HtmlText: |-
                                 ="<div style='display:flex; align-items:center; justify-content:space-between; height:100%; padding:0 16px; box-sizing:border-box;'>" &
@@ -1065,7 +1078,7 @@ Screens:
                                 "<span style='display:flex; align-items:center; gap:6px; " & CarbonHtmlType.Label01 & " color:" & AppThemeHex.TextMuted & ";'><span style='display:inline-block; width:12px; height:8px; background:" & AppThemeHex.Surface & "; border:1px solid " & AppThemeHex.Border & ";'></span>Available — click to book</span>" &
                                 "<span style='display:flex; align-items:center; gap:6px; " & CarbonHtmlType.Label01 & " color:" & AppThemeHex.TextMuted & ";'><span style='display:inline-block; width:12px; height:8px; background:" & AppThemeHex.Border & "; box-shadow:inset 3px 0 0 0 " & AppThemeHex.TextSecondary & ";'></span>Booked</span>" &
                                 "<span style='display:flex; align-items:center; gap:6px; " & CarbonHtmlType.Label01 & " color:" & AppThemeHex.TextMuted & ";'><span style='display:inline-block; width:12px; height:8px; background:" & AppThemeHex.Primary & ";'></span>Your booking</span>" &
-                                "<span style='display:flex; align-items:center; gap:6px; " & CarbonHtmlType.Label01 & " color:" & AppThemeHex.TextMuted & ";'><span style='display:inline-block; width:12px; height:8px; background:" & AppThemeHex.BattleRhythm & ";'></span>Battle Rhythm</span>" &
+                                "<span style='display:flex; align-items:center; gap:6px; " & CarbonHtmlType.Label01 & " color:" & AppThemeHex.TextMuted & ";'><span style='display:inline-block; width:12px; height:8px; background:" & AppThemeHex.BattleRhythm & ";'></span>Permanent</span>" &
                                 "<span style='display:flex; align-items:center; gap:6px; " & CarbonHtmlType.Label01 & " color:" & AppThemeHex.TextMuted & ";'><span style='display:inline-block; width:12px; height:8px; background:" & AppThemeHex.Border & "; opacity:0.45;'></span>Past</span>" &
                                 "<span style='display:flex; align-items:center; gap:6px; " & CarbonHtmlType.Label01 & " color:" & AppThemeHex.TextMuted & ";'><span style='display:inline-block; width:2px; height:12px; background:" & AppThemeHex.StatusBusyText & ";'></span>Now</span>" &
                                 "</div>" &
@@ -1191,7 +1204,7 @@ Screens:
                           Set(varEndTime, findSelEnd);
 
                           /* Room and time already known from the timeline - open the wizard on step 2 */
-                          Set(gbl_UI_Book_Modal_Step, WizardStep2);
+                          Set(gbl_UI_Book_Modal_Step, WizardStepWhen);
                           Set(gbl_UI_Book_Modal, true)
                         PressedBorderColor: =RGBA(0,0,0,0)
                         PressedColor: =ColorValue(AppTheme.PrimaryText)
@@ -1250,7 +1263,7 @@ Screens:
                       colPayloadSnapshot As _occ,
                       With(
                           {
-                              _isWeekend: Weekday(_occ.StartDateTime, StartOfWeek.Sunday) = 1 || Weekday(_occ.StartDateTime, StartOfWeek.Sunday) = 7,
+                              _isWeekend: (Weekday(_occ.StartDateTime, StartOfWeek.Sunday) = 1 || Weekday(_occ.StartDateTime, StartOfWeek.Sunday) = 7) && WeekendPolicy <> "allow",
                               _hasClash: !IsBlank(
                                   LookUp(
                                       Filter(colOccOverlap, fnOverlaps(StartDateTime, EndDateTime, _occ.StartDateTime, _occ.EndDateTime)),
@@ -1267,47 +1280,55 @@ Screens:
                               {
                                   /* Create booking; on success Collect() mirrors the row Patch
                                      returns (server-assigned ID included) into colBookings;
-                                     record a write failure if it errors */
-                                  _patchOk: IfError(
-                                      Collect(colBookings, Patch(
-                                          Book_Bookings,
-                                          Defaults(Book_Bookings),
-                                          {
-                                              Title: _occ.Title,
-                                              BookedByEmail: _occ.BookedByEmail,
-                                              RoomID: {
-                                                  Id: _occ.RoomIdNumber,
-                                                  Value: _occ.RoomIdText
-                                              },
-                                              StartDateTime: _occ.StartDateTime,
-                                              EndDateTime: _occ.EndDateTime,
-                                              IsPrivate: _occ.IsPrivate,
-                                              // PROD-REVERT[booked-by-actor] person = actor; mock claims don't resolve
-                                              BookedBy: {
-                                                  '@odata.type': "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser",
-                                                  Claims: $"i:0#.f|membership|{Lower(User().Email)}",
-                                                  DisplayName: User().FullName,
-                                                  Email: Lower(User().Email),
-                                                  Department: "",
-                                                  JobTitle: "",
-                                                  Picture: ""
-                                              },
-                                              Status: If(_isWeekend || _hasClash, "Clash", "Active"),
-                                              SeriesID: If(IsBlank(varNewSeriesID), Blank(), Text(varNewSeriesID)),
-                                              RecurrenceType: _occ.RecurrenceType,
-                                              OccIndex: _occ.OccIndex,
-                                              IsException: false
-                                          }
-                                      ));
-                                      true,
-                                      Collect(
-                                          colFailedBookings,
-                                          {
-                                              BookingDate: Text(_occ.StartDateTime, "dd mmm yyyy"),
-                                              Reason: "error"
-                                          }
-                                      );
-                                      false
+                                     record a write failure if it errors.
+                                     Series occurrences that are clean are NOT written — the master
+                                     row below expands them at read time; only weekend/clash
+                                     occurrences become stored exception rows. */
+                                  _patchOk: If(
+                                      IsBlank(varNewSeriesID) || _isWeekend || _hasClash,
+                                      IfError(
+                                          Collect(colBookings, Patch(
+                                              Book_Bookings,
+                                              Defaults(Book_Bookings),
+                                              {
+                                                  Title: _occ.Title,
+                                                  BookedByEmail: _occ.BookedByEmail,
+                                                  RoomID: {
+                                                      Id: _occ.RoomIdNumber,
+                                                      Value: _occ.RoomIdText
+                                                  },
+                                                  StartDateTime: _occ.StartDateTime,
+                                                  EndDateTime: _occ.EndDateTime,
+                                                  IsPrivate: _occ.IsPrivate,
+                                                  // PROD-REVERT[booked-by-actor] person = actor; mock claims don't resolve
+                                                  BookedBy: {
+                                                      '@odata.type': "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser",
+                                                      Claims: $"i:0#.f|membership|{Lower(User().Email)}",
+                                                      DisplayName: User().FullName,
+                                                      Email: Lower(User().Email),
+                                                      Department: "",
+                                                      JobTitle: "",
+                                                      Picture: ""
+                                                  },
+                                                  Status: If(_isWeekend || _hasClash, "Clash", "Active"),
+                                                  SeriesID: If(IsBlank(varNewSeriesID), Blank(), Text(varNewSeriesID)),
+                                                  RecurrenceType: If(IsBlank(varNewSeriesID), _occ.RecurrenceType, "BR-Exception"),
+                                                  OccIndex: _occ.OccIndex,
+                                                  IsException: !IsBlank(varNewSeriesID),
+                                                  WantsInvite: _occ.WantsInvite
+                                              }
+                                          ));
+                                          true,
+                                          Collect(
+                                              colFailedBookings,
+                                              {
+                                                  BookingDate: Text(_occ.StartDateTime, "dd mmm yyyy"),
+                                                  Reason: "error"
+                                              }
+                                          );
+                                          false
+                                      ),
+                                      true
                                   )
                               },
 
@@ -1323,6 +1344,63 @@ Screens:
                                       }
                                   )
                               )
+                          )
+                      )
+                  );
+
+                  /* Series: exactly one master row carrying the rule in RecurrenceType.
+                     Occurrences are expanded at read time by BRVirtual; clashing ones were
+                     written as exception rows in the loop above. */
+                  If(
+                      !IsBlank(varNewSeriesID),
+                      With(
+                          {_first: First(colPayloadSnapshot)},
+                          IfError(
+                              Collect(colBookings, Patch(
+                                  Book_Bookings,
+                                  Defaults(Book_Bookings),
+                                  {
+                                      Title: _first.Title,
+                                      BookedByEmail: _first.BookedByEmail,
+                                      RoomID: {
+                                          Id: _first.RoomIdNumber,
+                                          Value: _first.RoomIdText
+                                      },
+                                      StartDateTime: _first.StartDateTime,
+                                      EndDateTime: _first.EndDateTime,
+                                      IsPrivate: _first.IsPrivate,
+                                      // PROD-REVERT[booked-by-actor] person = actor; mock claims don't resolve
+                                      BookedBy: {
+                                          '@odata.type': "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser",
+                                          Claims: $"i:0#.f|membership|{Lower(User().Email)}",
+                                          DisplayName: User().FullName,
+                                          Email: Lower(User().Email),
+                                          Department: "",
+                                          JobTitle: "",
+                                          Picture: ""
+                                      },
+                                      Status: "Active",
+                                      SeriesID: Text(varNewSeriesID),
+                                      RecurrenceType: _first.RecurrenceType,
+                                      OccIndex: 0,
+                                      IsException: false,
+                                      WantsInvite: _first.WantsInvite,
+                                      RecurrenceLabel: fnRuleLabel(_first.RecurrenceType, _first.StartDateTime),
+                                      NextOccurrence: _first.StartDateTime
+                                  }
+                              )),
+                              Collect(
+                                  colFailedBookings,
+                                  {
+                                      BookingDate: Text(_first.StartDateTime, "dd mmm yyyy"),
+                                      Reason: "error"
+                                  }
+                              )
+                          );
+                          Refresh(Book_Bookings);
+                          ClearCollect(
+                              colBRMasters,
+                              Filter(Book_Bookings, StartsWith(RecurrenceType, "BR-"), IsException = false, Status = "Active")
                           )
                       )
                   );
@@ -1346,6 +1424,21 @@ Screens:
                           "Some bookings failed to save. Please try again. Not created: " &
                           Concat(Filter(colFailedBookings, Reason = "error"), BookingDate, ", "),
                           NotificationType.Error,
+                          10000
+                      ),
+                      !IsBlank(varNewSeriesID),
+                      Notify(
+                          If(fnRuleIsPermanent(First(colPayloadSnapshot).RecurrenceType), "Permanent booking created", $"Series booked · {CountRows(colPayloadSnapshot)} occurrences") &
+                          If(
+                              CountRows(Filter(colFailedBookings, Reason = "clash")) > 0,
+                              $", {CountRows(Filter(colFailedBookings, Reason = "clash"))} clash(es) to resolve",
+                              ""
+                          ),
+                          If(
+                              CountRows(Filter(colFailedBookings, Reason = "clash")) > 0,
+                              NotificationType.Warning,
+                              NotificationType.Success
+                          ),
                           10000
                       ),
                       CountRows(Filter(colFailedBookings, Reason = "clash")) > 0,

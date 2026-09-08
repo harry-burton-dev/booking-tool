@@ -213,17 +213,21 @@ Screens:
                                         Control: Toggle
                                         Properties:
                                           Checked: =gblUserSettings.NotifyConfirm
-                                          DisplayMode: =DisplayMode.Disabled
                                           Label: =
                                           LayoutMinHeight: =16
                                           LayoutMinWidth: =16
                                           OnCheck: |-
-                                            =// PROD-REVERT[user-settings-writes] colUserSettings until Book_UserSettings is wired (MS1)
-                                            Patch(colUserSettings, LookUp(colUserSettings, Email = Lower(User().Email)), {NotifyConfirm: true});
-                                            Set(gblUserSettings, LookUp(colUserSettings, Email = Lower(User().Email)))
+                                            =IfError(
+                                                Patch(Book_UserSettings, gblUserSettings, {NotifyConfirm: true}),
+                                                Notify("Couldn't save setting", NotificationType.Error)
+                                            );
+                                            Set(gblUserSettings, LookUp(Book_UserSettings, ID = gblUserSettings.ID))
                                           OnUncheck: |-
-                                            =Patch(colUserSettings, LookUp(colUserSettings, Email = Lower(User().Email)), {NotifyConfirm: false});
-                                            Set(gblUserSettings, LookUp(colUserSettings, Email = Lower(User().Email)))
+                                            =IfError(
+                                                Patch(Book_UserSettings, gblUserSettings, {NotifyConfirm: false}),
+                                                Notify("Couldn't save setting", NotificationType.Error)
+                                            );
+                                            Set(gblUserSettings, LookUp(Book_UserSettings, ID = gblUserSettings.ID))
                               - conSetRow_NotifyCancel:
                                   Control: GroupContainer
                                   Variant: AutoLayout
@@ -258,16 +262,21 @@ Screens:
                                         Control: Toggle
                                         Properties:
                                           Checked: =gblUserSettings.NotifyCancel
-                                          DisplayMode: =DisplayMode.Disabled
                                           Label: =
                                           LayoutMinHeight: =16
                                           LayoutMinWidth: =16
                                           OnCheck: |-
-                                            =Patch(colUserSettings, LookUp(colUserSettings, Email = Lower(User().Email)), {NotifyCancel: true});
-                                            Set(gblUserSettings, LookUp(colUserSettings, Email = Lower(User().Email)))
+                                            =IfError(
+                                                Patch(Book_UserSettings, gblUserSettings, {NotifyCancel: true}),
+                                                Notify("Couldn't save setting", NotificationType.Error)
+                                            );
+                                            Set(gblUserSettings, LookUp(Book_UserSettings, ID = gblUserSettings.ID))
                                           OnUncheck: |-
-                                            =Patch(colUserSettings, LookUp(colUserSettings, Email = Lower(User().Email)), {NotifyCancel: false});
-                                            Set(gblUserSettings, LookUp(colUserSettings, Email = Lower(User().Email)))
+                                            =IfError(
+                                                Patch(Book_UserSettings, gblUserSettings, {NotifyCancel: false}),
+                                                Notify("Couldn't save setting", NotificationType.Error)
+                                            );
+                                            Set(gblUserSettings, LookUp(Book_UserSettings, ID = gblUserSettings.ID))
                               - conSetRow_NotifyReminder:
                                   Control: GroupContainer
                                   Variant: AutoLayout
@@ -302,16 +311,21 @@ Screens:
                                         Control: Toggle
                                         Properties:
                                           Checked: =gblUserSettings.NotifyReminder
-                                          DisplayMode: =DisplayMode.Disabled
                                           Label: =
                                           LayoutMinHeight: =16
                                           LayoutMinWidth: =16
                                           OnCheck: |-
-                                            =Patch(colUserSettings, LookUp(colUserSettings, Email = Lower(User().Email)), {NotifyReminder: true});
-                                            Set(gblUserSettings, LookUp(colUserSettings, Email = Lower(User().Email)))
+                                            =IfError(
+                                                Patch(Book_UserSettings, gblUserSettings, {NotifyReminder: true}),
+                                                Notify("Couldn't save setting", NotificationType.Error)
+                                            );
+                                            Set(gblUserSettings, LookUp(Book_UserSettings, ID = gblUserSettings.ID))
                                           OnUncheck: |-
-                                            =Patch(colUserSettings, LookUp(colUserSettings, Email = Lower(User().Email)), {NotifyReminder: false});
-                                            Set(gblUserSettings, LookUp(colUserSettings, Email = Lower(User().Email)))
+                                            =IfError(
+                                                Patch(Book_UserSettings, gblUserSettings, {NotifyReminder: false}),
+                                                Notify("Couldn't save setting", NotificationType.Error)
+                                            );
+                                            Set(gblUserSettings, LookUp(Book_UserSettings, ID = gblUserSettings.ID))
                               - conSetRow_ReminderMins:
                                   Control: GroupContainer
                                   Variant: AutoLayout
@@ -355,16 +369,19 @@ Screens:
                                           FocusedBorderColor: =RGBA(15, 98, 254, 1)
                                           FocusedBorderThickness: =2
                                           Font: ="IBM Plex Sans"
-                                          Items: =[15, 30, 60]
+                                          Items: =[5, 10, 15, 30, 60]
                                           Items.Value: =Value
                                           LayoutMinHeight: =0
                                           LayoutMinWidth: =0
                                           OnChange: |-
-                                            =Patch(colUserSettings, LookUp(colUserSettings, Email = Lower(User().Email)), {ReminderMinutes: Value(Self.Selected.Value)});
-                                            Set(gblUserSettings, LookUp(colUserSettings, Email = Lower(User().Email)))
+                                            =IfError(
+                                                Patch(Book_UserSettings, gblUserSettings, {ReminderMinutes: Value(Self.Selected.Value)}),
+                                                Notify("Couldn't save setting", NotificationType.Error)
+                                            );
+                                            Set(gblUserSettings, LookUp(Book_UserSettings, ID = gblUserSettings.ID))
                                           Size: =11
                                           Width: =96
-                              - conSetRow_NotifyDigest:
+                              - pfConRowInvite:
                                   Control: GroupContainer
                                   Variant: AutoLayout
                                   Properties:
@@ -382,7 +399,198 @@ Screens:
                                     RadiusTopLeft: =0
                                     RadiusTopRight: =0
                                   Children:
-                                    - lblSetNotifyDigest:
+                                    - pfLblInvite:
+                                        Control: Label
+                                        Properties:
+                                          Color: =AppTheme.TextPrimary
+                                          FillPortions: =1
+                                          Font: ="IBM Plex Sans"
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          Size: =12
+                                          Text: ="Attach a calendar invite to my confirmations"
+                                          Wrap: =false
+                                    - pfTglInvite:
+                                        Control: Toggle
+                                        Properties:
+                                          Checked: =gblUserSettings.CalendarInvite
+                                          Label: =
+                                          LayoutMinHeight: =16
+                                          LayoutMinWidth: =16
+                                          OnCheck: |-
+                                            =IfError(
+                                                Patch(Book_UserSettings, gblUserSettings, {CalendarInvite: true}),
+                                                Notify("Couldn't save setting", NotificationType.Error)
+                                            );
+                                            Set(gblUserSettings, LookUp(Book_UserSettings, ID = gblUserSettings.ID))
+                                          OnUncheck: |-
+                                            =IfError(
+                                                Patch(Book_UserSettings, gblUserSettings, {CalendarInvite: false}),
+                                                Notify("Couldn't save setting", NotificationType.Error)
+                                            );
+                                            Set(gblUserSettings, LookUp(Book_UserSettings, ID = gblUserSettings.ID))
+                        - pfConBooking:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              BorderColor: =AppTheme.Border
+                              BorderThickness: =1
+                              DropShadow: =DropShadow.None
+                              Fill: =AppTheme.SurfaceAlt
+                              LayoutAlignItems: =LayoutAlignItems.Stretch
+                              LayoutDirection: =LayoutDirection.Vertical
+                              LayoutGap: =8
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              PaddingBottom: =24
+                              PaddingLeft: =24
+                              PaddingRight: =24
+                              PaddingTop: =24
+                              RadiusBottomLeft: =2
+                              RadiusBottomRight: =2
+                              RadiusTopLeft: =2
+                              RadiusTopRight: =2
+                            Children:
+                              - pfLblBooking:
+                                  Control: HtmlViewer
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Stretch
+                                    AutoHeight: =true
+                                    DisplayMode: =DisplayMode.View
+                                    HtmlText: |-
+                                      =CarbonText(CarbonHtmlType.Heading02, "Booking") &
+                                      CarbonTextColored(CarbonHtmlType.Label01, "Where the booking wizard starts, and what it fills in for you.", AppThemeHex.TextMuted)
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    PaddingBottom: =0
+                                    PaddingLeft: =0
+                                    PaddingRight: =0
+                                    PaddingTop: =0
+                              - pfLblRouteCaption:
+                                  Control: Label
+                                  Properties:
+                                    Color: =AppTheme.TextPrimary
+                                    DisplayMode: =DisplayMode.Disabled
+                                    Font: ="IBM Plex Sans"
+                                    Height: =24
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Size: =12
+                                    Text: ="Default route"
+                                    Wrap: =false
+                              - pfConRouteSegment:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
+                                  Properties:
+                                    DropShadow: =DropShadow.None
+                                    Fill: =RGBA(0,0,0,0)
+                                    FillPortions: =0
+                                    Height: =36
+                                    LayoutAlignItems: =LayoutAlignItems.Center
+                                    LayoutDirection: =LayoutDirection.Horizontal
+                                    LayoutGap: =8
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                  Children:
+                                    - pfBtnRouteRoom:
+                                        Control: Classic/Button
+                                        Properties:
+                                          BorderColor: =AppTheme.Border
+                                          BorderThickness: =1
+                                          Color: |-
+                                            =If(
+                                                DefaultBookRoute = "room",
+                                                ColorValue(AppTheme.PrimaryText),
+                                                AppTheme.TextPrimary
+                                            )
+                                          Fill: |-
+                                            =If(
+                                                DefaultBookRoute = "room",
+                                                ColorValue(AppTheme.ButtonPrimary),
+                                                AppTheme.layer01Bg
+                                            )
+                                          FocusedBorderColor: =RGBA(15, 98, 254, 1)
+                                          FocusedBorderThickness: =2
+                                          Font: ="IBM Plex Sans"
+                                          FontWeight: =FontWeight.Normal
+                                          Height: =36
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          OnSelect: |-
+                                            =IfError(
+                                                Patch(Book_UserSettings, gblUserSettings, {BookingRoute: {Value: "room"}}),
+                                                Notify("Couldn't save setting", NotificationType.Error)
+                                            );
+                                            Set(gblUserSettings, LookUp(Book_UserSettings, ID = gblUserSettings.ID));
+                                            Set(gblBookRoute, "room")
+                                          RadiusBottomLeft: =2
+                                          RadiusBottomRight: =2
+                                          RadiusTopLeft: =2
+                                          RadiusTopRight: =2
+                                          Size: =11
+                                          Text: ="Room first"
+                                          Width: =140
+                                    - pfBtnRouteTime:
+                                        Control: Classic/Button
+                                        Properties:
+                                          BorderColor: =AppTheme.Border
+                                          BorderThickness: =1
+                                          Color: |-
+                                            =If(
+                                                DefaultBookRoute = "time",
+                                                ColorValue(AppTheme.PrimaryText),
+                                                AppTheme.TextPrimary
+                                            )
+                                          Fill: |-
+                                            =If(
+                                                DefaultBookRoute = "time",
+                                                ColorValue(AppTheme.ButtonPrimary),
+                                                AppTheme.layer01Bg
+                                            )
+                                          FocusedBorderColor: =RGBA(15, 98, 254, 1)
+                                          FocusedBorderThickness: =2
+                                          Font: ="IBM Plex Sans"
+                                          FontWeight: =FontWeight.Normal
+                                          Height: =36
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          OnSelect: |-
+                                            =IfError(
+                                                Patch(Book_UserSettings, gblUserSettings, {BookingRoute: {Value: "time"}}),
+                                                Notify("Couldn't save setting", NotificationType.Error)
+                                            );
+                                            Set(gblUserSettings, LookUp(Book_UserSettings, ID = gblUserSettings.ID));
+                                            Set(gblBookRoute, "time")
+                                          RadiusBottomLeft: =2
+                                          RadiusBottomRight: =2
+                                          RadiusTopLeft: =2
+                                          RadiusTopRight: =2
+                                          Size: =11
+                                          Text: ="Time first"
+                                          Width: =140
+                              - pfConRowDuration:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
+                                  Properties:
+                                    DropShadow: =DropShadow.None
+                                    Fill: =RGBA(0,0,0,0)
+                                    FillPortions: =0
+                                    Height: =48
+                                    LayoutAlignItems: =LayoutAlignItems.Center
+                                    LayoutDirection: =LayoutDirection.Horizontal
+                                    LayoutGap: =16
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                  Children:
+                                    - pfLblDefaultDuration:
                                         Control: Label
                                         Properties:
                                           Color: =AppTheme.TextPrimary
@@ -392,22 +600,349 @@ Screens:
                                           LayoutMinHeight: =0
                                           LayoutMinWidth: =0
                                           Size: =12
-                                          Text: ="Morning digest of my bookings"
+                                          Text: ="Default length (minutes)"
                                           Wrap: =false
-                                    - tglSetNotifyDigest:
-                                        Control: Toggle
+                                    - pfDrpDefaultDuration:
+                                        Control: Classic/DropDown
                                         Properties:
-                                          Checked: =gblUserSettings.NotifyDigest
+                                          AccessibleLabel: ="Default booking length in minutes"
+                                          BorderColor: =AppTheme.Border
+                                          BorderThickness: =1
+                                          ChevronBackground: =AppTheme.layer01Bg
+                                          ChevronFill: =AppTheme.TextPrimary
+                                          Color: =AppTheme.TextPrimary
+                                          Default: =Text(WizardDefaultDurationMin, "[$-en-US]0")
+                                          Fill: =AppTheme.layer01Bg
+                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                          FocusedBorderThickness: =2
+                                          Font: ="IBM Plex Sans"
+                                          Items: =["15","30","45","60","90","120"]
+                                          Items.Value: =Value
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          OnChange: |-
+                                            =IfError(
+                                                Patch(Book_UserSettings, gblUserSettings, {DefaultDurationMin: Value(Self.Selected.Value)}),
+                                                Notify("Couldn't save setting", NotificationType.Error)
+                                            );
+                                            Set(gblUserSettings, LookUp(Book_UserSettings, ID = gblUserSettings.ID))
+                                          Size: =11
+                                          Width: =140
+                              - pfConRowStartHour:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
+                                  Properties:
+                                    DropShadow: =DropShadow.None
+                                    Fill: =RGBA(0,0,0,0)
+                                    FillPortions: =0
+                                    Height: =48
+                                    LayoutAlignItems: =LayoutAlignItems.Center
+                                    LayoutDirection: =LayoutDirection.Horizontal
+                                    LayoutGap: =16
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                  Children:
+                                    - pfLblDefaultStartHour:
+                                        Control: Label
+                                        Properties:
+                                          Color: =AppTheme.TextPrimary
                                           DisplayMode: =DisplayMode.Disabled
-                                          Label: =
-                                          LayoutMinHeight: =16
-                                          LayoutMinWidth: =16
-                                          OnCheck: |-
-                                            =Patch(colUserSettings, LookUp(colUserSettings, Email = Lower(User().Email)), {NotifyDigest: true});
-                                            Set(gblUserSettings, LookUp(colUserSettings, Email = Lower(User().Email)))
-                                          OnUncheck: |-
-                                            =Patch(colUserSettings, LookUp(colUserSettings, Email = Lower(User().Email)), {NotifyDigest: false});
-                                            Set(gblUserSettings, LookUp(colUserSettings, Email = Lower(User().Email)))
+                                          FillPortions: =1
+                                          Font: ="IBM Plex Sans"
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          Size: =12
+                                          Text: ="Earliest start hour"
+                                          Wrap: =false
+                                    - pfDrpDefaultStartHour:
+                                        Control: Classic/DropDown
+                                        Properties:
+                                          AccessibleLabel: ="Default earliest start hour"
+                                          BorderColor: =AppTheme.Border
+                                          BorderThickness: =1
+                                          ChevronBackground: =AppTheme.layer01Bg
+                                          ChevronFill: =AppTheme.TextPrimary
+                                          Color: =AppTheme.TextPrimary
+                                          Default: =Text(WizardDefaultStartHour, "[$-en-US]0")
+                                          Fill: =AppTheme.layer01Bg
+                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                          FocusedBorderThickness: =2
+                                          Font: ="IBM Plex Sans"
+                                          Items: |-
+                                            =ForAll(
+                                                Sequence(DayEndHour - DayStartHour, DayStartHour) As _h,
+                                                {Value: Text(_h.Value, "[$-en-US]0")}
+                                            )
+                                          Items.Value: =Value
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          OnChange: |-
+                                            =IfError(
+                                                Patch(Book_UserSettings, gblUserSettings, {DefaultStartHour: Value(Self.Selected.Value)}),
+                                                Notify("Couldn't save setting", NotificationType.Error)
+                                            );
+                                            Set(gblUserSettings, LookUp(Book_UserSettings, ID = gblUserSettings.ID))
+                                          Size: =11
+                                          Width: =140
+                              - pfConRowDefaultRoom:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
+                                  Properties:
+                                    DropShadow: =DropShadow.None
+                                    Fill: =RGBA(0,0,0,0)
+                                    FillPortions: =0
+                                    Height: =48
+                                    LayoutAlignItems: =LayoutAlignItems.Center
+                                    LayoutDirection: =LayoutDirection.Horizontal
+                                    LayoutGap: =16
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                  Children:
+                                    - pfLblDefaultRoom:
+                                        Control: Label
+                                        Properties:
+                                          Color: =AppTheme.TextPrimary
+                                          DisplayMode: =DisplayMode.Disabled
+                                          FillPortions: =1
+                                          Font: ="IBM Plex Sans"
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          Size: =12
+                                          Text: ="Default room"
+                                          Wrap: =false
+                                    - pfDrpDefaultRoom:
+                                        Control: Classic/DropDown
+                                        Properties:
+                                          AccessibleLabel: ="Default room"
+                                          BorderColor: =AppTheme.Border
+                                          BorderThickness: =1
+                                          ChevronBackground: =AppTheme.layer01Bg
+                                          ChevronFill: =AppTheme.TextPrimary
+                                          Color: =AppTheme.TextPrimary
+                                          Default: =LookUp(colRooms, ID = WizardDefaultRoomId).Title
+                                          Fill: =AppTheme.layer01Bg
+                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                          FocusedBorderThickness: =2
+                                          Font: ="IBM Plex Sans"
+                                          Items: |-
+                                            =ForAll(Sort(colRooms, Title) As _room, {Value: _room.Title})
+                                          Items.Value: =Value
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          OnChange: |-
+                                            =IfError(
+                                                Patch(
+                                                    Book_UserSettings,
+                                                    gblUserSettings,
+                                                    {DefaultRoomID: Coalesce(LookUp(colRooms, Title = Self.Selected.Value).ID, 0)}
+                                                ),
+                                                Notify("Couldn't save setting", NotificationType.Error)
+                                            );
+                                            Set(gblUserSettings, LookUp(Book_UserSettings, ID = gblUserSettings.ID))
+                                          Size: =11
+                                          Width: =180
+                                    - pfBtnClearDefaultRoom:
+                                        Control: Classic/Button
+                                        Properties:
+                                          BorderColor: =AppTheme.Border
+                                          BorderThickness: =1
+                                          Color: =AppTheme.TextPrimary
+                                          Fill: =AppTheme.layer01Bg
+                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                          FocusedBorderThickness: =2
+                                          Font: ="IBM Plex Sans"
+                                          FontWeight: =FontWeight.Normal
+                                          Height: =36
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          OnSelect: |-
+                                            =IfError(
+                                                Patch(Book_UserSettings, gblUserSettings, {DefaultRoomID: 0}),
+                                                Notify("Couldn't save setting", NotificationType.Error)
+                                            );
+                                            Set(gblUserSettings, LookUp(Book_UserSettings, ID = gblUserSettings.ID));
+                                            Reset(pfDrpDefaultRoom)
+                                          RadiusBottomLeft: =2
+                                          RadiusBottomRight: =2
+                                          RadiusTopLeft: =2
+                                          RadiusTopRight: =2
+                                          Size: =11
+                                          Text: ="Clear default room"
+                        - pfConAppearance:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              BorderColor: =AppTheme.Border
+                              BorderThickness: =1
+                              DropShadow: =DropShadow.None
+                              Fill: =AppTheme.SurfaceAlt
+                              LayoutAlignItems: =LayoutAlignItems.Stretch
+                              LayoutDirection: =LayoutDirection.Vertical
+                              LayoutGap: =8
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              PaddingBottom: =24
+                              PaddingLeft: =24
+                              PaddingRight: =24
+                              PaddingTop: =24
+                              RadiusBottomLeft: =2
+                              RadiusBottomRight: =2
+                              RadiusTopLeft: =2
+                              RadiusTopRight: =2
+                            Children:
+                              - pfLblAppearance:
+                                  Control: HtmlViewer
+                                  Properties:
+                                    AlignInContainer: =AlignInContainer.Stretch
+                                    AutoHeight: =true
+                                    DisplayMode: =DisplayMode.View
+                                    HtmlText: =CarbonText(CarbonHtmlType.Heading02, "Appearance")
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    PaddingBottom: =0
+                                    PaddingLeft: =0
+                                    PaddingRight: =0
+                                    PaddingTop: =0
+                              - pfConThemeSegment:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
+                                  Properties:
+                                    DropShadow: =DropShadow.None
+                                    Fill: =RGBA(0,0,0,0)
+                                    FillPortions: =0
+                                    Height: =36
+                                    LayoutAlignItems: =LayoutAlignItems.Center
+                                    LayoutDirection: =LayoutDirection.Horizontal
+                                    LayoutGap: =8
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                  Children:
+                                    - pfBtnThemeLight:
+                                        Control: Classic/Button
+                                        Properties:
+                                          BorderColor: =AppTheme.Border
+                                          BorderThickness: =1
+                                          Color: |-
+                                            =If(
+                                                Coalesce(gblUserSettings.Theme.Value, "system") = "light",
+                                                ColorValue(AppTheme.PrimaryText),
+                                                AppTheme.TextPrimary
+                                            )
+                                          Fill: |-
+                                            =If(
+                                                Coalesce(gblUserSettings.Theme.Value, "system") = "light",
+                                                ColorValue(AppTheme.ButtonPrimary),
+                                                AppTheme.layer01Bg
+                                            )
+                                          FocusedBorderColor: =RGBA(15, 98, 254, 1)
+                                          FocusedBorderThickness: =2
+                                          Font: ="IBM Plex Sans"
+                                          FontWeight: =FontWeight.Normal
+                                          Height: =36
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          OnSelect: |-
+                                            =IfError(
+                                                Patch(Book_UserSettings, gblUserSettings, {Theme: {Value: "light"}}),
+                                                Notify("Couldn't save setting", NotificationType.Error)
+                                            );
+                                            Set(gblUserSettings, LookUp(Book_UserSettings, ID = gblUserSettings.ID));
+                                            Set(glbIsDarkMode, false)
+                                          RadiusBottomLeft: =2
+                                          RadiusBottomRight: =2
+                                          RadiusTopLeft: =2
+                                          RadiusTopRight: =2
+                                          Size: =11
+                                          Text: ="Light"
+                                          Width: =104
+                                    - pfBtnThemeDark:
+                                        Control: Classic/Button
+                                        Properties:
+                                          BorderColor: =AppTheme.Border
+                                          BorderThickness: =1
+                                          Color: |-
+                                            =If(
+                                                Coalesce(gblUserSettings.Theme.Value, "system") = "dark",
+                                                ColorValue(AppTheme.PrimaryText),
+                                                AppTheme.TextPrimary
+                                            )
+                                          Fill: |-
+                                            =If(
+                                                Coalesce(gblUserSettings.Theme.Value, "system") = "dark",
+                                                ColorValue(AppTheme.ButtonPrimary),
+                                                AppTheme.layer01Bg
+                                            )
+                                          FocusedBorderColor: =RGBA(15, 98, 254, 1)
+                                          FocusedBorderThickness: =2
+                                          Font: ="IBM Plex Sans"
+                                          FontWeight: =FontWeight.Normal
+                                          Height: =36
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          OnSelect: |-
+                                            =IfError(
+                                                Patch(Book_UserSettings, gblUserSettings, {Theme: {Value: "dark"}}),
+                                                Notify("Couldn't save setting", NotificationType.Error)
+                                            );
+                                            Set(gblUserSettings, LookUp(Book_UserSettings, ID = gblUserSettings.ID));
+                                            Set(glbIsDarkMode, true)
+                                          RadiusBottomLeft: =2
+                                          RadiusBottomRight: =2
+                                          RadiusTopLeft: =2
+                                          RadiusTopRight: =2
+                                          Size: =11
+                                          Text: ="Dark"
+                                          Width: =104
+                                    - pfBtnThemeSystem:
+                                        Control: Classic/Button
+                                        Properties:
+                                          BorderColor: =AppTheme.Border
+                                          BorderThickness: =1
+                                          Color: |-
+                                            =If(
+                                                Coalesce(gblUserSettings.Theme.Value, "system") = "system",
+                                                ColorValue(AppTheme.PrimaryText),
+                                                AppTheme.TextPrimary
+                                            )
+                                          Fill: |-
+                                            =If(
+                                                Coalesce(gblUserSettings.Theme.Value, "system") = "system",
+                                                ColorValue(AppTheme.ButtonPrimary),
+                                                AppTheme.layer01Bg
+                                            )
+                                          FocusedBorderColor: =RGBA(15, 98, 254, 1)
+                                          FocusedBorderThickness: =2
+                                          Font: ="IBM Plex Sans"
+                                          FontWeight: =FontWeight.Normal
+                                          Height: =36
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          OnSelect: |-
+                                            =IfError(
+                                                Patch(Book_UserSettings, gblUserSettings, {Theme: {Value: "system"}}),
+                                                Notify("Couldn't save setting", NotificationType.Error)
+                                            );
+                                            Set(gblUserSettings, LookUp(Book_UserSettings, ID = gblUserSettings.ID));
+                                            Set(glbIsDarkMode, false)
+                                          RadiusBottomLeft: =2
+                                          RadiusBottomRight: =2
+                                          RadiusTopLeft: =2
+                                          RadiusTopRight: =2
+                                          Size: =11
+                                          Text: ="System"
+                                          Width: =104
                         - conProfileAbout:
                             Control: GroupContainer
                             Variant: AutoLayout
@@ -467,7 +1002,7 @@ Screens:
                                     HoverFill: =RGBA(13, 83, 217, 1)
                                     LayoutMinHeight: =0
                                     LayoutMinWidth: =0
-                                    OnSelect: =false /* placeholder - contact route to be wired later */
+                                    OnSelect: =Launch("mailto:" & SettingText("SupportEmail") & "?subject=" & EncodeUrl("Booking tool problem"))
                                     PressedColor: =ColorValue(AppTheme.PrimaryText)
                                     PressedFill: =RGBA(11, 69, 182, 1)
                                     RadiusBottomLeft: =2

@@ -6,16 +6,21 @@ Screens:
       OnVisible: |-
         =/* Navigate() is illegal in OnVisible - non-admins are gated by adConPage.Visible
            plus the IsAdmin-hidden nav link instead. */
-        Refresh(Book_Bookings);
-        ClearCollect(colBookings, BookingsWindow);
-        ClearCollect(colBRMasters,
-            Filter(Book_Bookings, StartsWith(RecurrenceType, "BR-"), IsException = false, Status = "Active"));
+        IfError(
+            Refresh(Book_Bookings);
+            ClearCollect(colBookings, BookingsWindow);
+            ClearCollect(colBRMasters,
+                Filter(Book_Bookings, StartsWith(RecurrenceType, "BR-"), IsException = false, Status = "Active")),
+            Notify("Couldn't refresh bookings — showing the last snapshot", NotificationType.Warning)
+        );
         /* re-init tab state on every entry so stale selections can't dereference
            masters that no longer exist (review-B 1) */
+        UpdateContext({adTab: "All"});
         UpdateContext({adBRSel: 0});
         UpdateContext({adBRDevK: -1});
         UpdateContext({adBRConfirmEnd: 0});
-        UpdateContext({adBRShowCreate: false});
+        /* T-11: occurrence calendar always opens on the current month */
+        UpdateContext({adBRCalMonth: Date(Year(Today()), Month(Today()), 1)});
         UpdateContext({adRmShowForm: false});
         UpdateContext({adRmSel: 0})
     Children:
@@ -179,7 +184,7 @@ Screens:
                               AlignInContainer: =AlignInContainer.Stretch
                               AutoHeight: =true
                               DisplayMode: =DisplayMode.View
-                              HtmlText: =CarbonTextSecondary(CarbonHtmlType.BodyCompact01, adGalBookings.AllItemsCount & " bookings shown · " & CountRows(colBRMasters) & " Battle Rhythm series · " & CountRows(colRooms) & " rooms")
+                              HtmlText: =CarbonTextSecondary(CarbonHtmlType.BodyCompact01, adGalBookings.AllItemsCount & " bookings shown · " & CountRows(colBRMasters) & " permanent bookings · " & CountRows(colRooms) & " rooms")
                               LayoutMinHeight: =0
                               LayoutMinWidth: =0
                               PaddingBottom: =0
@@ -220,7 +225,7 @@ Screens:
                                     RadiusBottomRight: =0
                                     RadiusTopLeft: =0
                                     RadiusTopRight: =0
-                                    Width: =480
+                                    Width: =640
                                   Children:
                                     - adConTabBtnAll:
                                         Control: GroupContainer
@@ -328,7 +333,8 @@ Screens:
                                                   =UpdateContext({adTab: "BR"});
                                                   UpdateContext({adBRDevK: -1});
                                                   UpdateContext({adBRSel: 0});
-                                                  UpdateContext({adBRConfirmEnd: 0})
+                                                  UpdateContext({adBRConfirmEnd: 0});
+                                                  UpdateContext({adBRCalMonth: Date(Year(Today()), Month(Today()), 1)})
                                                 PressedBorderColor: =Color.Transparent
                                                 PressedColor: =AppTheme.TextPrimary
                                                 PressedFill: =AppTheme.Border
@@ -337,7 +343,7 @@ Screens:
                                                 RadiusTopLeft: =0
                                                 RadiusTopRight: =0
                                                 Size: =12
-                                                Text: ="Battle Rhythm"
+                                                Text: ="Permanent bookings"
                                                 Width: =Parent.Width
                                           - adRectTabBRBar:
                                               Control: Rectangle
@@ -409,6 +415,69 @@ Screens:
                                                 AlignInContainer: =AlignInContainer.Stretch
                                                 BorderColor: =Color.Transparent
                                                 Fill: =If(adTab = "Rooms", ColorValue(AppTheme.Primary), AppTheme.Border)
+                                                Height: =2
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                Width: =Parent.Width
+                                    - adSetConTabBtn:
+                                        Control: GroupContainer
+                                        Variant: AutoLayout
+                                        Properties:
+                                          DropShadow: =DropShadow.None
+                                          Fill: =Color.Transparent
+                                          FillPortions: =0
+                                          Height: =48
+                                          LayoutAlignItems: =LayoutAlignItems.Stretch
+                                          LayoutDirection: =LayoutDirection.Vertical
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                          Width: =160
+                                        Children:
+                                          - adSetBtnTab:
+                                              Control: Classic/Button
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.Stretch
+                                                BorderColor: =Color.Transparent
+                                                BorderStyle: =BorderStyle.None
+                                                BorderThickness: =0
+                                                Color: =If(adTab = "Settings", AppTheme.TextPrimary, AppTheme.TextSecondary)
+                                                DisabledBorderColor: =Color.Transparent
+                                                DisabledColor: =AppTheme.TextMuted
+                                                DisabledFill: =AppTheme.SurfaceAlt
+                                                Fill: =If(adTab = "Settings", AppTheme.Background, AppTheme.SurfaceAlt)
+                                                FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                                FocusedBorderThickness: =2
+                                                Font: ="IBM Plex Sans"
+                                                FontWeight: =FontWeight.Normal
+                                                Height: =46
+                                                HoverBorderColor: =Color.Transparent
+                                                HoverColor: =AppTheme.TextPrimary
+                                                HoverFill: =AppTheme.Border
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                OnSelect: |-
+                                                  =/* Settings live on their own screen (Admin was over the control-count budget). */
+                                                  Navigate(AdminSettings, ScreenTransition.None)
+                                                PressedBorderColor: =Color.Transparent
+                                                PressedColor: =AppTheme.TextPrimary
+                                                PressedFill: =AppTheme.Border
+                                                RadiusBottomLeft: =0
+                                                RadiusBottomRight: =0
+                                                RadiusTopLeft: =0
+                                                RadiusTopRight: =0
+                                                Size: =12
+                                                Text: ="Settings"
+                                                Width: =Parent.Width
+                                          - adSetRectTabBar:
+                                              Control: Rectangle
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.Stretch
+                                                BorderColor: =Color.Transparent
+                                                Fill: =If(adTab = "Settings", ColorValue(AppTheme.Primary), AppTheme.Border)
                                                 Height: =2
                                                 LayoutMinHeight: =0
                                                 LayoutMinWidth: =0
@@ -669,7 +738,7 @@ Screens:
                                           Font: ="IBM Plex Sans"
                                           Height: =20
                                           Size: =12
-                                          Text: =ThisItem.BookedByEmail
+                                          Text: =If(ThisItem.IsPermanent, "Permanent", ThisItem.BookedByEmail)
                                           Width: =AdminTableCols.Owner
                                           Wrap: =false
                                           X: =Parent.TemplateWidth - 430
@@ -681,7 +750,7 @@ Screens:
                                           Font: ="IBM Plex Sans"
                                           Height: =20
                                           Size: =12
-                                          Text: =If(ThisItem.IsVirtual, "Battle Rhythm", fnIsBRRow(ThisItem.RecurrenceType), "BR exception", ThisItem.Status)
+                                          Text: =If(ThisItem.IsVirtual, "Permanent booking", fnIsBRRow(ThisItem.RecurrenceType), "BR exception", ThisItem.Status)
                                           Width: =AdminTableCols.Status
                                           Wrap: =false
                                           X: =Parent.TemplateWidth - 230
@@ -705,7 +774,7 @@ Screens:
                                           HoverColor: =ColorValue(AppTheme.ButtonTertiaryActive)
                                           HoverFill: =AppTheme.SurfaceAlt
                                           OnSelect: |-
-                                            =Set(gblSelectedBooking, LookUp(colBookings, ID = ThisItem.ID));
+                                            =Set(gblSelectedBooking, LookUp(AllBookings, ID = ThisItem.ID));
                                             Navigate(bookingDetail, ScreenTransition.Fade)
                                           PressedBorderColor: =ColorValue(AppTheme.ButtonTertiaryActive)
                                           PressedColor: =ColorValue(AppTheme.ButtonTertiaryActive)
@@ -803,6 +872,7 @@ Screens:
                               LayoutGap: =12
                               LayoutMinHeight: =0
                               LayoutMinWidth: =0
+                              LayoutOverflowY: =LayoutOverflow.Scroll
                               RadiusBottomLeft: =0
                               RadiusBottomRight: =0
                               RadiusTopLeft: =0
@@ -831,7 +901,7 @@ Screens:
                                           DisplayMode: =DisplayMode.View
                                           FillPortions: =1
                                           Height: =20
-                                          HtmlText: =CarbonTextSecondary(CarbonHtmlType.BodyCompact01, CountRows(colBRMasters) & " active Battle Rhythm series")
+                                          HtmlText: =CarbonTextSecondary(CarbonHtmlType.BodyCompact01, CountRows(colBRMasters) & " active permanent bookings")
                                           LayoutMinHeight: =0
                                           LayoutMinWidth: =0
                                           PaddingBottom: =0
@@ -854,7 +924,12 @@ Screens:
                                           LayoutMinHeight: =0
                                           LayoutMinWidth: =0
                                           OnSelect: |-
-                                            =UpdateContext({adBRShowCreate: !adBRShowCreate})
+                                            =Set(gblRecurMode, "permanent");
+                                            Set(gblRecurFreq, "W");
+                                            Set(gblRecurInterval, 1);
+                                            Set(gblRecurWD, "");
+                                            Set(gblRecurMonthMode, "day");
+                                            Navigate(AdminPermanentNew, ScreenTransition.None)
                                           PressedColor: =ColorValue(AppTheme.PrimaryText)
                                           PressedFill: =ColorValue(AppTheme.ButtonPrimaryActive)
                                           RadiusBottomLeft: =0
@@ -862,283 +937,8 @@ Screens:
                                           RadiusTopLeft: =0
                                           RadiusTopRight: =0
                                           Size: =12
-                                          Text: ="+ New Battle Rhythm"
+                                          Text: ="+ New permanent booking"
                                           Width: =190
-                              - adBRConCreate:
-                                  Control: GroupContainer
-                                  Variant: AutoLayout
-                                  Properties:
-                                    DropShadow: =DropShadow.None
-                                    Fill: =AppTheme.SurfaceAlt
-                                    FillPortions: =0
-                                    LayoutAlignItems: =LayoutAlignItems.Stretch
-                                    LayoutDirection: =LayoutDirection.Vertical
-                                    LayoutGap: =12
-                                    LayoutMinHeight: =0
-                                    LayoutMinWidth: =0
-                                    PaddingBottom: =16
-                                    PaddingLeft: =16
-                                    PaddingRight: =16
-                                    PaddingTop: =16
-                                    RadiusBottomLeft: =0
-                                    RadiusBottomRight: =0
-                                    RadiusTopLeft: =0
-                                    RadiusTopRight: =0
-                                    Visible: =adBRShowCreate
-                                    Width: =Parent.Width
-                                  Children:
-                                    - adBRInpTitle:
-                                        Control: Classic/TextInput
-                                        Properties:
-                                          AccessibleLabel: ="Series title"
-                                          BorderColor: =AppTheme.Border
-                                          BorderThickness: =1
-                                          Color: =AppTheme.TextPrimary
-                                          Default: =""
-                                          Fill: =AppTheme.layer01Bg
-                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
-                                          FocusedBorderThickness: =2
-                                          Font: ="IBM Plex Sans"
-                                          Height: =48
-                                          HintText: ="Series title"
-                                          HoverBorderColor: =AppTheme.TextSecondary
-                                          LayoutMinHeight: =0
-                                          LayoutMinWidth: =0
-                                          Size: =11
-                                          Width: =Parent.Width
-                                    - adBRConCreateRow:
-                                        Control: GroupContainer
-                                        Variant: AutoLayout
-                                        Properties:
-                                          DropShadow: =DropShadow.None
-                                          Fill: =Color.Transparent
-                                          FillPortions: =0
-                                          Height: =48
-                                          LayoutAlignItems: =LayoutAlignItems.Center
-                                          LayoutDirection: =LayoutDirection.Horizontal
-                                          LayoutGap: =8
-                                          LayoutMinHeight: =0
-                                          LayoutMinWidth: =0
-                                          Width: =Parent.Width
-                                        Children:
-                                          - adBRDrpRoom:
-                                              Control: Classic/DropDown
-                                              Properties:
-                                                AccessibleLabel: ="Room"
-                                                BorderColor: =AppTheme.Border
-                                                BorderThickness: =1
-                                                ChevronBackground: =AppTheme.layer01Bg
-                                                ChevronFill: =AppTheme.TextPrimary
-                                                Color: =AppTheme.TextPrimary
-                                                Default: =""
-                                                Fill: =AppTheme.layer01Bg
-                                                FocusedBorderColor: =ColorValue(AppTheme.Primary)
-                                                FocusedBorderThickness: =2
-                                                Font: ="IBM Plex Sans"
-                                                Height: =48
-                                                Items: =SortByColumns(colRooms, "Title", SortOrder.Ascending)
-                                                Items.Value: =Title
-                                                LayoutMinHeight: =0
-                                                LayoutMinWidth: =0
-                                                Size: =11
-                                                Width: =220
-                                          - adBRDrpCadence:
-                                              Control: Classic/DropDown
-                                              Properties:
-                                                BorderColor: =AppTheme.Border
-                                                BorderThickness: =1
-                                                ChevronBackground: =AppTheme.layer01Bg
-                                                ChevronFill: =AppTheme.TextPrimary
-                                                Color: =AppTheme.TextPrimary
-                                                Default: ="Weekly"
-                                                Fill: =AppTheme.layer01Bg
-                                                FocusedBorderColor: =ColorValue(AppTheme.Primary)
-                                                FocusedBorderThickness: =2
-                                                Font: ="IBM Plex Sans"
-                                                Height: =48
-                                                Items: =["Weekly","Fortnightly","Monthly"]
-                                                Items.Value: =Value
-                                                LayoutMinHeight: =0
-                                                LayoutMinWidth: =0
-                                                Size: =11
-                                                Width: =160
-                                          - adBRDteFirst:
-                                              Control: Classic/DatePicker
-                                              Properties:
-                                                BorderColor: =AppTheme.Border
-                                                BorderThickness: =1
-                                                Color: =AppTheme.TextPrimary
-                                                Fill: =AppTheme.layer01Bg
-                                                FocusedBorderColor: =ColorValue(AppTheme.Primary)
-                                                FocusedBorderThickness: =2
-                                                Font: ="IBM Plex Sans"
-                                                Height: =48
-                                                IconBackground: =AppTheme.HeaderBackground
-                                                IconFill: =AppTheme.HeaderAccent
-                                                LayoutMinHeight: =0
-                                                LayoutMinWidth: =0
-                                                Size: =11
-                                                Width: =160
-                                    - adBRConTimeRow:
-                                        Control: GroupContainer
-                                        Variant: AutoLayout
-                                        Properties:
-                                          DropShadow: =DropShadow.None
-                                          Fill: =Color.Transparent
-                                          FillPortions: =0
-                                          Height: =48
-                                          LayoutAlignItems: =LayoutAlignItems.Center
-                                          LayoutDirection: =LayoutDirection.Horizontal
-                                          LayoutGap: =8
-                                          LayoutMinHeight: =0
-                                          LayoutMinWidth: =0
-                                          Width: =Parent.Width
-                                        Children:
-                                          - adBRDrpStartHour:
-                                              Control: Classic/DropDown
-                                              Properties:
-                                                BorderColor: =AppTheme.Border
-                                                BorderThickness: =1
-                                                ChevronBackground: =AppTheme.layer01Bg
-                                                ChevronFill: =AppTheme.TextPrimary
-                                                Color: =AppTheme.TextPrimary
-                                                Default: ="08"
-                                                Fill: =AppTheme.layer01Bg
-                                                FocusedBorderColor: =ColorValue(AppTheme.Primary)
-                                                FocusedBorderThickness: =2
-                                                Font: ="IBM Plex Sans"
-                                                Height: =48
-                                                Items: |-
-                                                  =ForAll(Sequence(DayEndHour - DayStartHour + 1, DayStartHour), {Value: Text(Value, "00")})
-                                                Items.Value: =Value
-                                                LayoutMinHeight: =0
-                                                LayoutMinWidth: =0
-                                                Size: =11
-                                                Width: =90
-                                          - adBRDrpStartMin:
-                                              Control: Classic/DropDown
-                                              Properties:
-                                                BorderColor: =AppTheme.Border
-                                                BorderThickness: =1
-                                                ChevronBackground: =AppTheme.layer01Bg
-                                                ChevronFill: =AppTheme.TextPrimary
-                                                Color: =AppTheme.TextPrimary
-                                                Default: ="00"
-                                                Fill: =AppTheme.layer01Bg
-                                                FocusedBorderColor: =ColorValue(AppTheme.Primary)
-                                                FocusedBorderThickness: =2
-                                                Font: ="IBM Plex Sans"
-                                                Height: =48
-                                                Items: =["00","15","30","45"]
-                                                Items.Value: =Value
-                                                LayoutMinHeight: =0
-                                                LayoutMinWidth: =0
-                                                Size: =11
-                                                Width: =90
-                                          - adBRDrpEndHour:
-                                              Control: Classic/DropDown
-                                              Properties:
-                                                BorderColor: =AppTheme.Border
-                                                BorderThickness: =1
-                                                ChevronBackground: =AppTheme.layer01Bg
-                                                ChevronFill: =AppTheme.TextPrimary
-                                                Color: =AppTheme.TextPrimary
-                                                Default: ="09"
-                                                Fill: =AppTheme.layer01Bg
-                                                FocusedBorderColor: =ColorValue(AppTheme.Primary)
-                                                FocusedBorderThickness: =2
-                                                Font: ="IBM Plex Sans"
-                                                Height: =48
-                                                Items: |-
-                                                  =ForAll(Sequence(DayEndHour - DayStartHour + 1, DayStartHour), {Value: Text(Value, "00")})
-                                                Items.Value: =Value
-                                                LayoutMinHeight: =0
-                                                LayoutMinWidth: =0
-                                                Size: =11
-                                                Width: =90
-                                          - adBRDrpEndMin:
-                                              Control: Classic/DropDown
-                                              Properties:
-                                                BorderColor: =AppTheme.Border
-                                                BorderThickness: =1
-                                                ChevronBackground: =AppTheme.layer01Bg
-                                                ChevronFill: =AppTheme.TextPrimary
-                                                Color: =AppTheme.TextPrimary
-                                                Default: ="00"
-                                                Fill: =AppTheme.layer01Bg
-                                                FocusedBorderColor: =ColorValue(AppTheme.Primary)
-                                                FocusedBorderThickness: =2
-                                                Font: ="IBM Plex Sans"
-                                                Height: =48
-                                                Items: =["00","15","30","45"]
-                                                Items.Value: =Value
-                                                LayoutMinHeight: =0
-                                                LayoutMinWidth: =0
-                                                Size: =11
-                                                Width: =90
-                                    - adBRBtnCreate:
-                                        Control: Classic/Button
-                                        Properties:
-                                          BorderColor: =ColorValue(AppTheme.ButtonPrimary)
-                                          BorderThickness: =0
-                                          Color: =ColorValue(AppTheme.PrimaryText)
-                                          Fill: =ColorValue(AppTheme.ButtonPrimary)
-                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
-                                          FocusedBorderThickness: =2
-                                          Font: ="IBM Plex Sans"
-                                          FontWeight: =FontWeight.Normal
-                                          HoverColor: =ColorValue(AppTheme.PrimaryText)
-                                          HoverFill: =ColorValue(AppTheme.ButtonPrimaryActive)
-                                          LayoutMinHeight: =0
-                                          LayoutMinWidth: =0
-                                          OnSelect: |-
-                                            =With(
-                                                {
-                                                    _s: DateAdd(DateAdd(DateValue(Text(adBRDteFirst.SelectedDate, "yyyy-mm-dd")), Value(adBRDrpStartHour.Selected.Value) * 60, TimeUnit.Minutes), Value(adBRDrpStartMin.Selected.Value), TimeUnit.Minutes),
-                                                    _e: DateAdd(DateAdd(DateValue(Text(adBRDteFirst.SelectedDate, "yyyy-mm-dd")), Value(adBRDrpEndHour.Selected.Value) * 60, TimeUnit.Minutes), Value(adBRDrpEndMin.Selected.Value), TimeUnit.Minutes),
-                                                    _room: adBRDrpRoom.Selected
-                                                },
-                                                If(IsBlank(Trim(adBRInpTitle.Text)) || IsBlank(_room),
-                                                    Notify("Title and room are required.", NotificationType.Error),
-                                                    _e <= _s,
-                                                    Notify("End time must be after start time.", NotificationType.Error),
-                                                    !IsEmpty(Filter(AllBookings, RoomID.Id = _room.ID, Status = "Active", fnOverlaps(StartDateTime, EndDateTime, _s, _e))),
-                                                    Notify("First occurrence clashes with an existing booking.", NotificationType.Error),
-                                                    With({_new: Patch(Book_Bookings, Defaults(Book_Bookings),
-                                                        {
-                                                            Title: Trim(adBRInpTitle.Text),
-                                                            RoomID: {Id: _room.ID, Value: _room.Title},
-                                                            StartDateTime: _s, EndDateTime: _e,
-                                                            BookedByEmail: Lower(User().Email),
-                                                            // PROD-REVERT[booked-by-actor] person = actor; mock claims don't resolve
-                                                            BookedBy: {
-                                                                '@odata.type': "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser",
-                                                                Claims: $"i:0#.f|membership|{Lower(User().Email)}",
-                                                                DisplayName: User().FullName,
-                                                                Email: Lower(User().Email),
-                                                                Department: "",
-                                                                JobTitle: "",
-                                                                Picture: ""
-                                                            },
-                                                            Status: "Active", SeriesID: Text(GUID()),
-                                                            RecurrenceType: "BR-" & adBRDrpCadence.Selected.Value,
-                                                            OccIndex: 0, IsException: false, IsPrivate: false
-                                                        })},
-                                                        /* MIRROR: masters live in colBRMasters, not colBookings */
-                                                        ClearCollect(colBRMasters, Filter(Book_Bookings, StartsWith(RecurrenceType, "BR-"), IsException = false, Status = "Active"));
-                                                        UpdateContext({adBRShowCreate: false});
-                                                        Notify("Battle Rhythm series created.", NotificationType.Success)
-                                                    )
-                                                )
-                                            )
-                                          PressedColor: =ColorValue(AppTheme.PrimaryText)
-                                          PressedFill: =ColorValue(AppTheme.ButtonPrimaryActive)
-                                          RadiusBottomLeft: =0
-                                          RadiusBottomRight: =0
-                                          RadiusTopLeft: =0
-                                          RadiusTopRight: =0
-                                          Size: =12
-                                          Text: ="Create series"
                               - adBRConTableHeadWrap:
                                   Control: GroupContainer
                                   Variant: AutoLayout
@@ -1248,7 +1048,7 @@ Screens:
                                           Font: ="IBM Plex Sans"
                                           Height: =20
                                           Size: =12
-                                          Text: =ThisItem.RoomID.Value
+                                          Text: =LookUp(colRooms, ID = ThisItem.RoomID.Id).Title
                                           Width: =100
                                           Wrap: =false
                                           X: =Parent.TemplateWidth - 766
@@ -1258,11 +1058,10 @@ Screens:
                                         Properties:
                                           Color: =AppTheme.TextPrimary
                                           Font: ="IBM Plex Sans"
-                                          Height: =20
-                                          Size: =12
-                                          Text: =Mid(ThisItem.RecurrenceType, 4)
-                                          Width: =100
-                                          Wrap: =false
+                                          Height: =36
+                                          Size: =11
+                                          Text: =fnRuleLabel(ThisItem.RecurrenceType, ThisItem.StartDateTime)
+                                          Width: =104
                                           X: =Parent.TemplateWidth - 656
                                           Y: =14
                                     - adBRLblRowTime:
@@ -1285,8 +1084,19 @@ Screens:
                                           Height: =20
                                           Size: =12
                                           Text: |-
-                                            =With({_k: Max(0, fnBROccIndex(ThisItem.StartDateTime, ThisItem.RecurrenceType, Now()) + 1)},
-                                                Text(fnBROccStart(ThisItem.StartDateTime, ThisItem.RecurrenceType, _k), "ddd d mmm"))
+                                            =/* T-10: on a multi-weekday rule fnBROccIndex is only a lower bound, so the
+                                                old "+ 1" can land on an occurrence earlier this week. Single-day rules keep
+                                                the exact previous expression; multi-day rules scan two periods' worth of
+                                                slots and take the first future one. */
+                                              With({_i: fnBROccIndex(ThisItem.StartDateTime, ThisItem.RecurrenceType, Now()), _nd: fnRuleNd(ThisItem.RecurrenceType, ThisItem.StartDateTime)},
+                                                If(_nd <= 1,
+                                                    Text(fnBROccStart(ThisItem.StartDateTime, ThisItem.RecurrenceType, Max(0, _i + 1)), "ddd d mmm"),
+                                                    Text(
+                                                        First(
+                                                            Filter(
+                                                                ForAll(Sequence(2 * _nd, Max(0, _i)) As _q, {S: fnBROccStart(ThisItem.StartDateTime, ThisItem.RecurrenceType, _q.Value)}),
+                                                                !IsBlank(S) && S > Now())).S,
+                                                        "ddd d mmm")))
                                           Width: =130
                                           Wrap: =false
                                           X: =Parent.TemplateWidth - 436
@@ -1307,7 +1117,7 @@ Screens:
                                           HoverColor: =ColorValue(AppTheme.ButtonTertiaryActive)
                                           HoverFill: =AppTheme.SurfaceAlt
                                           OnSelect: |-
-                                            =UpdateContext({adBRSel: If(adBRSel = ThisItem.ID, 0, ThisItem.ID)}); UpdateContext({adBRConfirmEnd: 0}); UpdateContext({adBRDevK: -1})
+                                            =UpdateContext({adBRSel: If(adBRSel = ThisItem.ID, 0, ThisItem.ID)}); UpdateContext({adBRConfirmEnd: 0}); UpdateContext({adBRDevK: -1}); UpdateContext({adBRCalMonth: Date(Year(Today()), Month(Today()), 1)})
                                           PressedBorderColor: =ColorValue(AppTheme.ButtonTertiaryActive)
                                           PressedColor: =ColorValue(AppTheme.ButtonTertiaryActive)
                                           PressedFill: =AppTheme.SurfaceAlt
@@ -1366,12 +1176,13 @@ Screens:
                                           HoverFill: =ColorValue(AppTheme.ButtonDangerActive)
                                           OnSelect: |-
                                             =Patch(Book_Bookings, LookUp(Book_Bookings, ID = adBRConfirmEnd), {Status: "Cancelled"});
-                                            /* cancel this series' future Active exception rows too (window snapshot is the
+                                            /* cancel this series' future Active exception rows too (server read is the
                                                source; ONE batched Patch keyed by ID - ForAllWithMutation-clean) */
                                             Patch(Book_Bookings,
-                                                ForAll(Filter(colBookings, SeriesID = ThisItem.SeriesID, IsException, Status = "Active", StartDateTime > Now()) As _ex,
+                                                ForAll(Filter(Book_Bookings, SeriesID = ThisItem.SeriesID, IsException = true, Status = "Active", StartDateTime > Now()) As _ex,
                                                     {ID: _ex.ID, Status: "Cancelled"}));
                                             UpdateIf(colBookings, SeriesID = ThisItem.SeriesID && IsException && Status = "Active" && StartDateTime > Now(), {Status: "Cancelled"});
+                                            Refresh(Book_Bookings);
                                             ClearCollect(colBRMasters, Filter(Book_Bookings, StartsWith(RecurrenceType, "BR-"), IsException = false, Status = "Active"));
                                             UpdateContext({adBRConfirmEnd: 0});
                                             /* the ended series can no longer anchor the occurrence panel (review-B 1) */
@@ -1453,13 +1264,21 @@ Screens:
                                           FillPortions: =0
                                           Height: =352
                                           Items: |-
-                                            =With({_m: LookUp(colBRMasters, ID = adBRSel)},
-                                                With({_k0: Max(0, fnBROccIndex(_m.StartDateTime, _m.RecurrenceType, Now()) + 1)},
-                                                    ForAll(Sequence(8, _k0) As _k,
-                                                        With({_s: fnBROccStart(_m.StartDateTime, _m.RecurrenceType, _k.Value)},
-                                                            {K: _k.Value, OccStart: _s,
-                                                             OccEnd: DateAdd(_s, DateDiff(_m.StartDateTime, _m.EndDateTime, TimeUnit.Minutes), TimeUnit.Minutes),
-                                                             Exc: LookUp(colBookings, SeriesID = _m.SeriesID && IsException && OccIndex = _k.Value)}))))
+                                            =/* T-10: fnBROccIndex is only a lower bound once a rule fires more than once
+                                                per week, so the scan starts AT that index (not +1), runs one k per booking
+                                                day, keeps only future occurrences and then takes the first 8. */
+                                              With({_m: LookUp(colBRMasters, ID = adBRSel)},
+                                                With({_k0: Max(0, fnBROccIndex(_m.StartDateTime, _m.RecurrenceType, Now()))},
+                                                    FirstN(
+                                                        Filter(
+                                                            ForAll(Sequence(16, _k0) As _k,
+                                                                With({_s: fnBROccStart(_m.StartDateTime, _m.RecurrenceType, _k.Value)},
+                                                                    {K: _k.Value, OccStart: _s,
+                                                                     OccEnd: DateAdd(_s, DateDiff(_m.StartDateTime, _m.EndDateTime, TimeUnit.Minutes), TimeUnit.Minutes),
+                                                                     Exc: LookUp(colBookings, SeriesID = _m.SeriesID && IsException && OccIndex = _k.Value)})),
+                                                            !IsBlank(OccStart),
+                                                            OccStart > Now()),
+                                                        8)))
                                           LayoutMinHeight: =0
                                           LayoutMinWidth: =0
                                           TemplatePadding: =0
@@ -1592,6 +1411,310 @@ Screens:
                                                 Width: =84
                                                 X: =Parent.TemplateWidth - 100
                                                 Y: =6
+                                    - adBRCalConHeader:
+                                        Control: GroupContainer
+                                        Variant: AutoLayout
+                                        Properties:
+                                          DropShadow: =DropShadow.None
+                                          Fill: =Color.Transparent
+                                          FillPortions: =0
+                                          Height: =40
+                                          LayoutAlignItems: =LayoutAlignItems.Center
+                                          LayoutDirection: =LayoutDirection.Horizontal
+                                          LayoutGap: =8
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                          Width: =Parent.Width
+                                        Children:
+                                          - adBRCalBtnPrev:
+                                              Control: Classic/Button
+                                              Properties:
+                                                BorderColor: =AppTheme.Border
+                                                BorderThickness: =1
+                                                Color: =AppTheme.TextPrimary
+                                                Fill: =Color.Transparent
+                                                FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                                FocusedBorderThickness: =2
+                                                Font: ="IBM Plex Sans"
+                                                FontWeight: =FontWeight.Normal
+                                                Height: =32
+                                                HoverBorderColor: =AppTheme.TextSecondary
+                                                HoverColor: =AppTheme.TextPrimary
+                                                HoverFill: =AppTheme.SurfaceAlt
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                OnSelect: |-
+                                                  =UpdateContext({adBRCalMonth: DateAdd(adBRCalMonth, -1, TimeUnit.Months)})
+                                                PressedBorderColor: =AppTheme.TextSecondary
+                                                PressedColor: =AppTheme.TextPrimary
+                                                PressedFill: =AppTheme.SurfaceAlt
+                                                RadiusBottomLeft: =0
+                                                RadiusBottomRight: =0
+                                                RadiusTopLeft: =0
+                                                RadiusTopRight: =0
+                                                Size: =12
+                                                Text: ="Previous month"
+                                                Width: =120
+                                          - adBRCalLblMonth:
+                                              Control: Label
+                                              Properties:
+                                                Color: =AppTheme.TextPrimary
+                                                Font: ="IBM Plex Sans"
+                                                FontWeight: =FontWeight.Semibold
+                                                Height: =24
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                PaddingLeft: =0
+                                                PaddingRight: =0
+                                                Size: =12
+                                                Text: =Text(adBRCalMonth, "mmmm yyyy")
+                                                Width: =160
+                                                Wrap: =false
+                                          - adBRCalBtnNext:
+                                              Control: Classic/Button
+                                              Properties:
+                                                BorderColor: =AppTheme.Border
+                                                BorderThickness: =1
+                                                Color: =AppTheme.TextPrimary
+                                                Fill: =Color.Transparent
+                                                FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                                FocusedBorderThickness: =2
+                                                Font: ="IBM Plex Sans"
+                                                FontWeight: =FontWeight.Normal
+                                                Height: =32
+                                                HoverBorderColor: =AppTheme.TextSecondary
+                                                HoverColor: =AppTheme.TextPrimary
+                                                HoverFill: =AppTheme.SurfaceAlt
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                OnSelect: |-
+                                                  =UpdateContext({adBRCalMonth: DateAdd(adBRCalMonth, 1, TimeUnit.Months)})
+                                                PressedBorderColor: =AppTheme.TextSecondary
+                                                PressedColor: =AppTheme.TextPrimary
+                                                PressedFill: =AppTheme.SurfaceAlt
+                                                RadiusBottomLeft: =0
+                                                RadiusBottomRight: =0
+                                                RadiusTopLeft: =0
+                                                RadiusTopRight: =0
+                                                Size: =12
+                                                Text: ="Next month"
+                                                Width: =120
+                                          - adBRCalBtnToday:
+                                              Control: Classic/Button
+                                              Properties:
+                                                BorderColor: =ColorValue(AppTheme.ButtonTertiary)
+                                                BorderThickness: =1
+                                                Color: =ColorValue(AppTheme.ButtonTertiary)
+                                                Fill: =Color.Transparent
+                                                FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                                FocusedBorderThickness: =2
+                                                Font: ="IBM Plex Sans"
+                                                FontWeight: =FontWeight.Normal
+                                                Height: =32
+                                                HoverBorderColor: =ColorValue(AppTheme.ButtonTertiaryActive)
+                                                HoverColor: =ColorValue(AppTheme.ButtonTertiaryActive)
+                                                HoverFill: =AppTheme.SurfaceAlt
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                OnSelect: |-
+                                                  =UpdateContext({adBRCalMonth: Date(Year(Today()), Month(Today()), 1)})
+                                                PressedBorderColor: =ColorValue(AppTheme.ButtonTertiaryActive)
+                                                PressedColor: =ColorValue(AppTheme.ButtonTertiaryActive)
+                                                PressedFill: =AppTheme.SurfaceAlt
+                                                RadiusBottomLeft: =0
+                                                RadiusBottomRight: =0
+                                                RadiusTopLeft: =0
+                                                RadiusTopRight: =0
+                                                Size: =12
+                                                Text: ="Today"
+                                                Width: =80
+                                    - adBRCalHtxWeekdays:
+                                        Control: HtmlViewer
+                                        Properties:
+                                          AlignInContainer: =AlignInContainer.Start
+                                          DisplayMode: =DisplayMode.View
+                                          Height: =20
+                                          HtmlText: |-
+                                            ="<div style=""font-family: 'IBM Plex Sans'; font-size: 11px; letter-spacing: 0.32px; color: " & AppThemeHex.TextMuted & ";"">" &
+                                            Concat(
+                                                Table({D: "Mon"}, {D: "Tue"}, {D: "Wed"}, {D: "Thu"}, {D: "Fri"}, {D: "Sat"}, {D: "Sun"}) As _wd,
+                                                "<span style=""display: inline-block; width: 64px; text-align: center;"">" & _wd.D & "</span>"
+                                            ) &
+                                            "</div>"
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          PaddingBottom: =0
+                                          PaddingLeft: =0
+                                          PaddingRight: =0
+                                          PaddingTop: =0
+                                          Width: =448
+                                    - adBRGalCal:
+                                        Control: Gallery
+                                        Variant: Vertical
+                                        Properties:
+                                          AlignInContainer: =AlignInContainer.Start
+                                          Fill: =AppTheme.Background
+                                          FillPortions: =0
+                                          Height: =386
+                                          Items: |-
+                                            =If(adBRSel > 0, With(
+                                                {
+                                                    _m: LookUp(colBRMasters, ID = adBRSel),
+                                                    _gs: DateAdd(adBRCalMonth, -Mod(Weekday(adBRCalMonth) + 5, 7), TimeUnit.Days)
+                                                },
+                                                With(
+                                                    {
+                                                        _ge: DateAdd(_gs, 41, TimeUnit.Days),
+                                                        _slot: Text(_m.StartDateTime, "HH:mm") & "-" & Text(_m.EndDateTime, "HH:mm"),
+                                                        _until: fnRuleUntil(_m.RecurrenceType),
+                                                        _cnt: fnRuleCount(_m.RecurrenceType),
+                                                        _k0: Max(0, fnBROccIndex(_m.StartDateTime, _m.RecurrenceType, _gs) - 1)
+                                                    },
+                                                    /* _k1 is clamped to _k0 so Sequence() can never receive a negative
+                                                       count. T-10: fnBROccIndex is a lower bound on multi-weekday rules,
+                                                       so the upper end widens by one k per booking day, not by 1. */
+                                                    With(
+                                                        {_k1: Max(_k0, fnBROccIndex(_m.StartDateTime, _m.RecurrenceType, _ge) + fnRuleNd(_m.RecurrenceType, _m.StartDateTime))},
+                                                        With(
+                                                            {
+                                                                _occs: Filter(
+                                                                    ForAll(Sequence(_k1 - _k0 + 1, _k0) As _k,
+                                                                        {
+                                                                            K: _k.Value,
+                                                                            D: fnOccDate(_m.StartDateTime, _m.RecurrenceType, _k.Value),
+                                                                            Exc: LookUp(colBookings, SeriesID = _m.SeriesID && IsException && OccIndex = _k.Value)
+                                                                        }
+                                                                    ),
+                                                                    !IsBlank(D),
+                                                                    IsBlank(_until) || D <= _until,
+                                                                    IsBlank(_cnt) || K < _cnt
+                                                                )
+                                                            },
+                                                            ForAll(Sequence(42, 0) As _i,
+                                                                With(
+                                                                    {_d: DateAdd(_gs, _i.Value, TimeUnit.Days)},
+                                                                    With(
+                                                                        {
+                                                                            _o: LookUp(_occs, D = _d),
+                                                                            _mv: LookUp(_occs, !IsBlank(Exc) && Exc.Status <> "Cancelled" && DateValue(Exc.StartDateTime) = _d && D <> _d)
+                                                                        },
+                                                                        With(
+                                                                            {
+                                                                                _kind: If(
+                                                                                    !IsBlank(_mv), "movedto",
+                                                                                    IsBlank(_o), "",
+                                                                                    /* T-13 C4(iii): cancelled wins over the weekend "skipped" test, so a
+                                                                                       cancelled occurrence that also falls on a blocked weekend still
+                                                                                       renders as cancelled. */
+                                                                                    !IsBlank(_o.Exc) && _o.Exc.Status = "Cancelled", "cancelled",
+                                                                                    (Weekday(_d) = 1 || Weekday(_d) = 7) && WeekendPolicy <> "allow", "skipped",
+                                                                                    IsBlank(_o.Exc), "scheduled",
+                                                                                    DateValue(_o.Exc.StartDateTime) <> _d, "movedfrom",
+                                                                                    "deviated"
+                                                                                )
+                                                                            },
+                                                                            {
+                                                                                D: _d,
+                                                                                InMonth: Month(_d) = Month(adBRCalMonth),
+                                                                                Kind: _kind,
+                                                                                Tip: Switch(_kind,
+                                                                                    "scheduled", "Scheduled " & _slot,
+                                                                                    "cancelled", "Cancelled",
+                                                                                    "deviated", "Deviated " & Text(_o.Exc.StartDateTime, "HH:mm") & "-" & Text(_o.Exc.EndDateTime, "HH:mm"),
+                                                                                    "movedfrom", "Moved to " & Text(_o.Exc.StartDateTime, "d mmm HH:mm"),
+                                                                                    "movedto", "Moved here from " & Text(_mv.D, "d mmm"),
+                                                                                    "skipped", "Skipped (weekend)",
+                                                                                    ""
+                                                                                )
+                                                                            }
+                                                                        )
+                                                                    )
+                                                                )
+                                                            )
+                                                        )
+                                                    )
+                                                )
+                                            ))
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          ShowScrollbar: =false
+                                          TemplateFill: =Color.Transparent
+                                          TemplatePadding: =0
+                                          TemplateSize: =64
+                                          Width: =448
+                                          WrapCount: =7
+                                        Children:
+                                          - adBRCalRectCell:
+                                              Control: Rectangle
+                                              Properties:
+                                                BorderColor: =If(ThisItem.D = Today(), ColorValue(AppTheme.Primary), AppTheme.Border)
+                                                BorderThickness: =1
+                                                Fill: =If(ThisItem.InMonth, AppTheme.Surface, AppTheme.SurfaceAlt)
+                                                Height: =Parent.TemplateHeight - 2
+                                                Width: =Parent.TemplateWidth - 2
+                                                X: =1
+                                                Y: =1
+                                          - adBRCalLblDay:
+                                              Control: Label
+                                              Properties:
+                                                Align: =Align.Center
+                                                Color: =If(!ThisItem.InMonth, AppTheme.TextMuted, ThisItem.Kind = "cancelled", AppTheme.TextMuted, AppTheme.TextPrimary)
+                                                Font: ="IBM Plex Sans"
+                                                Height: =20
+                                                PaddingLeft: =0
+                                                PaddingRight: =0
+                                                Size: =11
+                                                Text: =Text(Day(ThisItem.D))
+                                                Tooltip: =ThisItem.Tip
+                                                Width: =Parent.TemplateWidth - 2
+                                                Wrap: =false
+                                                X: =1
+                                                Y: =10
+                                          - adBRCalLblDot:
+                                              Control: Label
+                                              Properties:
+                                                Align: =Align.Center
+                                                Color: |-
+                                                  =Switch(ThisItem.Kind,
+                                                      "scheduled", ColorValue(AppTheme.Primary),
+                                                      "deviated", AppTheme.StatusWarnText,
+                                                      "cancelled", AppTheme.StatusBusyText,
+                                                      "movedto", ColorValue(AppTheme.Primary),
+                                                      AppTheme.TextMuted)
+                                                Font: ="IBM Plex Sans"
+                                                Height: =18
+                                                PaddingLeft: =0
+                                                PaddingRight: =0
+                                                Size: =12
+                                                Text: =Switch(ThisItem.Kind, "", "", "movedto", "○", "movedfrom", "○", "●")
+                                                Tooltip: =ThisItem.Tip
+                                                Width: =Parent.TemplateWidth - 2
+                                                Wrap: =false
+                                                X: =1
+                                                Y: =36
+                                    - adBRCalHtxLegend:
+                                        Control: HtmlViewer
+                                        Properties:
+                                          AlignInContainer: =AlignInContainer.Start
+                                          DisplayMode: =DisplayMode.View
+                                          Height: =20
+                                          HtmlText: |-
+                                            =CarbonTextSecondary(CarbonHtmlType.Label01,
+                                                "<span style=""color: " & AppThemeHex.Primary & ";"">&#9679;</span> Scheduled &nbsp;&middot;&nbsp; " &
+                                                "<span style=""color: " & AppThemeHex.StatusWarnText & ";"">&#9679;</span> Deviated &nbsp;&middot;&nbsp; " &
+                                                "<span style=""color: " & AppThemeHex.StatusBusyText & ";"">&#9679;</span> Cancelled &nbsp;&middot;&nbsp; " &
+                                                "<span style=""color: " & AppThemeHex.Primary & ";"">&#9675;</span> Moved")
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          PaddingBottom: =0
+                                          PaddingLeft: =0
+                                          PaddingRight: =0
+                                          PaddingTop: =0
+                                          Width: =Parent.Width
                               - adBRConDev:
                                   Control: GroupContainer
                                   Variant: AutoLayout
