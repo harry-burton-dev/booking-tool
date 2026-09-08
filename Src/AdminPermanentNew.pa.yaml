@@ -5,10 +5,17 @@ Screens:
       LoadingSpinnerColor: =ColorValue(AppTheme.Primary)
       OnHidden: |-
         =/* BOOK-4: leaving via the app header skips the in-screen back button, so the
-           permanent-mode globals have to be cleared on every exit route, not just that
-           one. Same two Sets as apnBtnBack, so the two paths cannot drift. */
+           permanent-mode globals have to be restored on every exit route, not just that
+           one. Mode alone is not enough: App.pa.yaml reads Freq/Interval/MonthMode/WD
+           unconditionally (not under a gblRecurMode branch), so a stale frequency leaks
+           into the next wizard booking. Restore the wizard defaults rather than blanking -
+           blank values would yield a malformed RecurRule. AnchorStart/AnchorEnd/RoomId are
+           read only under gblRecurMode = "permanent", so clearing the mode covers them. */
         Set(gblRecurWD, "");
-        Set(gblRecurMode, "")
+        Set(gblRecurMode, "");
+        Set(gblRecurFreq, "W");
+        Set(gblRecurInterval, 1);
+        Set(gblRecurMonthMode, "day")
       OnVisible: |-
         =/* Navigate() is illegal in OnVisible - non-admins are gated by apnConPage.Visible
            plus the IsAdmin-hidden Admin nav link instead. */
