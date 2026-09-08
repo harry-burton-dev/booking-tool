@@ -972,7 +972,8 @@ Screens:
                                               Notify("End time must be after start time.", NotificationType.Error),
                                               RecurClashCount > 0,
                                               Notify("This permanent booking clashes with existing bookings. Change the room or time.", NotificationType.Error),
-                                              With({_new: Patch(Book_Bookings, Defaults(Book_Bookings),
+                                              IfError(
+                                                  Patch(Book_Bookings, Defaults(Book_Bookings),
                                                   {
                                                       Title: Trim(adBRInpTitle.Text),
                                                       RoomID: {Id: _room.ID, Value: Text(_room.RoomID)},
@@ -995,7 +996,11 @@ Screens:
                                                       WantsInvite: Coalesce(gblUserSettings.CalendarInvite, true),
                                                       RecurrenceLabel: RecurLabel,
                                                       NextOccurrence: _s
-                                                  })},
+                                                  }),
+                                                  /* BOOK-5: nothing was written, so the mirror refresh, the panel resets
+                                                     and the Navigate all stay on the success arm - the admin keeps their
+                                                     input on this screen and can retry. */
+                                                  Notify("Couldn't create this permanent booking. Please try again.", NotificationType.Error),
                                                   /* MIRROR: masters live in colBRMasters, not colBookings */
                                                   ClearCollect(colBRMasters, Filter(Book_Bookings, StartsWith(RecurrenceType, "BR-"), IsException = false, Status = "Active"));
                                                   Set(gblRecurWD, "");

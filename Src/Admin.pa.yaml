@@ -808,10 +808,15 @@ Screens:
                                           HoverColor: =ColorValue(AppTheme.ButtonDangerActive)
                                           HoverFill: =AppTheme.StatusBusyBg
                                           OnSelect: |-
-                                            =Patch(Book_Bookings, LookUp(Book_Bookings, ID = ThisItem.ID), {Status: "Cancelled"});
-                                            /* MIRROR CONVENTION: blank-safe single-row mirror into the snapshot */
-                                            UpdateIf(colBookings, ID = ThisItem.ID, {Status: "Cancelled"});
-                                            Notify("Booking cancelled.", NotificationType.Success)
+                                            =IfError(
+                                                Patch(Book_Bookings, LookUp(Book_Bookings, ID = ThisItem.ID), {Status: "Cancelled"}),
+                                                Notify("Couldn't cancel this booking. Please try again.", NotificationType.Error),
+                                                /* MIRROR CONVENTION: blank-safe single-row mirror into the snapshot -
+                                                   only on success, or the snapshot would show a row the server still
+                                                   has as Active (BOOK-5) */
+                                                UpdateIf(colBookings, ID = ThisItem.ID, {Status: "Cancelled"});
+                                                Notify("Booking cancelled.", NotificationType.Success)
+                                            )
                                           PressedBorderColor: =ColorValue(AppTheme.ButtonDangerActive)
                                           PressedColor: =ColorValue(AppTheme.ButtonDangerActive)
                                           PressedFill: =AppTheme.StatusBusyBg
@@ -1175,20 +1180,25 @@ Screens:
                                           HoverColor: =ColorValue(AppTheme.PrimaryText)
                                           HoverFill: =ColorValue(AppTheme.ButtonDangerActive)
                                           OnSelect: |-
-                                            =Patch(Book_Bookings, LookUp(Book_Bookings, ID = adBRConfirmEnd), {Status: "Cancelled"});
-                                            /* cancel this series' future Active exception rows too (server read is the
-                                               source; ONE batched Patch keyed by ID - ForAllWithMutation-clean) */
-                                            Patch(Book_Bookings,
-                                                ForAll(Filter(Book_Bookings, SeriesID = ThisItem.SeriesID, IsException = true, Status = "Active", StartDateTime > Now()) As _ex,
-                                                    {ID: _ex.ID, Status: "Cancelled"}));
-                                            UpdateIf(colBookings, SeriesID = ThisItem.SeriesID && IsException && Status = "Active" && StartDateTime > Now(), {Status: "Cancelled"});
-                                            Refresh(Book_Bookings);
-                                            ClearCollect(colBRMasters, Filter(Book_Bookings, StartsWith(RecurrenceType, "BR-"), IsException = false, Status = "Active"));
-                                            UpdateContext({adBRConfirmEnd: 0});
-                                            /* the ended series can no longer anchor the occurrence panel (review-B 1) */
-                                            UpdateContext({adBRSel: 0});
-                                            UpdateContext({adBRDevK: -1});
-                                            Notify("Series ended.", NotificationType.Success)
+                                            =IfError(
+                                                Patch(Book_Bookings, LookUp(Book_Bookings, ID = adBRConfirmEnd), {Status: "Cancelled"});
+                                                /* cancel this series' future Active exception rows too (server read is the
+                                                   source; ONE batched Patch keyed by ID - ForAllWithMutation-clean) */
+                                                Patch(Book_Bookings,
+                                                    ForAll(Filter(Book_Bookings, SeriesID = ThisItem.SeriesID, IsException = true, Status = "Active", StartDateTime > Now()) As _ex,
+                                                        {ID: _ex.ID, Status: "Cancelled"})),
+                                                /* BOOK-5: on failure leave the confirm prompt open so the admin can retry,
+                                                   and leave the snapshot showing the pre-write state */
+                                                Notify("Couldn't end this series. Please try again.", NotificationType.Error),
+                                                UpdateIf(colBookings, SeriesID = ThisItem.SeriesID && IsException && Status = "Active" && StartDateTime > Now(), {Status: "Cancelled"});
+                                                Refresh(Book_Bookings);
+                                                ClearCollect(colBRMasters, Filter(Book_Bookings, StartsWith(RecurrenceType, "BR-"), IsException = false, Status = "Active"));
+                                                UpdateContext({adBRConfirmEnd: 0});
+                                                /* the ended series can no longer anchor the occurrence panel (review-B 1) */
+                                                UpdateContext({adBRSel: 0});
+                                                UpdateContext({adBRDevK: -1});
+                                                Notify("Series ended.", NotificationType.Success)
+                                            )
                                           PressedColor: =ColorValue(AppTheme.PrimaryText)
                                           PressedFill: =ColorValue(AppTheme.ButtonDangerActive)
                                           RadiusBottomLeft: =0
@@ -1341,7 +1351,8 @@ Screens:
                                                 HoverFill: =AppTheme.StatusBusyBg
                                                 OnSelect: |-
                                                   =With({_m: LookUp(colBRMasters, ID = adBRSel)},
-                                                      With({_new: Patch(Book_Bookings, Defaults(Book_Bookings),
+                                                      IfError(
+                                                          With({_new: Patch(Book_Bookings, Defaults(Book_Bookings),
                                                           {
                                                               Title: _m.Title,
                                                               RoomID: {Id: _m.RoomID.Id, Value: _m.RoomID.Value},
@@ -1361,8 +1372,12 @@ Screens:
                                                               RecurrenceType: "BR-Exception", OccIndex: ThisItem.K,
                                                               IsException: true, IsPrivate: false
                                                           })},
-                                                          /* MIRROR: BRVirtual suppression reads exceptions from colBookings */
-                                                          Collect(colBookings, _new);
+                                                              /* MIRROR: BRVirtual suppression reads exceptions from colBookings.
+                                                                 It sits inside the guarded expression so an errored Patch
+                                                                 propagates instead of mirroring a row that was never written. */
+                                                              Collect(colBookings, _new)
+                                                          ),
+                                                          Notify("Couldn't cancel this occurrence. Please try again.", NotificationType.Error),
                                                           Notify("Occurrence cancelled.", NotificationType.Success)
                                                       )
                                                   )
@@ -1902,7 +1917,8 @@ Screens:
                                                                  exception row is written - it must not block itself (review-B 3) */
                                                               !(IsVirtual && SeriesID = _m.SeriesID && OccIndex = adBRDevK))),
                                                           Notify("New time clashes with an existing booking.", NotificationType.Error),
-                                                          With({_new: Patch(Book_Bookings, Defaults(Book_Bookings),
+                                                          IfError(
+                                                              With({_new: Patch(Book_Bookings, Defaults(Book_Bookings),
                                                               {
                                                                   Title: _m.Title,
                                                                   RoomID: {Id: _m.RoomID.Id, Value: _m.RoomID.Value},
@@ -1922,7 +1938,11 @@ Screens:
                                                                   RecurrenceType: "BR-Exception", OccIndex: adBRDevK,
                                                                   IsException: true, IsPrivate: false
                                                               })},
-                                                              Collect(colBookings, _new);
+                                                                  Collect(colBookings, _new)
+                                                              ),
+                                                              /* BOOK-5: on failure keep adBRDevK so the deviation panel stays
+                                                                 open with the admin's times for a retry */
+                                                              Notify("Couldn't save this deviation. Please try again.", NotificationType.Error),
                                                               UpdateContext({adBRDevK: -1});
                                                               Notify("Occurrence deviated.", NotificationType.Success)
                                                           )
@@ -2354,31 +2374,36 @@ Screens:
                                                 OnSelect: |-
                                                   =If(IsBlank(Trim(adRmInpTitle.Text)) || Value(adRmInpCap.Text) <= 0 || IsBlank(Value(adRmInpCap.Text)),
                                                       Notify("Room name and a positive capacity are required.", NotificationType.Error),
-                                                      If(adRmSel = 0,
-                                                          Patch(Book_Rooms, Defaults(Book_Rooms),
-                                                              {
-                                                                  Title: Trim(adRmInpTitle.Text),
-                                                                  Capacity: Value(adRmInpCap.Text),
-                                                                  Equipment: Trim(adRmInpEquip.Text),
-                                                                  description: Trim(adRmInpDesc.Text),
-                                                                  RoomID: Max(colRooms, RoomID) + 1
-                                                              }),
-                                                          Patch(Book_Rooms, LookUp(Book_Rooms, ID = adRmSel),
-                                                              {
-                                                                  Title: Trim(adRmInpTitle.Text),
-                                                                  Capacity: Value(adRmInpCap.Text),
-                                                                  Equipment: Trim(adRmInpEquip.Text),
-                                                                  description: Trim(adRmInpDesc.Text)
-                                                              })
-                                                      );
-                                                      /* MIRROR: colRooms is the app-wide snapshot every screen reads */
-                                                      /* P10 triage: this draws the same CollectDelegatableDataSource checker
-                                                         finding as the baselined App.OnStart pull - accepted; the rooms list
-                                                         is far below the 500-row limit and a Filter wrapper draws a delegation
-                                                         warning that fails the publish outright. */
-                                                      ClearCollect(colRooms, Book_Rooms);
-                                                      UpdateContext({adRmShowForm: false});
-                                                      Notify("Room saved.", NotificationType.Success)
+                                                      IfError(
+                                                          If(adRmSel = 0,
+                                                              Patch(Book_Rooms, Defaults(Book_Rooms),
+                                                                  {
+                                                                      Title: Trim(adRmInpTitle.Text),
+                                                                      Capacity: Value(adRmInpCap.Text),
+                                                                      Equipment: Trim(adRmInpEquip.Text),
+                                                                      description: Trim(adRmInpDesc.Text),
+                                                                      RoomID: Max(colRooms, RoomID) + 1
+                                                                  }),
+                                                              Patch(Book_Rooms, LookUp(Book_Rooms, ID = adRmSel),
+                                                                  {
+                                                                      Title: Trim(adRmInpTitle.Text),
+                                                                      Capacity: Value(adRmInpCap.Text),
+                                                                      Equipment: Trim(adRmInpEquip.Text),
+                                                                      description: Trim(adRmInpDesc.Text)
+                                                                  })
+                                                          ),
+                                                          /* BOOK-5: on failure leave the form open with the admin's input
+                                                             and leave colRooms alone - the server never changed */
+                                                          Notify("Couldn't save this room. Please try again.", NotificationType.Error),
+                                                          /* MIRROR: colRooms is the app-wide snapshot every screen reads */
+                                                          /* P10 triage: this draws the same CollectDelegatableDataSource checker
+                                                             finding as the baselined App.OnStart pull - accepted; the rooms list
+                                                             is far below the 500-row limit and a Filter wrapper draws a delegation
+                                                             warning that fails the publish outright. */
+                                                          ClearCollect(colRooms, Book_Rooms);
+                                                          UpdateContext({adRmShowForm: false});
+                                                          Notify("Room saved.", NotificationType.Success)
+                                                      )
                                                   )
                                                 PressedColor: =ColorValue(AppTheme.PrimaryText)
                                                 PressedFill: =ColorValue(AppTheme.ButtonPrimaryActive)
