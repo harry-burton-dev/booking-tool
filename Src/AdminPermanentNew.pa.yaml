@@ -3,6 +3,19 @@ Screens:
     Properties:
       Fill: =AppTheme.Background
       LoadingSpinnerColor: =ColorValue(AppTheme.Primary)
+      OnHidden: |-
+        =/* BOOK-4: leaving via the app header skips the in-screen back button, so the
+           permanent-mode globals have to be restored on every exit route, not just that
+           one. Mode alone is not enough: App.pa.yaml reads Freq/Interval/MonthMode/WD
+           unconditionally (not under a gblRecurMode branch), so a stale frequency leaks
+           into the next wizard booking. Restore the wizard defaults rather than blanking -
+           blank values would yield a malformed RecurRule. AnchorStart/AnchorEnd/RoomId are
+           read only under gblRecurMode = "permanent", so clearing the mode covers them. */
+        Set(gblRecurWD, "");
+        Set(gblRecurMode, "");
+        Set(gblRecurFreq, "W");
+        Set(gblRecurInterval, 1);
+        Set(gblRecurMonthMode, "day")
       OnVisible: |-
         =/* Navigate() is illegal in OnVisible - non-admins are gated by apnConPage.Visible
            plus the IsAdmin-hidden Admin nav link instead. */
@@ -966,7 +979,8 @@ Screens:
                                               Notify("End time must be after start time.", NotificationType.Error),
                                               RecurClashCount > 0,
                                               Notify("This permanent booking clashes with existing bookings. Change the room or time.", NotificationType.Error),
-                                              With({_new: Patch(Book_Bookings, Defaults(Book_Bookings),
+                                              IfError(
+                                                  Patch(Book_Bookings, Defaults(Book_Bookings),
                                                   {
                                                       Title: Trim(adBRInpTitle.Text),
                                                       RoomID: {Id: _room.ID, Value: Text(_room.RoomID)},
@@ -989,7 +1003,11 @@ Screens:
                                                       WantsInvite: Coalesce(gblUserSettings.CalendarInvite, true),
                                                       RecurrenceLabel: RecurLabel,
                                                       NextOccurrence: _s
-                                                  })},
+                                                  }),
+                                                  /* BOOK-5: nothing was written, so the mirror refresh, the panel resets
+                                                     and the Navigate all stay on the success arm - the admin keeps their
+                                                     input on this screen and can retry. */
+                                                  Notify("Couldn't create this permanent booking. Please try again.", NotificationType.Error),
                                                   /* MIRROR: masters live in colBRMasters, not colBookings */
                                                   ClearCollect(colBRMasters, Filter(Book_Bookings, StartsWith(RecurrenceType, "BR-"), IsException = false, Status = "Active"));
                                                   Set(gblRecurWD, "");
