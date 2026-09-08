@@ -268,7 +268,8 @@ Screens:
                               LayoutMinWidth: =0
                               Visible: |-
                                 =!IsBlank(gblSelectedBooking) && !fnIsPast(gblSelectedBooking.EndDateTime) &&
-                                (!gblSelectedBooking.IsPermanent || IsAdmin)
+                                (!gblSelectedBooking.IsPermanent || IsAdmin) &&
+                                (fnIsMine(gblSelectedBooking.BookedByEmail) || IsAdmin)
                             Children:
                               - btnChangeTimeDetail:
                                   Control: Classic/Button
