@@ -532,11 +532,12 @@ App:
 
                   /* App settings > General > "Data row limit for non-delegable queries".
                      ClearCollect never materialises more than this many rows, however
-                     delegable the query is. 500 is the Power Apps default; if that setting is
-                     raised (max 2000), raise this with it. Set HIGHER than the real setting
-                     and BookingsTruncated can never fire - the silent failure this exists to
-                     prevent - so err low. */
-                  BookingsRowLimit = 500;
+                     delegable the query is. Confirmed 2000 in Studio on 2026-09-09 (the
+                     maximum; the Power Apps default is 500). This MUST track that setting:
+                     set HIGHER than the real value and BookingsTruncated can never fire - the
+                     silent failure this exists to prevent - while setting it LOWER makes the
+                     warning fire on complete data. Re-check if the app setting is ever changed. */
+                  BookingsRowLimit = 2000;
                   /* True when the last colBookings pull came back at the cap: the mirror is
                      then a prefix of BookingsWindow rather than the whole window, and every
                      consumer of it (Find/Rooms timelines, occupancy, the whole-series retime
