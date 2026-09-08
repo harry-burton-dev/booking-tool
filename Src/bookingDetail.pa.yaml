@@ -93,7 +93,16 @@ Screens:
                               HtmlText: |-
                                 =/* The two merged labels were NOT mutually exclusive - the title was always visible and the empty-state line added a second row when IsBlank(gblSelectedBooking), so both lines compose here. The 16px margin reproduces conDetail's LayoutGap. */
                                 CarbonText(CarbonHtmlType.Heading03 & " font-weight: 600;",
-                                    fnHtmlEscape(If(IsBlank(gblSelectedBooking), "No booking selected", gblSelectedBooking.Title))
+                                    fnHtmlEscape(
+                                        If(
+                                            IsBlank(gblSelectedBooking),
+                                            "No booking selected",
+                                            /* private bookings stay masked here as they are in the grids - owner and admin see the real title */
+                                            gblSelectedBooking.IsPrivate && !fnIsMine(gblSelectedBooking.BookedByEmail) && !IsAdmin,
+                                            "Busy",
+                                            gblSelectedBooking.Title
+                                        )
+                                    )
                                 ) &
                                 If(IsBlank(gblSelectedBooking),
                                     CarbonTextColored(CarbonHtmlType.Label01 & " margin-top: 16px;", "Open a booking from My bookings to see its details.", AppThemeHex.TextMuted),
@@ -245,7 +254,19 @@ Screens:
                                           DisplayMode: =DisplayMode.View
                                           HtmlText: |-
                                             =CarbonTextColored(CarbonHtmlType.Label01, "Booked by", AppThemeHex.TextMuted) &
-                                            CarbonText(CarbonHtmlType.BodyCompact01, fnHtmlEscape(If(gblSelectedBooking.IsPermanent, "Permanent booking", gblSelectedBooking.BookedBy.DisplayName)))
+                                            CarbonText(
+                                                CarbonHtmlType.BodyCompact01,
+                                                fnHtmlEscape(
+                                                    If(
+                                                        gblSelectedBooking.IsPermanent,
+                                                        "Permanent booking",
+                                                        /* private bookings stay masked here as they are in the grids - owner and admin see the organiser */
+                                                        gblSelectedBooking.IsPrivate && !fnIsMine(gblSelectedBooking.BookedByEmail) && !IsAdmin,
+                                                        "Private booking",
+                                                        gblSelectedBooking.BookedBy.DisplayName
+                                                    )
+                                                )
+                                            )
                                           LayoutMinHeight: =0
                                           LayoutMinWidth: =0
                                           PaddingBottom: =0
