@@ -18,6 +18,13 @@ Screens:
                 Filter(Book_Bookings, StartsWith(RecurrenceType, "BR-"), IsException = false, Status = "Active")),
             Notify("Couldn't refresh bookings — showing the last snapshot", NotificationType.Warning)
         );
+        /* BOOK-6: the pull immediately above is what hits the data-row cap, not the day
+           window the grid is built from - the old CountRows(FindBookings) >= 500 check in
+           btnLoadFindBookings tested a set that is narrower than the cap by construction and
+           so never fired. */
+        If(BookingsTruncated,
+            Notify(BookingsTruncatedWarning, NotificationType.Warning)
+        );
 
         Select(btnLoadFindBookings)
     Children:
@@ -98,10 +105,7 @@ Screens:
                       Control: Button
                       Properties:
                         OnSelect: |-
-                          =If(CountRows(FindBookings) >= 500,
-                              Notify("Warning: results may be incomplete. Too many bookings in this window.", NotificationType.Warning)
-                          );
-                          // parameterised grid builder
+                          =// parameterised grid builder
                           Clear(colFindRows);
                           With({_s: varFindWindowStart, _e: varFindWindowEnd},
                               ForAll(FindRooms As rm,
