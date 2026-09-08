@@ -490,10 +490,24 @@ App:
                      every consumer (MyBookings -90d, Find/Rooms day views, clash checks)
                      filters narrower than this. Both predicates are delegable to SharePoint
                      (>= / <= on DateTime), so the pull no longer truncates at the
-                     data-row limit for in-window rows (BUG-2). End = 24 months: the
-                     longest series is 12 monthly occurrences (last at start+11 months)
-                     and the start date is user-picked and unbounded, so 12 months alone
-                     only covers series starting today. */
+                     data-row limit for in-window rows (BUG-2).
+                     BOUNDS AUDIT (BOOK-6, 2026-09-08): both bounds were re-checked against
+                     their consumers and NEITHER can be tightened without silently hiding real
+                     bookings, so both are deliberately unchanged.
+                     Start -90d: MyBookings hard-codes the same -90d lookback, and the
+                     myBookings Past tab (mb2GalBookings) plus its MyBookingsPastCount label
+                     show every past row in that lookback with no lower bound of their own -
+                     a -30d window would silently drop days 31-90 from both. Admin's audit
+                     gallery (adGalBookings) reads AllBookings through an unbounded "from"
+                     date picker, so it already sees no further back than this.
+                     End +24mo: a count- or until-bounded BR series expands only as far as
+                     BookingsWindowEnd (see BRVirtual below), and the recurrence panel offers
+                     2-52 occurrences at intervals of 1-12 from an unbounded, user-picked
+                     anchor; 24 months covers the realistic ceiling of a ~12-month series
+                     anchored up to ~12 months out (longer rules are an accepted known limit,
+                     as for permanent series at BRVirtualEnd). Find/Rooms date navigation and
+                     Admin's "to" picker are unbounded too, so any real row past this bound is
+                     invisible on a day the user can still navigate to. */
                   /* MIRROR CONVENTION: colBookings is a local mirror of BookingsWindow.
                      Every Book_Bookings write must either mirror the same change into
                      colBookings or re-pull the window behind a MIRROR-FALLBACK comment;
