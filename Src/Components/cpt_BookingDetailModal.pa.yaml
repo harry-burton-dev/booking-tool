@@ -499,7 +499,8 @@ ComponentDefinitions:
                   PaddingTop: =12
                   Visible: |-
                     =!IsBlank(gblSelectedBooking) && !fnIsPast(gblSelectedBooking.EndDateTime) &&
-                    (!gblSelectedBooking.IsPermanent || IsAdmin)
+                    (!gblSelectedBooking.IsPermanent || IsAdmin) &&
+                    (fnIsMine(gblSelectedBooking.BookedByEmail) || IsAdmin)
                 Children:
                   - bdmFooterActions:
                       Control: GroupContainer
