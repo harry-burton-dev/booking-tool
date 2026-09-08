@@ -489,8 +489,13 @@ App:
                   /* The one bounded source for the colBookings snapshot. Rolling window:
                      every consumer (MyBookings -90d, Find/Rooms day views, clash checks)
                      filters narrower than this. Both predicates are delegable to SharePoint
-                     (>= / <= on DateTime), so the pull no longer truncates at the
-                     data-row limit for in-window rows (BUG-2).
+                     (>= / <= on DateTime), which decides WHERE the rows are filtered, not how
+                     many of them ClearCollect will materialise: the snapshot is still capped
+                     at BookingsRowLimit below, and SharePoint returns the window oldest-first,
+                     so an over-cap window drops the FURTHEST-FUTURE bookings out of timelines
+                     and clash checks. (Corrects the BUG-2 note that claimed delegability alone
+                     removed the cap - it does not; BookingsTruncated is what makes a capped
+                     pull visible instead of silent.)
                      BOUNDS AUDIT (BOOK-6, 2026-09-08): both bounds were re-checked against
                      their consumers and NEITHER can be tightened without silently hiding real
                      bookings, so both are deliberately unchanged.
@@ -524,6 +529,26 @@ App:
                       EndDateTime >= BookingsWindowStart,
                       StartDateTime <= BookingsWindowEnd
                   );
+
+                  /* App settings > General > "Data row limit for non-delegable queries".
+                     ClearCollect never materialises more than this many rows, however
+                     delegable the query is. 500 is the Power Apps default; if that setting is
+                     raised (max 2000), raise this with it. Set HIGHER than the real setting
+                     and BookingsTruncated can never fire - the silent failure this exists to
+                     prevent - so err low. */
+                  BookingsRowLimit = 500;
+                  /* True when the last colBookings pull came back at the cap: the mirror is
+                     then a prefix of BookingsWindow rather than the whole window, and every
+                     consumer of it (Find/Rooms timelines, occupancy, the whole-series retime
+                     clash check in bookingDetail) is reading incomplete data. Checked here
+                     rather than at each of the ~10 ClearCollect sites, and against colBookings
+                     rather than any narrower derived set - a day-window set like FindBookings
+                     is far below the cap even when the pull behind it truncated. Cheap and not
+                     a per-render cost: no control property binds it, so it is only evaluated
+                     by the pull sites that read it. */
+                  BookingsTruncated = CountRows(colBookings) >= BookingsRowLimit;
+                  /* One wording for every pull site that reports the above. */
+                  BookingsTruncatedWarning = "Not all bookings could be loaded - the furthest-ahead ones are missing, so timelines and clash checks may be incomplete. Please report this to your admin.";
 
                   /* Virtual BR occurrences over the bookings window. One in-memory record per non-deviated
                      occurrence of each Active master; a (SeriesID, OccIndex) match against an exception row in
@@ -1333,6 +1358,13 @@ App:
                       /* Small key/value settings list - the CollectDelegatableDataSource finding is
                          accepted here for the same reason as colRooms above. */
                       ClearCollect(colAppSettings, Book_AppSettings)
+                  );
+
+                  /* BOOK-6: the colBookings pull above is capped at BookingsRowLimit however
+                     delegable BookingsWindow is. Say so, rather than let the rows that did not
+                     arrive read as free time everywhere downstream. */
+                  If(BookingsTruncated,
+                      Notify(BookingsTruncatedWarning, NotificationType.Warning)
                   );
 
                   /* T-08: keep NextOccurrence on BR masters ahead of Now() so the reminder flow
