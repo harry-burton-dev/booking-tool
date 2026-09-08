@@ -3,6 +3,12 @@ Screens:
     Properties:
       Fill: =AppTheme.Background
       LoadingSpinnerColor: =ColorValue(AppTheme.Primary)
+      OnHidden: |-
+        =/* BOOK-4: leaving via the app header skips the in-screen back button, so the
+           permanent-mode globals have to be cleared on every exit route, not just that
+           one. Same two Sets as apnBtnBack, so the two paths cannot drift. */
+        Set(gblRecurWD, "");
+        Set(gblRecurMode, "")
       OnVisible: |-
         =/* Navigate() is illegal in OnVisible - non-admins are gated by apnConPage.Visible
            plus the IsAdmin-hidden Admin nav link instead. */
