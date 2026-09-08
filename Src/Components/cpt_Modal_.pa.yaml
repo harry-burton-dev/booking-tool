@@ -717,7 +717,7 @@ ComponentDefinitions:
                                                     Sequence(41),
                                                     {
                                                         display: Text(DateAdd(DateAdd(Date(1900,1,1), DayStartHour, TimeUnit.Hours), (Value - 1) * 15, TimeUnit.Minutes), "HH:mm"),
-                                                        value: DateAdd(DateTime(Year(varSelectedDate), Month(varSelectedDate), Day(varSelectedDate), 8, 0, 0), (Value - 1) * 15, TimeUnit.Minutes)
+                                                        value: DateAdd(DateTime(Year(varSelectedDate), Month(varSelectedDate), Day(varSelectedDate), DayStartHour, 0, 0), (Value - 1) * 15, TimeUnit.Minutes)
                                                     }
                                                 ),
                                                 value > Now()
@@ -833,7 +833,7 @@ ComponentDefinitions:
                                                     Sequence(41),
                                                     {
                                                         display: Text(DateAdd(DateAdd(Date(1900,1,1), DayStartHour, TimeUnit.Hours), (Value - 1) * 15, TimeUnit.Minutes), "HH:mm"),
-                                                        value: DateAdd(DateTime(Year(varSelectedDate), Month(varSelectedDate), Day(varSelectedDate), 8, 0, 0), (Value - 1) * 15, TimeUnit.Minutes)
+                                                        value: DateAdd(DateTime(Year(varSelectedDate), Month(varSelectedDate), Day(varSelectedDate), DayStartHour, 0, 0), (Value - 1) * 15, TimeUnit.Minutes)
                                                     }
                                                 ),
                                                 value > varStartTime && value <= DateAdd(varStartTime, 4, TimeUnit.Hours)
