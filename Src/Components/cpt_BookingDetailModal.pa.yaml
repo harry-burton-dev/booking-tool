@@ -76,6 +76,9 @@ ComponentDefinitions:
                                     If(
                                         IsBlank(gblSelectedBooking),
                                         "No booking selected",
+                                        /* private bookings stay masked here as they are in the grids - owner and admin see the real title */
+                                        gblSelectedBooking.IsPrivate && !fnIsMine(gblSelectedBooking.BookedByEmail) && !IsAdmin,
+                                        "Busy",
                                         /* booking titles are user-entered - escape HTML metacharacters */
                                         fnHtmlEscape(gblSelectedBooking.Title)
                                     )
@@ -386,7 +389,19 @@ ComponentDefinitions:
                                     DisplayMode: =DisplayMode.View
                                     HtmlText: |-
                                       =CarbonTextColored(CarbonHtmlType.Label01, "Booked by", AppThemeHex.TextMuted) &
-                                      CarbonText(CarbonHtmlType.HeadingCompact01, fnHtmlEscape(If(gblSelectedBooking.IsPermanent, "Permanent booking", gblSelectedBooking.BookedBy.DisplayName)))
+                                      CarbonText(
+                                          CarbonHtmlType.HeadingCompact01,
+                                          fnHtmlEscape(
+                                              If(
+                                                  gblSelectedBooking.IsPermanent,
+                                                  "Permanent booking",
+                                                  /* private bookings stay masked here as they are in the grids - owner and admin see the organiser */
+                                                  gblSelectedBooking.IsPrivate && !fnIsMine(gblSelectedBooking.BookedByEmail) && !IsAdmin,
+                                                  "Private booking",
+                                                  gblSelectedBooking.BookedBy.DisplayName
+                                              )
+                                          )
+                                      )
                                     LayoutMinHeight: =0
                                     LayoutMinWidth: =0
                                     PaddingBottom: =0

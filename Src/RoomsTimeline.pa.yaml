@@ -520,8 +520,14 @@ Screens:
                                                             OnSelect: |-
                                                               =/* Recurring occurrences open like any other booking: AllBookings carries
                                                                  real and virtual rows in one shape, negative IDs included. */
-                                                              Set(gblSelectedBooking, LookUp(AllBookings, ID = ThisItem.BookingID));
-                                                              Navigate(bookingDetail, ScreenTransition.Fade)
+                                                              /* Masked rows never hand the raw record to the detail view - the LookUp
+                                                                 re-fetches the unmasked booking, so the refusal has to sit here too and
+                                                                 not only on this button's Visible. */
+                                                              If(
+                                                                  !ThisItem.IsMasked,
+                                                                  Set(gblSelectedBooking, LookUp(AllBookings, ID = ThisItem.BookingID));
+                                                                  Navigate(bookingDetail, ScreenTransition.Fade)
+                                                              )
                                                             PressedColor: =Color.Transparent
                                                             PressedFill: =RGBA(0, 0, 0, 0.08)
                                                             RadiusBottomLeft: =0
