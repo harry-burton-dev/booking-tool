@@ -1,5 +1,48 @@
 # Modal Components — Implementation Plan
 
+> ## STATUS 2026-09-09 — M0–M3 shipped, M4 partial, M5–M6 NOT DONE
+>
+> | Task | State |
+> |---|---|
+> | M0 probe | ✅ PASS both directions, rung 5 |
+> | M1 room form → `cpt_RoomEditModal` | ✅ **Verified at rung 5 in preview** — opened on Boardroom, seeded title/capacity and pre-selected the Screen + VC chips from `"Screen;VC"` via `fnHasTag` |
+> | M2 `AdminPermanentNew` → modal + screen deleted | ✅ compiled, rung 3 |
+> | M3 `AdminSettings` → modal + screen deleted | ✅ compiled, rung 3 |
+> | **M3.5 `cpt_SeriesMigrationModal`** | ✅ **unplanned — see below** |
+> | M4 scope-following port | ⚠️ **PARTIAL — cancel branch only** |
+> | M5 retire `bookingDetail` | ❌ **NOT DONE — blocked, see below** |
+> | M6 shared confirm | ❌ NOT DONE (was sequenced after M5) |
+>
+> **Numbers.** Admin **127 → 117** controls. Screens **10 → 8**. Components **4 → 8**.
+> App Checker **19 → 19** with `ScreenHasManyControls` on Admin **eliminated** — that was M1's
+> acceptance test. It transiently hit 23 while both old screens and new components existed;
+> every extra was a duplicated handler and they cleared on deletion.
+>
+> ### The plan missed a whole pane
+> `AdminSettings` had a **third** body section, `asMigConCard` — a legacy-series migration tool
+> that patches `Book_Bookings`. I scoped the screen from its two obvious panes. `Book_Bookings`
+> still holds **two rows in the old `"Weekly"` format**, so deleting that screen as planned would
+> have destroyed the only tool that can convert them. It became `cpt_SeriesMigrationModal`, with
+> its dry-run-then-confirm safety flow intact.
+>
+> ### Why M5 is not done, and what it needs first
+> **`bdmBtnChangeTime` in the modal is `Visible: =false`.** The modal has no reachable change-time
+> affordance, and no `gbl_UI_ScopePrompt = "edit"` equivalent. So M4 ported only the **cancel**
+> branch of `btnScopeFollowing` — porting the edit branch would have added a path nothing can
+> trigger. **Retiring the `bookingDetail` screen right now would remove "change time" from the app
+> entirely.** M5 must be preceded by a task that makes `bdmBtnChangeTime` reachable and ports the
+> edit-scope prompt. That was not in this plan and is not a safe thing to improvise.
+>
+> ### Components have no `OnVisible` — every reset moved to the open trigger
+> The retired screens reset state on entry. Those resets now live in Admin's open handlers:
+> collection seeding for the room form, `ClearCollect(colAppSettings, …)` for settings,
+> scan/confirm clearing for migration, and the `Set(gblRecurMode, "permanent")` seed that
+> `RecurAnchorStart` / `RecurRoomId` / `RecurClashCount` gate on. Miss one and the modal opens
+> stale. This is the sharpest edge in the whole pattern.
+>
+> **Budget:** 6 dispatches, ~1.16M subagent tokens against a 1.0M ceiling — over, though under the
+> 1.5× stop line. M5 + its prerequisite would have crossed it.
+
 > **Execute with: `orchestrator-coding`** — never a superpowers execute skill. Steps use checkbox
 > (`- [ ]`) syntax for tracking. Lanes are declared per task below and are not re-litigated at
 > dispatch time.
