@@ -329,7 +329,7 @@ Screens:
                                           Height: =24
                                           Size: =9
                                           Text: ="Classification"
-                                          Width: =80
+                                          Width: =96
                                     - galRoomsFacetClass_rf:
                                         Control: Gallery
                                         Variant: Horizontal
@@ -380,7 +380,7 @@ Screens:
                                           Height: =24
                                           Size: =9
                                           Text: ="Systems"
-                                          Width: =80
+                                          Width: =96
                                     - galRoomsFacetSystems_rf:
                                         Control: Gallery
                                         Variant: Horizontal
@@ -436,7 +436,7 @@ Screens:
                                           Height: =24
                                           Size: =9
                                           Text: ="Equipment"
-                                          Width: =80
+                                          Width: =96
                                     - galRoomsFacetEquipment_rf:
                                         Control: Gallery
                                         Variant: Horizontal
