@@ -92,6 +92,24 @@ cannot be recovered by re-syncing, because the server no longer has it.
 
 ## Task M0: Probe — can `compile_canvas` create a new component at all? ⚠ PROBE
 
+> ### ✅ VERDICT: PASS, both directions — 2026-09-09 23:0x, rung 5
+>
+> **Create.** `Src/Components/cpt_ProbeDelete_.pa.yaml` (`AccessAppScope: true`, zero custom
+> properties, one Rectangle) → pa-lint clean → `compile_canvas` **PASSED, 17 files** → echoed back
+> on a fresh sync → **appeared in Studio's Components tab with its child control `probeRect_m0`.**
+> That last step is the one Y7 demands and the only one that counts.
+>
+> **Delete.** File removed → `compile_canvas` **PASSED, 16 files** → absent from a fresh sync →
+> **gone from Studio's Components tab.** Deleting through the directory works, which is what M2b,
+> M3b and M5 depend on.
+>
+> **DM4's assumption holds. The plan proceeds as written — no Studio-first shells needed.**
+>
+> **Watch item:** the create round-trip silently dropped `Height: =100` from the Rectangle, the
+> same normalisation class as `Visible: =true` (nine of those came back in the P5 reconcile just
+> before this probe). The server strips properties it considers default. Harmless here, but expect
+> it on every component push and do not mistake it for a lost edit.
+
 **Lane:** novel. **Risk: high** (invalidates the plan if it fails). **Files:** one throwaway component.
 
 - [ ] Fresh sync into a new scratch dir. Reconcile `Src/` (P5).
