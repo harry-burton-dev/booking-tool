@@ -1261,15 +1261,25 @@ App:
                       StartDateTime, SortOrder.Ascending
                   );
 
-                  /* Rooms surfaced on Find after the capacity/equipment filter (P-6/S-3).
-                     varFindMinCapacity: 0 = Any. varFindMaxCapacity: 0 = no upper bound
-                     (seat-bucket filter, e.g. 1-4 / 5-9 / 10+). varFindEquipment: "Any"
-                     or one Equipment token. */
-                  FindRooms = Filter(colRooms,
-                      Capacity >= varFindMinCapacity,
-                      varFindMaxCapacity = 0 || Capacity <= varFindMaxCapacity,
-                      varFindEquipment = "Any" || varFindEquipment in Equipment
+                  /* Shared room filter model (B-1) - the single filtered list both Rooms and
+                     Find consume, over RoomsBrowseBase. gblRoomsMinCapacity/gblRoomsMaxCapacity:
+                     0 = no bound. gblRoomMinClassRank: 0 = any classification, otherwise >= rank
+                     so asking for Official also returns Official-Sensitive and Secret rooms.
+                     colRoomFacetSystems/colRoomFacetEquipment: {Code} rows a room's SystemsKey/
+                     EquipmentKey must all match via fnHasTag. Consumed by RoomsBrowseData
+                     (Rooms browse screen) and FindRooms (Find screen). */
+                  RoomFacetFiltered = Filter(
+                      RoomsBrowseBase As _room,
+                      _room.IsActive,
+                      _room.Capacity >= gblRoomsMinCapacity,
+                      gblRoomsMaxCapacity = 0 || _room.Capacity <= gblRoomsMaxCapacity,
+                      gblRoomMinClassRank = 0 || _room.ClassRank >= gblRoomMinClassRank,
+                      CountRows(Filter(colRoomFacetSystems   As _req, !fnHasTag(_room.SystemsKey,   _req.Code))) = 0,
+                      CountRows(Filter(colRoomFacetEquipment As _req, !fnHasTag(_room.EquipmentKey, _req.Code))) = 0
                   );
+
+                  /* Rooms surfaced on Find - the shared facet model, unfiltered by search/sort. */
+                  FindRooms = RoomFacetFiltered;
 
                   RoomsBrowseBase =
                       ForAll(
@@ -1377,6 +1387,9 @@ App:
                           )
                       );
 
+                  /* Rooms browse list (B-1): search needle and availability applied over the
+                     shared RoomFacetFiltered model - capacity/classification/systems/equipment
+                     are RoomFacetFiltered's job, not this formula's. */
                   RoomsBrowseData =
                       With(
                           {
@@ -1385,19 +1398,13 @@ App:
                           With(
                               {
                                   _filtered: Filter(
-                                      RoomsBrowseBase As _room,
+                                      RoomFacetFiltered As _room,
                                       IsBlank(_needle) ||
                                           _needle in Lower(_room.Title) ||
                                           _needle in Lower(_room.Description) ||
-                                          _needle in Lower(_room.Equipment),
-                                      _room.Capacity >= gblRoomsMinCapacity,
-                                      !gblRoomsAvailableOnly || _room.IsAvailableNow,
-                                      CountRows(
-                                          Filter(
-                                              colRoomsEquipmentFilter As _required,
-                                              !(Lower(_required.Value) in Lower(_room.Equipment))
-                                          )
-                                      ) = 0
+                                          _needle in Lower(_room.Equipment) ||
+                                          _needle in Lower(_room.Notes),
+                                      !gblRoomsAvailableOnly || _room.IsAvailableNow
                                   )
                               },
                               Switch(
@@ -1446,17 +1453,14 @@ App:
                   Set(glbSelectedDate, Today());
                   Set(varNowTick, Now());
                   Set(varMyBookingsFilter, "Upcoming");
-                  Set(varFindMinCapacity, 0);
-                  Set(varFindMaxCapacity, 0);
-                  Set(varFindEquipment, "Any");
                   Set(gblRoomsSearch, "");
                   Set(gblRoomsMinCapacity, 0);
+                  Set(gblRoomsMaxCapacity, 0);
+                  Set(gblRoomMinClassRank, 0);
                   Set(gblRoomsSort, "Name");
                   Set(gblRoomsAvailableOnly, false);
-                  ClearCollect(
-                      colRoomsEquipmentFilter,
-                      Filter(Table({Value: ""}), !IsBlank(Value))
-                  );
+                  ClearCollect(colRoomFacetSystems,   Filter(Table({Code: ""}), !IsBlank(Code)));
+                  ClearCollect(colRoomFacetEquipment, Filter(Table({Code: ""}), !IsBlank(Code)));
                   /* 0 = create mode; >0 = booking being edited */
                   Set(gblEditingBookingID, 0);
                   /* T-09: the room staged alongside gbl_PendingStart/End while the series scope

@@ -19,12 +19,13 @@ Screens:
 
         Set(gblRoomsSearch, "");
         Set(gblRoomsMinCapacity, 0);
+        Set(gblRoomsMaxCapacity, 0);
+        Set(gblRoomMinClassRank, 0);
         Set(gblRoomsSort, "Name");
         Set(gblRoomsAvailableOnly, false);
-        ClearCollect(
-            colRoomsEquipmentFilter,
-            Filter(Table({Value: ""}), !IsBlank(Value))
-        )
+        Set(gblRoomsFavOnly, false);
+        ClearCollect(colRoomFacetSystems, Filter(Table({Code: ""}), !IsBlank(Code)));
+        ClearCollect(colRoomFacetEquipment, Filter(Table({Code: ""}), !IsBlank(Code)))
 
     Children:
       - con_shell_view:
@@ -301,63 +302,176 @@ Screens:
                             Properties:
                               DropShadow: =DropShadow.None
                               FillPortions: =0
-                              Height: =40
-                              LayoutAlignItems: =LayoutAlignItems.Center
-                              LayoutDirection: =LayoutDirection.Horizontal
-                              LayoutGap: =8
-                              Visible: =false
+                              Height: =132
+                              LayoutAlignItems: =LayoutAlignItems.Stretch
+                              LayoutDirection: =LayoutDirection.Vertical
+                              LayoutGap: =4
+                              Visible: =true
                               Width: =Parent.Width
                             Children:
-                              - lblRoomsEquipmentHeading:
-                                  Control: Label
+                              - conRoomsFacetClass_rf:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
                                   Properties:
-                                    Color: =AppTheme.TextMuted
-                                    Font: ="IBM Plex Sans"
-                                    Height: =24
-                                    Size: =9
-                                    Text: ="Equipment"
-                                    Width: =80
-                              - galRoomsEquipmentFilters:
-                                  Control: Gallery
-                                  Variant: Horizontal
-                                  Properties:
-                                    Height: =32
-                                    Items: |-
-                                      =Table(
-                                          {Value: "Screen"},
-                                          {Value: "VC"},
-                                          {Value: "Whiteboard"},
-                                          {Value: "Projector"}
-                                      )
-                                    LayoutMinHeight: =0
-                                    ShowScrollbar: =false
-                                    TemplatePadding: =2
-                                    TemplateSize: =98
+                                    DropShadow: =DropShadow.None
+                                    FillPortions: =0
+                                    Height: =40
+                                    LayoutAlignItems: =LayoutAlignItems.Center
+                                    LayoutDirection: =LayoutDirection.Horizontal
+                                    LayoutGap: =8
+                                    Width: =Parent.Width
                                   Children:
-                                    - btnRoomsEquipmentFilter:
-                                        Control: Classic/Button
+                                    - lblRoomsFacetClassHeading_rf:
+                                        Control: Label
                                         Properties:
-                                          BorderColor: =If(ThisItem.Value in colRoomsEquipmentFilter.Value, ColorValue(AppTheme.Primary), AppTheme.Border)
-                                          BorderThickness: =1
-                                          Color: =If(ThisItem.Value in colRoomsEquipmentFilter.Value, ColorValue(AppTheme.PrimaryText), AppTheme.TextPrimary)
-                                          Fill: =If(ThisItem.Value in colRoomsEquipmentFilter.Value, ColorValue(AppTheme.ButtonPrimary), AppTheme.SurfaceAlt)
-                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
-                                          FocusedBorderThickness: =2
+                                          Color: =AppTheme.TextMuted
                                           Font: ="IBM Plex Sans"
                                           Height: =24
-                                          OnSelect: |-
-                                            =If(
-                                                ThisItem.Value in colRoomsEquipmentFilter.Value,
-                                                RemoveIf(colRoomsEquipmentFilter, Value = ThisItem.Value),
-                                                Collect(colRoomsEquipmentFilter, {Value: ThisItem.Value})
-                                            )
-                                          RadiusBottomLeft: =12
-                                          RadiusBottomRight: =12
-                                          RadiusTopLeft: =12
-                                          RadiusTopRight: =12
-                                          Size: =10
-                                          Text: =ThisItem.Value
-                                          Width: =Parent.TemplateWidth - 4
+                                          Size: =9
+                                          Text: ="Classification"
+                                          Width: =80
+                                    - galRoomsFacetClass_rf:
+                                        Control: Gallery
+                                        Variant: Horizontal
+                                        Properties:
+                                          Height: =32
+                                          Items: =ClassificationLevels
+                                          LayoutMinHeight: =0
+                                          ShowScrollbar: =false
+                                          TemplatePadding: =2
+                                          TemplateSize: =98
+                                        Children:
+                                          - btnRoomsFacetClass_rf:
+                                              Control: Classic/Button
+                                              Properties:
+                                                BorderColor: =If(gblRoomMinClassRank = ThisItem.Rank, ColorValue(AppTheme.Primary), AppTheme.Border)
+                                                BorderThickness: =1
+                                                Color: =If(gblRoomMinClassRank = ThisItem.Rank, ColorValue(AppTheme.PrimaryText), AppTheme.TextPrimary)
+                                                Fill: =If(gblRoomMinClassRank = ThisItem.Rank, ColorValue(AppTheme.ButtonPrimary), AppTheme.SurfaceAlt)
+                                                FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                                FocusedBorderThickness: =2
+                                                Font: ="IBM Plex Sans"
+                                                Height: =24
+                                                OnSelect: =Set(gblRoomMinClassRank, If(gblRoomMinClassRank = ThisItem.Rank, 0, ThisItem.Rank))
+                                                RadiusBottomLeft: =12
+                                                RadiusBottomRight: =12
+                                                RadiusTopLeft: =12
+                                                RadiusTopRight: =12
+                                                Size: =10
+                                                Text: =ThisItem.Label
+                                                Width: =Parent.TemplateWidth - 4
+                              - conRoomsFacetSystems_rf:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
+                                  Properties:
+                                    DropShadow: =DropShadow.None
+                                    FillPortions: =0
+                                    Height: =40
+                                    LayoutAlignItems: =LayoutAlignItems.Center
+                                    LayoutDirection: =LayoutDirection.Horizontal
+                                    LayoutGap: =8
+                                    Width: =Parent.Width
+                                  Children:
+                                    - lblRoomsFacetSystemsHeading_rf:
+                                        Control: Label
+                                        Properties:
+                                          Color: =AppTheme.TextMuted
+                                          Font: ="IBM Plex Sans"
+                                          Height: =24
+                                          Size: =9
+                                          Text: ="Systems"
+                                          Width: =80
+                                    - galRoomsFacetSystems_rf:
+                                        Control: Gallery
+                                        Variant: Horizontal
+                                        Properties:
+                                          Height: =32
+                                          Items: =SystemTagList
+                                          LayoutMinHeight: =0
+                                          ShowScrollbar: =false
+                                          TemplatePadding: =2
+                                          TemplateSize: =98
+                                        Children:
+                                          - btnRoomsFacetSystems_rf:
+                                              Control: Classic/Button
+                                              Properties:
+                                                BorderColor: =If(ThisItem.Code in colRoomFacetSystems.Code, ColorValue(AppTheme.Primary), AppTheme.Border)
+                                                BorderThickness: =1
+                                                Color: =If(ThisItem.Code in colRoomFacetSystems.Code, ColorValue(AppTheme.PrimaryText), AppTheme.TextPrimary)
+                                                Fill: =If(ThisItem.Code in colRoomFacetSystems.Code, ColorValue(AppTheme.ButtonPrimary), AppTheme.SurfaceAlt)
+                                                FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                                FocusedBorderThickness: =2
+                                                Font: ="IBM Plex Sans"
+                                                Height: =24
+                                                OnSelect: |-
+                                                  =If(
+                                                      ThisItem.Code in colRoomFacetSystems.Code,
+                                                      RemoveIf(colRoomFacetSystems, Code = ThisItem.Code),
+                                                      Collect(colRoomFacetSystems, {Code: ThisItem.Code})
+                                                  )
+                                                RadiusBottomLeft: =12
+                                                RadiusBottomRight: =12
+                                                RadiusTopLeft: =12
+                                                RadiusTopRight: =12
+                                                Size: =10
+                                                Text: =ThisItem.Label
+                                                Width: =Parent.TemplateWidth - 4
+                              - conRoomsFacetEquipment_rf:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
+                                  Properties:
+                                    DropShadow: =DropShadow.None
+                                    FillPortions: =0
+                                    Height: =40
+                                    LayoutAlignItems: =LayoutAlignItems.Center
+                                    LayoutDirection: =LayoutDirection.Horizontal
+                                    LayoutGap: =8
+                                    Width: =Parent.Width
+                                  Children:
+                                    - lblRoomsFacetEquipmentHeading_rf:
+                                        Control: Label
+                                        Properties:
+                                          Color: =AppTheme.TextMuted
+                                          Font: ="IBM Plex Sans"
+                                          Height: =24
+                                          Size: =9
+                                          Text: ="Equipment"
+                                          Width: =80
+                                    - galRoomsFacetEquipment_rf:
+                                        Control: Gallery
+                                        Variant: Horizontal
+                                        Properties:
+                                          Height: =32
+                                          Items: =EquipmentTagList
+                                          LayoutMinHeight: =0
+                                          ShowScrollbar: =false
+                                          TemplatePadding: =2
+                                          TemplateSize: =98
+                                        Children:
+                                          - btnRoomsFacetEquipment_rf:
+                                              Control: Classic/Button
+                                              Properties:
+                                                BorderColor: =If(ThisItem.Code in colRoomFacetEquipment.Code, ColorValue(AppTheme.Primary), AppTheme.Border)
+                                                BorderThickness: =1
+                                                Color: =If(ThisItem.Code in colRoomFacetEquipment.Code, ColorValue(AppTheme.PrimaryText), AppTheme.TextPrimary)
+                                                Fill: =If(ThisItem.Code in colRoomFacetEquipment.Code, ColorValue(AppTheme.ButtonPrimary), AppTheme.SurfaceAlt)
+                                                FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                                FocusedBorderThickness: =2
+                                                Font: ="IBM Plex Sans"
+                                                Height: =24
+                                                OnSelect: |-
+                                                  =If(
+                                                      ThisItem.Code in colRoomFacetEquipment.Code,
+                                                      RemoveIf(colRoomFacetEquipment, Code = ThisItem.Code),
+                                                      Collect(colRoomFacetEquipment, {Code: ThisItem.Code})
+                                                  )
+                                                RadiusBottomLeft: =12
+                                                RadiusBottomRight: =12
+                                                RadiusTopLeft: =12
+                                                RadiusTopRight: =12
+                                                Size: =10
+                                                Text: =ThisItem.Label
+                                                Width: =Parent.TemplateWidth - 4
                         - gal_rooms_view:
                             Control: Gallery
                             Variant: Vertical
@@ -712,11 +826,18 @@ Screens:
                                     OnSelect: |-
                                       =Set(gblRoomsSearch, "");
                                       Set(gblRoomsMinCapacity, 0);
+                                      Set(gblRoomsMaxCapacity, 0);
+                                      Set(gblRoomMinClassRank, 0);
                                       Set(gblRoomsSort, "Name");
                                       Set(gblRoomsAvailableOnly, false);
+                                      Set(gblRoomsFavOnly, false);
                                       ClearCollect(
-                                          colRoomsEquipmentFilter,
-                                          Filter(Table({Value: ""}), !IsBlank(Value))
+                                          colRoomFacetSystems,
+                                          Filter(Table({Code: ""}), !IsBlank(Code))
+                                      );
+                                      ClearCollect(
+                                          colRoomFacetEquipment,
+                                          Filter(Table({Code: ""}), !IsBlank(Code))
                                       );
                                       Reset(txtRoomsSearch);
                                       Reset(drpRoomsCapacity);

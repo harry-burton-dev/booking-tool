@@ -2048,7 +2048,11 @@ Screens:
                                           OnSelect: |-
                                             =UpdateContext({adRmSel: 0});
                                             UpdateContext({adRmShowForm: true});
-                                            Reset(adRmInpTitle); Reset(adRmInpCap); Reset(adRmInpEquip); Reset(adRmInpDesc)
+                                            // RESET-SITE[adrm-form] new-room seed: every stateful var this form owns
+                                            Reset(adRmInpTitle); Reset(adRmInpCap); Reset(adRmInpDesc);
+                                            Reset(adRmDrpClass_rf); Reset(adRmInpNotes_rf); Reset(adRmTglActive_rf);
+                                            ClearCollect(colAdRmSystems, Filter(Table({Code: ""}), !IsBlank(Code)));
+                                            ClearCollect(colAdRmEquip, Filter(Table({Code: ""}), !IsBlank(Code)))
                                           PressedColor: =ColorValue(AppTheme.PrimaryText)
                                           PressedFill: =ColorValue(AppTheme.ButtonPrimaryActive)
                                           RadiusBottomLeft: =0
@@ -2098,8 +2102,8 @@ Screens:
                                                   ="<div style=""display: flex; align-items: center;"">" &
                                                   CarbonSpan("flex: 1 1 auto; " & CarbonHtmlType.TableHead, "NAME", AppThemeHex.TextMuted) &
                                                   CarbonSpan("flex: 0 0 80px; " & CarbonHtmlType.TableHead, "CAPACITY", AppThemeHex.TextMuted) &
-                                                  CarbonSpan("flex: 0 0 210px; " & CarbonHtmlType.TableHead, "EQUIPMENT", AppThemeHex.TextMuted) &
-                                                  CarbonSpan("flex: 0 0 270px; " & CarbonHtmlType.TableHead, "DESCRIPTION", AppThemeHex.TextMuted) &
+                                                  CarbonSpan("flex: 0 0 240px; " & CarbonHtmlType.TableHead, "CLASSIFICATION", AppThemeHex.TextMuted) &
+                                                  CarbonSpan("flex: 0 0 240px; " & CarbonHtmlType.TableHead, "DESCRIPTION", AppThemeHex.TextMuted) &
                                                   CarbonSpan("flex: 0 0 70px; " & CarbonHtmlType.TableHead, "", AppThemeHex.TextMuted) &
                                                   "</div>"
                                                 LayoutMinHeight: =0
@@ -2150,7 +2154,7 @@ Screens:
                                     - adRmLblRowName:
                                         Control: Label
                                         Properties:
-                                          Color: =AppTheme.TextPrimary
+                                          Color: =If(ThisItem.IsActive, AppTheme.TextPrimary, AppTheme.TextMuted)
                                           Font: ="IBM Plex Sans"
                                           Height: =20
                                           Size: =12
@@ -2162,7 +2166,7 @@ Screens:
                                     - adRmLblRowCapacity:
                                         Control: Label
                                         Properties:
-                                          Color: =AppTheme.TextSecondary
+                                          Color: =If(ThisItem.IsActive, AppTheme.TextSecondary, AppTheme.TextMuted)
                                           Font: ="IBM Plex Sans"
                                           Height: =20
                                           Size: =12
@@ -2174,26 +2178,41 @@ Screens:
                                     - adRmLblRowEquipment:
                                         Control: Label
                                         Properties:
-                                          Color: =AppTheme.TextSecondary
+                                          Color: =If(ThisItem.IsActive, AppTheme.TextSecondary, AppTheme.TextMuted)
                                           Font: ="IBM Plex Sans"
                                           Height: =20
                                           Size: =12
-                                          Text: =Coalesce(ThisItem.Equipment, "—")
-                                          Width: =200
+                                          Text: |-
+                                            =With(
+                                                {
+                                                    _cls: Coalesce(LookUp(ClassificationLevels, Code = ThisItem.Classification).Label, ""),
+                                                    _sysRaw: Concat(Filter(SystemTagList As _t, fnHasTag(fnTagKey(ThisItem.Systems), _t.Code)) As _s, _s.Label & ", ")
+                                                },
+                                                With(
+                                                    {_sys: If(Len(_sysRaw) > 1, Left(_sysRaw, Len(_sysRaw) - 2), _sysRaw)},
+                                                    Coalesce(
+                                                        If(!IsBlank(_cls) && !IsBlank(_sys), _cls & " · " & _sys,
+                                                           !IsBlank(_cls), _cls,
+                                                           !IsBlank(_sys), _sys),
+                                                        "—"
+                                                    )
+                                                )
+                                            )
+                                          Width: =230
                                           Wrap: =false
                                           X: =Parent.TemplateWidth - 588
                                           Y: =14
                                     - adRmLblRowDescription:
                                         Control: Label
                                         Properties:
-                                          Color: =AppTheme.TextSecondary
+                                          Color: =If(ThisItem.IsActive, AppTheme.TextSecondary, AppTheme.TextMuted)
                                           Font: ="IBM Plex Sans"
                                           Height: =20
                                           Size: =12
                                           Text: =Coalesce(ThisItem.description, "—")
-                                          Width: =260
+                                          Width: =230
                                           Wrap: =false
-                                          X: =Parent.TemplateWidth - 378
+                                          X: =Parent.TemplateWidth - 348
                                           Y: =14
                                     - adRmBtnEdit:
                                         Control: Classic/Button
@@ -2216,7 +2235,13 @@ Screens:
                                           OnSelect: |-
                                             =UpdateContext({adRmSel: ThisItem.ID});
                                             UpdateContext({adRmShowForm: true});
-                                            Reset(adRmInpTitle); Reset(adRmInpCap); Reset(adRmInpEquip); Reset(adRmInpDesc)
+                                            // RESET-SITE[adrm-form] edit-room seed: every stateful var this form owns
+                                            Reset(adRmInpTitle); Reset(adRmInpCap); Reset(adRmInpDesc);
+                                            Reset(adRmDrpClass_rf); Reset(adRmInpNotes_rf); Reset(adRmTglActive_rf);
+                                            ClearCollect(colAdRmSystems,
+                                                ForAll(Filter(SystemTagList As _t, fnHasTag(fnTagKey(LookUp(colRooms, ID = ThisItem.ID).Systems), _t.Code)) As _s, {Code: _s.Code}));
+                                            ClearCollect(colAdRmEquip,
+                                                ForAll(Filter(EquipmentTagList As _t, fnHasTag(fnTagKey(LookUp(colRooms, ID = ThisItem.ID).Equipment), _t.Code)) As _s, {Code: _s.Code}))
                                           PressedBorderColor: =ColorValue(AppTheme.ButtonTertiaryActive)
                                           PressedColor: =ColorValue(AppTheme.ButtonTertiaryActive)
                                           PressedFill: =AppTheme.SurfaceAlt
@@ -2303,24 +2328,130 @@ Screens:
                                           LayoutMinWidth: =0
                                           Size: =11
                                           Width: =Parent.Width
-                                    - adRmInpEquip:
-                                        Control: Classic/TextInput
+                                    - adRmDrpClass_rf:
+                                        Control: Classic/DropDown
                                         Properties:
-                                          AccessibleLabel: ="Equipment"
+                                          AccessibleLabel: ="Classification"
+                                          AllowEmptySelection: =true
                                           BorderColor: =AppTheme.Border
                                           BorderThickness: =1
+                                          ChevronBackground: =AppTheme.layer01Bg
+                                          ChevronFill: =AppTheme.TextPrimary
                                           Color: =AppTheme.TextPrimary
-                                          Default: =LookUp(colRooms, ID = adRmSel, Equipment)
+                                          Default: =Coalesce(LookUp(ClassificationLevels, Code = LookUp(colRooms, ID = adRmSel).Classification).Label, "")
                                           Fill: =AppTheme.layer01Bg
                                           FocusedBorderColor: =ColorValue(AppTheme.Primary)
                                           FocusedBorderThickness: =2
                                           Font: ="IBM Plex Sans"
                                           Height: =48
-                                          HintText: ="Equipment (comma-separated)"
-                                          HoverBorderColor: =AppTheme.TextSecondary
+                                          Items: =ClassificationLevels
+                                          Items.Value: =Label
                                           LayoutMinHeight: =0
                                           LayoutMinWidth: =0
                                           Size: =11
+                                          Width: =Parent.Width
+                                    - adRmGalSystems_rf:
+                                        Control: Gallery
+                                        Variant: Horizontal
+                                        Properties:
+                                          Height: =40
+                                          Items: =SystemTagList
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          ShowScrollbar: =false
+                                          TemplatePadding: =2
+                                          TemplateSize: =98
+                                          Width: =Parent.Width
+                                        Children:
+                                          - adRmBtnChipSystems_rf:
+                                              Control: Classic/Button
+                                              Properties:
+                                                BorderColor: =If(ThisItem.Code in colAdRmSystems.Code, ColorValue(AppTheme.Primary), AppTheme.Border)
+                                                BorderThickness: =1
+                                                Color: =If(ThisItem.Code in colAdRmSystems.Code, ColorValue(AppTheme.PrimaryText), AppTheme.TextPrimary)
+                                                Fill: =If(ThisItem.Code in colAdRmSystems.Code, ColorValue(AppTheme.ButtonPrimary), AppTheme.SurfaceAlt)
+                                                FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                                FocusedBorderThickness: =2
+                                                Font: ="IBM Plex Sans"
+                                                Height: =24
+                                                OnSelect: |-
+                                                  =If(
+                                                      ThisItem.Code in colAdRmSystems.Code,
+                                                      RemoveIf(colAdRmSystems, Code = ThisItem.Code),
+                                                      Collect(colAdRmSystems, {Code: ThisItem.Code})
+                                                  )
+                                                RadiusBottomLeft: =12
+                                                RadiusBottomRight: =12
+                                                RadiusTopLeft: =12
+                                                RadiusTopRight: =12
+                                                Size: =10
+                                                Text: =ThisItem.Label
+                                                Width: =Parent.TemplateWidth - 4
+                                    - adRmGalEquip_rf:
+                                        Control: Gallery
+                                        Variant: Horizontal
+                                        Properties:
+                                          Height: =40
+                                          Items: =EquipmentTagList
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          ShowScrollbar: =false
+                                          TemplatePadding: =2
+                                          TemplateSize: =98
+                                          Width: =Parent.Width
+                                        Children:
+                                          - adRmBtnChipEquip_rf:
+                                              Control: Classic/Button
+                                              Properties:
+                                                BorderColor: =If(ThisItem.Code in colAdRmEquip.Code, ColorValue(AppTheme.Primary), AppTheme.Border)
+                                                BorderThickness: =1
+                                                Color: =If(ThisItem.Code in colAdRmEquip.Code, ColorValue(AppTheme.PrimaryText), AppTheme.TextPrimary)
+                                                Fill: =If(ThisItem.Code in colAdRmEquip.Code, ColorValue(AppTheme.ButtonPrimary), AppTheme.SurfaceAlt)
+                                                FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                                FocusedBorderThickness: =2
+                                                Font: ="IBM Plex Sans"
+                                                Height: =24
+                                                OnSelect: |-
+                                                  =If(
+                                                      ThisItem.Code in colAdRmEquip.Code,
+                                                      RemoveIf(colAdRmEquip, Code = ThisItem.Code),
+                                                      Collect(colAdRmEquip, {Code: ThisItem.Code})
+                                                  )
+                                                RadiusBottomLeft: =12
+                                                RadiusBottomRight: =12
+                                                RadiusTopLeft: =12
+                                                RadiusTopRight: =12
+                                                Size: =10
+                                                Text: =ThisItem.Label
+                                                Width: =Parent.TemplateWidth - 4
+                                    - adRmInpNotes_rf:
+                                        Control: Classic/TextInput
+                                        Properties:
+                                          AccessibleLabel: ="Notes"
+                                          BorderColor: =AppTheme.Border
+                                          BorderThickness: =1
+                                          Color: =AppTheme.TextPrimary
+                                          Default: =LookUp(colRooms, ID = adRmSel, RoomNotes)
+                                          Fill: =AppTheme.layer01Bg
+                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                          FocusedBorderThickness: =2
+                                          Font: ="IBM Plex Sans"
+                                          Height: =96
+                                          HintText: ="Notes shown to everyone (e.g. projector bulb failing, use HDMI 2)"
+                                          HoverBorderColor: =AppTheme.TextSecondary
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          Mode: =TextMode.MultiLine
+                                          Size: =11
+                                          Width: =Parent.Width
+                                    - adRmTglActive_rf:
+                                        Control: Toggle
+                                        Properties:
+                                          Checked: =If(adRmSel = 0, true, LookUp(colRooms, ID = adRmSel, IsActive))
+                                          Height: =28
+                                          Label: ="Active"
+                                          LayoutMinHeight: =16
+                                          LayoutMinWidth: =16
                                           Width: =Parent.Width
                                     - adRmInpDesc:
                                         Control: Classic/TextInput
@@ -2374,22 +2505,32 @@ Screens:
                                                 OnSelect: |-
                                                   =If(IsBlank(Trim(adRmInpTitle.Text)) || Value(adRmInpCap.Text) <= 0 || IsBlank(Value(adRmInpCap.Text)),
                                                       Notify("Room name and a positive capacity are required.", NotificationType.Error),
+                                                      Value(adRmInpCap.Text) > 500,
+                                                      Notify("Capacity must be 500 or fewer.", NotificationType.Error),
                                                       IfError(
                                                           If(adRmSel = 0,
                                                               Patch(Book_Rooms, Defaults(Book_Rooms),
                                                                   {
                                                                       Title: Trim(adRmInpTitle.Text),
                                                                       Capacity: Value(adRmInpCap.Text),
-                                                                      Equipment: Trim(adRmInpEquip.Text),
                                                                       description: Trim(adRmInpDesc.Text),
+                                                                      Classification: adRmDrpClass_rf.Selected.Code,
+                                                                      Systems: Concat(colAdRmSystems, Code & ";"),
+                                                                      Equipment: Concat(colAdRmEquip, Code & ";"),
+                                                                      RoomNotes: Trim(adRmInpNotes_rf.Text),
+                                                                      IsActive: adRmTglActive_rf.Checked,
                                                                       RoomID: Max(colRooms, RoomID) + 1
                                                                   }),
                                                               Patch(Book_Rooms, LookUp(Book_Rooms, ID = adRmSel),
                                                                   {
                                                                       Title: Trim(adRmInpTitle.Text),
                                                                       Capacity: Value(adRmInpCap.Text),
-                                                                      Equipment: Trim(adRmInpEquip.Text),
-                                                                      description: Trim(adRmInpDesc.Text)
+                                                                      description: Trim(adRmInpDesc.Text),
+                                                                      Classification: adRmDrpClass_rf.Selected.Code,
+                                                                      Systems: Concat(colAdRmSystems, Code & ";"),
+                                                                      Equipment: Concat(colAdRmEquip, Code & ";"),
+                                                                      RoomNotes: Trim(adRmInpNotes_rf.Text),
+                                                                      IsActive: adRmTglActive_rf.Checked
                                                                   })
                                                           ),
                                                           /* BOOK-5: on failure leave the form open with the admin's input
