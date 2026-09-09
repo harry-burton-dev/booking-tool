@@ -480,7 +480,7 @@ Screens:
                               Height: =Parent.Height
                               Items: =RoomsBrowseFavFiltered
                               TemplatePadding: =8
-                              TemplateSize: =216
+                              TemplateSize: =252
                               Visible: =!IsEmpty(RoomsBrowseFavFiltered)
                               Width: =Parent.Width
                               WrapCount: =If(App.Width >= 1200, 4, App.Width >= 768, 2, 1)
@@ -515,9 +515,46 @@ Screens:
                                           Height: =26
                                           Size: =14
                                           Text: =ThisItem.Title
-                                          Width: =Parent.Width - 32
+                                          Width: =Parent.Width - 84
                                           X: =16
                                           Y: =44
+                                    - lblRoomsCardClass_rf:
+                                        Control: Label
+                                        Properties:
+                                          Align: =Align.Center
+                                          Color: |-
+                                            =With(
+                                                {_token: LookUp(ClassificationLevels, Code = ThisItem.Classification).ColorToken},
+                                                Switch(
+                                                    _token,
+                                                    "StatusFree", AppTheme.StatusFreeText,
+                                                    "StatusBusy", AppTheme.StatusBusyText,
+                                                    AppTheme.TextSecondary
+                                                )
+                                            )
+                                          Fill: |-
+                                            =With(
+                                                {_token: LookUp(ClassificationLevels, Code = ThisItem.Classification).ColorToken},
+                                                Switch(
+                                                    _token,
+                                                    "StatusFree", AppTheme.StatusFreeBg,
+                                                    "StatusBusy", AppTheme.StatusBusyBg,
+                                                    AppTheme.SurfaceAlt
+                                                )
+                                            )
+                                          Font: ="IBM Plex Sans"
+                                          FontWeight: =FontWeight.Semibold
+                                          Height: =20
+                                          PaddingLeft: =0
+                                          PaddingRight: =0
+                                          Size: =9
+                                          Text: =ThisItem.Classification
+                                          Tooltip: =LookUp(ClassificationLevels, Code = ThisItem.Classification).Label
+                                          Visible: =!IsBlank(ThisItem.Classification)
+                                          Width: =44
+                                          Wrap: =false
+                                          X: =Parent.Width - 60
+                                          Y: =47
                                     - lblRoomsStripMid:
                                         Control: Label
                                         Properties:
@@ -529,7 +566,7 @@ Screens:
                                           Text: =Text(DateAdd(TodayWindowStart, WorkingDayMinutes / 2, TimeUnit.Minutes), "HH:mm")
                                           Width: =Parent.Width - 32
                                           X: =16
-                                          Y: =132
+                                          Y: =140
                                     - lbl_textID_Desc:
                                         Control: Label
                                         Properties:
@@ -595,7 +632,7 @@ Screens:
                                           TemplateSize: =(Self.Width / ((DayEndHour - DayStartHour) * 2))
                                           Width: =Parent.Width - 32
                                           X: =16
-                                          Y: =124
+                                          Y: =132
                                         Children:
                                           - rectRoomsAvailabilitySegment:
                                               Control: Rectangle
@@ -613,7 +650,7 @@ Screens:
                                           Text: =Text(TodayWindowStart, "HH:mm")
                                           Width: =59
                                           X: =16
-                                          Y: =132
+                                          Y: =140
                                     - lblRoomsStripEnd:
                                         Control: Label
                                         Properties:
@@ -625,31 +662,19 @@ Screens:
                                           Text: =Text(TodayWindowEnd, "HH:mm")
                                           Width: =81
                                           X: =217
-                                          Y: =132
+                                          Y: =140
                                     - galRoomsCardEquipment:
                                         Control: Gallery
                                         Variant: Horizontal
                                         Properties:
                                           Height: =24
-                                          Items: |-
-                                            =With(
-                                                {_equipmentText: ThisItem.Equipment},
-                                                Filter(
-                                                    Table(
-                                                        {Value: "Screen"},
-                                                        {Value: "VC"},
-                                                        {Value: "Whiteboard"},
-                                                        {Value: "Projector"}
-                                                    ),
-                                                    Lower(Value) in Lower(_equipmentText)
-                                                )
-                                            )
+                                          Items: =Filter(EquipmentTagList As _t, fnHasTag(ThisItem.EquipmentKey, _t.Code))
                                           ShowScrollbar: =false
                                           TemplatePadding: =2
                                           TemplateSize: =84
                                           Width: =Parent.Width - 32
                                           X: =16
-                                          Y: =160
+                                          Y: =168
                                         Children:
                                           - lblRoomsCardEquipmentTag:
                                               Control: Label
@@ -660,9 +685,51 @@ Screens:
                                                 Font: ="IBM Plex Sans"
                                                 Height: =20
                                                 Size: =9
-                                                Text: =ThisItem.Value
+                                                Text: =ThisItem.Label
                                                 Width: =Parent.TemplateWidth - 4
                                                 Wrap: =false
+                                    - galRoomsCardSystems_rf:
+                                        Control: Gallery
+                                        Variant: Horizontal
+                                        Properties:
+                                          Height: =24
+                                          Items: =Filter(SystemTagList As _t, fnHasTag(ThisItem.SystemsKey, _t.Code))
+                                          ShowScrollbar: =false
+                                          TemplatePadding: =2
+                                          TemplateSize: =84
+                                          Width: =Parent.Width - 56
+                                          X: =16
+                                          Y: =196
+                                        Children:
+                                          - lblRoomsCardSystemTag_rf:
+                                              Control: Label
+                                              Properties:
+                                                Align: =Align.Center
+                                                Color: =AppTheme.TextSecondary
+                                                Fill: =AppTheme.SurfaceAlt
+                                                Font: ="IBM Plex Sans"
+                                                Height: =20
+                                                Size: =9
+                                                Text: =ThisItem.Label
+                                                Width: =Parent.TemplateWidth - 4
+                                                Wrap: =false
+                                    - lblRoomsCardNote_rf:
+                                        Control: Label
+                                        Properties:
+                                          Align: =Align.Center
+                                          Color: =AppTheme.TextSecondary
+                                          Font: ="IBM Plex Sans"
+                                          Height: =20
+                                          PaddingLeft: =0
+                                          PaddingRight: =0
+                                          Size: =11
+                                          Text: ="ⓘ"
+                                          Tooltip: =ThisItem.Notes
+                                          Visible: =!IsBlank(ThisItem.Notes)
+                                          Width: =20
+                                          Wrap: =false
+                                          X: =Parent.Width - 36
+                                          Y: =198
                                     - btn_Card:
                                         Control: Classic/Button
                                         Properties:

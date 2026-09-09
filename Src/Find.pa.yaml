@@ -960,7 +960,16 @@ Screens:
                                                         "</span></div>",
                                                         ""
                                                     ) &
-                                                    "<div style='" & CarbonHtmlType.Code01 & " color:" & AppThemeHex.TextMuted & "; white-space:nowrap;'>seats " & ThisItem.Capacity & "</div>" &
+                                                    "<div style='display:flex; align-items:center; gap:6px; white-space:nowrap;'>" &
+                                                    If(ThisItem.Classification <> "",
+                                                        "<span style='" & CarbonHtmlType.Code01 & " font-weight:600; color:" & Switch(LookUp(ClassificationLevels, Code = ThisItem.Classification).ColorToken, "StatusFree", AppThemeHex.StatusFreeText, "StatusBusy", AppThemeHex.StatusBusyText, AppThemeHex.TextSecondary) & ";'>" & fnHtmlEscape(ThisItem.Classification) & "</span>",
+                                                        ""
+                                                    ) &
+                                                    "<span style='" & CarbonHtmlType.Code01 & " color:" & AppThemeHex.TextMuted & ";'>seats " & ThisItem.Capacity &
+                                                    With({_sysRaw: Concat(Filter(SystemTagList As _t, fnHasTag(ThisItem.SystemsKey, _t.Code)) As _s, fnHtmlEscape(_s.Code) & ",")},
+                                                        If(Len(_sysRaw) > 0, " · " & Left(_sysRaw, Len(_sysRaw) - 1), "")
+                                                    ) &
+                                                    "</span></div>" &
                                                     "</div>" &
                                                     "<div style='flex:1 1 auto; position:relative; overflow:hidden;'>" &
                                                     If(_isDay,

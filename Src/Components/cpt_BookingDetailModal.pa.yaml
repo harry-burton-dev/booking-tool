@@ -88,7 +88,8 @@ ComponentDefinitions:
                                     With(
                                         {_room: LookUp(colRooms, ID = gblSelectedBooking.RoomID.Id)},
                                         fnHtmlEscape(gblSelectedBooking.'RoomID: Title'.Value) &
-                                        If(IsBlank(_room) || IsBlank(_room.Capacity), "", " · seats " & _room.Capacity)
+                                        If(IsBlank(_room) || IsBlank(_room.Capacity), "", " · seats " & _room.Capacity) &
+                                        If(IsBlank(_room) || IsBlank(_room.Classification) || _room.Classification = "", "", " · " & fnHtmlEscape(LookUp(ClassificationLevels, Code = _room.Classification).Label))
                                     )
                                 )
                               LayoutMinHeight: =0
