@@ -480,7 +480,6 @@ Screens:
                                     RadiusBottomRight: =0
                                     RadiusTopLeft: =0
                                     RadiusTopRight: =0
-                                    Visible: =true
                                     Width: =239
                                   Children:
                                     - lblFindSeats_f3:
@@ -615,7 +614,6 @@ Screens:
                                     RadiusBottomRight: =0
                                     RadiusTopLeft: =0
                                     RadiusTopRight: =0
-                                    Visible: =true
                                     Width: =45 + (CountRows(EquipmentTagList) * 90)
                                   Children:
                                     - lblFindEquip_f3:
@@ -692,7 +690,6 @@ Screens:
                                     RadiusBottomRight: =0
                                     RadiusTopLeft: =0
                                     RadiusTopRight: =0
-                                    Visible: =true
                                     Width: =45 + (CountRows(SystemTagList) * 90)
                                   Children:
                                     - lblFindSystems_rf:
@@ -769,7 +766,6 @@ Screens:
                                     RadiusBottomRight: =0
                                     RadiusTopLeft: =0
                                     RadiusTopRight: =0
-                                    Visible: =true
                                     Width: =45 + (CountRows(ClassificationLevels) * 150)
                                   Children:
                                     - lblFindClass_rf:

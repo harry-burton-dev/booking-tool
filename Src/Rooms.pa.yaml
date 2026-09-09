@@ -306,7 +306,6 @@ Screens:
                               LayoutAlignItems: =LayoutAlignItems.Stretch
                               LayoutDirection: =LayoutDirection.Vertical
                               LayoutGap: =4
-                              Visible: =true
                               Width: =Parent.Width
                             Children:
                               - conRoomsFacetClass_rf:
