@@ -4,8 +4,6 @@ EditorState:
     - RoomsTimeline
     - bookingDetail
     - Admin
-    - AdminPermanentNew
-    - AdminSettings
     - Home
     - myBookings
     - Profile
@@ -15,3 +13,7 @@ EditorState:
     - cpt_Update
     - cpt_Modal_
     - Shell_Header
+    - cpt_RoomEditModal
+    - cpt_PermanentBookingModal
+    - cpt_AdminSettingsModal
+    - cpt_SeriesMigrationModal
