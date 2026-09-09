@@ -25,8 +25,6 @@ ComponentDefinitions:
             LayoutAlignItems: =LayoutAlignItems.Stretch
             LayoutDirection: =LayoutDirection.Vertical
             LayoutGap: =16
-            LayoutMinHeight: =0
-            LayoutMinWidth: =0
             PaddingBottom: =24
             PaddingLeft: =32
             PaddingRight: =32
@@ -66,12 +64,10 @@ ComponentDefinitions:
                         BorderThickness: =0
                         Color: =AppTheme.TextSecondary
                         Fill: =Color.Transparent
-                        FillPortions: =0
                         FocusedBorderColor: =ColorValue(AppTheme.Primary)
                         FocusedBorderThickness: =2
                         Font: ="IBM Plex Sans"
                         FontWeight: =FontWeight.Normal
-                        Height: =40
                         HoverColor: =AppTheme.TextPrimary
                         HoverFill: =AppTheme.SurfaceAlt
                         LayoutMinHeight: =0
@@ -92,7 +88,6 @@ ComponentDefinitions:
                 Properties:
                   DropShadow: =DropShadow.None
                   Fill: =Color.Transparent
-                  FillPortions: =1
                   LayoutAlignItems: =LayoutAlignItems.Stretch
                   LayoutDirection: =LayoutDirection.Vertical
                   LayoutGap: =12
@@ -325,8 +320,7 @@ ComponentDefinitions:
                                     HoverFill: =ColorValue(AppTheme.ButtonPrimaryActive)
                                     LayoutMinHeight: =0
                                     LayoutMinWidth: =0
-                                    OnSelect: |-
-                                      =Set(gblAsMigConfirm, true)
+                                    OnSelect: =Set(gblAsMigConfirm, true)
                                     PressedColor: =ColorValue(AppTheme.PrimaryText)
                                     PressedFill: =ColorValue(AppTheme.ButtonPrimaryActive)
                                     RadiusBottomLeft: =0
@@ -659,8 +653,7 @@ ComponentDefinitions:
                                     HoverFill: =AppTheme.Surface
                                     LayoutMinHeight: =0
                                     LayoutMinWidth: =0
-                                    OnSelect: |-
-                                      =Set(gblAsMigConfirm, false)
+                                    OnSelect: =Set(gblAsMigConfirm, false)
                                     PressedBorderColor: =AppTheme.TextSecondary
                                     PressedColor: =AppTheme.TextPrimary
                                     PressedFill: =AppTheme.Surface

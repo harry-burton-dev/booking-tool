@@ -65,7 +65,6 @@ ComponentDefinitions:
                       Control: HtmlViewer
                       Properties:
                         DisplayMode: =DisplayMode.View
-                        FillPortions: =0
                         Height: =20
                         HtmlText: =CarbonText(CarbonHtmlType.HeadingCompact01, If(gbl_UI_RoomEditSel = 0, "Add room", "Edit room"))
                         LayoutMinHeight: =0
@@ -83,7 +82,6 @@ ComponentDefinitions:
                         Color: =AppTheme.TextPrimary
                         Default: =LookUp(colRooms, ID = gbl_UI_RoomEditSel, Title)
                         Fill: =AppTheme.layer01Bg
-                        FillPortions: =0
                         FocusedBorderColor: =ColorValue(AppTheme.Primary)
                         FocusedBorderThickness: =2
                         Font: ="IBM Plex Sans"
@@ -103,7 +101,6 @@ ComponentDefinitions:
                         Color: =AppTheme.TextPrimary
                         Default: =If(gbl_UI_RoomEditSel = 0, "", Text(LookUp(colRooms, ID = gbl_UI_RoomEditSel, Capacity)))
                         Fill: =AppTheme.layer01Bg
-                        FillPortions: =0
                         FocusedBorderColor: =ColorValue(AppTheme.Primary)
                         FocusedBorderThickness: =2
                         Font: ="IBM Plex Sans"
@@ -127,7 +124,6 @@ ComponentDefinitions:
                         Color: =AppTheme.TextPrimary
                         Default: =Coalesce(LookUp(ClassificationLevels, Code = LookUp(colRooms, ID = gbl_UI_RoomEditSel).Classification).Label, "")
                         Fill: =AppTheme.layer01Bg
-                        FillPortions: =0
                         FocusedBorderColor: =ColorValue(AppTheme.Primary)
                         FocusedBorderThickness: =2
                         Font: ="IBM Plex Sans"
@@ -223,7 +219,6 @@ ComponentDefinitions:
                         Color: =AppTheme.TextPrimary
                         Default: =LookUp(colRooms, ID = gbl_UI_RoomEditSel, RoomNotes)
                         Fill: =AppTheme.layer01Bg
-                        FillPortions: =0
                         FocusedBorderColor: =ColorValue(AppTheme.Primary)
                         FocusedBorderThickness: =2
                         Font: ="IBM Plex Sans"
@@ -239,7 +234,6 @@ ComponentDefinitions:
                       Control: Toggle
                       Properties:
                         Checked: =If(gbl_UI_RoomEditSel = 0, true, LookUp(colRooms, ID = gbl_UI_RoomEditSel, IsActive))
-                        FillPortions: =0
                         Height: =28
                         Label: ="Active"
                         LayoutMinHeight: =16
@@ -254,7 +248,6 @@ ComponentDefinitions:
                         Color: =AppTheme.TextPrimary
                         Default: =LookUp(colRooms, ID = gbl_UI_RoomEditSel, description)
                         Fill: =AppTheme.layer01Bg
-                        FillPortions: =0
                         FocusedBorderColor: =ColorValue(AppTheme.Primary)
                         FocusedBorderThickness: =2
                         Font: ="IBM Plex Sans"
@@ -287,7 +280,6 @@ ComponentDefinitions:
                               BorderThickness: =0
                               Color: =ColorValue(AppTheme.PrimaryText)
                               Fill: =ColorValue(AppTheme.ButtonPrimary)
-                              FillPortions: =0
                               FocusedBorderColor: =ColorValue(AppTheme.Primary)
                               FocusedBorderThickness: =2
                               Font: ="IBM Plex Sans"
@@ -356,7 +348,6 @@ ComponentDefinitions:
                               BorderThickness: =1
                               Color: =AppTheme.TextPrimary
                               Fill: =Color.Transparent
-                              FillPortions: =0
                               FocusedBorderColor: =ColorValue(AppTheme.Primary)
                               FocusedBorderThickness: =2
                               Font: ="IBM Plex Sans"

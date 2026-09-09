@@ -81,7 +81,6 @@ ComponentDefinitions:
                         BorderThickness: =1
                         Color: =AppTheme.TextPrimary
                         Fill: =Color.Transparent
-                        FillPortions: =0
                         FocusedBorderColor: =ColorValue(AppTheme.Primary)
                         FocusedBorderThickness: =2
                         Font: ="IBM Plex Sans"
@@ -112,7 +111,6 @@ ComponentDefinitions:
                 Properties:
                   DropShadow: =DropShadow.None
                   Fill: =Color.Transparent
-                  FillPortions: =1
                   LayoutAlignItems: =LayoutAlignItems.Stretch
                   LayoutDirection: =LayoutDirection.Vertical
                   LayoutMinHeight: =0
