@@ -218,7 +218,6 @@ Screens:
                             Properties:
                               DropShadow: =DropShadow.None
                               Fill: =AppTheme.SurfaceAlt
-                              FillPortions: =0
                               LayoutAlignItems: =LayoutAlignItems.Stretch
                               LayoutDirection: =LayoutDirection.Vertical
                               LayoutGap: =12
@@ -234,18 +233,6 @@ Screens:
                               RadiusTopRight: =0
                               Width: =Parent.Width
                             Children:
-                              - adRecHtxHint:
-                                  Control: HtmlViewer
-                                  Properties:
-                                    DisplayMode: =DisplayMode.View
-                                    HtmlText: =CarbonTextSecondary(CarbonHtmlType.Label01, "A permanent booking holds this room indefinitely. Only admins can change it.")
-                                    LayoutMinHeight: =0
-                                    LayoutMinWidth: =0
-                                    PaddingBottom: =0
-                                    PaddingLeft: =0
-                                    PaddingRight: =0
-                                    PaddingTop: =0
-                                    Width: =Parent.Width
                               - adBRInpTitle:
                                   Control: Classic/TextInput
                                   Properties:
@@ -928,6 +915,7 @@ Screens:
                                     - adRecHtxPreview:
                                         Control: HtmlViewer
                                         Properties:
+                                          AutoHeight: =true
                                           DisplayMode: =DisplayMode.View
                                           FillPortions: =1
                                           HtmlText: |-
