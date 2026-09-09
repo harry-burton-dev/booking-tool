@@ -1,0 +1,21 @@
+{
+  "list": "Book_AppSettings",
+  "site": "https://hbbaby.sharepoint.com/sites/booking-tool",
+  "snapshot": "2026-09-09, get_data_source_schema on app a5fe0780",
+  "columns": {
+    "Title": "Text",
+    "Value": "Text",
+    "Note": "Text"
+  },
+  "notes": {
+    "Title": "The setting KEY. Not unique - multi-row keys are the established pattern (AdminEmail, and now Classification / SystemTag / EquipmentTag).",
+    "Value": "Single-value settings hold the value directly (DayStartHour, SiteName, WeekendPolicy). Vocabulary rows hold pipe-delimited fields.",
+    "Note": "Free-text description for admins. Not read by the app."
+  },
+  "vocabularyRows": {
+    "Classification": "code|label|rank|themeToken  e.g. OS|Official-Sensitive|20|StatusBusy. Rank is ordered and spaced by 10; the filter is 'rank >= selected', never equality. themeToken is an AppTheme token NAME - DS1 forbids raw hex outside the token block.",
+    "SystemTag": "code|label  e.g. MODNET|MODNET",
+    "EquipmentTag": "code|label  e.g. SCR|Screen"
+  },
+  "invariant": "Every vocabulary key has an in-code default Table() in App.Formulas, mirroring the SettingNumber(key, dflt) pattern. An empty list must never mean an empty vocabulary."
+}

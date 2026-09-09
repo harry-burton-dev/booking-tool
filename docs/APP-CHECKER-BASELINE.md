@@ -1,5 +1,29 @@
 # App Checker baseline — NOT YET ESTABLISHED
 
+> ## ⚠ 2026-09-09 — the repo was bound to the wrong app
+>
+> The environment holds **two** canvas apps with near-identical names:
+>
+> | App | ID | Last modified |
+> |---|---|---|
+> | `MOC_Booking_Tool_Production` | `a5fe0780-88fa-4bc5-9e55-5a2e9850ecda` | 20 hours ago — **live** |
+> | `MOC_Booking_Tool` | `498d4962-0b5f-4990-a400-1bf5de9a367c` | 1 month ago — stale |
+>
+> Every live-facing config in this repo named the **stale** app. `.pac-verify.conf` in
+> particular means **`pac-verify` — rung 4 of the verification ladder — has been validating the
+> wrong app** for up to a month. Any "rung 4" claim recorded in that window is void and should be
+> re-earned, not trusted.
+>
+> Repointed 2026-09-09: `.pac-verify.conf`, `README.md`, `docs/audit/01-CURRENT-PICTURE.md`, and
+> this file. Historical plans under `docs/superpowers/plans/` keep the old ID deliberately — they
+> are a record of what was true when they ran.
+>
+> **App Checker count at 2026-09-09 21:2x** (`get_appchecker_errors` on the live app, not a SARIF
+> export): **19 issues** — all Medium / Performance, 0 High, 0 errors. Up from 15 at Phase 0.
+> The delta is `CollectDelegatableDataSource` and `ForAllWithMutation` sites added by the Admin,
+> AdminSettings and Battle-Rhythm work. Still not a baseline: `sarif-diff` needs a real SARIF
+> export, so **P10 remains unenforced.**
+
 `sarif-diff` enforces RULES **P10** ("App Checker issues never increase") by diffing the current
 App Checker SARIF against a committed baseline. **There is no baseline in this repo yet.**
 
@@ -7,7 +31,7 @@ Consequence: **P10 is currently unenforced.** `sarif-diff` has nothing to diff a
 deploy can be blocked on new App Checker issues.
 
 To establish it, export App Checker results for app
-`498d4962-0b5f-4990-a400-1bf5de9a367c` and commit them as `sarif-baseline.json` at the repo root,
+`a5fe0780-88fa-4bc5-9e55-5a2e9850ecda` and commit them as `sarif-baseline.json` at the repo root,
 then confirm the gate has teeth:
 
 ```bash

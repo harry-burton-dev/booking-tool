@@ -20,9 +20,7 @@ Screens:
         UpdateContext({adBRDevK: -1});
         UpdateContext({adBRConfirmEnd: 0});
         /* T-11: occurrence calendar always opens on the current month */
-        UpdateContext({adBRCalMonth: Date(Year(Today()), Month(Today()), 1)});
-        UpdateContext({adRmShowForm: false});
-        UpdateContext({adRmSel: 0})
+        UpdateContext({adBRCalMonth: Date(Year(Today()), Month(Today()), 1)})
     Children:
       - adConShell:
           Control: GroupContainer
@@ -396,9 +394,7 @@ Screens:
                                                 LayoutMinHeight: =0
                                                 LayoutMinWidth: =0
                                                 OnSelect: |-
-                                                  =UpdateContext({adTab: "Rooms"});
-                                                  UpdateContext({adRmShowForm: false});
-                                                  UpdateContext({adRmSel: 0})
+                                                  =UpdateContext({adTab: "Rooms"})
                                                 PressedBorderColor: =Color.Transparent
                                                 PressedColor: =AppTheme.TextPrimary
                                                 PressedFill: =AppTheme.Border
@@ -460,8 +456,9 @@ Screens:
                                                 LayoutMinHeight: =0
                                                 LayoutMinWidth: =0
                                                 OnSelect: |-
-                                                  =/* Settings live on their own screen (Admin was over the control-count budget). */
-                                                  Navigate(AdminSettings, ScreenTransition.None)
+                                                  =ClearCollect(colAppSettings, Book_AppSettings);
+                                                  Set(gblAsWeekend, WeekendPolicy);
+                                                  Set(gbl_UI_AdminSettings_Modal, true)
                                                 PressedBorderColor: =Color.Transparent
                                                 PressedColor: =AppTheme.TextPrimary
                                                 PressedFill: =AppTheme.Border
@@ -934,7 +931,8 @@ Screens:
                                             Set(gblRecurInterval, 1);
                                             Set(gblRecurWD, "");
                                             Set(gblRecurMonthMode, "day");
-                                            Navigate(AdminPermanentNew, ScreenTransition.None)
+                                            Set(gblRecurMode, "permanent");
+                                            Set(gbl_UI_PermanentNew_Modal, true)
                                           PressedColor: =ColorValue(AppTheme.PrimaryText)
                                           PressedFill: =ColorValue(AppTheme.ButtonPrimaryActive)
                                           RadiusBottomLeft: =0
@@ -2046,9 +2044,11 @@ Screens:
                                           LayoutMinHeight: =0
                                           LayoutMinWidth: =0
                                           OnSelect: |-
-                                            =UpdateContext({adRmSel: 0});
-                                            UpdateContext({adRmShowForm: true});
-                                            Reset(adRmInpTitle); Reset(adRmInpCap); Reset(adRmInpEquip); Reset(adRmInpDesc)
+                                            =Set(gbl_UI_RoomEditSel, 0);
+                                            Set(gbl_UI_RoomEdit_Modal, true);
+                                            // RESET-SITE[adrm-form] new-room seed: every stateful var this form owns
+                                            ClearCollect(colAdRmSystems, Filter(Table({Code: ""}), !IsBlank(Code)));
+                                            ClearCollect(colAdRmEquip, Filter(Table({Code: ""}), !IsBlank(Code)))
                                           PressedColor: =ColorValue(AppTheme.PrimaryText)
                                           PressedFill: =ColorValue(AppTheme.ButtonPrimaryActive)
                                           RadiusBottomLeft: =0
@@ -2058,6 +2058,36 @@ Screens:
                                           Size: =12
                                           Text: ="+ Add room"
                                           Width: =150
+                                    - adRmBtnMigrate:
+                                        Control: Classic/Button
+                                        Properties:
+                                          BorderColor: =AppTheme.Border
+                                          BorderThickness: =1
+                                          Color: =AppTheme.TextPrimary
+                                          Fill: =Color.Transparent
+                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                          FocusedBorderThickness: =2
+                                          Font: ="IBM Plex Sans"
+                                          FontWeight: =FontWeight.Normal
+                                          HoverColor: =AppTheme.TextPrimary
+                                          HoverFill: =AppTheme.SurfaceAlt
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          OnSelect: |-
+                                            =Set(gblAsMigScanned, false);
+                                            Set(gblAsMigConfirm, false);
+                                            Clear(colLegacyPlan);
+                                            Clear(colLegacyRows);
+                                            Set(gbl_UI_SeriesMigration_Modal, true)
+                                          PressedColor: =AppTheme.TextPrimary
+                                          PressedFill: =AppTheme.SurfaceAlt
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                          Size: =12
+                                          Text: ="Migrate legacy series"
+                                          Width: =190
                               - adRmConTableHeadWrap:
                                   Control: GroupContainer
                                   Variant: AutoLayout
@@ -2098,8 +2128,8 @@ Screens:
                                                   ="<div style=""display: flex; align-items: center;"">" &
                                                   CarbonSpan("flex: 1 1 auto; " & CarbonHtmlType.TableHead, "NAME", AppThemeHex.TextMuted) &
                                                   CarbonSpan("flex: 0 0 80px; " & CarbonHtmlType.TableHead, "CAPACITY", AppThemeHex.TextMuted) &
-                                                  CarbonSpan("flex: 0 0 210px; " & CarbonHtmlType.TableHead, "EQUIPMENT", AppThemeHex.TextMuted) &
-                                                  CarbonSpan("flex: 0 0 270px; " & CarbonHtmlType.TableHead, "DESCRIPTION", AppThemeHex.TextMuted) &
+                                                  CarbonSpan("flex: 0 0 240px; " & CarbonHtmlType.TableHead, "CLASSIFICATION", AppThemeHex.TextMuted) &
+                                                  CarbonSpan("flex: 0 0 240px; " & CarbonHtmlType.TableHead, "DESCRIPTION", AppThemeHex.TextMuted) &
                                                   CarbonSpan("flex: 0 0 70px; " & CarbonHtmlType.TableHead, "", AppThemeHex.TextMuted) &
                                                   "</div>"
                                                 LayoutMinHeight: =0
@@ -2150,7 +2180,7 @@ Screens:
                                     - adRmLblRowName:
                                         Control: Label
                                         Properties:
-                                          Color: =AppTheme.TextPrimary
+                                          Color: =If(ThisItem.IsActive, AppTheme.TextPrimary, AppTheme.TextMuted)
                                           Font: ="IBM Plex Sans"
                                           Height: =20
                                           Size: =12
@@ -2162,7 +2192,7 @@ Screens:
                                     - adRmLblRowCapacity:
                                         Control: Label
                                         Properties:
-                                          Color: =AppTheme.TextSecondary
+                                          Color: =If(ThisItem.IsActive, AppTheme.TextSecondary, AppTheme.TextMuted)
                                           Font: ="IBM Plex Sans"
                                           Height: =20
                                           Size: =12
@@ -2174,26 +2204,41 @@ Screens:
                                     - adRmLblRowEquipment:
                                         Control: Label
                                         Properties:
-                                          Color: =AppTheme.TextSecondary
+                                          Color: =If(ThisItem.IsActive, AppTheme.TextSecondary, AppTheme.TextMuted)
                                           Font: ="IBM Plex Sans"
                                           Height: =20
                                           Size: =12
-                                          Text: =Coalesce(ThisItem.Equipment, "—")
-                                          Width: =200
+                                          Text: |-
+                                            =With(
+                                                {
+                                                    _cls: Coalesce(LookUp(ClassificationLevels, Code = ThisItem.Classification).Label, ""),
+                                                    _sysRaw: Concat(Filter(SystemTagList As _t, fnHasTag(fnTagKey(ThisItem.Systems), _t.Code)) As _s, _s.Label & ", ")
+                                                },
+                                                With(
+                                                    {_sys: If(Len(_sysRaw) > 1, Left(_sysRaw, Len(_sysRaw) - 2), _sysRaw)},
+                                                    Coalesce(
+                                                        If(!IsBlank(_cls) && !IsBlank(_sys), _cls & " · " & _sys,
+                                                           !IsBlank(_cls), _cls,
+                                                           !IsBlank(_sys), _sys),
+                                                        "—"
+                                                    )
+                                                )
+                                            )
+                                          Width: =230
                                           Wrap: =false
                                           X: =Parent.TemplateWidth - 588
                                           Y: =14
                                     - adRmLblRowDescription:
                                         Control: Label
                                         Properties:
-                                          Color: =AppTheme.TextSecondary
+                                          Color: =If(ThisItem.IsActive, AppTheme.TextSecondary, AppTheme.TextMuted)
                                           Font: ="IBM Plex Sans"
                                           Height: =20
                                           Size: =12
                                           Text: =Coalesce(ThisItem.description, "—")
-                                          Width: =260
+                                          Width: =230
                                           Wrap: =false
-                                          X: =Parent.TemplateWidth - 378
+                                          X: =Parent.TemplateWidth - 348
                                           Y: =14
                                     - adRmBtnEdit:
                                         Control: Classic/Button
@@ -2214,9 +2259,13 @@ Screens:
                                           HoverColor: =ColorValue(AppTheme.ButtonTertiaryActive)
                                           HoverFill: =AppTheme.SurfaceAlt
                                           OnSelect: |-
-                                            =UpdateContext({adRmSel: ThisItem.ID});
-                                            UpdateContext({adRmShowForm: true});
-                                            Reset(adRmInpTitle); Reset(adRmInpCap); Reset(adRmInpEquip); Reset(adRmInpDesc)
+                                            =Set(gbl_UI_RoomEditSel, ThisItem.ID);
+                                            Set(gbl_UI_RoomEdit_Modal, true);
+                                            // RESET-SITE[adrm-form] edit-room seed: every stateful var this form owns
+                                            ClearCollect(colAdRmSystems,
+                                                ForAll(Filter(SystemTagList As _t, fnHasTag(fnTagKey(LookUp(colRooms, ID = ThisItem.ID).Systems), _t.Code)) As _s, {Code: _s.Code}));
+                                            ClearCollect(colAdRmEquip,
+                                                ForAll(Filter(EquipmentTagList As _t, fnHasTag(fnTagKey(LookUp(colRooms, ID = ThisItem.ID).Equipment), _t.Code)) As _s, {Code: _s.Code}))
                                           PressedBorderColor: =ColorValue(AppTheme.ButtonTertiaryActive)
                                           PressedColor: =ColorValue(AppTheme.ButtonTertiaryActive)
                                           PressedFill: =AppTheme.SurfaceAlt
@@ -2229,214 +2278,31 @@ Screens:
                                           Width: =70
                                           X: =Parent.TemplateWidth - 98
                                           Y: =8
-                              - adRmConForm:
-                                  Control: GroupContainer
-                                  Variant: AutoLayout
-                                  Properties:
-                                    DropShadow: =DropShadow.None
-                                    Fill: =AppTheme.SurfaceAlt
-                                    FillPortions: =0
-                                    LayoutAlignItems: =LayoutAlignItems.Stretch
-                                    LayoutDirection: =LayoutDirection.Vertical
-                                    LayoutGap: =12
-                                    LayoutMinHeight: =0
-                                    LayoutMinWidth: =0
-                                    PaddingBottom: =16
-                                    PaddingLeft: =16
-                                    PaddingRight: =16
-                                    PaddingTop: =16
-                                    RadiusBottomLeft: =0
-                                    RadiusBottomRight: =0
-                                    RadiusTopLeft: =0
-                                    RadiusTopRight: =0
-                                    Visible: =adRmShowForm
-                                    Width: =Parent.Width
-                                  Children:
-                                    - adRmHtxFormTitle:
-                                        Control: HtmlViewer
-                                        Properties:
-                                          DisplayMode: =DisplayMode.View
-                                          Height: =20
-                                          HtmlText: =CarbonText(CarbonHtmlType.HeadingCompact01, If(adRmSel = 0, "Add room", "Edit room"))
-                                          LayoutMinHeight: =0
-                                          LayoutMinWidth: =0
-                                          PaddingBottom: =0
-                                          PaddingLeft: =0
-                                          PaddingRight: =0
-                                          PaddingTop: =0
-                                    - adRmInpTitle:
-                                        Control: Classic/TextInput
-                                        Properties:
-                                          AccessibleLabel: ="Room name"
-                                          BorderColor: =AppTheme.Border
-                                          BorderThickness: =1
-                                          Color: =AppTheme.TextPrimary
-                                          Default: =LookUp(colRooms, ID = adRmSel, Title)
-                                          Fill: =AppTheme.layer01Bg
-                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
-                                          FocusedBorderThickness: =2
-                                          Font: ="IBM Plex Sans"
-                                          Height: =48
-                                          HintText: ="Room name"
-                                          HoverBorderColor: =AppTheme.TextSecondary
-                                          LayoutMinHeight: =0
-                                          LayoutMinWidth: =0
-                                          Size: =11
-                                          Width: =Parent.Width
-                                    - adRmInpCap:
-                                        Control: Classic/TextInput
-                                        Properties:
-                                          AccessibleLabel: ="Capacity"
-                                          BorderColor: =AppTheme.Border
-                                          BorderThickness: =1
-                                          Color: =AppTheme.TextPrimary
-                                          Default: =If(adRmSel = 0, "", Text(LookUp(colRooms, ID = adRmSel, Capacity)))
-                                          Fill: =AppTheme.layer01Bg
-                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
-                                          FocusedBorderThickness: =2
-                                          Font: ="IBM Plex Sans"
-                                          Format: =TextFormat.Number
-                                          Height: =48
-                                          HintText: ="Capacity"
-                                          HoverBorderColor: =AppTheme.TextSecondary
-                                          LayoutMinHeight: =0
-                                          LayoutMinWidth: =0
-                                          Size: =11
-                                          Width: =Parent.Width
-                                    - adRmInpEquip:
-                                        Control: Classic/TextInput
-                                        Properties:
-                                          AccessibleLabel: ="Equipment"
-                                          BorderColor: =AppTheme.Border
-                                          BorderThickness: =1
-                                          Color: =AppTheme.TextPrimary
-                                          Default: =LookUp(colRooms, ID = adRmSel, Equipment)
-                                          Fill: =AppTheme.layer01Bg
-                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
-                                          FocusedBorderThickness: =2
-                                          Font: ="IBM Plex Sans"
-                                          Height: =48
-                                          HintText: ="Equipment (comma-separated)"
-                                          HoverBorderColor: =AppTheme.TextSecondary
-                                          LayoutMinHeight: =0
-                                          LayoutMinWidth: =0
-                                          Size: =11
-                                          Width: =Parent.Width
-                                    - adRmInpDesc:
-                                        Control: Classic/TextInput
-                                        Properties:
-                                          AccessibleLabel: ="Description"
-                                          BorderColor: =AppTheme.Border
-                                          BorderThickness: =1
-                                          Color: =AppTheme.TextPrimary
-                                          Default: =LookUp(colRooms, ID = adRmSel, description)
-                                          Fill: =AppTheme.layer01Bg
-                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
-                                          FocusedBorderThickness: =2
-                                          Font: ="IBM Plex Sans"
-                                          Height: =48
-                                          HintText: ="Description"
-                                          HoverBorderColor: =AppTheme.TextSecondary
-                                          LayoutMinHeight: =0
-                                          LayoutMinWidth: =0
-                                          Size: =11
-                                          Width: =Parent.Width
-                                    - adRmConFormBtns:
-                                        Control: GroupContainer
-                                        Variant: AutoLayout
-                                        Properties:
-                                          DropShadow: =DropShadow.None
-                                          Fill: =Color.Transparent
-                                          FillPortions: =0
-                                          Height: =40
-                                          LayoutAlignItems: =LayoutAlignItems.Center
-                                          LayoutDirection: =LayoutDirection.Horizontal
-                                          LayoutGap: =8
-                                          LayoutMinHeight: =0
-                                          LayoutMinWidth: =0
-                                          Width: =Parent.Width
-                                        Children:
-                                          - adRmBtnSave:
-                                              Control: Classic/Button
-                                              Properties:
-                                                BorderColor: =ColorValue(AppTheme.ButtonPrimary)
-                                                BorderThickness: =0
-                                                Color: =ColorValue(AppTheme.PrimaryText)
-                                                Fill: =ColorValue(AppTheme.ButtonPrimary)
-                                                FocusedBorderColor: =ColorValue(AppTheme.Primary)
-                                                FocusedBorderThickness: =2
-                                                Font: ="IBM Plex Sans"
-                                                FontWeight: =FontWeight.Normal
-                                                HoverColor: =ColorValue(AppTheme.PrimaryText)
-                                                HoverFill: =ColorValue(AppTheme.ButtonPrimaryActive)
-                                                LayoutMinHeight: =0
-                                                LayoutMinWidth: =0
-                                                OnSelect: |-
-                                                  =If(IsBlank(Trim(adRmInpTitle.Text)) || Value(adRmInpCap.Text) <= 0 || IsBlank(Value(adRmInpCap.Text)),
-                                                      Notify("Room name and a positive capacity are required.", NotificationType.Error),
-                                                      IfError(
-                                                          If(adRmSel = 0,
-                                                              Patch(Book_Rooms, Defaults(Book_Rooms),
-                                                                  {
-                                                                      Title: Trim(adRmInpTitle.Text),
-                                                                      Capacity: Value(adRmInpCap.Text),
-                                                                      Equipment: Trim(adRmInpEquip.Text),
-                                                                      description: Trim(adRmInpDesc.Text),
-                                                                      RoomID: Max(colRooms, RoomID) + 1
-                                                                  }),
-                                                              Patch(Book_Rooms, LookUp(Book_Rooms, ID = adRmSel),
-                                                                  {
-                                                                      Title: Trim(adRmInpTitle.Text),
-                                                                      Capacity: Value(adRmInpCap.Text),
-                                                                      Equipment: Trim(adRmInpEquip.Text),
-                                                                      description: Trim(adRmInpDesc.Text)
-                                                                  })
-                                                          ),
-                                                          /* BOOK-5: on failure leave the form open with the admin's input
-                                                             and leave colRooms alone - the server never changed */
-                                                          Notify("Couldn't save this room. Please try again.", NotificationType.Error),
-                                                          /* MIRROR: colRooms is the app-wide snapshot every screen reads */
-                                                          /* P10 triage: this draws the same CollectDelegatableDataSource checker
-                                                             finding as the baselined App.OnStart pull - accepted; the rooms list
-                                                             is far below the 500-row limit and a Filter wrapper draws a delegation
-                                                             warning that fails the publish outright. */
-                                                          ClearCollect(colRooms, Book_Rooms);
-                                                          UpdateContext({adRmShowForm: false});
-                                                          Notify("Room saved.", NotificationType.Success)
-                                                      )
-                                                  )
-                                                PressedColor: =ColorValue(AppTheme.PrimaryText)
-                                                PressedFill: =ColorValue(AppTheme.ButtonPrimaryActive)
-                                                RadiusBottomLeft: =0
-                                                RadiusBottomRight: =0
-                                                RadiusTopLeft: =0
-                                                RadiusTopRight: =0
-                                                Size: =12
-                                                Text: ="Save room"
-                                                Width: =140
-                                          - adRmBtnClose:
-                                              Control: Classic/Button
-                                              Properties:
-                                                BorderColor: =AppTheme.Border
-                                                BorderThickness: =1
-                                                Color: =AppTheme.TextPrimary
-                                                Fill: =Color.Transparent
-                                                FocusedBorderColor: =ColorValue(AppTheme.Primary)
-                                                FocusedBorderThickness: =2
-                                                Font: ="IBM Plex Sans"
-                                                FontWeight: =FontWeight.Normal
-                                                HoverColor: =AppTheme.TextPrimary
-                                                HoverFill: =AppTheme.Border
-                                                LayoutMinHeight: =0
-                                                LayoutMinWidth: =0
-                                                OnSelect: |-
-                                                  =UpdateContext({adRmShowForm: false})
-                                                PressedColor: =AppTheme.TextPrimary
-                                                PressedFill: =AppTheme.Border
-                                                RadiusBottomLeft: =0
-                                                RadiusBottomRight: =0
-                                                RadiusTopLeft: =0
-                                                RadiusTopRight: =0
-                                                Size: =12
-                                                Text: ="Cancel"
-                                                Width: =110
+      - cpt_RoomEditModal_ad:
+          Control: CanvasComponent
+          ComponentName: cpt_RoomEditModal
+          Properties:
+            Height: =App.Height
+            Visible: =gbl_UI_RoomEdit_Modal = true
+            Width: =App.Width
+      - cpt_PermanentBookingModal_ad:
+          Control: CanvasComponent
+          ComponentName: cpt_PermanentBookingModal
+          Properties:
+            Height: =App.Height
+            Visible: =gbl_UI_PermanentNew_Modal = true
+            Width: =App.Width
+      - cpt_AdminSettingsModal_ad:
+          Control: CanvasComponent
+          ComponentName: cpt_AdminSettingsModal
+          Properties:
+            Height: =App.Height
+            Visible: =gbl_UI_AdminSettings_Modal = true
+            Width: =App.Width
+      - cpt_SeriesMigrationModal_ad:
+          Control: CanvasComponent
+          ComponentName: cpt_SeriesMigrationModal
+          Properties:
+            Height: =App.Height
+            Visible: =gbl_UI_SeriesMigration_Modal = true
+            Width: =App.Width

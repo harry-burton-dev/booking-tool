@@ -394,6 +394,29 @@ ComponentDefinitions:
                                           PressedBorderColor: =RGBA(0, 0, 0, 0)
                                           PressedFill: =RGBA(0, 0, 0, 0)
                                           Width: =Parent.Width
+                                    - wzLblClassBadge_rf:
+                                        Control: Label
+                                        Properties:
+                                          Align: =Align.Center
+                                          Color: |-
+                                            =With(
+                                                {_lvl: LookUp(ClassificationLevels, Code = ThisItem.Classification)},
+                                                Switch(_lvl.ColorToken, "StatusFree", AppTheme.StatusFreeText, "StatusBusy", AppTheme.StatusBusyText, AppTheme.TextSecondary)
+                                            )
+                                          Fill: |-
+                                            =With(
+                                                {_lvl: LookUp(ClassificationLevels, Code = ThisItem.Classification)},
+                                                Switch(_lvl.ColorToken, "StatusFree", AppTheme.StatusFreeBg, "StatusBusy", AppTheme.StatusBusyBg, AppTheme.SurfaceAlt)
+                                            )
+                                          Font: ="IBM Plex Sans"
+                                          Height: =18
+                                          Size: =9
+                                          Text: =Coalesce(LookUp(ClassificationLevels, Code = ThisItem.Classification).Label, "")
+                                          Visible: =!IsBlank(ThisItem.Classification) && ThisItem.Classification <> ""
+                                          Width: =Parent.Width - 34
+                                          Wrap: =false
+                                          X: =8
+                                          Y: =6
                                     - wzLblFavStar:
                                         Control: Label
                                         Properties:
@@ -2172,6 +2195,11 @@ ComponentDefinitions:
                                     DisplayMode: =DisplayMode.View
                                     HtmlText: |-
                                       =CarbonTextSecondary(CarbonHtmlType.HeadingCompact01, fnHtmlEscape(varSelectedRoom.Title)) &
+                                      If(
+                                          !IsBlank(varSelectedRoom.Classification) && varSelectedRoom.Classification <> "",
+                                          CarbonTextSecondary(CarbonHtmlType.Label01, "This room is rated " & fnHtmlEscape(LookUp(ClassificationLevels, Code = varSelectedRoom.Classification).Label) & ". Check your meeting is suitable for this room."),
+                                          ""
+                                      ) &
                                       CarbonTextSecondary(CarbonHtmlType.Label01, Text(varSelectedDate, "dd mmm yyyy")) &
                                       CarbonTextSecondary(CarbonHtmlType.Label01, Text(varStartTime, "HH:mm") & " - " & Text(varEndTime, "HH:mm")) &
                                       If(

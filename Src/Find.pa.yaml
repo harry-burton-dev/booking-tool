@@ -480,7 +480,6 @@ Screens:
                                     RadiusBottomRight: =0
                                     RadiusTopLeft: =0
                                     RadiusTopRight: =0
-                                    Visible: =false
                                     Width: =239
                                   Children:
                                     - lblFindSeats_f3:
@@ -498,10 +497,10 @@ Screens:
                                     - btnFindSeatsAny_f3:
                                         Control: Classic/Button
                                         Properties:
-                                          BorderColor: =If(varFindMinCapacity = 0 && varFindMaxCapacity = 0, AppTheme.TextPrimary, AppTheme.Border)
+                                          BorderColor: =If(gblRoomsMinCapacity = 0 && gblRoomsMaxCapacity = 0, AppTheme.TextPrimary, AppTheme.Border)
                                           BorderThickness: =1
-                                          Color: =If(varFindMinCapacity = 0 && varFindMaxCapacity = 0, AppTheme.Surface, AppTheme.TextSecondary)
-                                          Fill: =If(varFindMinCapacity = 0 && varFindMaxCapacity = 0, AppTheme.TextPrimary, AppTheme.Surface)
+                                          Color: =If(gblRoomsMinCapacity = 0 && gblRoomsMaxCapacity = 0, AppTheme.Surface, AppTheme.TextSecondary)
+                                          Fill: =If(gblRoomsMinCapacity = 0 && gblRoomsMaxCapacity = 0, AppTheme.TextPrimary, AppTheme.Surface)
                                           FocusedBorderColor: =ColorValue(AppTheme.Primary)
                                           FocusedBorderThickness: =2
                                           Font: ="IBM Plex Sans"
@@ -510,7 +509,7 @@ Screens:
                                           HoverColor: =AppTheme.TextPrimary
                                           HoverFill: =AppTheme.SurfaceAlt
                                           OnSelect: |-
-                                            =Set(varFindMinCapacity, 0); Set(varFindMaxCapacity, 0); UpdateContext({findSelRoomID: Blank(), findSelRoomTitle: Blank(), findSelStart: Blank(), findSelEnd: Blank()}); Select(btnLoadFindBookings)
+                                            =Set(gblRoomsMinCapacity, 0); Set(gblRoomsMaxCapacity, 0); UpdateContext({findSelRoomID: Blank(), findSelRoomTitle: Blank(), findSelStart: Blank(), findSelEnd: Blank()}); Select(btnLoadFindBookings)
                                           PressedBorderColor: =AppTheme.TextPrimary
                                           PressedColor: =AppTheme.Surface
                                           PressedFill: =AppTheme.TextPrimary
@@ -524,10 +523,10 @@ Screens:
                                     - btnFindSeats1to4_f3:
                                         Control: Classic/Button
                                         Properties:
-                                          BorderColor: =If(varFindMinCapacity = 0 && varFindMaxCapacity = 4, AppTheme.TextPrimary, AppTheme.Border)
+                                          BorderColor: =If(gblRoomsMinCapacity = 0 && gblRoomsMaxCapacity = 4, AppTheme.TextPrimary, AppTheme.Border)
                                           BorderThickness: =1
-                                          Color: =If(varFindMinCapacity = 0 && varFindMaxCapacity = 4, AppTheme.Surface, AppTheme.TextSecondary)
-                                          Fill: =If(varFindMinCapacity = 0 && varFindMaxCapacity = 4, AppTheme.TextPrimary, AppTheme.Surface)
+                                          Color: =If(gblRoomsMinCapacity = 0 && gblRoomsMaxCapacity = 4, AppTheme.Surface, AppTheme.TextSecondary)
+                                          Fill: =If(gblRoomsMinCapacity = 0 && gblRoomsMaxCapacity = 4, AppTheme.TextPrimary, AppTheme.Surface)
                                           FocusedBorderColor: =ColorValue(AppTheme.Primary)
                                           FocusedBorderThickness: =2
                                           Font: ="IBM Plex Sans"
@@ -536,7 +535,7 @@ Screens:
                                           HoverColor: =AppTheme.TextPrimary
                                           HoverFill: =AppTheme.SurfaceAlt
                                           OnSelect: |-
-                                            =Set(varFindMinCapacity, 0); Set(varFindMaxCapacity, 4); UpdateContext({findSelRoomID: Blank(), findSelRoomTitle: Blank(), findSelStart: Blank(), findSelEnd: Blank()}); Select(btnLoadFindBookings)
+                                            =Set(gblRoomsMinCapacity, 0); Set(gblRoomsMaxCapacity, 4); UpdateContext({findSelRoomID: Blank(), findSelRoomTitle: Blank(), findSelStart: Blank(), findSelEnd: Blank()}); Select(btnLoadFindBookings)
                                           PressedBorderColor: =AppTheme.TextPrimary
                                           PressedColor: =AppTheme.Surface
                                           PressedFill: =AppTheme.TextPrimary
@@ -550,10 +549,10 @@ Screens:
                                     - btnFindSeats5to9_f3:
                                         Control: Classic/Button
                                         Properties:
-                                          BorderColor: =If(varFindMinCapacity = 5 && varFindMaxCapacity = 9, AppTheme.TextPrimary, AppTheme.Border)
+                                          BorderColor: =If(gblRoomsMinCapacity = 5 && gblRoomsMaxCapacity = 9, AppTheme.TextPrimary, AppTheme.Border)
                                           BorderThickness: =1
-                                          Color: =If(varFindMinCapacity = 5 && varFindMaxCapacity = 9, AppTheme.Surface, AppTheme.TextSecondary)
-                                          Fill: =If(varFindMinCapacity = 5 && varFindMaxCapacity = 9, AppTheme.TextPrimary, AppTheme.Surface)
+                                          Color: =If(gblRoomsMinCapacity = 5 && gblRoomsMaxCapacity = 9, AppTheme.Surface, AppTheme.TextSecondary)
+                                          Fill: =If(gblRoomsMinCapacity = 5 && gblRoomsMaxCapacity = 9, AppTheme.TextPrimary, AppTheme.Surface)
                                           FocusedBorderColor: =ColorValue(AppTheme.Primary)
                                           FocusedBorderThickness: =2
                                           Font: ="IBM Plex Sans"
@@ -562,7 +561,7 @@ Screens:
                                           HoverColor: =AppTheme.TextPrimary
                                           HoverFill: =AppTheme.SurfaceAlt
                                           OnSelect: |-
-                                            =Set(varFindMinCapacity, 5); Set(varFindMaxCapacity, 9); UpdateContext({findSelRoomID: Blank(), findSelRoomTitle: Blank(), findSelStart: Blank(), findSelEnd: Blank()}); Select(btnLoadFindBookings)
+                                            =Set(gblRoomsMinCapacity, 5); Set(gblRoomsMaxCapacity, 9); UpdateContext({findSelRoomID: Blank(), findSelRoomTitle: Blank(), findSelStart: Blank(), findSelEnd: Blank()}); Select(btnLoadFindBookings)
                                           PressedBorderColor: =AppTheme.TextPrimary
                                           PressedColor: =AppTheme.Surface
                                           PressedFill: =AppTheme.TextPrimary
@@ -576,10 +575,10 @@ Screens:
                                     - btnFindSeats10plus_f3:
                                         Control: Classic/Button
                                         Properties:
-                                          BorderColor: =If(varFindMinCapacity = 10, AppTheme.TextPrimary, AppTheme.Border)
+                                          BorderColor: =If(gblRoomsMinCapacity = 10, AppTheme.TextPrimary, AppTheme.Border)
                                           BorderThickness: =1
-                                          Color: =If(varFindMinCapacity = 10, AppTheme.Surface, AppTheme.TextSecondary)
-                                          Fill: =If(varFindMinCapacity = 10, AppTheme.TextPrimary, AppTheme.Surface)
+                                          Color: =If(gblRoomsMinCapacity = 10, AppTheme.Surface, AppTheme.TextSecondary)
+                                          Fill: =If(gblRoomsMinCapacity = 10, AppTheme.TextPrimary, AppTheme.Surface)
                                           FocusedBorderColor: =ColorValue(AppTheme.Primary)
                                           FocusedBorderThickness: =2
                                           Font: ="IBM Plex Sans"
@@ -588,7 +587,7 @@ Screens:
                                           HoverColor: =AppTheme.TextPrimary
                                           HoverFill: =AppTheme.SurfaceAlt
                                           OnSelect: |-
-                                            =Set(varFindMinCapacity, 10); Set(varFindMaxCapacity, 0); UpdateContext({findSelRoomID: Blank(), findSelRoomTitle: Blank(), findSelStart: Blank(), findSelEnd: Blank()}); Select(btnLoadFindBookings)
+                                            =Set(gblRoomsMinCapacity, 10); Set(gblRoomsMaxCapacity, 0); UpdateContext({findSelRoomID: Blank(), findSelRoomTitle: Blank(), findSelStart: Blank(), findSelEnd: Blank()}); Select(btnLoadFindBookings)
                                           PressedBorderColor: =AppTheme.TextPrimary
                                           PressedColor: =AppTheme.Surface
                                           PressedFill: =AppTheme.TextPrimary
@@ -615,8 +614,7 @@ Screens:
                                     RadiusBottomRight: =0
                                     RadiusTopLeft: =0
                                     RadiusTopRight: =0
-                                    Visible: =false
-                                    Width: =332
+                                    Width: =45 + (CountRows(EquipmentTagList) * 90)
                                   Children:
                                     - lblFindEquip_f3:
                                         Control: Label
@@ -630,136 +628,200 @@ Screens:
                                           Size: =11
                                           Text: ="Equip"
                                           Width: =44
-                                    - btnFindEquipAll_f3:
-                                        Control: Classic/Button
+                                    - galFindEquip_rf:
+                                        Control: Gallery
+                                        Variant: Horizontal
                                         Properties:
-                                          BorderColor: =If(varFindEquipment = "Any", AppTheme.TextPrimary, AppTheme.Border)
-                                          BorderThickness: =1
-                                          Color: =If(varFindEquipment = "Any", AppTheme.Surface, AppTheme.TextSecondary)
-                                          Fill: =If(varFindEquipment = "Any", AppTheme.TextPrimary, AppTheme.Surface)
-                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
-                                          FocusedBorderThickness: =2
+                                          FillPortions: =0
+                                          Height: =32
+                                          Items: =EquipmentTagList
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          ShowScrollbar: =false
+                                          TemplatePadding: =1
+                                          TemplateSize: =90
+                                          Width: =CountRows(EquipmentTagList) * 90
+                                        Children:
+                                          - btnFindEquipChip_rf:
+                                              Control: Classic/Button
+                                              Properties:
+                                                BorderColor: =If(ThisItem.Code in colRoomFacetEquipment.Code, AppTheme.TextPrimary, AppTheme.Border)
+                                                BorderThickness: =1
+                                                Color: =If(ThisItem.Code in colRoomFacetEquipment.Code, AppTheme.Surface, AppTheme.TextSecondary)
+                                                Fill: =If(ThisItem.Code in colRoomFacetEquipment.Code, AppTheme.TextPrimary, AppTheme.Surface)
+                                                FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                                FocusedBorderThickness: =2
+                                                Font: ="IBM Plex Sans"
+                                                Height: =32
+                                                HoverBorderColor: =AppTheme.Border
+                                                HoverColor: =AppTheme.TextPrimary
+                                                HoverFill: =AppTheme.SurfaceAlt
+                                                OnSelect: |-
+                                                  =If(
+                                                      ThisItem.Code in colRoomFacetEquipment.Code,
+                                                      RemoveIf(colRoomFacetEquipment, Code = ThisItem.Code),
+                                                      Collect(colRoomFacetEquipment, {Code: ThisItem.Code})
+                                                  );
+                                                  UpdateContext({findSelRoomID: Blank(), findSelRoomTitle: Blank(), findSelStart: Blank(), findSelEnd: Blank()});
+                                                  Select(btnLoadFindBookings)
+                                                PressedBorderColor: =AppTheme.TextPrimary
+                                                PressedColor: =AppTheme.Surface
+                                                PressedFill: =AppTheme.TextPrimary
+                                                RadiusBottomLeft: =0
+                                                RadiusBottomRight: =0
+                                                RadiusTopLeft: =0
+                                                RadiusTopRight: =0
+                                                Size: =11
+                                                Text: =ThisItem.Label
+                                                Width: =Parent.TemplateWidth - 2
+                              - conFindSystemsSeg_rf:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
+                                  Properties:
+                                    DropShadow: =DropShadow.None
+                                    FillPortions: =0
+                                    Height: =32
+                                    LayoutAlignItems: =LayoutAlignItems.Center
+                                    LayoutDirection: =LayoutDirection.Horizontal
+                                    LayoutGap: =1
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Width: =45 + (CountRows(SystemTagList) * 90)
+                                  Children:
+                                    - lblFindSystems_rf:
+                                        Control: Label
+                                        Properties:
+                                          Align: =Align.Right
+                                          AlignInContainer: =AlignInContainer.Center
+                                          Color: =AppTheme.TextMuted
                                           Font: ="IBM Plex Sans"
                                           Height: =32
-                                          HoverBorderColor: =AppTheme.Border
-                                          HoverColor: =AppTheme.TextPrimary
-                                          HoverFill: =AppTheme.SurfaceAlt
-                                          OnSelect: |-
-                                            =Set(varFindEquipment, "Any"); UpdateContext({findSelRoomID: Blank(), findSelRoomTitle: Blank(), findSelStart: Blank(), findSelEnd: Blank()}); Select(btnLoadFindBookings)
-                                          PressedBorderColor: =AppTheme.TextPrimary
-                                          PressedColor: =AppTheme.Surface
-                                          PressedFill: =AppTheme.TextPrimary
-                                          RadiusBottomLeft: =0
-                                          RadiusBottomRight: =0
-                                          RadiusTopLeft: =0
-                                          RadiusTopRight: =0
+                                          PaddingRight: =8
                                           Size: =11
-                                          Text: ="All"
-                                          Width: =40
-                                    - btnFindEquipScreen_f3:
-                                        Control: Classic/Button
+                                          Text: ="Systems"
+                                          Width: =44
+                                    - galFindSystems_rf:
+                                        Control: Gallery
+                                        Variant: Horizontal
                                         Properties:
-                                          BorderColor: =If(varFindEquipment = "Screen", AppTheme.TextPrimary, AppTheme.Border)
-                                          BorderThickness: =1
-                                          Color: =If(varFindEquipment = "Screen", AppTheme.Surface, AppTheme.TextSecondary)
-                                          Fill: =If(varFindEquipment = "Screen", AppTheme.TextPrimary, AppTheme.Surface)
-                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
-                                          FocusedBorderThickness: =2
+                                          FillPortions: =0
+                                          Height: =32
+                                          Items: =SystemTagList
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          ShowScrollbar: =false
+                                          TemplatePadding: =1
+                                          TemplateSize: =90
+                                          Width: =CountRows(SystemTagList) * 90
+                                        Children:
+                                          - btnFindSystemsChip_rf:
+                                              Control: Classic/Button
+                                              Properties:
+                                                BorderColor: =If(ThisItem.Code in colRoomFacetSystems.Code, AppTheme.TextPrimary, AppTheme.Border)
+                                                BorderThickness: =1
+                                                Color: =If(ThisItem.Code in colRoomFacetSystems.Code, AppTheme.Surface, AppTheme.TextSecondary)
+                                                Fill: =If(ThisItem.Code in colRoomFacetSystems.Code, AppTheme.TextPrimary, AppTheme.Surface)
+                                                FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                                FocusedBorderThickness: =2
+                                                Font: ="IBM Plex Sans"
+                                                Height: =32
+                                                HoverBorderColor: =AppTheme.Border
+                                                HoverColor: =AppTheme.TextPrimary
+                                                HoverFill: =AppTheme.SurfaceAlt
+                                                OnSelect: |-
+                                                  =If(
+                                                      ThisItem.Code in colRoomFacetSystems.Code,
+                                                      RemoveIf(colRoomFacetSystems, Code = ThisItem.Code),
+                                                      Collect(colRoomFacetSystems, {Code: ThisItem.Code})
+                                                  );
+                                                  UpdateContext({findSelRoomID: Blank(), findSelRoomTitle: Blank(), findSelStart: Blank(), findSelEnd: Blank()});
+                                                  Select(btnLoadFindBookings)
+                                                PressedBorderColor: =AppTheme.TextPrimary
+                                                PressedColor: =AppTheme.Surface
+                                                PressedFill: =AppTheme.TextPrimary
+                                                RadiusBottomLeft: =0
+                                                RadiusBottomRight: =0
+                                                RadiusTopLeft: =0
+                                                RadiusTopRight: =0
+                                                Size: =11
+                                                Text: =ThisItem.Label
+                                                Width: =Parent.TemplateWidth - 2
+                              - conFindClassSeg_rf:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
+                                  Properties:
+                                    DropShadow: =DropShadow.None
+                                    FillPortions: =0
+                                    Height: =32
+                                    LayoutAlignItems: =LayoutAlignItems.Center
+                                    LayoutDirection: =LayoutDirection.Horizontal
+                                    LayoutGap: =1
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Width: =45 + (CountRows(ClassificationLevels) * 150)
+                                  Children:
+                                    - lblFindClass_rf:
+                                        Control: Label
+                                        Properties:
+                                          Align: =Align.Right
+                                          AlignInContainer: =AlignInContainer.Center
+                                          Color: =AppTheme.TextMuted
                                           Font: ="IBM Plex Sans"
                                           Height: =32
-                                          HoverBorderColor: =AppTheme.Border
-                                          HoverColor: =AppTheme.TextPrimary
-                                          HoverFill: =AppTheme.SurfaceAlt
-                                          OnSelect: |-
-                                            =Set(varFindEquipment, "Screen"); UpdateContext({findSelRoomID: Blank(), findSelRoomTitle: Blank(), findSelStart: Blank(), findSelEnd: Blank()}); Select(btnLoadFindBookings)
-                                          PressedBorderColor: =AppTheme.TextPrimary
-                                          PressedColor: =AppTheme.Surface
-                                          PressedFill: =AppTheme.TextPrimary
-                                          RadiusBottomLeft: =0
-                                          RadiusBottomRight: =0
-                                          RadiusTopLeft: =0
-                                          RadiusTopRight: =0
+                                          PaddingRight: =8
                                           Size: =11
-                                          Text: ="Screen"
-                                          Width: =56
-                                    - btnFindEquipVC_f3:
-                                        Control: Classic/Button
+                                          Text: ="Class"
+                                          Width: =44
+                                    - galFindClass_rf:
+                                        Control: Gallery
+                                        Variant: Horizontal
                                         Properties:
-                                          BorderColor: =If(varFindEquipment = "VC", AppTheme.TextPrimary, AppTheme.Border)
-                                          BorderThickness: =1
-                                          Color: =If(varFindEquipment = "VC", AppTheme.Surface, AppTheme.TextSecondary)
-                                          Fill: =If(varFindEquipment = "VC", AppTheme.TextPrimary, AppTheme.Surface)
-                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
-                                          FocusedBorderThickness: =2
-                                          Font: ="IBM Plex Sans"
+                                          FillPortions: =0
                                           Height: =32
-                                          HoverBorderColor: =AppTheme.Border
-                                          HoverColor: =AppTheme.TextPrimary
-                                          HoverFill: =AppTheme.SurfaceAlt
-                                          OnSelect: |-
-                                            =Set(varFindEquipment, "VC"); UpdateContext({findSelRoomID: Blank(), findSelRoomTitle: Blank(), findSelStart: Blank(), findSelEnd: Blank()}); Select(btnLoadFindBookings)
-                                          PressedBorderColor: =AppTheme.TextPrimary
-                                          PressedColor: =AppTheme.Surface
-                                          PressedFill: =AppTheme.TextPrimary
-                                          RadiusBottomLeft: =0
-                                          RadiusBottomRight: =0
-                                          RadiusTopLeft: =0
-                                          RadiusTopRight: =0
-                                          Size: =11
-                                          Text: ="VC"
-                                          Width: =36
-                                    - btnFindEquipWhiteboard_f3:
-                                        Control: Classic/Button
-                                        Properties:
-                                          BorderColor: =If(varFindEquipment = "Whiteboard", AppTheme.TextPrimary, AppTheme.Border)
-                                          BorderThickness: =1
-                                          Color: =If(varFindEquipment = "Whiteboard", AppTheme.Surface, AppTheme.TextSecondary)
-                                          Fill: =If(varFindEquipment = "Whiteboard", AppTheme.TextPrimary, AppTheme.Surface)
-                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
-                                          FocusedBorderThickness: =2
-                                          Font: ="IBM Plex Sans"
-                                          Height: =32
-                                          HoverBorderColor: =AppTheme.Border
-                                          HoverColor: =AppTheme.TextPrimary
-                                          HoverFill: =AppTheme.SurfaceAlt
-                                          OnSelect: |-
-                                            =Set(varFindEquipment, "Whiteboard"); UpdateContext({findSelRoomID: Blank(), findSelRoomTitle: Blank(), findSelStart: Blank(), findSelEnd: Blank()}); Select(btnLoadFindBookings)
-                                          PressedBorderColor: =AppTheme.TextPrimary
-                                          PressedColor: =AppTheme.Surface
-                                          PressedFill: =AppTheme.TextPrimary
-                                          RadiusBottomLeft: =0
-                                          RadiusBottomRight: =0
-                                          RadiusTopLeft: =0
-                                          RadiusTopRight: =0
-                                          Size: =11
-                                          Text: ="Whiteboard"
-                                          Width: =80
-                                    - btnFindEquipProjector_f3:
-                                        Control: Classic/Button
-                                        Properties:
-                                          BorderColor: =If(varFindEquipment = "Projector", AppTheme.TextPrimary, AppTheme.Border)
-                                          BorderThickness: =1
-                                          Color: =If(varFindEquipment = "Projector", AppTheme.Surface, AppTheme.TextSecondary)
-                                          Fill: =If(varFindEquipment = "Projector", AppTheme.TextPrimary, AppTheme.Surface)
-                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
-                                          FocusedBorderThickness: =2
-                                          Font: ="IBM Plex Sans"
-                                          Height: =32
-                                          HoverBorderColor: =AppTheme.Border
-                                          HoverColor: =AppTheme.TextPrimary
-                                          HoverFill: =AppTheme.SurfaceAlt
-                                          OnSelect: |-
-                                            =Set(varFindEquipment, "Projector"); UpdateContext({findSelRoomID: Blank(), findSelRoomTitle: Blank(), findSelStart: Blank(), findSelEnd: Blank()}); Select(btnLoadFindBookings)
-                                          PressedBorderColor: =AppTheme.TextPrimary
-                                          PressedColor: =AppTheme.Surface
-                                          PressedFill: =AppTheme.TextPrimary
-                                          RadiusBottomLeft: =0
-                                          RadiusBottomRight: =0
-                                          RadiusTopLeft: =0
-                                          RadiusTopRight: =0
-                                          Size: =11
-                                          Text: ="Projector"
-                                          Width: =68
+                                          Items: =ClassificationLevels
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          ShowScrollbar: =false
+                                          TemplatePadding: =1
+                                          TemplateSize: =150
+                                          Width: =CountRows(ClassificationLevels) * 150
+                                        Children:
+                                          - btnFindClassChip_rf:
+                                              Control: Classic/Button
+                                              Properties:
+                                                BorderColor: =If(gblRoomMinClassRank = ThisItem.Rank, AppTheme.TextPrimary, AppTheme.Border)
+                                                BorderThickness: =1
+                                                Color: =If(gblRoomMinClassRank = ThisItem.Rank, AppTheme.Surface, AppTheme.TextSecondary)
+                                                Fill: =If(gblRoomMinClassRank = ThisItem.Rank, AppTheme.TextPrimary, AppTheme.Surface)
+                                                FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                                FocusedBorderThickness: =2
+                                                Font: ="IBM Plex Sans"
+                                                Height: =32
+                                                HoverBorderColor: =AppTheme.Border
+                                                HoverColor: =AppTheme.TextPrimary
+                                                HoverFill: =AppTheme.SurfaceAlt
+                                                OnSelect: |-
+                                                  =Set(gblRoomMinClassRank, If(gblRoomMinClassRank = ThisItem.Rank, 0, ThisItem.Rank));
+                                                  UpdateContext({findSelRoomID: Blank(), findSelRoomTitle: Blank(), findSelStart: Blank(), findSelEnd: Blank()});
+                                                  Select(btnLoadFindBookings)
+                                                PressedBorderColor: =AppTheme.TextPrimary
+                                                PressedColor: =AppTheme.Surface
+                                                PressedFill: =AppTheme.TextPrimary
+                                                RadiusBottomLeft: =0
+                                                RadiusBottomRight: =0
+                                                RadiusTopLeft: =0
+                                                RadiusTopRight: =0
+                                                Size: =11
+                                                Text: =ThisItem.Label
+                                                Width: =Parent.TemplateWidth - 2
                         - conFindToolbarRule_f3:
                             Control: GroupContainer
                             Variant: AutoLayout
@@ -894,7 +956,16 @@ Screens:
                                                         "</span></div>",
                                                         ""
                                                     ) &
-                                                    "<div style='" & CarbonHtmlType.Code01 & " color:" & AppThemeHex.TextMuted & "; white-space:nowrap;'>seats " & ThisItem.Capacity & "</div>" &
+                                                    "<div style='display:flex; align-items:center; gap:6px; white-space:nowrap;'>" &
+                                                    If(ThisItem.Classification <> "",
+                                                        "<span style='" & CarbonHtmlType.Code01 & " font-weight:600; color:" & Switch(LookUp(ClassificationLevels, Code = ThisItem.Classification).ColorToken, "StatusFree", AppThemeHex.StatusFreeText, "StatusBusy", AppThemeHex.StatusBusyText, AppThemeHex.TextSecondary) & ";'>" & fnHtmlEscape(ThisItem.Classification) & "</span>",
+                                                        ""
+                                                    ) &
+                                                    "<span style='" & CarbonHtmlType.Code01 & " color:" & AppThemeHex.TextMuted & ";'>seats " & ThisItem.Capacity &
+                                                    With({_sysRaw: Concat(Filter(SystemTagList As _t, fnHasTag(ThisItem.SystemsKey, _t.Code)) As _s, fnHtmlEscape(_s.Code) & ",")},
+                                                        If(Len(_sysRaw) > 0, " · " & Left(_sysRaw, Len(_sysRaw) - 1), "")
+                                                    ) &
+                                                    "</span></div>" &
                                                     "</div>" &
                                                     "<div style='flex:1 1 auto; position:relative; overflow:hidden;'>" &
                                                     If(_isDay,

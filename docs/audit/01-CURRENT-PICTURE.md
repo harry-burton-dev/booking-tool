@@ -12,7 +12,7 @@ Companion to `00-INSTALL-AUDIT.md`; finding IDs (U2, T6…) refer to that report
 |---|---|
 | Repo | 3 commits on `master`, working tree clean, **no remote** |
 | App source | `Src/` — App, 6 screens (Home, bookingDetail, Find, myBookings, Profile, Rooms), 2 components (Shell_Header, cpt_Modal_), `_EditorState` |
-| Bound app | `498d4962-0b5f-4990-a400-1bf5de9a367c` in `Default-ecf69819-…` (tenant default environment) |
+| Bound app | `a5fe0780-88fa-4bc5-9e55-5a2e9850ecda` in `Default-ecf69819-…` (tenant default environment) |
 | MCP | `plugin_canvas-apps_canvas-authoring`, connected as `harry@harry-burton.ai` |
 | Toolkit | Process V2 @ `84cfd20`, 9 tools vendored, 102/102 tests, provenance stamped |
 | Toolchain | node v24.14.1 · pac CLI 2.8.1 · Git Bash (pinned by absolute path) · Python 3.14.3 · PowerShell 5.1 |

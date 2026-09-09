@@ -670,6 +670,118 @@ App:
                   /* Sandbox sentinel - the production revert flips this to false (MOCK_DATA.md) */
                   IsSandbox = false;
 
+                  //--------------------------------------------------------
+                  //--- Room facilities vocabulary (T3): classification tags,
+                  //--- system/equipment tag matching, derived-key helpers ---
+                  //--------------------------------------------------------
+
+                  /* In-code fallback vocabularies (T3). These are what ClassificationLevels/
+                     SystemTagList/EquipmentTagList resolve to before any admin configures rows
+                     in Book_AppSettings, so the feature works out of the box. */
+                  ClassificationDefaults = Table(
+                      {Code: "OFF", Label: "Official",           Rank: 10, ColorToken: "StatusFree"},
+                      {Code: "OS",  Label: "Official-Sensitive", Rank: 20, ColorToken: "StatusBusy"},
+                      {Code: "SEC", Label: "Secret",             Rank: 30, ColorToken: "StatusBusy"}
+                  );
+                  SystemTagDefaults = Table(
+                      {Code: "MODNET",     Label: "MODNET"},
+                      {Code: "DVS",        Label: "DVS"},
+                      {Code: "VTC",        Label: "VTC"},
+                      {Code: "STANDALONE", Label: "Standalone"}
+                  );
+                  EquipmentTagDefaults = Table(
+                      {Code: "Screen",     Label: "Screen"},
+                      {Code: "Whiteboard", Label: "Whiteboard"},
+                      {Code: "Projector",  Label: "Projector"},
+                      {Code: "VC",         Label: "VC"}
+                  );
+
+                  /* Settings-backed vocabularies (T3). Rows share Title = "Classification" /
+                     "SystemTag" / "EquipmentTag" in Book_AppSettings (same multi-row-key
+                     pattern as AdminEmailList above), pipe-delimited in Value:
+                     Classification is code|label|rank|themeToken, the tag lists are code|label.
+                     Falls back to the in-code defaults above when no rows are configured yet.
+                     ClassificationLevels is sorted by Rank ascending. */
+                  ClassificationLevels = With(
+                      {_rows: Filter(colAppSettings, Title = "Classification")},
+                      If(
+                          IsEmpty(_rows),
+                          ClassificationDefaults,
+                          Sort(
+                              ForAll(
+                                  _rows As _r,
+                                  With(
+                                      {_p: Split(_r.Value, "|")},
+                                      {
+                                          Code: Index(_p, 1).Value,
+                                          Label: Index(_p, 2).Value,
+                                          Rank: Value(Index(_p, 3).Value),
+                                          ColorToken: Index(_p, 4).Value
+                                      }
+                                  )
+                              ),
+                              Rank,
+                              SortOrder.Ascending
+                          )
+                      )
+                  );
+                  SystemTagList = With(
+                      {_rows: Filter(colAppSettings, Title = "SystemTag")},
+                      If(
+                          IsEmpty(_rows),
+                          SystemTagDefaults,
+                          ForAll(
+                              _rows As _r,
+                              With(
+                                  {_p: Split(_r.Value, "|")},
+                                  {Code: Index(_p, 1).Value, Label: Index(_p, 2).Value}
+                              )
+                          )
+                      )
+                  );
+                  EquipmentTagList = With(
+                      {_rows: Filter(colAppSettings, Title = "EquipmentTag")},
+                      If(
+                          IsEmpty(_rows),
+                          EquipmentTagDefaults,
+                          ForAll(
+                              _rows As _r,
+                              With(
+                                  {_p: Split(_r.Value, "|")},
+                                  {Code: Index(_p, 1).Value, Label: Index(_p, 2).Value}
+                              )
+                          )
+                      )
+                  );
+
+                  /* Tag key/match helpers (T3, defect B-1). Canonical key form is lowercase,
+                     semicolon-delimited, WITH leading and trailing semicolons - that is what
+                     makes fnHasTag an exact membership test instead of a substring match
+                     (";vc;" in ";screen;vc;" is true; ";vc;" in ";screen;avc;" is false). */
+                  fnTagKey(raw:Text):Text =
+                      ";" & Concat(
+                          ForAll(
+                              Split(Substitute(Coalesce(raw, ""), ",", ";"), ";") As _t,
+                              {V: Trim(_t.Value)}
+                          ),
+                          If(IsBlank(V), "", Lower(V) & ";")
+                      );
+
+                  fnHasTag(key:Text, tag:Text):Boolean = ";" & Lower(Trim(tag)) & ";" in key;
+
+                  /* Classification rank helper (T3). 0 for a blank or unrecognised code, so an
+                     unrated room never outranks a rated one in classification-ordered
+                     comparisons. The LookUp is inlined rather than split into a fnClassOf
+                     companion: a UDF must declare a return type, and Power Fx has no record
+                     return type to declare here (probe compile 2026-09-09 rejected it with
+                     "'fnClassOf' is an unknown or unsupported function"). Consumers that need
+                     the whole level record LookUp ClassificationLevels directly. */
+                  fnClassRank(code:Text):Number = Coalesce(LookUp(ClassificationLevels, Code = code).Rank, 0);
+
+                  //--------------------------------------------------------
+                  //--- End room facilities vocabulary (T3) ---
+                  //--------------------------------------------------------
+
                   ThemeMap = {
                       Light: {
                           PrimaryText: ThemeMapHex.Light.PrimaryText,
@@ -1149,15 +1261,25 @@ App:
                       StartDateTime, SortOrder.Ascending
                   );
 
-                  /* Rooms surfaced on Find after the capacity/equipment filter (P-6/S-3).
-                     varFindMinCapacity: 0 = Any. varFindMaxCapacity: 0 = no upper bound
-                     (seat-bucket filter, e.g. 1-4 / 5-9 / 10+). varFindEquipment: "Any"
-                     or one Equipment token. */
-                  FindRooms = Filter(colRooms,
-                      Capacity >= varFindMinCapacity,
-                      varFindMaxCapacity = 0 || Capacity <= varFindMaxCapacity,
-                      varFindEquipment = "Any" || varFindEquipment in Equipment
+                  /* Shared room filter model (B-1) - the single filtered list both Rooms and
+                     Find consume, over RoomsBrowseBase. gblRoomsMinCapacity/gblRoomsMaxCapacity:
+                     0 = no bound. gblRoomMinClassRank: 0 = any classification, otherwise >= rank
+                     so asking for Official also returns Official-Sensitive and Secret rooms.
+                     colRoomFacetSystems/colRoomFacetEquipment: {Code} rows a room's SystemsKey/
+                     EquipmentKey must all match via fnHasTag. Consumed by RoomsBrowseData
+                     (Rooms browse screen) and FindRooms (Find screen). */
+                  RoomFacetFiltered = Filter(
+                      RoomsBrowseBase As _room,
+                      _room.IsActive,
+                      _room.Capacity >= gblRoomsMinCapacity,
+                      gblRoomsMaxCapacity = 0 || _room.Capacity <= gblRoomsMaxCapacity,
+                      gblRoomMinClassRank = 0 || _room.ClassRank >= gblRoomMinClassRank,
+                      CountRows(Filter(colRoomFacetSystems   As _req, !fnHasTag(_room.SystemsKey,   _req.Code))) = 0,
+                      CountRows(Filter(colRoomFacetEquipment As _req, !fnHasTag(_room.EquipmentKey, _req.Code))) = 0
                   );
+
+                  /* Rooms surfaced on Find - the shared facet model, unfiltered by search/sort. */
+                  FindRooms = RoomFacetFiltered;
 
                   RoomsBrowseBase =
                       ForAll(
@@ -1187,6 +1309,12 @@ App:
                                       Description: _room.description,
                                       Capacity: _room.Capacity,
                                       Equipment: Coalesce(_room.Equipment, ""),
+                                      Classification: Coalesce(_room.Classification, ""),
+                                      ClassRank: fnClassRank(_room.Classification),
+                                      SystemsKey: fnTagKey(_room.Systems),
+                                      EquipmentKey: fnTagKey(_room.Equipment),
+                                      Notes: Coalesce(_room.RoomNotes, ""),
+                                      IsActive: Coalesce(_room.IsActive, true),
                                       StatusKey: If(
                                           varNowTick < TodayWindowStart || varNowTick >= TodayWindowEnd,
                                           "OutsideHours",
@@ -1259,6 +1387,9 @@ App:
                           )
                       );
 
+                  /* Rooms browse list (B-1): search needle and availability applied over the
+                     shared RoomFacetFiltered model - capacity/classification/systems/equipment
+                     are RoomFacetFiltered's job, not this formula's. */
                   RoomsBrowseData =
                       With(
                           {
@@ -1267,19 +1398,13 @@ App:
                           With(
                               {
                                   _filtered: Filter(
-                                      RoomsBrowseBase As _room,
+                                      RoomFacetFiltered As _room,
                                       IsBlank(_needle) ||
                                           _needle in Lower(_room.Title) ||
                                           _needle in Lower(_room.Description) ||
-                                          _needle in Lower(_room.Equipment),
-                                      _room.Capacity >= gblRoomsMinCapacity,
-                                      !gblRoomsAvailableOnly || _room.IsAvailableNow,
-                                      CountRows(
-                                          Filter(
-                                              colRoomsEquipmentFilter As _required,
-                                              !(Lower(_required.Value) in Lower(_room.Equipment))
-                                          )
-                                      ) = 0
+                                          _needle in Lower(_room.Equipment) ||
+                                          _needle in Lower(_room.Notes),
+                                      !gblRoomsAvailableOnly || _room.IsAvailableNow
                                   )
                               },
                               Switch(
@@ -1325,20 +1450,25 @@ App:
 
                   Set(gblUI_Nav_currentTab, "Home");
                   Set(gbl_UI_Update, false);
+                  Set(gbl_UI_RoomEdit_Modal, false);
+                  Set(gbl_UI_RoomEditSel, 0);
+                  Set(gbl_UI_PermanentNew_Modal, false);
+                  Set(gbl_UI_AdminSettings_Modal, false);
+                  Set(gbl_UI_SeriesMigration_Modal, false);
+                  Set(gblAsWeekend, "");
+                  Set(gblAsMigConfirm, false);
+                  Set(gblAsMigScanned, false);
                   Set(glbSelectedDate, Today());
                   Set(varNowTick, Now());
                   Set(varMyBookingsFilter, "Upcoming");
-                  Set(varFindMinCapacity, 0);
-                  Set(varFindMaxCapacity, 0);
-                  Set(varFindEquipment, "Any");
                   Set(gblRoomsSearch, "");
                   Set(gblRoomsMinCapacity, 0);
+                  Set(gblRoomsMaxCapacity, 0);
+                  Set(gblRoomMinClassRank, 0);
                   Set(gblRoomsSort, "Name");
                   Set(gblRoomsAvailableOnly, false);
-                  ClearCollect(
-                      colRoomsEquipmentFilter,
-                      Filter(Table({Value: ""}), !IsBlank(Value))
-                  );
+                  ClearCollect(colRoomFacetSystems,   Filter(Table({Code: ""}), !IsBlank(Code)));
+                  ClearCollect(colRoomFacetEquipment, Filter(Table({Code: ""}), !IsBlank(Code)));
                   /* 0 = create mode; >0 = booking being edited */
                   Set(gblEditingBookingID, 0);
                   /* T-09: the room staged alongside gbl_PendingStart/End while the series scope
