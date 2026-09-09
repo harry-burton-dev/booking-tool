@@ -339,7 +339,7 @@ Screens:
                                           LayoutMinHeight: =0
                                           ShowScrollbar: =false
                                           TemplatePadding: =2
-                                          TemplateSize: =98
+                                          TemplateSize: =132
                                         Children:
                                           - btnRoomsFacetClass_rf:
                                               Control: Classic/Button
