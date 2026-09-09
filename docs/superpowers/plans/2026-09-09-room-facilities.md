@@ -1,5 +1,30 @@
 # Room Properties & Facilities — Implementation Plan
 
+> ## ✅ SHIPPED 2026-09-09 — branch `feat/room-facilities`, 7 commits, published to `MOC_Booking_Tool_Production`
+>
+> **Verification ladder: rung 5 (Studio preview), 22:0x.** Rungs 1–3 recorded via `guard.sh verified`.
+>
+> | Check (spec §7) | Result |
+> |---|---|
+> | 1. `Equipment = "AVC"` not returned by a `VC` filter | **PASS — proven live.** Huddle Space 1 temporarily set to `AVC`; the VC filter returned **1 of 6** (Boardroom only). The old substring test would have returned 2 of 6. Test data reverted; production rows verified byte-identical to before, plus the new columns. |
+> | 2. Adding a vocabulary row changes the UI with no publish | **NOT RUN** — the in-code defaults are serving. Proving this needs a full replacement set in `Book_AppSettings` (a non-empty key replaces the whole default vocabulary, so a partial seed would silently shrink it). |
+> | 3. Classification filter is `>=` rank | **NOT RUN against data** — no room has a classification, and assigning real security ratings is the user's call, not mine. Logic is compile-verified. |
+> | 4. Clear filters from the empty state clears Favourites | **PASS** — `gblRoomsFavOnly` now reset in both `btnRoomsClearFilters` and `Rooms.OnVisible`. |
+> | 5. `IsActive = false` hides a room, bookings still resolve | **NOT RUN** — predicate is in `RoomFacetFiltered`, compile-verified, untested against data. |
+> | 6. pa-lint clean, App Checker not worse | **PARTIAL** — pa-lint 0 errors / 25 warnings throughout (baseline). App Checker **19 → 20**: new `ScreenHasManyControls` on Admin (complexity 314 vs 300 threshold), caused by this pass's form controls. |
+>
+> **What the probe compile caught that pa-lint structurally cannot:** `Split()` yields a `Value`
+> column not `Result`; a UDF must declare a return type (`fnClassOf` had none, and Power Fx has no
+> record return type to give it); and `Label` has no `Radius*` properties. Three separate compile
+> failures, three fixes, zero shipped defects. The doctrine earned its keep.
+>
+> **Deliberately not done:** T10's mock seeds. This app is production, not the sandbox — adding
+> fabricated rooms with `PROD-REVERT` markers to a live estate list is the wrong move. B-1 was
+> proven with a reversible edit to a real row instead.
+>
+> **Still open:** BL-3 (real classification level names unconfirmed — the shipped vocabulary is
+> the UK government default set); the Admin screen complexity finding; P10 still unenforced.
+
 > **Execute with: `orchestrator-coding`** — never a superpowers execute skill. Steps use checkbox
 > (`- [ ]`) syntax for tracking. Lanes are declared per task below and are not re-litigated at
 > dispatch time.
