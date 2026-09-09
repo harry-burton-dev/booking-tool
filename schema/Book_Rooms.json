@@ -1,13 +1,24 @@
 {
   "list": "Book_Rooms",
   "site": "https://hbbaby.sharepoint.com/sites/booking-tool",
+  "snapshot": "2026-09-09, get_data_source_schema on app a5fe0780 after Studio data-source refresh",
   "columns": {
     "Title": "Text",
     "RoomID": "Number",
     "Capacity": "Number",
     "description": "Text",
     "Equipment": "Text",
-    "BookedBy": "Person"
+    "BookedBy": "Person",
+    "Classification": "Text",
+    "Systems": "Text",
+    "RoomNotes": "Note",
+    "IsActive": "Boolean"
   },
-  "invariant": "SharePoint item ID == RoomID for all rows (app patches lookup {Id: RoomIdNumber})"
+  "notes": {
+    "Classification": "Stable CODE, not a display label (OFF/OS/SEC). Label, rank and colour token come from the Book_AppSettings 'Classification' rows. Blank = unrated, rank 0.",
+    "Systems": "Delimited tag list, human-readable (e.g. 'MODNET; DVS'). Canonicalised on READ in RoomsBrowseBase, never on write. Accepts ',' or ';'.",
+    "Equipment": "Same shape as Systems. Live data already uses ';' (e.g. 'Screen;VC').",
+    "IsActive": "Yes/No, default 1. SharePoint defaults apply to NEW items only - the six seed rows were backfilled to true on 2026-09-09. A null here surfaces as false in Power Apps and would hide the room."
+  },
+  "invariant": "SharePoint item ID == RoomID for all rows (app patches lookup {Id: RoomIdNumber}). VERIFIED TRUE 2026-09-09 for rows 1-6. WARNING (B-5): adRmBtnSave writes RoomID = Max(colRooms, RoomID) + 1 from a client snapshot, which SharePoint does not guarantee equals the new item's ID. The invariant holds today by luck (no deletions, no concurrent adds) and is not enforced. Tracked separately - do not rely on it for new writes."
 }
