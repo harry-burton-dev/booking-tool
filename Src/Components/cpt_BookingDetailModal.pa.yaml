@@ -582,7 +582,7 @@ ComponentDefinitions:
                               LayoutJustifyContent: =LayoutJustifyContent.End
                               LayoutMinHeight: =0
                               LayoutMinWidth: =0
-                              Visible: =false
+                              Visible: =true
                             Children:
                               - bdmBtnChangeTime:
                                   Control: Classic/Button
@@ -601,7 +601,7 @@ ComponentDefinitions:
                                     LayoutMinWidth: =0
                                     OnSelect: |-
                                       =Set(varConflict, false);
-                                      // RESET-SITE[detail-modal-change-time] wizard state reset before opening step 2 (times-only)
+                                      // RESET-SITE[detail-modal-change-time] wizard state reset before opening step 2 (times-only) or the edit-scope prompt
                                       Set(varBookingError, false);
                                       Set(varSubmitting, false);
                                       Set(varTitleTouched, false);
@@ -614,21 +614,25 @@ ComponentDefinitions:
                                          tglRecurring/drpWeeks live inside cpt_Modal_ and cannot be
                                          Reset() from here; that component resets them on close. */
 
-                                      /* Prefill the wizard from the booking being edited */
-                                      Set(gblEditingBookingID, gblSelectedBooking.ID);
-                                      Set(varSelectedRoom, LookUp(colRooms, ID = gblSelectedBooking.RoomID.Id));
-                                      Set(varSelectedDate, DateValue(Text(gblSelectedBooking.StartDateTime, "yyyy-mm-dd")));
-                                      Set(varStartTime, gblSelectedBooking.StartDateTime);
-                                      Set(varEndTime, gblSelectedBooking.EndDateTime);
-                                      Set(varTitle, gblSelectedBooking.Title);
+                                      If(
+                                          IsBlank(gblSelectedBooking.SeriesID),
+                                          // Standalone booking: prefill the wizard from the booking being edited and hand off immediately
+                                          Set(gblEditingBookingID, gblSelectedBooking.ID);
+                                          Set(varSelectedRoom, LookUp(colRooms, ID = gblSelectedBooking.RoomID.Id));
+                                          Set(varSelectedDate, DateValue(Text(gblSelectedBooking.StartDateTime, "yyyy-mm-dd")));
+                                          Set(varStartTime, gblSelectedBooking.StartDateTime);
+                                          Set(varEndTime, gblSelectedBooking.EndDateTime);
+                                          Set(varTitle, gblSelectedBooking.Title);
 
-                                      // RESET-SITE[detail-modal-close] close this modal before handing off to the wizard
-                                      Set(gbl_UI_Detail_ConfirmMode, "");
-                                      Set(gbl_UI_Detail_Modal, false);
+                                          // RESET-SITE[detail-modal-close] close this modal before handing off to the wizard
+                                          Set(gbl_UI_Detail_ConfirmMode, "");
+                                          Set(gbl_UI_Detail_Modal, false);
 
-                                      Set(gbl_UI_Book_Modal_Step, WizardStepWhen);
-                                      Set(gbl_UI_Book_Modal, true);
-                                      Navigate(bookingDetail, ScreenTransition.Fade)
+                                          Set(gbl_UI_Book_Modal_Step, WizardStepWhen);
+                                          Set(gbl_UI_Book_Modal, true),
+                                          // Series member: ask which occurrences the new time applies to before opening the wizard (bdmEditScopeRow)
+                                          Set(gbl_UI_Detail_ConfirmMode, "edit-scope")
+                                      )
                                     PressedColor: =ColorValue(AppTheme.PrimaryText)
                                     PressedFill: =ColorValue(AppTheme.ButtonPrimaryActive)
                                     RadiusBottomLeft: =0
@@ -933,8 +937,8 @@ ComponentDefinitions:
                                     LayoutMinWidth: =0
                                     OnSelect: |-
                                       =// PROD-REVERT[booking-cancel] soft delete via Patch; Remove() retired per WS4
-                                      // Ported from bookingDetail.btnScopeFollowing - cancel branch only (this modal
-                                      // has no edit-scope prompt reachable today; bdmFooterRight/change-time is hidden)
+                                      // Ported from bookingDetail.btnScopeFollowing - cancel branch only; the edit
+                                      // branch's scope prompt lives in bdmEditScopeRow below (bdmBtnEditScopeFollowing)
                                       With(
                                           {
                                               _sid: gblSelectedBooking.SeriesID,
@@ -1117,6 +1121,200 @@ ComponentDefinitions:
                                     Text: ="Whole series"
                                     Width: =168
                               - bdmBtnScopeBack:
+                                  Control: Classic/Button
+                                  Properties:
+                                    BorderColor: =AppTheme.Border
+                                    BorderThickness: =1
+                                    Color: =AppTheme.TextPrimary
+                                    Fill: =AppTheme.Surface
+                                    FocusedBorderColor: =ColorValue(AppTheme.ButtonPrimary)
+                                    FocusedBorderThickness: =2
+                                    Font: ="IBM Plex Sans"
+                                    FontWeight: =FontWeight.Normal
+                                    HoverColor: =AppTheme.TextPrimary
+                                    HoverFill: =AppTheme.SurfaceAlt
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    OnSelect: =Set(gbl_UI_Detail_ConfirmMode, "")
+                                    PressedColor: =AppTheme.TextPrimary
+                                    PressedFill: =AppTheme.Border
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Size: =11
+                                    Text: ="Back"
+                                    Width: =120
+                  - bdmEditScopeRow:
+                      Control: GroupContainer
+                      Variant: AutoLayout
+                      Properties:
+                        BorderColor: =AppTheme.StatusWarnText
+                        BorderThickness: =1
+                        DropShadow: =DropShadow.None
+                        Fill: =AppTheme.StatusWarnBg
+                        LayoutAlignItems: =LayoutAlignItems.Stretch
+                        LayoutDirection: =LayoutDirection.Vertical
+                        LayoutGap: =12
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        PaddingBottom: =12
+                        PaddingLeft: =12
+                        PaddingRight: =12
+                        PaddingTop: =12
+                        RadiusBottomLeft: =0
+                        RadiusBottomRight: =0
+                        RadiusTopLeft: =0
+                        RadiusTopRight: =0
+                        Visible: =gbl_UI_Detail_ConfirmMode = "edit-scope"
+                      Children:
+                        - bdmLblEditScope:
+                            Control: Label
+                            Properties:
+                              AutoHeight: =true
+                              Color: =AppTheme.StatusWarnText
+                              Font: ="IBM Plex Sans"
+                              Height: =20
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              Size: =12
+                              Text: ="This booking is part of a series. Apply the new time to:"
+                        - bdmEditScopeButtons:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              DropShadow: =DropShadow.None
+                              Fill: =RGBA(0,0,0,0) /* DS-EXEMPT transparent layout container, no painted surface */
+                              Height: =40
+                              LayoutAlignItems: =LayoutAlignItems.Stretch
+                              LayoutDirection: =LayoutDirection.Horizontal
+                              LayoutGap: =8
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                            Children:
+                              - bdmBtnEditScopeJust:
+                                  Control: Classic/Button
+                                  Properties:
+                                    BorderColor: =AppTheme.Border
+                                    BorderThickness: =1
+                                    Color: =AppTheme.TextPrimary
+                                    Fill: =AppTheme.Surface
+                                    FocusedBorderColor: =ColorValue(AppTheme.ButtonPrimary)
+                                    FocusedBorderThickness: =2
+                                    Font: ="IBM Plex Sans"
+                                    FontWeight: =FontWeight.Normal
+                                    HoverColor: =AppTheme.TextPrimary
+                                    HoverFill: =AppTheme.SurfaceAlt
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    OnSelect: |-
+                                      =/* Scope choice currently only gates when this prompt is shown - the wizard
+                                         always edits gblSelectedBooking's own occurrence. A differential
+                                         just/following/series time-edit write (mirroring OnSubmitEdit on
+                                         bookingDetail) is not wired for these wizard instances; tracked separately. */
+                                      Set(gblEditingBookingID, gblSelectedBooking.ID);
+                                      Set(varSelectedRoom, LookUp(colRooms, ID = gblSelectedBooking.RoomID.Id));
+                                      Set(varSelectedDate, DateValue(Text(gblSelectedBooking.StartDateTime, "yyyy-mm-dd")));
+                                      Set(varStartTime, gblSelectedBooking.StartDateTime);
+                                      Set(varEndTime, gblSelectedBooking.EndDateTime);
+                                      Set(varTitle, gblSelectedBooking.Title);
+
+                                      // RESET-SITE[detail-modal-close] close this modal before handing off to the wizard
+                                      Set(gbl_UI_Detail_ConfirmMode, "");
+                                      Set(gbl_UI_Detail_Modal, false);
+
+                                      Set(gbl_UI_Book_Modal_Step, WizardStepWhen);
+                                      Set(gbl_UI_Book_Modal, true)
+                                    PressedColor: =AppTheme.TextPrimary
+                                    PressedFill: =AppTheme.Border
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Size: =11
+                                    Text: ="Just this booking"
+                                    Width: =168
+                              - bdmBtnEditScopeFollowing:
+                                  Control: Classic/Button
+                                  Properties:
+                                    BorderColor: =AppTheme.Border
+                                    BorderThickness: =1
+                                    Color: =AppTheme.TextPrimary
+                                    Fill: =AppTheme.Surface
+                                    FocusedBorderColor: =ColorValue(AppTheme.ButtonPrimary)
+                                    FocusedBorderThickness: =2
+                                    Font: ="IBM Plex Sans"
+                                    FontWeight: =FontWeight.Normal
+                                    HoverColor: =AppTheme.TextPrimary
+                                    HoverFill: =AppTheme.SurfaceAlt
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    OnSelect: |-
+                                      =Set(gblEditingBookingID, gblSelectedBooking.ID);
+                                      Set(varSelectedRoom, LookUp(colRooms, ID = gblSelectedBooking.RoomID.Id));
+                                      Set(varSelectedDate, DateValue(Text(gblSelectedBooking.StartDateTime, "yyyy-mm-dd")));
+                                      Set(varStartTime, gblSelectedBooking.StartDateTime);
+                                      Set(varEndTime, gblSelectedBooking.EndDateTime);
+                                      Set(varTitle, gblSelectedBooking.Title);
+
+                                      // RESET-SITE[detail-modal-close] close this modal before handing off to the wizard
+                                      Set(gbl_UI_Detail_ConfirmMode, "");
+                                      Set(gbl_UI_Detail_Modal, false);
+
+                                      Set(gbl_UI_Book_Modal_Step, WizardStepWhen);
+                                      Set(gbl_UI_Book_Modal, true)
+                                    PressedColor: =AppTheme.TextPrimary
+                                    PressedFill: =AppTheme.Border
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Size: =11
+                                    Text: ="This and following"
+                                    Visible: |-
+                                      =/* Rule-driven series only: a legacy materialised series has no master
+                                         row to re-rule, so it keeps the two-button prompt. */
+                                      !IsBlank(LookUp(colBRMasters, SeriesID = gblSelectedBooking.SeriesID))
+                                    Width: =170
+                              - bdmBtnEditScopeSeries:
+                                  Control: Classic/Button
+                                  Properties:
+                                    BorderColor: =ColorValue(AppTheme.ButtonPrimary)
+                                    BorderThickness: =1
+                                    Color: =ColorValue(AppTheme.PrimaryText)
+                                    Fill: =ColorValue(AppTheme.ButtonPrimary)
+                                    FocusedBorderColor: =ColorValue(AppTheme.ButtonPrimary)
+                                    FocusedBorderThickness: =2
+                                    Font: ="IBM Plex Sans"
+                                    FontWeight: =FontWeight.Normal
+                                    HoverColor: =ColorValue(AppTheme.PrimaryText)
+                                    HoverFill: =ColorValue(AppTheme.ButtonPrimaryActive)
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    OnSelect: |-
+                                      =Set(gblEditingBookingID, gblSelectedBooking.ID);
+                                      Set(varSelectedRoom, LookUp(colRooms, ID = gblSelectedBooking.RoomID.Id));
+                                      Set(varSelectedDate, DateValue(Text(gblSelectedBooking.StartDateTime, "yyyy-mm-dd")));
+                                      Set(varStartTime, gblSelectedBooking.StartDateTime);
+                                      Set(varEndTime, gblSelectedBooking.EndDateTime);
+                                      Set(varTitle, gblSelectedBooking.Title);
+
+                                      // RESET-SITE[detail-modal-close] close this modal before handing off to the wizard
+                                      Set(gbl_UI_Detail_ConfirmMode, "");
+                                      Set(gbl_UI_Detail_Modal, false);
+
+                                      Set(gbl_UI_Book_Modal_Step, WizardStepWhen);
+                                      Set(gbl_UI_Book_Modal, true)
+                                    PressedColor: =ColorValue(AppTheme.PrimaryText)
+                                    PressedFill: =ColorValue(AppTheme.ButtonPrimaryActive)
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Size: =11
+                                    Text: ="Whole series"
+                                    Width: =168
+                              - bdmBtnEditScopeBack:
                                   Control: Classic/Button
                                   Properties:
                                     BorderColor: =AppTheme.Border
