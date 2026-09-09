@@ -916,6 +916,97 @@ ComponentDefinitions:
                                     Size: =11
                                     Text: ="Just this booking"
                                     Width: =168
+                              - bdmBtnScopeFollowing_mc:
+                                  Control: Classic/Button
+                                  Properties:
+                                    BorderColor: =AppTheme.Border
+                                    BorderThickness: =1
+                                    Color: =AppTheme.TextPrimary
+                                    Fill: =AppTheme.Surface
+                                    FocusedBorderColor: =ColorValue(AppTheme.ButtonPrimary)
+                                    FocusedBorderThickness: =2
+                                    Font: ="IBM Plex Sans"
+                                    FontWeight: =FontWeight.Normal
+                                    HoverColor: =AppTheme.TextPrimary
+                                    HoverFill: =AppTheme.SurfaceAlt
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    OnSelect: |-
+                                      =// PROD-REVERT[booking-cancel] soft delete via Patch; Remove() retired per WS4
+                                      // Ported from bookingDetail.btnScopeFollowing - cancel branch only (this modal
+                                      // has no edit-scope prompt reachable today; bdmFooterRight/change-time is hidden)
+                                      With(
+                                          {
+                                              _sid: gblSelectedBooking.SeriesID,
+                                              _m: LookUp(colBRMasters, SeriesID = gblSelectedBooking.SeriesID),
+                                              _k: If(gblSelectedBooking.ID < 0, Mod(-gblSelectedBooking.ID, 10000), gblSelectedBooking.OccIndex)
+                                          },
+                                          With(
+                                              {
+                                                  // the ORIGINAL slot date of occurrence k - the split boundary
+                                                  _kDate: fnOccDate(_m.StartDateTime, _m.RecurrenceType, _k),
+                                                  _allowed: !IsBlank(_m) && (fnIsMine(_m.BookedByEmail) || IsAdmin)
+                                              },
+                                              If(
+                                                  !_allowed,
+                                                  // REFUSAL: nothing written - leave the scope row open so "Just this booking" stays reachable
+                                                  Notify("Only the series owner or an admin can change the rest of a series.", NotificationType.Warning),
+                                                  // CANCEL — end the series at occurrence k: the rule stops the day before slot k
+                                                  IfError(
+                                                      If(
+                                                          _k = 0,
+                                                          /* Occurrence 0 onwards is the whole series - the exact end-series
+                                                             statements from bdmBtnScopeSeries, so the two paths cannot drift. */
+                                                          Patch(Book_Bookings, {ID: _m.ID}, {Status: "Cancelled"});
+                                                          Patch(
+                                                              Book_Bookings,
+                                                              ForAll(
+                                                                  Filter(Book_Bookings, SeriesID = _sid, IsException = true, Status = "Active", StartDateTime > Now()) As _ex0,
+                                                                  {ID: _ex0.ID, Status: "Cancelled"}
+                                                              )
+                                                          );
+                                                          UpdateIf(colBookings, SeriesID = _sid && IsException && Status = "Active" && StartDateTime > Now(), {Status: "Cancelled"}),
+                                                          /* From k onwards: give the master an end date (C is dropped, so U wins),
+                                                             then cancel every exception at or after the split. */
+                                                          With(
+                                                              {_endRule: fnRuleWithUntil(_m.RecurrenceType, _m.StartDateTime, DateAdd(_kDate, -1, TimeUnit.Days))},
+                                                              Patch(Book_Bookings, {ID: _m.ID}, {RecurrenceType: _endRule, RecurrenceLabel: fnRuleLabel(_endRule, _m.StartDateTime)})
+                                                          );
+                                                          Patch(
+                                                              Book_Bookings,
+                                                              ForAll(
+                                                                  Filter(Book_Bookings, SeriesID = _sid, IsException = true, OccIndex >= _k, Status = "Active" || Status = "Clash") As _ex,
+                                                                  {ID: _ex.ID, Status: "Cancelled"}
+                                                              )
+                                                          );
+                                                          UpdateIf(colBookings, SeriesID = _sid && IsException && OccIndex >= _k && Status <> "Cancelled", {Status: "Cancelled"})
+                                                      ),
+                                                      Notify("Couldn't end this series. Please try again.", NotificationType.Error),
+                                                      Refresh(Book_Bookings);
+                                                      ClearCollect(colBRMasters, Filter(Book_Bookings, StartsWith(RecurrenceType, "BR-"), IsException = false, Status = "Active"));
+                                                      Set(gblSelectedBooking, Blank());
+                                                      Set(gbl_FixCycleSeriesID, "");
+                                                      Notify("Series ended from " & Text(_kDate, "d mmm yyyy"), NotificationType.Success);
+                                                      // RESET-SITE[detail-modal-close] cancel completed, dismiss the modal
+                                                      Set(gbl_UI_Detail_ConfirmMode, "");
+                                                      Set(gbl_UI_Detail_Modal, false)
+                                                  )
+                                              )
+                                          )
+                                      )
+                                    PressedColor: =AppTheme.TextPrimary
+                                    PressedFill: =AppTheme.Border
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Size: =11
+                                    Text: ="This and following"
+                                    Visible: |-
+                                      =/* Rule-driven series only: a legacy materialised series has no master
+                                         row to re-rule, so it keeps the two-button prompt. */
+                                      !IsBlank(LookUp(colBRMasters, SeriesID = gblSelectedBooking.SeriesID))
+                                    Width: =170
                               - bdmBtnScopeSeries:
                                   Control: Classic/Button
                                   Properties:

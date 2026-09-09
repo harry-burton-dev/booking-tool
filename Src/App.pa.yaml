@@ -1450,6 +1450,14 @@ App:
 
                   Set(gblUI_Nav_currentTab, "Home");
                   Set(gbl_UI_Update, false);
+                  Set(gbl_UI_RoomEdit_Modal, false);
+                  Set(gbl_UI_RoomEditSel, 0);
+                  Set(gbl_UI_PermanentNew_Modal, false);
+                  Set(gbl_UI_AdminSettings_Modal, false);
+                  Set(gbl_UI_SeriesMigration_Modal, false);
+                  Set(gblAsWeekend, "");
+                  Set(gblAsMigConfirm, false);
+                  Set(gblAsMigScanned, false);
                   Set(glbSelectedDate, Today());
                   Set(varNowTick, Now());
                   Set(varMyBookingsFilter, "Upcoming");

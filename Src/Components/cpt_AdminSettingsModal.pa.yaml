@@ -1,0 +1,857 @@
+ComponentDefinitions:
+  cpt_AdminSettingsModal:
+    DefinitionType: CanvasComponent
+    AccessAppScope: true
+    Properties:
+      Height: =App.Height
+      Width: =App.Width
+    Children:
+      - asmScrim:
+          Control: Rectangle
+          Properties:
+            Fill: =AppTheme.ModalScrim
+            Height: =Parent.Height
+            OnSelect: =Set(gbl_UI_AdminSettings_Modal, false)
+            Width: =Parent.Width
+      - asmCard:
+          Control: GroupContainer
+          Variant: AutoLayout
+          Properties:
+            BorderColor: =AppTheme.Border
+            BorderThickness: =1
+            DropShadow: =DropShadow.Regular
+            Fill: =AppTheme.Surface
+            Height: =Min(Parent.Height - 64, 700)
+            LayoutAlignItems: =LayoutAlignItems.Stretch
+            LayoutDirection: =LayoutDirection.Vertical
+            LayoutGap: =16
+            LayoutMinHeight: =0
+            LayoutMinWidth: =0
+            PaddingBottom: =24
+            PaddingLeft: =32
+            PaddingRight: =32
+            PaddingTop: =24
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Width: =Min(Parent.Width - 32, 840)
+            X: =(Parent.Width - Self.Width) / 2
+            Y: =(Parent.Height - Self.Height) / 2
+          Children:
+            - asmHeader:
+                Control: GroupContainer
+                Variant: AutoLayout
+                Properties:
+                  DropShadow: =DropShadow.None
+                  Fill: =Color.Transparent
+                  FillPortions: =0
+                  Height: =40
+                  LayoutAlignItems: =LayoutAlignItems.Center
+                  LayoutDirection: =LayoutDirection.Horizontal
+                  LayoutGap: =8
+                  LayoutMinHeight: =0
+                  LayoutMinWidth: =0
+                  RadiusBottomLeft: =0
+                  RadiusBottomRight: =0
+                  RadiusTopLeft: =0
+                  RadiusTopRight: =0
+                  Width: =Parent.Width
+                Children:
+                  - asmHtxTitle:
+                      Control: HtmlViewer
+                      Properties:
+                        AlignInContainer: =AlignInContainer.Center
+                        AutoHeight: =true
+                        DisplayMode: =DisplayMode.View
+                        FillPortions: =1
+                        HtmlText: =CarbonText(CarbonHtmlType.Heading04, "Settings")
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        PaddingBottom: =0
+                        PaddingLeft: =0
+                        PaddingRight: =0
+                        PaddingTop: =0
+                  - asmBtnClose:
+                      Control: Classic/Button
+                      Properties:
+                        BorderColor: =AppTheme.Border
+                        BorderThickness: =0
+                        Color: =AppTheme.TextSecondary
+                        Fill: =Color.Transparent
+                        FillPortions: =0
+                        FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                        FocusedBorderThickness: =2
+                        Font: ="IBM Plex Sans"
+                        FontWeight: =FontWeight.Normal
+                        Height: =40
+                        HoverColor: =AppTheme.TextPrimary
+                        HoverFill: =AppTheme.SurfaceAlt
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        OnSelect: =Set(gbl_UI_AdminSettings_Modal, false)
+                        PressedColor: =AppTheme.TextPrimary
+                        PressedFill: =AppTheme.Border
+                        RadiusBottomLeft: =0
+                        RadiusBottomRight: =0
+                        RadiusTopLeft: =0
+                        RadiusTopRight: =0
+                        Size: =14
+                        Text: ="✕"
+                        Width: =40
+            - asHtxNoAccess_asm:
+                Control: HtmlViewer
+                Properties:
+                  AutoHeight: =true
+                  DisplayMode: =DisplayMode.View
+                  HtmlText: =CarbonTextSecondary(CarbonHtmlType.Body01, "You need administrator access to view this page.")
+                  PaddingBottom: =0
+                  PaddingLeft: =0
+                  PaddingRight: =0
+                  PaddingTop: =0
+                  Visible: =!IsAdmin
+                  Width: =Parent.Width
+            - asConPage_asm:
+                Control: GroupContainer
+                Variant: AutoLayout
+                Properties:
+                  DropShadow: =DropShadow.None
+                  Fill: =Color.Transparent
+                  LayoutAlignItems: =LayoutAlignItems.Stretch
+                  LayoutDirection: =LayoutDirection.Vertical
+                  LayoutGap: =16
+                  LayoutMinHeight: =0
+                  LayoutMinWidth: =0
+                  LayoutOverflowY: =LayoutOverflow.Scroll
+                  PaddingBottom: =0
+                  PaddingLeft: =0
+                  PaddingRight: =0
+                  PaddingTop: =0
+                  RadiusBottomLeft: =0
+                  RadiusBottomRight: =0
+                  RadiusTopLeft: =0
+                  RadiusTopRight: =0
+                  Visible: =IsAdmin
+                  Width: =Parent.Width
+                Children:
+                  - asConForm_asm:
+                      Control: GroupContainer
+                      Variant: AutoLayout
+                      Properties:
+                        DropShadow: =DropShadow.None
+                        Fill: =Color.Transparent
+                        FillPortions: =0
+                        LayoutAlignItems: =LayoutAlignItems.Stretch
+                        LayoutDirection: =LayoutDirection.Vertical
+                        LayoutGap: =12
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        RadiusBottomLeft: =0
+                        RadiusBottomRight: =0
+                        RadiusTopLeft: =0
+                        RadiusTopRight: =0
+                        Width: =Parent.Width
+                      Children:
+                        - asHtxFormHead_asm:
+                            Control: HtmlViewer
+                            Properties:
+                              DisplayMode: =DisplayMode.View
+                              Height: =24
+                              HtmlText: =CarbonText(CarbonHtmlType.Heading02, "App settings")
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              PaddingBottom: =0
+                              PaddingLeft: =0
+                              PaddingRight: =0
+                              PaddingTop: =0
+                              Width: =Parent.Width
+                        - asHtxFormIntro_asm:
+                            Control: HtmlViewer
+                            Properties:
+                              DisplayMode: =DisplayMode.View
+                              Height: =20
+                              HtmlText: =CarbonTextSecondary(CarbonHtmlType.BodyCompact01, "These apply to everyone. Changes take effect the next time a screen is opened.")
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              PaddingBottom: =0
+                              PaddingLeft: =0
+                              PaddingRight: =0
+                              PaddingTop: =0
+                              Width: =Parent.Width
+                        - asConRowSite_asm:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              DropShadow: =DropShadow.None
+                              Fill: =Color.Transparent
+                              FillPortions: =0
+                              Height: =48
+                              LayoutAlignItems: =LayoutAlignItems.Center
+                              LayoutDirection: =LayoutDirection.Horizontal
+                              LayoutGap: =8
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
+                              Width: =Parent.Width
+                            Children:
+                              - asLblSiteName_asm:
+                                  Control: Label
+                                  Properties:
+                                    Color: =AppTheme.TextPrimary
+                                    Font: ="IBM Plex Sans"
+                                    Height: =20
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Size: =11
+                                    Text: ="Site name"
+                                    Width: =180
+                                    Wrap: =false
+                              - asInpSiteName_asm:
+                                  Control: Classic/TextInput
+                                  Properties:
+                                    AccessibleLabel: ="Site name shown in the header"
+                                    BorderColor: =AppTheme.Border
+                                    BorderThickness: =1
+                                    Color: =AppTheme.TextPrimary
+                                    Default: =SiteName
+                                    Fill: =AppTheme.layer01Bg
+                                    FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                    FocusedBorderThickness: =2
+                                    Font: ="IBM Plex Sans"
+                                    Height: =48
+                                    HintText: ="MOC"
+                                    HoverBorderColor: =AppTheme.TextSecondary
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Size: =11
+                                    Width: =240
+                        - asConRowHours_asm:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              DropShadow: =DropShadow.None
+                              Fill: =Color.Transparent
+                              FillPortions: =0
+                              Height: =48
+                              LayoutAlignItems: =LayoutAlignItems.Center
+                              LayoutDirection: =LayoutDirection.Horizontal
+                              LayoutGap: =8
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
+                              Width: =Parent.Width
+                            Children:
+                              - asLblHours_asm:
+                                  Control: Label
+                                  Properties:
+                                    Color: =AppTheme.TextPrimary
+                                    Font: ="IBM Plex Sans"
+                                    Height: =20
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Size: =11
+                                    Text: ="Opening hours"
+                                    Width: =180
+                                    Wrap: =false
+                              - asDrpDayStart_asm:
+                                  Control: Classic/DropDown
+                                  Properties:
+                                    AccessibleLabel: ="First bookable hour"
+                                    BorderColor: =AppTheme.Border
+                                    BorderThickness: =1
+                                    ChevronBackground: =AppTheme.layer01Bg
+                                    ChevronFill: =AppTheme.TextPrimary
+                                    Color: =AppTheme.TextPrimary
+                                    Default: =Text(DayStartHour)
+                                    Fill: =AppTheme.layer01Bg
+                                    FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                    FocusedBorderThickness: =2
+                                    Font: ="IBM Plex Sans"
+                                    Height: =48
+                                    Items: |-
+                                      =ForAll(Sequence(17, 6), {Value: Text(Value)})
+                                    Items.Value: =Value
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Size: =11
+                                    Width: =90
+                              - asLblHoursTo_asm:
+                                  Control: Label
+                                  Properties:
+                                    Color: =AppTheme.TextSecondary
+                                    Font: ="IBM Plex Sans"
+                                    Height: =20
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Size: =11
+                                    Text: ="to"
+                                    Width: =24
+                                    Wrap: =false
+                              - asDrpDayEnd_asm:
+                                  Control: Classic/DropDown
+                                  Properties:
+                                    AccessibleLabel: ="Last bookable hour"
+                                    BorderColor: =AppTheme.Border
+                                    BorderThickness: =1
+                                    ChevronBackground: =AppTheme.layer01Bg
+                                    ChevronFill: =AppTheme.TextPrimary
+                                    Color: =AppTheme.TextPrimary
+                                    Default: =Text(DayEndHour)
+                                    Fill: =AppTheme.layer01Bg
+                                    FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                    FocusedBorderThickness: =2
+                                    Font: ="IBM Plex Sans"
+                                    Height: =48
+                                    Items: |-
+                                      =ForAll(Sequence(17, 6), {Value: Text(Value)})
+                                    Items.Value: =Value
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Size: =11
+                                    Width: =90
+                              - asLblHoursError_asm:
+                                  Control: Label
+                                  Properties:
+                                    Color: =ColorValue(AppTheme.ButtonDangerPrimary)
+                                    Font: ="IBM Plex Sans"
+                                    Height: =20
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Size: =11
+                                    Text: ="Closing hour must be after opening hour."
+                                    Visible: =Value(asDrpDayEnd_asm.Selected.Value) <= Value(asDrpDayStart_asm.Selected.Value)
+                                    Width: =280
+                                    Wrap: =false
+                        - asConRowSlot_asm:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              DropShadow: =DropShadow.None
+                              Fill: =Color.Transparent
+                              FillPortions: =0
+                              Height: =48
+                              LayoutAlignItems: =LayoutAlignItems.Center
+                              LayoutDirection: =LayoutDirection.Horizontal
+                              LayoutGap: =8
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
+                              Width: =Parent.Width
+                            Children:
+                              - asLblSlot_asm:
+                                  Control: Label
+                                  Properties:
+                                    Color: =AppTheme.TextPrimary
+                                    Font: ="IBM Plex Sans"
+                                    Height: =20
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Size: =11
+                                    Text: ="Slot size (minutes)"
+                                    Width: =180
+                                    Wrap: =false
+                              - asDrpSlot_asm:
+                                  Control: Classic/DropDown
+                                  Properties:
+                                    AccessibleLabel: ="Slot size in minutes"
+                                    BorderColor: =AppTheme.Border
+                                    BorderThickness: =1
+                                    ChevronBackground: =AppTheme.layer01Bg
+                                    ChevronFill: =AppTheme.TextPrimary
+                                    Color: =AppTheme.TextPrimary
+                                    Default: =Text(SlotMinutes)
+                                    Fill: =AppTheme.layer01Bg
+                                    FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                    FocusedBorderThickness: =2
+                                    Font: ="IBM Plex Sans"
+                                    Height: =48
+                                    Items: |-
+                                      =Table({Value: "5"}, {Value: "10"}, {Value: "15"}, {Value: "30"})
+                                    Items.Value: =Value
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Size: =11
+                                    Width: =90
+                        - asConRowWeekend_asm:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              DropShadow: =DropShadow.None
+                              Fill: =Color.Transparent
+                              FillPortions: =0
+                              Height: =48
+                              LayoutAlignItems: =LayoutAlignItems.Center
+                              LayoutDirection: =LayoutDirection.Horizontal
+                              LayoutGap: =8
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
+                              Width: =Parent.Width
+                            Children:
+                              - asLblWeekend_asm:
+                                  Control: Label
+                                  Properties:
+                                    Color: =AppTheme.TextPrimary
+                                    Font: ="IBM Plex Sans"
+                                    Height: =20
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Size: =11
+                                    Text: ="Weekend bookings"
+                                    Width: =180
+                                    Wrap: =false
+                              - asBtnWeekendAllow_asm:
+                                  Control: Classic/Button
+                                  Properties:
+                                    BorderColor: =AppTheme.Border
+                                    BorderThickness: =1
+                                    Color: =If(gblAsWeekend = "allow", ColorValue(AppTheme.PrimaryText), AppTheme.TextPrimary)
+                                    Fill: =If(gblAsWeekend = "allow", ColorValue(AppTheme.ButtonPrimary), Color.Transparent)
+                                    FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                    FocusedBorderThickness: =2
+                                    Font: ="IBM Plex Sans"
+                                    FontWeight: =FontWeight.Normal
+                                    HoverColor: =AppTheme.TextPrimary
+                                    HoverFill: =AppTheme.Border
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    OnSelect: |-
+                                      =Set(gblAsWeekend, "allow")
+                                    PressedColor: =AppTheme.TextPrimary
+                                    PressedFill: =AppTheme.Border
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Size: =11
+                                    Text: ="Allow"
+                                    Width: =110
+                              - asBtnWeekendBlock_asm:
+                                  Control: Classic/Button
+                                  Properties:
+                                    BorderColor: =AppTheme.Border
+                                    BorderThickness: =1
+                                    Color: =If(gblAsWeekend <> "allow", ColorValue(AppTheme.PrimaryText), AppTheme.TextPrimary)
+                                    Fill: =If(gblAsWeekend <> "allow", ColorValue(AppTheme.ButtonPrimary), Color.Transparent)
+                                    FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                    FocusedBorderThickness: =2
+                                    Font: ="IBM Plex Sans"
+                                    FontWeight: =FontWeight.Normal
+                                    HoverColor: =AppTheme.TextPrimary
+                                    HoverFill: =AppTheme.Border
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    OnSelect: |-
+                                      =Set(gblAsWeekend, "block")
+                                    PressedColor: =AppTheme.TextPrimary
+                                    PressedFill: =AppTheme.Border
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Size: =11
+                                    Text: ="Block"
+                                    Width: =110
+                        - asConRowWhatsNewDate_asm:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              DropShadow: =DropShadow.None
+                              Fill: =Color.Transparent
+                              FillPortions: =0
+                              Height: =48
+                              LayoutAlignItems: =LayoutAlignItems.Center
+                              LayoutDirection: =LayoutDirection.Horizontal
+                              LayoutGap: =8
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
+                              Width: =Parent.Width
+                            Children:
+                              - asLblWhatsNewDate_asm:
+                                  Control: Label
+                                  Properties:
+                                    Color: =AppTheme.TextPrimary
+                                    Font: ="IBM Plex Sans"
+                                    Height: =20
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Size: =11
+                                    Text: ="What's new date"
+                                    Width: =180
+                                    Wrap: =false
+                              - asDteWhatsNew_asm:
+                                  Control: Classic/DatePicker
+                                  Properties:
+                                    BorderColor: =AppTheme.Border
+                                    BorderThickness: =1
+                                    Color: =AppTheme.TextPrimary
+                                    DefaultDate: |-
+                                      =/* Stored as yyyy-mm-dd text; rebuilt numerically so no locale parse is involved. */
+                                      If(
+                                          Len(WhatsNewDate) = 10,
+                                          Date(Value(Left(WhatsNewDate, 4)), Value(Mid(WhatsNewDate, 6, 2)), Value(Mid(WhatsNewDate, 9, 2))),
+                                          Today()
+                                      )
+                                    Fill: =AppTheme.layer01Bg
+                                    FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                    FocusedBorderThickness: =2
+                                    Font: ="IBM Plex Sans"
+                                    Height: =48
+                                    IconBackground: =AppTheme.HeaderBackground
+                                    IconFill: =AppTheme.HeaderAccent
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Size: =11
+                                    Width: =160
+                              - asLblWhatsNewHint_asm:
+                                  Control: Label
+                                  Properties:
+                                    Color: =AppTheme.TextMuted
+                                    Font: ="IBM Plex Sans"
+                                    Height: =20
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Size: =11
+                                    Text: ="Changing this shows the dialog once to every user."
+                                    Width: =320
+                                    Wrap: =false
+                        - asLblWhatsNewText_asm:
+                            Control: Label
+                            Properties:
+                              Color: =AppTheme.TextPrimary
+                              Font: ="IBM Plex Sans"
+                              Height: =20
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              Size: =11
+                              Text: ="What's new text (one bullet per line)"
+                              Width: =Parent.Width
+                              Wrap: =false
+                        - asInpWhatsNewText_asm:
+                            Control: Classic/TextInput
+                            Properties:
+                              AccessibleLabel: ="What's new bullets, one per line"
+                              BorderColor: =AppTheme.Border
+                              BorderThickness: =1
+                              Color: =AppTheme.TextPrimary
+                              Default: =Coalesce(SettingText("WhatsNewText"), "")
+                              Fill: =AppTheme.layer01Bg
+                              FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                              FocusedBorderThickness: =2
+                              Font: ="IBM Plex Sans"
+                              Height: =140
+                              HintText: ="One bullet per line"
+                              HoverBorderColor: =AppTheme.TextSecondary
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              Mode: =TextMode.MultiLine
+                              Size: =11
+                              Width: =Parent.Width
+                        - asBtnSave_asm:
+                            Control: Classic/Button
+                            Properties:
+                              AlignInContainer: =AlignInContainer.Start
+                              BorderColor: =ColorValue(AppTheme.ButtonPrimary)
+                              BorderThickness: =0
+                              Color: =ColorValue(AppTheme.PrimaryText)
+                              DisabledColor: =AppTheme.TextMuted
+                              DisabledFill: =AppTheme.SurfaceAlt
+                              DisplayMode: =If(Value(asDrpDayEnd_asm.Selected.Value) > Value(asDrpDayStart_asm.Selected.Value), DisplayMode.Edit, DisplayMode.Disabled)
+                              Fill: =ColorValue(AppTheme.ButtonPrimary)
+                              FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                              FocusedBorderThickness: =2
+                              Font: ="IBM Plex Sans"
+                              FontWeight: =FontWeight.Normal
+                              Height: =48
+                              HoverColor: =ColorValue(AppTheme.PrimaryText)
+                              HoverFill: =ColorValue(AppTheme.ButtonPrimaryActive)
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              OnSelect: |-
+                                =/* One upsert per key: match on Title (a delegable literal predicate),
+                                   create the row when the key has never been written. */
+                                IfError(
+                                    With({_r: LookUp(Book_AppSettings, Title = "SiteName")},
+                                        If(IsBlank(_r),
+                                            Patch(Book_AppSettings, Defaults(Book_AppSettings), {Title: "SiteName", Value: Trim(asInpSiteName_asm.Text)}),
+                                            Patch(Book_AppSettings, _r, {Value: Trim(asInpSiteName_asm.Text)})));
+                                    With({_r: LookUp(Book_AppSettings, Title = "DayStartHour")},
+                                        If(IsBlank(_r),
+                                            Patch(Book_AppSettings, Defaults(Book_AppSettings), {Title: "DayStartHour", Value: asDrpDayStart_asm.Selected.Value}),
+                                            Patch(Book_AppSettings, _r, {Value: asDrpDayStart_asm.Selected.Value})));
+                                    With({_r: LookUp(Book_AppSettings, Title = "DayEndHour")},
+                                        If(IsBlank(_r),
+                                            Patch(Book_AppSettings, Defaults(Book_AppSettings), {Title: "DayEndHour", Value: asDrpDayEnd_asm.Selected.Value}),
+                                            Patch(Book_AppSettings, _r, {Value: asDrpDayEnd_asm.Selected.Value})));
+                                    With({_r: LookUp(Book_AppSettings, Title = "SlotMinutes")},
+                                        If(IsBlank(_r),
+                                            Patch(Book_AppSettings, Defaults(Book_AppSettings), {Title: "SlotMinutes", Value: asDrpSlot_asm.Selected.Value}),
+                                            Patch(Book_AppSettings, _r, {Value: asDrpSlot_asm.Selected.Value})));
+                                    With({_r: LookUp(Book_AppSettings, Title = "WeekendPolicy")},
+                                        If(IsBlank(_r),
+                                            Patch(Book_AppSettings, Defaults(Book_AppSettings), {Title: "WeekendPolicy", Value: If(gblAsWeekend = "allow", "allow", "block")}),
+                                            Patch(Book_AppSettings, _r, {Value: If(gblAsWeekend = "allow", "allow", "block")})));
+                                    With({_r: LookUp(Book_AppSettings, Title = "WhatsNewDate")},
+                                        If(IsBlank(_r),
+                                            Patch(Book_AppSettings, Defaults(Book_AppSettings), {Title: "WhatsNewDate", Value: Text(asDteWhatsNew_asm.SelectedDate, "yyyy-mm-dd")}),
+                                            Patch(Book_AppSettings, _r, {Value: Text(asDteWhatsNew_asm.SelectedDate, "yyyy-mm-dd")})));
+                                    With({_r: LookUp(Book_AppSettings, Title = "WhatsNewText")},
+                                        If(IsBlank(_r),
+                                            Patch(Book_AppSettings, Defaults(Book_AppSettings), {Title: "WhatsNewText", Value: asInpWhatsNewText_asm.Text}),
+                                            Patch(Book_AppSettings, _r, {Value: asInpWhatsNewText_asm.Text})));
+                                    ClearCollect(colAppSettings, Book_AppSettings);
+                                    Notify("Settings saved.", NotificationType.Success),
+                                    Notify("Couldn't save settings.", NotificationType.Error)
+                                )
+                              PressedColor: =ColorValue(AppTheme.PrimaryText)
+                              PressedFill: =ColorValue(AppTheme.ButtonPrimaryActive)
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
+                              Size: =12
+                              Text: ="Save settings"
+                  - adSetConPane_asm:
+                      Control: GroupContainer
+                      Variant: AutoLayout
+                      Properties:
+                        DropShadow: =DropShadow.None
+                        Fill: =Color.Transparent
+                        FillPortions: =0
+                        Height: =460
+                        LayoutAlignItems: =LayoutAlignItems.Stretch
+                        LayoutDirection: =LayoutDirection.Vertical
+                        LayoutGap: =24
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        RadiusBottomLeft: =0
+                        RadiusBottomRight: =0
+                        RadiusTopLeft: =0
+                        RadiusTopRight: =0
+                        Width: =Parent.Width
+                      Children:
+                        - adSetConAdmins_asm:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              DropShadow: =DropShadow.None
+                              Fill: =Color.Transparent
+                              FillPortions: =0
+                              LayoutAlignItems: =LayoutAlignItems.Stretch
+                              LayoutDirection: =LayoutDirection.Vertical
+                              LayoutGap: =12
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
+                              Width: =Parent.Width
+                            Children:
+                              - adSetHtxAdminsHead_asm:
+                                  Control: HtmlViewer
+                                  Properties:
+                                    DisplayMode: =DisplayMode.View
+                                    Height: =24
+                                    HtmlText: =CarbonText(CarbonHtmlType.Heading02, "Admins")
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    PaddingBottom: =0
+                                    PaddingLeft: =0
+                                    PaddingRight: =0
+                                    PaddingTop: =0
+                                    Width: =Parent.Width
+                              - adSetHtxAdminsIntro_asm:
+                                  Control: HtmlViewer
+                                  Properties:
+                                    DisplayMode: =DisplayMode.View
+                                    Height: =20
+                                    HtmlText: =CarbonTextSecondary(CarbonHtmlType.BodyCompact01, CountRows(AdminEmailList) & " admins from the settings list, plus " & CountRows(AdminEmails) & " built into the app")
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    PaddingBottom: =0
+                                    PaddingLeft: =0
+                                    PaddingRight: =0
+                                    PaddingTop: =0
+                                    Width: =Parent.Width
+                              - adSetGalAdmins_asm:
+                                  Control: Gallery
+                                  Variant: Vertical
+                                  Properties:
+                                    Fill: =AppTheme.Background
+                                    FillPortions: =0
+                                    Height: =240
+                                    Items: =SortByColumns(AdminEmailList, "Value", SortOrder.Ascending)
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    TemplatePadding: =0
+                                    TemplateSize: =48
+                                    Width: =Parent.Width
+                                  Children:
+                                    - adSetRectRowBg_asm:
+                                        Control: Rectangle
+                                        Properties:
+                                          BorderColor: =Color.Transparent
+                                          Fill: =AppTheme.Surface
+                                          Height: =Parent.TemplateHeight
+                                          Width: =Parent.TemplateWidth
+                                    - adSetRectRowDivider_asm:
+                                        Control: Rectangle
+                                        Properties:
+                                          BorderColor: =Color.Transparent
+                                          Fill: =AppTheme.Border
+                                          Height: =1
+                                          Width: =Parent.TemplateWidth
+                                          Y: =Parent.TemplateHeight - 1
+                                    - adSetLblRowEmail_asm:
+                                        Control: Label
+                                        Properties:
+                                          Color: =AppTheme.TextPrimary
+                                          Font: ="IBM Plex Sans"
+                                          Height: =20
+                                          Size: =12
+                                          Text: =ThisItem.Value
+                                          Width: =Parent.TemplateWidth - 160
+                                          Wrap: =false
+                                          X: =32
+                                          Y: =14
+                                    - adSetBtnAdminRemove_asm:
+                                        Control: Classic/Button
+                                        Properties:
+                                          BorderColor: =ColorValue(AppTheme.ButtonDangerPrimary)
+                                          BorderThickness: =1
+                                          Color: =ColorValue(AppTheme.ButtonDangerPrimary)
+                                          DisabledBorderColor: =AppTheme.Border
+                                          DisabledColor: =AppTheme.TextMuted
+                                          DisabledFill: =Color.Transparent
+                                          DisplayMode: =If(Lower(ThisItem.Value) = Lower(User().Email), DisplayMode.Disabled, DisplayMode.Edit)
+                                          Fill: =Color.Transparent
+                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                          FocusedBorderThickness: =2
+                                          Font: ="IBM Plex Sans"
+                                          FontWeight: =FontWeight.Normal
+                                          Height: =32
+                                          HoverBorderColor: =ColorValue(AppTheme.ButtonDangerPrimary)
+                                          HoverColor: =ColorValue(AppTheme.PrimaryText)
+                                          HoverFill: =ColorValue(AppTheme.ButtonDangerPrimary)
+                                          OnSelect: |-
+                                            =IfError(
+                                                Remove(Book_AppSettings, LookUp(Book_AppSettings, ID = ThisItem.ID));
+                                                ClearCollect(colAppSettings, Book_AppSettings);
+                                                Notify("Admin removed.", NotificationType.Success),
+                                                Notify("Couldn't remove admin.", NotificationType.Error)
+                                            )
+                                          PressedBorderColor: =ColorValue(AppTheme.ButtonDangerPrimary)
+                                          PressedColor: =ColorValue(AppTheme.PrimaryText)
+                                          PressedFill: =ColorValue(AppTheme.ButtonDangerPrimary)
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                          Size: =11
+                                          Text: ="Remove"
+                                          Width: =80
+                                          X: =Parent.TemplateWidth - 108
+                                          Y: =8
+                              - adSetConAddRow_asm:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
+                                  Properties:
+                                    DropShadow: =DropShadow.None
+                                    Fill: =Color.Transparent
+                                    FillPortions: =0
+                                    Height: =48
+                                    LayoutAlignItems: =LayoutAlignItems.Center
+                                    LayoutDirection: =LayoutDirection.Horizontal
+                                    LayoutGap: =8
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Width: =Parent.Width
+                                  Children:
+                                    - adSetInpAdminEmail_asm:
+                                        Control: Classic/TextInput
+                                        Properties:
+                                          AccessibleLabel: ="New admin email address"
+                                          BorderColor: =AppTheme.Border
+                                          BorderThickness: =1
+                                          Color: =AppTheme.TextPrimary
+                                          Default: =""
+                                          Fill: =AppTheme.layer01Bg
+                                          FillPortions: =1
+                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                          FocusedBorderThickness: =2
+                                          Font: ="IBM Plex Sans"
+                                          Height: =48
+                                          HintText: ="name@mod.gov.uk"
+                                          HoverBorderColor: =AppTheme.TextSecondary
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          Size: =11
+                                    - adSetBtnAdminAdd_asm:
+                                        Control: Classic/Button
+                                        Properties:
+                                          BorderColor: =ColorValue(AppTheme.ButtonPrimary)
+                                          BorderThickness: =0
+                                          Color: =ColorValue(AppTheme.PrimaryText)
+                                          Fill: =ColorValue(AppTheme.ButtonPrimary)
+                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                          FocusedBorderThickness: =2
+                                          Font: ="IBM Plex Sans"
+                                          FontWeight: =FontWeight.Normal
+                                          Height: =48
+                                          HoverColor: =ColorValue(AppTheme.PrimaryText)
+                                          HoverFill: =ColorValue(AppTheme.ButtonPrimaryActive)
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          OnSelect: |-
+                                            =With({_e: Lower(Trim(adSetInpAdminEmail_asm.Text))},
+                                                If(!IsMatch(_e, Match.Email),
+                                                    Notify("Enter a valid email address.", NotificationType.Error),
+                                                    _e in AdminEmails || !IsBlank(LookUp(AdminEmailList, Lower(Value) = _e)),
+                                                    Notify("That address is already an admin.", NotificationType.Warning),
+                                                    Patch(Book_AppSettings, Defaults(Book_AppSettings), {Title: "AdminEmail", Value: _e});
+                                                    ClearCollect(colAppSettings, Book_AppSettings);
+                                                    Reset(adSetInpAdminEmail_asm);
+                                                    Notify("Admin added", NotificationType.Success)
+                                                )
+                                            )
+                                          PressedColor: =ColorValue(AppTheme.PrimaryText)
+                                          PressedFill: =ColorValue(AppTheme.ButtonPrimaryActive)
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                          Size: =12
+                                          Text: ="Add admin"
+                                          Width: =120
+                              - adSetLblNote_asm:
+                                  Control: Label
+                                  Properties:
+                                    Color: =AppTheme.TextMuted
+                                    Font: ="IBM Plex Sans"
+                                    Height: =20
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Size: =11
+                                    Text: ="Bootstrap admins from the app formula cannot be removed here."
+                                    Width: =Parent.Width

@@ -1,0 +1,927 @@
+ComponentDefinitions:
+  cpt_PermanentBookingModal:
+    DefinitionType: CanvasComponent
+    AccessAppScope: true
+    Properties:
+      Height: =App.Height
+      Width: =App.Width
+    Children:
+      - pbmScrim:
+          Control: Rectangle
+          Properties:
+            Fill: =AppTheme.ModalScrim
+            Height: =Parent.Height
+            OnSelect: |-
+              =Set(gblRecurWD, "");
+              Set(gblRecurMode, "");
+              Set(gblRecurFreq, "W");
+              Set(gblRecurInterval, 1);
+              Set(gblRecurMonthMode, "day");
+              Set(gbl_UI_PermanentNew_Modal, false)
+            Visible: =gbl_UI_PermanentNew_Modal
+            Width: =Parent.Width
+      - pbmCard:
+          Control: GroupContainer
+          Variant: AutoLayout
+          Properties:
+            BorderColor: =AppTheme.Border
+            BorderThickness: =1
+            DropShadow: =DropShadow.Regular
+            Fill: =AppTheme.Surface
+            Height: =Min(Parent.Height - 64, 460)
+            LayoutAlignItems: =LayoutAlignItems.Stretch
+            LayoutDirection: =LayoutDirection.Vertical
+            LayoutGap: =16
+            PaddingBottom: =24
+            PaddingLeft: =32
+            PaddingRight: =32
+            PaddingTop: =24
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Visible: =gbl_UI_PermanentNew_Modal
+            Width: =Min(Parent.Width - 32, 560)
+            X: =(Parent.Width - Self.Width) / 2
+            Y: =(Parent.Height - Self.Height) / 2
+          Children:
+            - pbmConHeader:
+                Control: GroupContainer
+                Variant: AutoLayout
+                Properties:
+                  DropShadow: =DropShadow.None
+                  Fill: =Color.Transparent
+                  FillPortions: =0
+                  Height: =40
+                  LayoutAlignItems: =LayoutAlignItems.Center
+                  LayoutDirection: =LayoutDirection.Horizontal
+                  LayoutGap: =8
+                  LayoutMinHeight: =0
+                  LayoutMinWidth: =0
+                  Width: =Parent.Width
+                Children:
+                  - apnHtxPageTitle_pbm:
+                      Control: HtmlViewer
+                      Properties:
+                        AutoHeight: =true
+                        DisplayMode: =DisplayMode.View
+                        FillPortions: =1
+                        HtmlText: =CarbonText(CarbonHtmlType.Heading04, "New permanent booking")
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        PaddingBottom: =0
+                        PaddingLeft: =0
+                        PaddingRight: =0
+                        PaddingTop: =0
+                  - apnBtnBack_pbm:
+                      Control: Classic/Button
+                      Properties:
+                        AlignInContainer: =AlignInContainer.Center
+                        BorderColor: =AppTheme.Border
+                        BorderThickness: =1
+                        Color: =AppTheme.TextPrimary
+                        Fill: =Color.Transparent
+                        FillPortions: =0
+                        FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                        FocusedBorderThickness: =2
+                        Font: ="IBM Plex Sans"
+                        FontWeight: =FontWeight.Normal
+                        HoverColor: =AppTheme.TextPrimary
+                        HoverFill: =AppTheme.Border
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        OnSelect: |-
+                          =Set(gblRecurWD, "");
+                          Set(gblRecurMode, "");
+                          Set(gblRecurFreq, "W");
+                          Set(gblRecurInterval, 1);
+                          Set(gblRecurMonthMode, "day");
+                          Set(gbl_UI_PermanentNew_Modal, false)
+                        PressedColor: =AppTheme.TextPrimary
+                        PressedFill: =AppTheme.Border
+                        RadiusBottomLeft: =0
+                        RadiusBottomRight: =0
+                        RadiusTopLeft: =0
+                        RadiusTopRight: =0
+                        Size: =12
+                        Text: ="Cancel"
+                        Width: =140
+            - pbmConBody:
+                Control: GroupContainer
+                Variant: AutoLayout
+                Properties:
+                  DropShadow: =DropShadow.None
+                  Fill: =Color.Transparent
+                  FillPortions: =1
+                  LayoutAlignItems: =LayoutAlignItems.Stretch
+                  LayoutDirection: =LayoutDirection.Vertical
+                  LayoutMinHeight: =0
+                  LayoutMinWidth: =0
+                  LayoutOverflowY: =LayoutOverflow.Scroll
+                  Width: =Parent.Width
+                Children:
+                  - adBRConCreate_pbm:
+                      Control: GroupContainer
+                      Variant: AutoLayout
+                      Properties:
+                        DropShadow: =DropShadow.None
+                        Fill: =AppTheme.SurfaceAlt
+                        LayoutAlignItems: =LayoutAlignItems.Stretch
+                        LayoutDirection: =LayoutDirection.Vertical
+                        LayoutGap: =12
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        PaddingBottom: =16
+                        PaddingLeft: =16
+                        PaddingRight: =16
+                        PaddingTop: =16
+                        RadiusBottomLeft: =0
+                        RadiusBottomRight: =0
+                        RadiusTopLeft: =0
+                        RadiusTopRight: =0
+                        Width: =Parent.Width
+                      Children:
+                        - adBRInpTitle_pbm:
+                            Control: Classic/TextInput
+                            Properties:
+                              AccessibleLabel: ="Series title"
+                              BorderColor: =AppTheme.Border
+                              BorderThickness: =1
+                              Color: =AppTheme.TextPrimary
+                              Default: =""
+                              Fill: =AppTheme.layer01Bg
+                              FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                              FocusedBorderThickness: =2
+                              Font: ="IBM Plex Sans"
+                              Height: =48
+                              HintText: ="Series title"
+                              HoverBorderColor: =AppTheme.TextSecondary
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              Size: =11
+                              Width: =Parent.Width
+                        - adBRConCreateRow_pbm:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              DropShadow: =DropShadow.None
+                              Fill: =Color.Transparent
+                              FillPortions: =0
+                              Height: =48
+                              LayoutAlignItems: =LayoutAlignItems.Center
+                              LayoutDirection: =LayoutDirection.Horizontal
+                              LayoutGap: =8
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              Width: =Parent.Width
+                            Children:
+                              - adBRDrpRoom_pbm:
+                                  Control: Classic/DropDown
+                                  Properties:
+                                    AccessibleLabel: ="Room"
+                                    BorderColor: =AppTheme.Border
+                                    BorderThickness: =1
+                                    ChevronBackground: =AppTheme.layer01Bg
+                                    ChevronFill: =AppTheme.TextPrimary
+                                    Color: =AppTheme.TextPrimary
+                                    Default: =""
+                                    Fill: =AppTheme.layer01Bg
+                                    FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                    FocusedBorderThickness: =2
+                                    Font: ="IBM Plex Sans"
+                                    Height: =48
+                                    Items: =SortByColumns(colRooms, "Title", SortOrder.Ascending)
+                                    Items.Value: =Title
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    OnChange: |-
+                                      =Set(gblRecurAnchorStart, DateAdd(DateAdd(DateValue(Text(adBRDteFirst_pbm.SelectedDate, "yyyy-mm-dd")), Value(adBRDrpStartHour_pbm.Selected.Value) * 60, TimeUnit.Minutes), Value(adBRDrpStartMin_pbm.Selected.Value), TimeUnit.Minutes));
+                                      Set(gblRecurAnchorEnd, DateAdd(DateAdd(DateValue(Text(adBRDteFirst_pbm.SelectedDate, "yyyy-mm-dd")), Value(adBRDrpEndHour_pbm.Selected.Value) * 60, TimeUnit.Minutes), Value(adBRDrpEndMin_pbm.Selected.Value), TimeUnit.Minutes));
+                                      Set(gblRecurRoomId, adBRDrpRoom_pbm.Selected.ID)
+                                    Size: =11
+                                    Width: =220
+                              - adBRDteFirst_pbm:
+                                  Control: Classic/DatePicker
+                                  Properties:
+                                    BorderColor: =AppTheme.Border
+                                    BorderThickness: =1
+                                    Color: =AppTheme.TextPrimary
+                                    Fill: =AppTheme.layer01Bg
+                                    FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                    FocusedBorderThickness: =2
+                                    Font: ="IBM Plex Sans"
+                                    Height: =48
+                                    IconBackground: =AppTheme.HeaderBackground
+                                    IconFill: =AppTheme.HeaderAccent
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    OnChange: |-
+                                      =Set(gblRecurAnchorStart, DateAdd(DateAdd(DateValue(Text(adBRDteFirst_pbm.SelectedDate, "yyyy-mm-dd")), Value(adBRDrpStartHour_pbm.Selected.Value) * 60, TimeUnit.Minutes), Value(adBRDrpStartMin_pbm.Selected.Value), TimeUnit.Minutes));
+                                      Set(gblRecurAnchorEnd, DateAdd(DateAdd(DateValue(Text(adBRDteFirst_pbm.SelectedDate, "yyyy-mm-dd")), Value(adBRDrpEndHour_pbm.Selected.Value) * 60, TimeUnit.Minutes), Value(adBRDrpEndMin_pbm.Selected.Value), TimeUnit.Minutes));
+                                      Set(gblRecurRoomId, adBRDrpRoom_pbm.Selected.ID)
+                                    Size: =11
+                                    Width: =160
+                        - adBRConTimeRow_pbm:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              DropShadow: =DropShadow.None
+                              Fill: =Color.Transparent
+                              FillPortions: =0
+                              Height: =48
+                              LayoutAlignItems: =LayoutAlignItems.Center
+                              LayoutDirection: =LayoutDirection.Horizontal
+                              LayoutGap: =8
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              Width: =Parent.Width
+                            Children:
+                              - adBRDrpStartHour_pbm:
+                                  Control: Classic/DropDown
+                                  Properties:
+                                    BorderColor: =AppTheme.Border
+                                    BorderThickness: =1
+                                    ChevronBackground: =AppTheme.layer01Bg
+                                    ChevronFill: =AppTheme.TextPrimary
+                                    Color: =AppTheme.TextPrimary
+                                    Default: ="08"
+                                    Fill: =AppTheme.layer01Bg
+                                    FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                    FocusedBorderThickness: =2
+                                    Font: ="IBM Plex Sans"
+                                    Height: =48
+                                    Items: |-
+                                      =ForAll(Sequence(DayEndHour - DayStartHour + 1, DayStartHour), {Value: Text(Value, "00")})
+                                    Items.Value: =Value
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    OnChange: |-
+                                      =Set(gblRecurAnchorStart, DateAdd(DateAdd(DateValue(Text(adBRDteFirst_pbm.SelectedDate, "yyyy-mm-dd")), Value(adBRDrpStartHour_pbm.Selected.Value) * 60, TimeUnit.Minutes), Value(adBRDrpStartMin_pbm.Selected.Value), TimeUnit.Minutes));
+                                      Set(gblRecurAnchorEnd, DateAdd(DateAdd(DateValue(Text(adBRDteFirst_pbm.SelectedDate, "yyyy-mm-dd")), Value(adBRDrpEndHour_pbm.Selected.Value) * 60, TimeUnit.Minutes), Value(adBRDrpEndMin_pbm.Selected.Value), TimeUnit.Minutes));
+                                      Set(gblRecurRoomId, adBRDrpRoom_pbm.Selected.ID)
+                                    Size: =11
+                                    Width: =90
+                              - adBRDrpStartMin_pbm:
+                                  Control: Classic/DropDown
+                                  Properties:
+                                    BorderColor: =AppTheme.Border
+                                    BorderThickness: =1
+                                    ChevronBackground: =AppTheme.layer01Bg
+                                    ChevronFill: =AppTheme.TextPrimary
+                                    Color: =AppTheme.TextPrimary
+                                    Default: ="00"
+                                    Fill: =AppTheme.layer01Bg
+                                    FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                    FocusedBorderThickness: =2
+                                    Font: ="IBM Plex Sans"
+                                    Height: =48
+                                    Items: =["00","15","30","45"]
+                                    Items.Value: =Value
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    OnChange: |-
+                                      =Set(gblRecurAnchorStart, DateAdd(DateAdd(DateValue(Text(adBRDteFirst_pbm.SelectedDate, "yyyy-mm-dd")), Value(adBRDrpStartHour_pbm.Selected.Value) * 60, TimeUnit.Minutes), Value(adBRDrpStartMin_pbm.Selected.Value), TimeUnit.Minutes));
+                                      Set(gblRecurAnchorEnd, DateAdd(DateAdd(DateValue(Text(adBRDteFirst_pbm.SelectedDate, "yyyy-mm-dd")), Value(adBRDrpEndHour_pbm.Selected.Value) * 60, TimeUnit.Minutes), Value(adBRDrpEndMin_pbm.Selected.Value), TimeUnit.Minutes));
+                                      Set(gblRecurRoomId, adBRDrpRoom_pbm.Selected.ID)
+                                    Size: =11
+                                    Width: =90
+                              - adBRDrpEndHour_pbm:
+                                  Control: Classic/DropDown
+                                  Properties:
+                                    BorderColor: =AppTheme.Border
+                                    BorderThickness: =1
+                                    ChevronBackground: =AppTheme.layer01Bg
+                                    ChevronFill: =AppTheme.TextPrimary
+                                    Color: =AppTheme.TextPrimary
+                                    Default: ="09"
+                                    Fill: =AppTheme.layer01Bg
+                                    FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                    FocusedBorderThickness: =2
+                                    Font: ="IBM Plex Sans"
+                                    Height: =48
+                                    Items: |-
+                                      =ForAll(Sequence(DayEndHour - DayStartHour + 1, DayStartHour), {Value: Text(Value, "00")})
+                                    Items.Value: =Value
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    OnChange: |-
+                                      =Set(gblRecurAnchorStart, DateAdd(DateAdd(DateValue(Text(adBRDteFirst_pbm.SelectedDate, "yyyy-mm-dd")), Value(adBRDrpStartHour_pbm.Selected.Value) * 60, TimeUnit.Minutes), Value(adBRDrpStartMin_pbm.Selected.Value), TimeUnit.Minutes));
+                                      Set(gblRecurAnchorEnd, DateAdd(DateAdd(DateValue(Text(adBRDteFirst_pbm.SelectedDate, "yyyy-mm-dd")), Value(adBRDrpEndHour_pbm.Selected.Value) * 60, TimeUnit.Minutes), Value(adBRDrpEndMin_pbm.Selected.Value), TimeUnit.Minutes));
+                                      Set(gblRecurRoomId, adBRDrpRoom_pbm.Selected.ID)
+                                    Size: =11
+                                    Width: =90
+                              - adBRDrpEndMin_pbm:
+                                  Control: Classic/DropDown
+                                  Properties:
+                                    BorderColor: =AppTheme.Border
+                                    BorderThickness: =1
+                                    ChevronBackground: =AppTheme.layer01Bg
+                                    ChevronFill: =AppTheme.TextPrimary
+                                    Color: =AppTheme.TextPrimary
+                                    Default: ="00"
+                                    Fill: =AppTheme.layer01Bg
+                                    FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                    FocusedBorderThickness: =2
+                                    Font: ="IBM Plex Sans"
+                                    Height: =48
+                                    Items: =["00","15","30","45"]
+                                    Items.Value: =Value
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    OnChange: |-
+                                      =Set(gblRecurAnchorStart, DateAdd(DateAdd(DateValue(Text(adBRDteFirst_pbm.SelectedDate, "yyyy-mm-dd")), Value(adBRDrpStartHour_pbm.Selected.Value) * 60, TimeUnit.Minutes), Value(adBRDrpStartMin_pbm.Selected.Value), TimeUnit.Minutes));
+                                      Set(gblRecurAnchorEnd, DateAdd(DateAdd(DateValue(Text(adBRDteFirst_pbm.SelectedDate, "yyyy-mm-dd")), Value(adBRDrpEndHour_pbm.Selected.Value) * 60, TimeUnit.Minutes), Value(adBRDrpEndMin_pbm.Selected.Value), TimeUnit.Minutes));
+                                      Set(gblRecurRoomId, adBRDrpRoom_pbm.Selected.ID)
+                                    Size: =11
+                                    Width: =90
+                        - adRecConPanel_pbm:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              DropShadow: =DropShadow.None
+                              Fill: =Color.Transparent
+                              FillPortions: =0
+                              Height: =236 + If(gblRecurFreq = "W", adRecConDays_pbm.Height + 8, 0)
+                              LayoutAlignItems: =LayoutAlignItems.Stretch
+                              LayoutDirection: =LayoutDirection.Vertical
+                              LayoutGap: =8
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              Width: =Parent.Width
+                            Children:
+                              - adRecConCadence_pbm:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
+                                  Properties:
+                                    DropShadow: =DropShadow.None
+                                    Fill: =Color.Transparent
+                                    FillPortions: =0
+                                    Height: =40
+                                    LayoutAlignItems: =LayoutAlignItems.Center
+                                    LayoutDirection: =LayoutDirection.Horizontal
+                                    LayoutGap: =8
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Width: =Parent.Width
+                                  Children:
+                                    - adRecBtnDaily_pbm:
+                                        Control: Classic/Button
+                                        Properties:
+                                          BorderColor: =If(gblRecurFreq = "D", ColorValue(AppTheme.ButtonPrimary), AppTheme.Border)
+                                          BorderThickness: =1
+                                          Color: =If(gblRecurFreq = "D", ColorValue(AppTheme.PrimaryText), AppTheme.TextPrimary)
+                                          Fill: =If(gblRecurFreq = "D", ColorValue(AppTheme.ButtonPrimary), Color.Transparent)
+                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                          FocusedBorderThickness: =2
+                                          Font: ="IBM Plex Sans"
+                                          FontWeight: =FontWeight.Normal
+                                          HoverColor: =If(gblRecurFreq = "D", ColorValue(AppTheme.PrimaryText), AppTheme.TextPrimary)
+                                          HoverFill: =If(gblRecurFreq = "D", ColorValue(AppTheme.ButtonPrimaryActive), AppTheme.SurfaceAlt)
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          OnSelect: =Set(gblRecurFreq, "D")
+                                          PressedColor: =ColorValue(AppTheme.PrimaryText)
+                                          PressedFill: =ColorValue(AppTheme.ButtonPrimaryActive)
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                          Size: =12
+                                          Text: ="Daily"
+                                          Width: =110
+                                    - adRecBtnWeekly_pbm:
+                                        Control: Classic/Button
+                                        Properties:
+                                          BorderColor: =If(gblRecurFreq = "W", ColorValue(AppTheme.ButtonPrimary), AppTheme.Border)
+                                          BorderThickness: =1
+                                          Color: =If(gblRecurFreq = "W", ColorValue(AppTheme.PrimaryText), AppTheme.TextPrimary)
+                                          Fill: =If(gblRecurFreq = "W", ColorValue(AppTheme.ButtonPrimary), Color.Transparent)
+                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                          FocusedBorderThickness: =2
+                                          Font: ="IBM Plex Sans"
+                                          FontWeight: =FontWeight.Normal
+                                          HoverColor: =If(gblRecurFreq = "W", ColorValue(AppTheme.PrimaryText), AppTheme.TextPrimary)
+                                          HoverFill: =If(gblRecurFreq = "W", ColorValue(AppTheme.ButtonPrimaryActive), AppTheme.SurfaceAlt)
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          OnSelect: =Set(gblRecurFreq, "W")
+                                          PressedColor: =ColorValue(AppTheme.PrimaryText)
+                                          PressedFill: =ColorValue(AppTheme.ButtonPrimaryActive)
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                          Size: =12
+                                          Text: ="Weekly"
+                                          Width: =110
+                                    - adRecBtnMonthly_pbm:
+                                        Control: Classic/Button
+                                        Properties:
+                                          BorderColor: =If(gblRecurFreq = "M", ColorValue(AppTheme.ButtonPrimary), AppTheme.Border)
+                                          BorderThickness: =1
+                                          Color: =If(gblRecurFreq = "M", ColorValue(AppTheme.PrimaryText), AppTheme.TextPrimary)
+                                          Fill: =If(gblRecurFreq = "M", ColorValue(AppTheme.ButtonPrimary), Color.Transparent)
+                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                          FocusedBorderThickness: =2
+                                          Font: ="IBM Plex Sans"
+                                          FontWeight: =FontWeight.Normal
+                                          HoverColor: =If(gblRecurFreq = "M", ColorValue(AppTheme.PrimaryText), AppTheme.TextPrimary)
+                                          HoverFill: =If(gblRecurFreq = "M", ColorValue(AppTheme.ButtonPrimaryActive), AppTheme.SurfaceAlt)
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          OnSelect: =Set(gblRecurFreq, "M")
+                                          PressedColor: =ColorValue(AppTheme.PrimaryText)
+                                          PressedFill: =ColorValue(AppTheme.ButtonPrimaryActive)
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                          Size: =12
+                                          Text: ="Monthly"
+                                          Width: =110
+                              - adRecConInterval_pbm:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
+                                  Properties:
+                                    DropShadow: =DropShadow.None
+                                    Fill: =Color.Transparent
+                                    FillPortions: =0
+                                    Height: =40
+                                    LayoutAlignItems: =LayoutAlignItems.Center
+                                    LayoutDirection: =LayoutDirection.Horizontal
+                                    LayoutGap: =8
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Width: =Parent.Width
+                                  Children:
+                                    - adRecLblEvery_pbm:
+                                        Control: Label
+                                        Properties:
+                                          Color: =AppTheme.TextSecondary
+                                          Font: ="IBM Plex Sans"
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          Size: =11
+                                          Text: ="Every"
+                                          Width: =50
+                                    - adRecDrpInterval_pbm:
+                                        Control: Classic/DropDown
+                                        Properties:
+                                          AccessibleLabel: ="Repeat interval"
+                                          BorderColor: =AppTheme.Border
+                                          BorderThickness: =1
+                                          ChevronBackground: =AppTheme.layer01Bg
+                                          ChevronFill: =AppTheme.TextPrimary
+                                          Color: =AppTheme.TextPrimary
+                                          Default: =Text(gblRecurInterval)
+                                          Fill: =AppTheme.layer01Bg
+                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                          FocusedBorderThickness: =2
+                                          Font: ="IBM Plex Sans"
+                                          Items: |-
+                                            =ForAll(Sequence(12, 1), {Value: Text(Value)})
+                                          Items.Value: =Value
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          OnChange: =Set(gblRecurInterval, Value(Self.Selected.Value))
+                                          Size: =11
+                                          Width: =90
+                                    - adRecLblUnit_pbm:
+                                        Control: Label
+                                        Properties:
+                                          Color: =AppTheme.TextSecondary
+                                          Font: ="IBM Plex Sans"
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          Size: =11
+                                          Text: |-
+                                            =Switch(gblRecurFreq,
+                                                "D", "day(s) · weekdays only",
+                                                "W", "week(s)" & If(Len(RecurWD) > 1, "", " on " & Text(adBRDteFirst_pbm.SelectedDate, "[$-en-US]dddd")),
+                                                "month(s)")
+                                          Width: =280
+                              - adRecConDays_pbm:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
+                                  Properties:
+                                    DropShadow: =DropShadow.None
+                                    Fill: =Color.Transparent
+                                    FillPortions: =0
+                                    Height: =40
+                                    LayoutAlignItems: =LayoutAlignItems.Center
+                                    LayoutDirection: =LayoutDirection.Horizontal
+                                    LayoutGap: =8
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Visible: =gblRecurFreq = "W"
+                                    Width: =Parent.Width
+                                  Children:
+                                    - adRecLblOn_pbm:
+                                        Control: Label
+                                        Properties:
+                                          Color: =AppTheme.TextSecondary
+                                          Font: ="IBM Plex Sans"
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          Size: =11
+                                          Text: ="On"
+                                          Width: =50
+                                    - adRecBtnDay2_pbm:
+                                        Control: Classic/Button
+                                        Properties:
+                                          BorderColor: =If(Find("2", Coalesce(RecurWD, "")) > 0, ColorValue(AppTheme.ButtonPrimary), AppTheme.Border)
+                                          BorderThickness: =1
+                                          Color: =If(Find("2", Coalesce(RecurWD, "")) > 0, ColorValue(AppTheme.PrimaryText), AppTheme.TextPrimary)
+                                          DisabledBorderColor: =ColorValue(AppTheme.ButtonPrimary)
+                                          DisabledColor: =ColorValue(AppTheme.PrimaryText)
+                                          DisabledFill: =ColorValue(AppTheme.ButtonPrimary)
+                                          DisplayMode: =If(Weekday(RecurAnchorStart) = 2, DisplayMode.Disabled, DisplayMode.Edit)
+                                          Fill: =If(Find("2", Coalesce(RecurWD, "")) > 0, ColorValue(AppTheme.ButtonPrimary), Color.Transparent)
+                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                          FocusedBorderThickness: =2
+                                          Font: ="IBM Plex Sans"
+                                          FontWeight: =FontWeight.Normal
+                                          Height: =32
+                                          HoverColor: =If(Find("2", Coalesce(RecurWD, "")) > 0, ColorValue(AppTheme.PrimaryText), AppTheme.TextPrimary)
+                                          HoverFill: =If(Find("2", Coalesce(RecurWD, "")) > 0, ColorValue(AppTheme.ButtonPrimaryActive), AppTheme.SurfaceAlt)
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          OnSelect: =Set(gblRecurWD, If(Find("2", Coalesce(gblRecurWD, "")) > 0, Substitute(gblRecurWD, "2", ""), Coalesce(gblRecurWD, "") & "2"))
+                                          PressedColor: =ColorValue(AppTheme.PrimaryText)
+                                          PressedFill: =ColorValue(AppTheme.ButtonPrimaryActive)
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                          Size: =12
+                                          Text: ="Mon"
+                                          Width: =44
+                                    - adRecBtnDay3_pbm:
+                                        Control: Classic/Button
+                                        Properties:
+                                          BorderColor: =If(Find("3", Coalesce(RecurWD, "")) > 0, ColorValue(AppTheme.ButtonPrimary), AppTheme.Border)
+                                          BorderThickness: =1
+                                          Color: =If(Find("3", Coalesce(RecurWD, "")) > 0, ColorValue(AppTheme.PrimaryText), AppTheme.TextPrimary)
+                                          DisabledBorderColor: =ColorValue(AppTheme.ButtonPrimary)
+                                          DisabledColor: =ColorValue(AppTheme.PrimaryText)
+                                          DisabledFill: =ColorValue(AppTheme.ButtonPrimary)
+                                          DisplayMode: =If(Weekday(RecurAnchorStart) = 3, DisplayMode.Disabled, DisplayMode.Edit)
+                                          Fill: =If(Find("3", Coalesce(RecurWD, "")) > 0, ColorValue(AppTheme.ButtonPrimary), Color.Transparent)
+                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                          FocusedBorderThickness: =2
+                                          Font: ="IBM Plex Sans"
+                                          FontWeight: =FontWeight.Normal
+                                          Height: =32
+                                          HoverColor: =If(Find("3", Coalesce(RecurWD, "")) > 0, ColorValue(AppTheme.PrimaryText), AppTheme.TextPrimary)
+                                          HoverFill: =If(Find("3", Coalesce(RecurWD, "")) > 0, ColorValue(AppTheme.ButtonPrimaryActive), AppTheme.SurfaceAlt)
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          OnSelect: =Set(gblRecurWD, If(Find("3", Coalesce(gblRecurWD, "")) > 0, Substitute(gblRecurWD, "3", ""), Coalesce(gblRecurWD, "") & "3"))
+                                          PressedColor: =ColorValue(AppTheme.PrimaryText)
+                                          PressedFill: =ColorValue(AppTheme.ButtonPrimaryActive)
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                          Size: =12
+                                          Text: ="Tue"
+                                          Width: =44
+                                    - adRecBtnDay4_pbm:
+                                        Control: Classic/Button
+                                        Properties:
+                                          BorderColor: =If(Find("4", Coalesce(RecurWD, "")) > 0, ColorValue(AppTheme.ButtonPrimary), AppTheme.Border)
+                                          BorderThickness: =1
+                                          Color: =If(Find("4", Coalesce(RecurWD, "")) > 0, ColorValue(AppTheme.PrimaryText), AppTheme.TextPrimary)
+                                          DisabledBorderColor: =ColorValue(AppTheme.ButtonPrimary)
+                                          DisabledColor: =ColorValue(AppTheme.PrimaryText)
+                                          DisabledFill: =ColorValue(AppTheme.ButtonPrimary)
+                                          DisplayMode: =If(Weekday(RecurAnchorStart) = 4, DisplayMode.Disabled, DisplayMode.Edit)
+                                          Fill: =If(Find("4", Coalesce(RecurWD, "")) > 0, ColorValue(AppTheme.ButtonPrimary), Color.Transparent)
+                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                          FocusedBorderThickness: =2
+                                          Font: ="IBM Plex Sans"
+                                          FontWeight: =FontWeight.Normal
+                                          Height: =32
+                                          HoverColor: =If(Find("4", Coalesce(RecurWD, "")) > 0, ColorValue(AppTheme.PrimaryText), AppTheme.TextPrimary)
+                                          HoverFill: =If(Find("4", Coalesce(RecurWD, "")) > 0, ColorValue(AppTheme.ButtonPrimaryActive), AppTheme.SurfaceAlt)
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          OnSelect: =Set(gblRecurWD, If(Find("4", Coalesce(gblRecurWD, "")) > 0, Substitute(gblRecurWD, "4", ""), Coalesce(gblRecurWD, "") & "4"))
+                                          PressedColor: =ColorValue(AppTheme.PrimaryText)
+                                          PressedFill: =ColorValue(AppTheme.ButtonPrimaryActive)
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                          Size: =12
+                                          Text: ="Wed"
+                                          Width: =44
+                                    - adRecBtnDay5_pbm:
+                                        Control: Classic/Button
+                                        Properties:
+                                          BorderColor: =If(Find("5", Coalesce(RecurWD, "")) > 0, ColorValue(AppTheme.ButtonPrimary), AppTheme.Border)
+                                          BorderThickness: =1
+                                          Color: =If(Find("5", Coalesce(RecurWD, "")) > 0, ColorValue(AppTheme.PrimaryText), AppTheme.TextPrimary)
+                                          DisabledBorderColor: =ColorValue(AppTheme.ButtonPrimary)
+                                          DisabledColor: =ColorValue(AppTheme.PrimaryText)
+                                          DisabledFill: =ColorValue(AppTheme.ButtonPrimary)
+                                          DisplayMode: =If(Weekday(RecurAnchorStart) = 5, DisplayMode.Disabled, DisplayMode.Edit)
+                                          Fill: =If(Find("5", Coalesce(RecurWD, "")) > 0, ColorValue(AppTheme.ButtonPrimary), Color.Transparent)
+                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                          FocusedBorderThickness: =2
+                                          Font: ="IBM Plex Sans"
+                                          FontWeight: =FontWeight.Normal
+                                          Height: =32
+                                          HoverColor: =If(Find("5", Coalesce(RecurWD, "")) > 0, ColorValue(AppTheme.PrimaryText), AppTheme.TextPrimary)
+                                          HoverFill: =If(Find("5", Coalesce(RecurWD, "")) > 0, ColorValue(AppTheme.ButtonPrimaryActive), AppTheme.SurfaceAlt)
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          OnSelect: =Set(gblRecurWD, If(Find("5", Coalesce(gblRecurWD, "")) > 0, Substitute(gblRecurWD, "5", ""), Coalesce(gblRecurWD, "") & "5"))
+                                          PressedColor: =ColorValue(AppTheme.PrimaryText)
+                                          PressedFill: =ColorValue(AppTheme.ButtonPrimaryActive)
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                          Size: =12
+                                          Text: ="Thu"
+                                          Width: =44
+                                    - adRecBtnDay6_pbm:
+                                        Control: Classic/Button
+                                        Properties:
+                                          BorderColor: =If(Find("6", Coalesce(RecurWD, "")) > 0, ColorValue(AppTheme.ButtonPrimary), AppTheme.Border)
+                                          BorderThickness: =1
+                                          Color: =If(Find("6", Coalesce(RecurWD, "")) > 0, ColorValue(AppTheme.PrimaryText), AppTheme.TextPrimary)
+                                          DisabledBorderColor: =ColorValue(AppTheme.ButtonPrimary)
+                                          DisabledColor: =ColorValue(AppTheme.PrimaryText)
+                                          DisabledFill: =ColorValue(AppTheme.ButtonPrimary)
+                                          DisplayMode: =If(Weekday(RecurAnchorStart) = 6, DisplayMode.Disabled, DisplayMode.Edit)
+                                          Fill: =If(Find("6", Coalesce(RecurWD, "")) > 0, ColorValue(AppTheme.ButtonPrimary), Color.Transparent)
+                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                          FocusedBorderThickness: =2
+                                          Font: ="IBM Plex Sans"
+                                          FontWeight: =FontWeight.Normal
+                                          Height: =32
+                                          HoverColor: =If(Find("6", Coalesce(RecurWD, "")) > 0, ColorValue(AppTheme.PrimaryText), AppTheme.TextPrimary)
+                                          HoverFill: =If(Find("6", Coalesce(RecurWD, "")) > 0, ColorValue(AppTheme.ButtonPrimaryActive), AppTheme.SurfaceAlt)
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          OnSelect: =Set(gblRecurWD, If(Find("6", Coalesce(gblRecurWD, "")) > 0, Substitute(gblRecurWD, "6", ""), Coalesce(gblRecurWD, "") & "6"))
+                                          PressedColor: =ColorValue(AppTheme.PrimaryText)
+                                          PressedFill: =ColorValue(AppTheme.ButtonPrimaryActive)
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                          Size: =12
+                                          Text: ="Fri"
+                                          Visible: =WeekendPolicy = "allow" || Weekday(RecurAnchorStart) = 7
+                                          Width: =44
+                                    - adRecBtnDay7_pbm:
+                                        Control: Classic/Button
+                                        Properties:
+                                          BorderColor: =If(Find("7", Coalesce(RecurWD, "")) > 0, ColorValue(AppTheme.ButtonPrimary), AppTheme.Border)
+                                          BorderThickness: =1
+                                          Color: =If(Find("7", Coalesce(RecurWD, "")) > 0, ColorValue(AppTheme.PrimaryText), AppTheme.TextPrimary)
+                                          DisabledBorderColor: =ColorValue(AppTheme.ButtonPrimary)
+                                          DisabledColor: =ColorValue(AppTheme.PrimaryText)
+                                          DisabledFill: =ColorValue(AppTheme.ButtonPrimary)
+                                          DisplayMode: =If(Weekday(RecurAnchorStart) = 7, DisplayMode.Disabled, DisplayMode.Edit)
+                                          Fill: =If(Find("7", Coalesce(RecurWD, "")) > 0, ColorValue(AppTheme.ButtonPrimary), Color.Transparent)
+                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                          FocusedBorderThickness: =2
+                                          Font: ="IBM Plex Sans"
+                                          FontWeight: =FontWeight.Normal
+                                          Height: =32
+                                          HoverColor: =If(Find("7", Coalesce(RecurWD, "")) > 0, ColorValue(AppTheme.PrimaryText), AppTheme.TextPrimary)
+                                          HoverFill: =If(Find("7", Coalesce(RecurWD, "")) > 0, ColorValue(AppTheme.ButtonPrimaryActive), AppTheme.SurfaceAlt)
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          OnSelect: =Set(gblRecurWD, If(Find("7", Coalesce(gblRecurWD, "")) > 0, Substitute(gblRecurWD, "7", ""), Coalesce(gblRecurWD, "") & "7"))
+                                          PressedColor: =ColorValue(AppTheme.PrimaryText)
+                                          PressedFill: =ColorValue(AppTheme.ButtonPrimaryActive)
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                          Size: =12
+                                          Text: ="Sat"
+                                          Visible: =WeekendPolicy = "allow" || Weekday(RecurAnchorStart) = 7
+                                          Width: =44
+                                    - adRecBtnDay1_pbm:
+                                        Control: Classic/Button
+                                        Properties:
+                                          BorderColor: =If(Find("1", Coalesce(RecurWD, "")) > 0, ColorValue(AppTheme.ButtonPrimary), AppTheme.Border)
+                                          BorderThickness: =1
+                                          Color: =If(Find("1", Coalesce(RecurWD, "")) > 0, ColorValue(AppTheme.PrimaryText), AppTheme.TextPrimary)
+                                          DisabledBorderColor: =ColorValue(AppTheme.ButtonPrimary)
+                                          DisabledColor: =ColorValue(AppTheme.PrimaryText)
+                                          DisabledFill: =ColorValue(AppTheme.ButtonPrimary)
+                                          DisplayMode: =If(Weekday(RecurAnchorStart) = 1, DisplayMode.Disabled, DisplayMode.Edit)
+                                          Fill: =If(Find("1", Coalesce(RecurWD, "")) > 0, ColorValue(AppTheme.ButtonPrimary), Color.Transparent)
+                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                          FocusedBorderThickness: =2
+                                          Font: ="IBM Plex Sans"
+                                          FontWeight: =FontWeight.Normal
+                                          Height: =32
+                                          HoverColor: =If(Find("1", Coalesce(RecurWD, "")) > 0, ColorValue(AppTheme.PrimaryText), AppTheme.TextPrimary)
+                                          HoverFill: =If(Find("1", Coalesce(RecurWD, "")) > 0, ColorValue(AppTheme.ButtonPrimaryActive), AppTheme.SurfaceAlt)
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          OnSelect: =Set(gblRecurWD, If(Find("1", Coalesce(gblRecurWD, "")) > 0, Substitute(gblRecurWD, "1", ""), Coalesce(gblRecurWD, "") & "1"))
+                                          PressedColor: =ColorValue(AppTheme.PrimaryText)
+                                          PressedFill: =ColorValue(AppTheme.ButtonPrimaryActive)
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                          Size: =12
+                                          Text: ="Sun"
+                                          Visible: =WeekendPolicy = "allow" || Weekday(RecurAnchorStart) = 1
+                                          Width: =44
+                              - adRecConMonth_pbm:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
+                                  Properties:
+                                    DropShadow: =DropShadow.None
+                                    Fill: =Color.Transparent
+                                    FillPortions: =0
+                                    Height: =40
+                                    LayoutAlignItems: =LayoutAlignItems.Center
+                                    LayoutDirection: =LayoutDirection.Horizontal
+                                    LayoutGap: =8
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Visible: =gblRecurFreq = "M"
+                                    Width: =Parent.Width
+                                  Children:
+                                    - adRecBtnMonthDay_pbm:
+                                        Control: Classic/Button
+                                        Properties:
+                                          BorderColor: =If(gblRecurMonthMode = "day", ColorValue(AppTheme.ButtonPrimary), AppTheme.Border)
+                                          BorderThickness: =1
+                                          Color: =If(gblRecurMonthMode = "day", ColorValue(AppTheme.PrimaryText), AppTheme.TextPrimary)
+                                          Fill: =If(gblRecurMonthMode = "day", ColorValue(AppTheme.ButtonPrimary), Color.Transparent)
+                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                          FocusedBorderThickness: =2
+                                          Font: ="IBM Plex Sans"
+                                          FontWeight: =FontWeight.Normal
+                                          HoverColor: =If(gblRecurMonthMode = "day", ColorValue(AppTheme.PrimaryText), AppTheme.TextPrimary)
+                                          HoverFill: =If(gblRecurMonthMode = "day", ColorValue(AppTheme.ButtonPrimaryActive), AppTheme.SurfaceAlt)
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          OnSelect: =Set(gblRecurMonthMode, "day")
+                                          PressedColor: =ColorValue(AppTheme.PrimaryText)
+                                          PressedFill: =ColorValue(AppTheme.ButtonPrimaryActive)
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                          Size: =12
+                                          Text: ="On day " & Day(adBRDteFirst_pbm.SelectedDate)
+                                          Width: =150
+                                    - adRecBtnMonthWeekday_pbm:
+                                        Control: Classic/Button
+                                        Properties:
+                                          BorderColor: =If(gblRecurMonthMode = "weekday", ColorValue(AppTheme.ButtonPrimary), AppTheme.Border)
+                                          BorderThickness: =1
+                                          Color: =If(gblRecurMonthMode = "weekday", ColorValue(AppTheme.PrimaryText), AppTheme.TextPrimary)
+                                          Fill: =If(gblRecurMonthMode = "weekday", ColorValue(AppTheme.ButtonPrimary), Color.Transparent)
+                                          FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                                          FocusedBorderThickness: =2
+                                          Font: ="IBM Plex Sans"
+                                          FontWeight: =FontWeight.Normal
+                                          HoverColor: =If(gblRecurMonthMode = "weekday", ColorValue(AppTheme.PrimaryText), AppTheme.TextPrimary)
+                                          HoverFill: =If(gblRecurMonthMode = "weekday", ColorValue(AppTheme.ButtonPrimaryActive), AppTheme.SurfaceAlt)
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          OnSelect: =Set(gblRecurMonthMode, "weekday")
+                                          PressedColor: =ColorValue(AppTheme.PrimaryText)
+                                          PressedFill: =ColorValue(AppTheme.ButtonPrimaryActive)
+                                          RadiusBottomLeft: =0
+                                          RadiusBottomRight: =0
+                                          RadiusTopLeft: =0
+                                          RadiusTopRight: =0
+                                          Size: =12
+                                          Text: |-
+                                            ="On the " &
+                                            fnOrdinal(If(Day(adBRDteFirst_pbm.SelectedDate) >= 29, -1, RoundUp(Day(adBRDteFirst_pbm.SelectedDate) / 7, 0))) &
+                                            " " & Text(adBRDteFirst_pbm.SelectedDate, "[$-en-US]dddd")
+                                          Width: =260
+                              - adRecHtxSummary_pbm:
+                                  Control: HtmlViewer
+                                  Properties:
+                                    DisplayMode: =DisplayMode.View
+                                    Height: =24
+                                    HtmlText: =CarbonTextColored(CarbonHtmlType.Body01, fnHtmlEscape(RecurLabel), AppThemeHex.TextSecondary)
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    PaddingBottom: =0
+                                    PaddingLeft: =0
+                                    PaddingRight: =0
+                                    PaddingTop: =0
+                                    Width: =Parent.Width
+                              - adRecHtxPreview_pbm:
+                                  Control: HtmlViewer
+                                  Properties:
+                                    AutoHeight: =true
+                                    DisplayMode: =DisplayMode.View
+                                    FillPortions: =1
+                                    HtmlText: |-
+                                      =CarbonTextColored(
+                                          CarbonHtmlType.Label01,
+                                          Concat(
+                                              RecurPreview,
+                                              CarbonSpan(CarbonHtmlType.Label01, "&#9679; ", If(IsClash, AppThemeHex.StatusBusyText, AppThemeHex.StatusFreeText)) &
+                                              fnHtmlEscape(Text(StartDateTime, "[$-en-US]ddd dd mmm HH:mm")),
+                                              " &nbsp; "
+                                          ) &
+                                          If(RecurCount > 8, " &nbsp; +" & (RecurCount - 8) & " more", "") &
+                                          If(RecurClashCount > 0,
+                                              "<br>" & CarbonSpan(CarbonHtmlType.Label01, RecurClashCount & " occurrence(s) clash — change the room or time", AppThemeHex.StatusBusyText),
+                                              ""),
+                                          AppThemeHex.TextSecondary)
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    PaddingBottom: =0
+                                    PaddingLeft: =0
+                                    PaddingRight: =0
+                                    PaddingTop: =0
+                                    Width: =Parent.Width
+                        - adBRBtnCreate_pbm:
+                            Control: Classic/Button
+                            Properties:
+                              BorderColor: =ColorValue(AppTheme.ButtonPrimary)
+                              BorderThickness: =0
+                              Color: =ColorValue(AppTheme.PrimaryText)
+                              Fill: =ColorValue(AppTheme.ButtonPrimary)
+                              FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                              FocusedBorderThickness: =2
+                              Font: ="IBM Plex Sans"
+                              FontWeight: =FontWeight.Normal
+                              HoverColor: =ColorValue(AppTheme.PrimaryText)
+                              HoverFill: =ColorValue(AppTheme.ButtonPrimaryActive)
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              OnSelect: |-
+                                =With(
+                                    {
+                                        _s: DateAdd(DateAdd(DateValue(Text(adBRDteFirst_pbm.SelectedDate, "yyyy-mm-dd")), Value(adBRDrpStartHour_pbm.Selected.Value) * 60, TimeUnit.Minutes), Value(adBRDrpStartMin_pbm.Selected.Value), TimeUnit.Minutes),
+                                        _e: DateAdd(DateAdd(DateValue(Text(adBRDteFirst_pbm.SelectedDate, "yyyy-mm-dd")), Value(adBRDrpEndHour_pbm.Selected.Value) * 60, TimeUnit.Minutes), Value(adBRDrpEndMin_pbm.Selected.Value), TimeUnit.Minutes),
+                                        _room: adBRDrpRoom_pbm.Selected
+                                    },
+                                    If(IsBlank(Trim(adBRInpTitle_pbm.Text)) || IsBlank(_room),
+                                        Notify("Title and room are required.", NotificationType.Error),
+                                        _e <= _s,
+                                        Notify("End time must be after start time.", NotificationType.Error),
+                                        RecurClashCount > 0,
+                                        Notify("This permanent booking clashes with existing bookings. Change the room or time.", NotificationType.Error),
+                                        IfError(
+                                            Patch(Book_Bookings, Defaults(Book_Bookings),
+                                            {
+                                                Title: Trim(adBRInpTitle_pbm.Text),
+                                                RoomID: {Id: _room.ID, Value: Text(_room.RoomID)},
+                                                StartDateTime: _s, EndDateTime: _e,
+                                                BookedByEmail: Lower(User().Email),
+                                                // PROD-REVERT[booked-by-actor] person = actor; mock claims don't resolve
+                                                BookedBy: {
+                                                    '@odata.type': "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser",
+                                                    Claims: $"i:0#.f|membership|{Lower(User().Email)}",
+                                                    DisplayName: User().FullName,
+                                                    Email: Lower(User().Email),
+                                                    Department: "",
+                                                    JobTitle: "",
+                                                    Picture: ""
+                                                },
+                                                Status: "Active", SeriesID: Text(GUID()),
+                                                RecurrenceType: RecurRule,
+                                                OccIndex: 0, IsException: false, IsPrivate: false,
+                                                /* T-08: denormalised fields the notification flows read (they must not parse rules) */
+                                                WantsInvite: Coalesce(gblUserSettings.CalendarInvite, true),
+                                                RecurrenceLabel: RecurLabel,
+                                                NextOccurrence: _s
+                                            }),
+                                            /* BOOK-5: nothing was written, so the mirror refresh, the panel resets
+                                               and the modal-close all stay on the success arm - the admin keeps their
+                                               input in this modal and can retry. */
+                                            Notify("Couldn't create this permanent booking. Please try again.", NotificationType.Error),
+                                            /* MIRROR: masters live in colBRMasters, not colBookings */
+                                            ClearCollect(colBRMasters, Filter(Book_Bookings, StartsWith(RecurrenceType, "BR-"), IsException = false, Status = "Active"));
+                                            Set(gblRecurWD, "");
+                                            Set(gblRecurMode, "");
+                                            Set(gblRecurFreq, "W");
+                                            Set(gblRecurInterval, 1);
+                                            Set(gblRecurMonthMode, "day");
+                                            Notify("Permanent booking created.", NotificationType.Success);
+                                            Set(gbl_UI_PermanentNew_Modal, false)
+                                        )
+                                    )
+                                )
+                              PressedColor: =ColorValue(AppTheme.PrimaryText)
+                              PressedFill: =ColorValue(AppTheme.ButtonPrimaryActive)
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
+                              Size: =12
+                              Text: ="Create series"

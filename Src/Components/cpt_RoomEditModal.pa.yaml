@@ -1,0 +1,377 @@
+ComponentDefinitions:
+  cpt_RoomEditModal:
+    DefinitionType: CanvasComponent
+    AccessAppScope: true
+    Properties:
+      Height: =App.Height
+      Width: =App.Width
+    Children:
+      - rmeScrim:
+          Control: Rectangle
+          Properties:
+            Fill: =AppTheme.ModalScrim
+            Height: =Parent.Height
+            OnSelect: =Set(gbl_UI_RoomEdit_Modal, false)
+            Visible: =gbl_UI_RoomEdit_Modal
+            Width: =Parent.Width
+      - rmeCard:
+          Control: GroupContainer
+          Variant: AutoLayout
+          Properties:
+            BorderColor: =AppTheme.Border
+            BorderThickness: =1
+            DropShadow: =DropShadow.Regular
+            Fill: =AppTheme.Surface
+            Height: =Min(Parent.Height - 64, 460)
+            LayoutAlignItems: =LayoutAlignItems.Stretch
+            LayoutDirection: =LayoutDirection.Vertical
+            LayoutGap: =16
+            PaddingBottom: =24
+            PaddingLeft: =32
+            PaddingRight: =32
+            PaddingTop: =24
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Visible: =gbl_UI_RoomEdit_Modal
+            Width: =Min(Parent.Width - 32, 560)
+            X: =(Parent.Width - Self.Width) / 2
+            Y: =(Parent.Height - Self.Height) / 2
+          Children:
+            - rmeConForm_mc:
+                Control: GroupContainer
+                Variant: AutoLayout
+                Properties:
+                  DropShadow: =DropShadow.None
+                  Fill: =AppTheme.SurfaceAlt
+                  LayoutAlignItems: =LayoutAlignItems.Stretch
+                  LayoutDirection: =LayoutDirection.Vertical
+                  LayoutGap: =12
+                  LayoutMinHeight: =0
+                  LayoutMinWidth: =0
+                  LayoutOverflowY: =LayoutOverflow.Scroll
+                  PaddingBottom: =16
+                  PaddingLeft: =16
+                  PaddingRight: =16
+                  PaddingTop: =16
+                  RadiusBottomLeft: =0
+                  RadiusBottomRight: =0
+                  RadiusTopLeft: =0
+                  RadiusTopRight: =0
+                  Width: =Parent.Width
+                Children:
+                  - rmeHtxFormTitle_mc:
+                      Control: HtmlViewer
+                      Properties:
+                        DisplayMode: =DisplayMode.View
+                        FillPortions: =0
+                        Height: =20
+                        HtmlText: =CarbonText(CarbonHtmlType.HeadingCompact01, If(gbl_UI_RoomEditSel = 0, "Add room", "Edit room"))
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        PaddingBottom: =0
+                        PaddingLeft: =0
+                        PaddingRight: =0
+                        PaddingTop: =0
+                  - rmeInpTitle_mc:
+                      Control: Classic/TextInput
+                      Properties:
+                        AccessibleLabel: ="Room name"
+                        BorderColor: =AppTheme.Border
+                        BorderThickness: =1
+                        Color: =AppTheme.TextPrimary
+                        Default: =LookUp(colRooms, ID = gbl_UI_RoomEditSel, Title)
+                        Fill: =AppTheme.layer01Bg
+                        FillPortions: =0
+                        FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                        FocusedBorderThickness: =2
+                        Font: ="IBM Plex Sans"
+                        Height: =48
+                        HintText: ="Room name"
+                        HoverBorderColor: =AppTheme.TextSecondary
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        Size: =11
+                        Width: =Parent.Width
+                  - rmeInpCap_mc:
+                      Control: Classic/TextInput
+                      Properties:
+                        AccessibleLabel: ="Capacity"
+                        BorderColor: =AppTheme.Border
+                        BorderThickness: =1
+                        Color: =AppTheme.TextPrimary
+                        Default: =If(gbl_UI_RoomEditSel = 0, "", Text(LookUp(colRooms, ID = gbl_UI_RoomEditSel, Capacity)))
+                        Fill: =AppTheme.layer01Bg
+                        FillPortions: =0
+                        FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                        FocusedBorderThickness: =2
+                        Font: ="IBM Plex Sans"
+                        Format: =TextFormat.Number
+                        Height: =48
+                        HintText: ="Capacity"
+                        HoverBorderColor: =AppTheme.TextSecondary
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        Size: =11
+                        Width: =Parent.Width
+                  - rmeDrpClass_mc:
+                      Control: Classic/DropDown
+                      Properties:
+                        AccessibleLabel: ="Classification"
+                        AllowEmptySelection: =true
+                        BorderColor: =AppTheme.Border
+                        BorderThickness: =1
+                        ChevronBackground: =AppTheme.layer01Bg
+                        ChevronFill: =AppTheme.TextPrimary
+                        Color: =AppTheme.TextPrimary
+                        Default: =Coalesce(LookUp(ClassificationLevels, Code = LookUp(colRooms, ID = gbl_UI_RoomEditSel).Classification).Label, "")
+                        Fill: =AppTheme.layer01Bg
+                        FillPortions: =0
+                        FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                        FocusedBorderThickness: =2
+                        Font: ="IBM Plex Sans"
+                        Height: =48
+                        Items: =ClassificationLevels
+                        Items.Value: =Label
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        Size: =11
+                        Width: =Parent.Width
+                  - rmeGalSystems_mc:
+                      Control: Gallery
+                      Variant: Horizontal
+                      Properties:
+                        FillPortions: =0
+                        Height: =40
+                        Items: =SystemTagList
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        ShowScrollbar: =false
+                        TemplatePadding: =2
+                        TemplateSize: =98
+                        Width: =Parent.Width
+                      Children:
+                        - rmeBtnChipSystems_mc:
+                            Control: Classic/Button
+                            Properties:
+                              BorderColor: =If(ThisItem.Code in colAdRmSystems.Code, ColorValue(AppTheme.Primary), AppTheme.Border)
+                              BorderThickness: =1
+                              Color: =If(ThisItem.Code in colAdRmSystems.Code, ColorValue(AppTheme.PrimaryText), AppTheme.TextPrimary)
+                              Fill: =If(ThisItem.Code in colAdRmSystems.Code, ColorValue(AppTheme.ButtonPrimary), AppTheme.SurfaceAlt)
+                              FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                              FocusedBorderThickness: =2
+                              Font: ="IBM Plex Sans"
+                              Height: =24
+                              OnSelect: |-
+                                =If(
+                                    ThisItem.Code in colAdRmSystems.Code,
+                                    RemoveIf(colAdRmSystems, Code = ThisItem.Code),
+                                    Collect(colAdRmSystems, {Code: ThisItem.Code})
+                                )
+                              RadiusBottomLeft: =12
+                              RadiusBottomRight: =12
+                              RadiusTopLeft: =12
+                              RadiusTopRight: =12
+                              Size: =10
+                              Text: =ThisItem.Label
+                              Width: =Parent.TemplateWidth - 4
+                  - rmeGalEquip_mc:
+                      Control: Gallery
+                      Variant: Horizontal
+                      Properties:
+                        FillPortions: =0
+                        Height: =40
+                        Items: =EquipmentTagList
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        ShowScrollbar: =false
+                        TemplatePadding: =2
+                        TemplateSize: =98
+                        Width: =Parent.Width
+                      Children:
+                        - rmeBtnChipEquip_mc:
+                            Control: Classic/Button
+                            Properties:
+                              BorderColor: =If(ThisItem.Code in colAdRmEquip.Code, ColorValue(AppTheme.Primary), AppTheme.Border)
+                              BorderThickness: =1
+                              Color: =If(ThisItem.Code in colAdRmEquip.Code, ColorValue(AppTheme.PrimaryText), AppTheme.TextPrimary)
+                              Fill: =If(ThisItem.Code in colAdRmEquip.Code, ColorValue(AppTheme.ButtonPrimary), AppTheme.SurfaceAlt)
+                              FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                              FocusedBorderThickness: =2
+                              Font: ="IBM Plex Sans"
+                              Height: =24
+                              OnSelect: |-
+                                =If(
+                                    ThisItem.Code in colAdRmEquip.Code,
+                                    RemoveIf(colAdRmEquip, Code = ThisItem.Code),
+                                    Collect(colAdRmEquip, {Code: ThisItem.Code})
+                                )
+                              RadiusBottomLeft: =12
+                              RadiusBottomRight: =12
+                              RadiusTopLeft: =12
+                              RadiusTopRight: =12
+                              Size: =10
+                              Text: =ThisItem.Label
+                              Width: =Parent.TemplateWidth - 4
+                  - rmeInpNotes_mc:
+                      Control: Classic/TextInput
+                      Properties:
+                        AccessibleLabel: ="Notes"
+                        BorderColor: =AppTheme.Border
+                        BorderThickness: =1
+                        Color: =AppTheme.TextPrimary
+                        Default: =LookUp(colRooms, ID = gbl_UI_RoomEditSel, RoomNotes)
+                        Fill: =AppTheme.layer01Bg
+                        FillPortions: =0
+                        FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                        FocusedBorderThickness: =2
+                        Font: ="IBM Plex Sans"
+                        Height: =96
+                        HintText: ="Notes shown to everyone (e.g. projector bulb failing, use HDMI 2)"
+                        HoverBorderColor: =AppTheme.TextSecondary
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        Mode: =TextMode.MultiLine
+                        Size: =11
+                        Width: =Parent.Width
+                  - rmeTglActive_mc:
+                      Control: Toggle
+                      Properties:
+                        Checked: =If(gbl_UI_RoomEditSel = 0, true, LookUp(colRooms, ID = gbl_UI_RoomEditSel, IsActive))
+                        FillPortions: =0
+                        Height: =28
+                        Label: ="Active"
+                        LayoutMinHeight: =16
+                        LayoutMinWidth: =16
+                        Width: =Parent.Width
+                  - rmeInpDesc_mc:
+                      Control: Classic/TextInput
+                      Properties:
+                        AccessibleLabel: ="Description"
+                        BorderColor: =AppTheme.Border
+                        BorderThickness: =1
+                        Color: =AppTheme.TextPrimary
+                        Default: =LookUp(colRooms, ID = gbl_UI_RoomEditSel, description)
+                        Fill: =AppTheme.layer01Bg
+                        FillPortions: =0
+                        FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                        FocusedBorderThickness: =2
+                        Font: ="IBM Plex Sans"
+                        Height: =48
+                        HintText: ="Description"
+                        HoverBorderColor: =AppTheme.TextSecondary
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        Size: =11
+                        Width: =Parent.Width
+                  - rmeConFormBtns_mc:
+                      Control: GroupContainer
+                      Variant: AutoLayout
+                      Properties:
+                        DropShadow: =DropShadow.None
+                        Fill: =Color.Transparent
+                        FillPortions: =0
+                        Height: =40
+                        LayoutAlignItems: =LayoutAlignItems.Center
+                        LayoutDirection: =LayoutDirection.Horizontal
+                        LayoutGap: =8
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        Width: =Parent.Width
+                      Children:
+                        - rmeBtnSave_mc:
+                            Control: Classic/Button
+                            Properties:
+                              BorderColor: =ColorValue(AppTheme.ButtonPrimary)
+                              BorderThickness: =0
+                              Color: =ColorValue(AppTheme.PrimaryText)
+                              Fill: =ColorValue(AppTheme.ButtonPrimary)
+                              FillPortions: =0
+                              FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                              FocusedBorderThickness: =2
+                              Font: ="IBM Plex Sans"
+                              FontWeight: =FontWeight.Normal
+                              HoverColor: =ColorValue(AppTheme.PrimaryText)
+                              HoverFill: =ColorValue(AppTheme.ButtonPrimaryActive)
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              OnSelect: |-
+                                =If(IsBlank(Trim(rmeInpTitle_mc.Text)) || Value(rmeInpCap_mc.Text) <= 0 || IsBlank(Value(rmeInpCap_mc.Text)),
+                                    Notify("Room name and a positive capacity are required.", NotificationType.Error),
+                                    Value(rmeInpCap_mc.Text) > 500,
+                                    Notify("Capacity must be 500 or fewer.", NotificationType.Error),
+                                    IfError(
+                                        If(gbl_UI_RoomEditSel = 0,
+                                            Patch(Book_Rooms, Defaults(Book_Rooms),
+                                                {
+                                                    Title: Trim(rmeInpTitle_mc.Text),
+                                                    Capacity: Value(rmeInpCap_mc.Text),
+                                                    description: Trim(rmeInpDesc_mc.Text),
+                                                    Classification: rmeDrpClass_mc.Selected.Code,
+                                                    Systems: Concat(colAdRmSystems, Code & ";"),
+                                                    Equipment: Concat(colAdRmEquip, Code & ";"),
+                                                    RoomNotes: Trim(rmeInpNotes_mc.Text),
+                                                    IsActive: rmeTglActive_mc.Checked,
+                                                    RoomID: Max(colRooms, RoomID) + 1
+                                                }),
+                                            Patch(Book_Rooms, LookUp(Book_Rooms, ID = gbl_UI_RoomEditSel),
+                                                {
+                                                    Title: Trim(rmeInpTitle_mc.Text),
+                                                    Capacity: Value(rmeInpCap_mc.Text),
+                                                    description: Trim(rmeInpDesc_mc.Text),
+                                                    Classification: rmeDrpClass_mc.Selected.Code,
+                                                    Systems: Concat(colAdRmSystems, Code & ";"),
+                                                    Equipment: Concat(colAdRmEquip, Code & ";"),
+                                                    RoomNotes: Trim(rmeInpNotes_mc.Text),
+                                                    IsActive: rmeTglActive_mc.Checked
+                                                })
+                                        ),
+                                        /* BOOK-5: on failure leave the form open with the admin's input
+                                           and leave colRooms alone - the server never changed */
+                                        Notify("Couldn't save this room. Please try again.", NotificationType.Error),
+                                        /* MIRROR: colRooms is the app-wide snapshot every screen reads */
+                                        /* P10 triage: this draws the same CollectDelegatableDataSource checker
+                                           finding as the baselined App.OnStart pull - accepted; the rooms list
+                                           is far below the 500-row limit and a Filter wrapper draws a delegation
+                                           warning that fails the publish outright. */
+                                        ClearCollect(colRooms, Book_Rooms);
+                                        Set(gbl_UI_RoomEdit_Modal, false);
+                                        Notify("Room saved.", NotificationType.Success)
+                                    )
+                                )
+                              PressedColor: =ColorValue(AppTheme.PrimaryText)
+                              PressedFill: =ColorValue(AppTheme.ButtonPrimaryActive)
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
+                              Size: =12
+                              Text: ="Save room"
+                              Width: =140
+                        - rmeBtnClose_mc:
+                            Control: Classic/Button
+                            Properties:
+                              BorderColor: =AppTheme.Border
+                              BorderThickness: =1
+                              Color: =AppTheme.TextPrimary
+                              Fill: =Color.Transparent
+                              FillPortions: =0
+                              FocusedBorderColor: =ColorValue(AppTheme.Primary)
+                              FocusedBorderThickness: =2
+                              Font: ="IBM Plex Sans"
+                              FontWeight: =FontWeight.Normal
+                              HoverColor: =AppTheme.TextPrimary
+                              HoverFill: =AppTheme.Border
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              OnSelect: =Set(gbl_UI_RoomEdit_Modal, false)
+                              PressedColor: =AppTheme.TextPrimary
+                              PressedFill: =AppTheme.Border
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
+                              Size: =12
+                              Text: ="Cancel"
+                              Width: =110
