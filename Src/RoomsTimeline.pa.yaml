@@ -526,7 +526,7 @@ Screens:
                                                               If(
                                                                   !ThisItem.IsMasked,
                                                                   Set(gblSelectedBooking, LookUp(AllBookings, ID = ThisItem.BookingID));
-                                                                  Navigate(bookingDetail, ScreenTransition.Fade)
+                                                                  Set(gbl_UI_Detail_Modal, true)
                                                               )
                                                             PressedColor: =Color.Transparent
                                                             PressedFill: =RGBA(0, 0, 0, 0.08)
@@ -1468,4 +1468,11 @@ Screens:
             OnSubmitEdit: ="Text"
             OptionalLabelText: =" "
             Visible: =gbl_UI_Book_Modal = true
+            Width: =App.Width
+      - cpt_BookingDetailModal_tl2:
+          Control: CanvasComponent
+          ComponentName: cpt_BookingDetailModal
+          Properties:
+            Height: =App.Height
+            Visible: =gbl_UI_Detail_Modal = true
             Width: =App.Width

@@ -1125,7 +1125,7 @@ Screens:
                                     Height: =32
                                     HoverColor: =AppTheme.StatusWarnText
                                     HoverFill: =AppTheme.StatusWarnBg
-                                    OnSelect: =Set(gbl_FixCycleSeriesID, ThisItem.SeriesID); Set(gblSelectedBooking, ThisItem.EarliestClash); Navigate(bookingDetail, ScreenTransition.Fade)
+                                    OnSelect: =Set(gbl_FixCycleSeriesID, ThisItem.SeriesID); Set(gblSelectedBooking, ThisItem.EarliestClash); Set(gbl_UI_Detail_Modal, true)
                                     PressedColor: =AppTheme.StatusWarnText
                                     PressedFill: =AppTheme.StatusWarnBg
                                     RadiusBottomLeft: =0
@@ -1458,4 +1458,242 @@ Screens:
           Properties:
             Height: =App.Height
             Visible: =gbl_UI_Detail_Modal = true
+            Width: =App.Width
+      - cpt_Modal__book_mb2:
+          Control: CanvasComponent
+          ComponentName: cpt_Modal_
+          Properties:
+            Height: =App.Height
+            ModalTitleText: =
+            OnSubmit: |-
+              =If(cpt_Modal__book_mb2.ValidPayload,
+                  ClearCollect(colPayloadSnapshot, cpt_Modal__book_mb2.PatchPayload);
+                  Clear(colFailedBookings);
+                  /* BUG-1: fresh per-occurrence server reads, materialized before the main loop.
+                     Each slot-sized query is fully delegable; RoomID.Id (not delegable on
+                     SharePoint) and exact-overlap narrowing happen client-side on the collection.
+                     ClearCollect/Clear are illegal inside ForAll, hence the two-pass shape. */
+                  Clear(colOccOverlap);
+                  // PERF-5-SKIP[table-ingest] do not batch — each iteration Collects a Filter sub-table, not a record
+                  ForAll(
+                      colPayloadSnapshot As _w,
+                      Collect(
+                          colOccOverlap,
+                          Filter(
+                              Book_Bookings,
+                              Status = "Active",
+                              StartDateTime < _w.EndDateTime,
+                              EndDateTime > _w.StartDateTime
+                          )
+                      )
+                  );
+                  /* BR-aware clash inputs: master anchor rows must not block (only their expansion
+                     does) - drop them; virtual BR occurrences are checked via BRVirtual in _hasClash. */
+                  RemoveIf(colOccOverlap, StartsWith(Coalesce(RecurrenceType, ""), "BR-") && !IsException);
+                  Set(varNewSeriesID, If(First(colPayloadSnapshot).RecurrenceType <> "", GUID(), Blank()));
+
+                  /* Loop through all snapshot occurrences */
+                  ForAll(
+                      colPayloadSnapshot As _occ,
+                      With(
+                          {
+                              _isWeekend: (Weekday(_occ.StartDateTime, StartOfWeek.Sunday) = 1 || Weekday(_occ.StartDateTime, StartOfWeek.Sunday) = 7) && WeekendPolicy <> "allow",
+                              _hasClash: !IsBlank(
+                                  LookUp(
+                                      Filter(colOccOverlap, fnOverlaps(StartDateTime, EndDateTime, _occ.StartDateTime, _occ.EndDateTime)),
+                                      RoomID.Id = _occ.RoomIdNumber
+                                  )
+                              ) || !IsBlank(
+                                  LookUp(
+                                      Filter(BRVirtual, fnOverlaps(StartDateTime, EndDateTime, _occ.StartDateTime, _occ.EndDateTime)),
+                                      RoomID.Id = _occ.RoomIdNumber
+                                  )
+                              )
+                          },
+                          With(
+                              {
+                                  /* Create booking; on success Collect() mirrors the row Patch
+                                     returns (server-assigned ID included) into colBookings;
+                                     record a write failure if it errors.
+                                     Series occurrences that are clean are NOT written — the master
+                                     row below expands them at read time; only weekend/clash
+                                     occurrences become stored exception rows. */
+                                  _patchOk: If(
+                                      IsBlank(varNewSeriesID) || _isWeekend || _hasClash,
+                                      IfError(
+                                          Collect(colBookings, Patch(
+                                              Book_Bookings,
+                                              Defaults(Book_Bookings),
+                                              {
+                                                  Title: _occ.Title,
+                                                  BookedByEmail: _occ.BookedByEmail,
+                                                  RoomID: {
+                                                      Id: _occ.RoomIdNumber,
+                                                      Value: _occ.RoomIdText
+                                                  },
+                                                  StartDateTime: _occ.StartDateTime,
+                                                  EndDateTime: _occ.EndDateTime,
+                                                  IsPrivate: _occ.IsPrivate,
+                                                  // PROD-REVERT[booked-by-actor] person = actor; mock claims don't resolve
+                                                  BookedBy: {
+                                                      '@odata.type': "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser",
+                                                      Claims: $"i:0#.f|membership|{Lower(User().Email)}",
+                                                      DisplayName: User().FullName,
+                                                      Email: Lower(User().Email),
+                                                      Department: "",
+                                                      JobTitle: "",
+                                                      Picture: ""
+                                                  },
+                                                  Status: If(_isWeekend || _hasClash, "Clash", "Active"),
+                                                  SeriesID: If(IsBlank(varNewSeriesID), Blank(), Text(varNewSeriesID)),
+                                                  RecurrenceType: If(IsBlank(varNewSeriesID), _occ.RecurrenceType, "BR-Exception"),
+                                                  OccIndex: _occ.OccIndex,
+                                                  IsException: !IsBlank(varNewSeriesID),
+                                                  WantsInvite: _occ.WantsInvite
+                                              }
+                                          ));
+                                          true,
+                                          Collect(
+                                              colFailedBookings,
+                                              {
+                                                  BookingDate: Text(_occ.StartDateTime, "dd mmm yyyy"),
+                                                  Reason: "error"
+                                              }
+                                          );
+                                          false
+                                      ),
+                                      true
+                                  )
+                              },
+
+                              /* Slot already occupied or the occurrence lands on a weekend —
+                                 the row is still written, just as Clash instead of Active */
+                              If(
+                                  _patchOk && (_isWeekend || _hasClash),
+                                  Collect(
+                                      colFailedBookings,
+                                      {
+                                          BookingDate: Text(_occ.StartDateTime, "dd mmm yyyy"),
+                                          Reason: "clash"
+                                      }
+                                  )
+                              )
+                          )
+                      )
+                  );
+
+                  /* Series: exactly one master row carrying the rule in RecurrenceType.
+                     Occurrences are expanded at read time by BRVirtual; clashing ones were
+                     written as exception rows in the loop above. */
+                  If(
+                      !IsBlank(varNewSeriesID),
+                      With(
+                          {_first: First(colPayloadSnapshot)},
+                          IfError(
+                              Collect(colBookings, Patch(
+                                  Book_Bookings,
+                                  Defaults(Book_Bookings),
+                                  {
+                                      Title: _first.Title,
+                                      BookedByEmail: _first.BookedByEmail,
+                                      RoomID: {
+                                          Id: _first.RoomIdNumber,
+                                          Value: _first.RoomIdText
+                                      },
+                                      StartDateTime: _first.StartDateTime,
+                                      EndDateTime: _first.EndDateTime,
+                                      IsPrivate: _first.IsPrivate,
+                                      // PROD-REVERT[booked-by-actor] person = actor; mock claims don't resolve
+                                      BookedBy: {
+                                          '@odata.type': "#Microsoft.Azure.Connectors.SharePoint.SPListExpandedUser",
+                                          Claims: $"i:0#.f|membership|{Lower(User().Email)}",
+                                          DisplayName: User().FullName,
+                                          Email: Lower(User().Email),
+                                          Department: "",
+                                          JobTitle: "",
+                                          Picture: ""
+                                      },
+                                      Status: "Active",
+                                      SeriesID: Text(varNewSeriesID),
+                                      RecurrenceType: _first.RecurrenceType,
+                                      OccIndex: 0,
+                                      IsException: false,
+                                      WantsInvite: _first.WantsInvite,
+                                      RecurrenceLabel: fnRuleLabel(_first.RecurrenceType, _first.StartDateTime),
+                                      NextOccurrence: _first.StartDateTime
+                                  }
+                              )),
+                              Collect(
+                                  colFailedBookings,
+                                  {
+                                      BookingDate: Text(_first.StartDateTime, "dd mmm yyyy"),
+                                      Reason: "error"
+                                  }
+                              )
+                          );
+                          Refresh(Book_Bookings);
+                          ClearCollect(
+                              colBRMasters,
+                              Filter(Book_Bookings, StartsWith(RecurrenceType, "BR-"), IsException = false, Status = "Active")
+                          )
+                      )
+                  );
+
+                  // PROD-REVERT[booking-create-mb2] SharePoint round-trip after series create
+                  // (created rows are mirrored into colBookings per-occurrence above; failed rows have no server row to mirror)
+                  Refresh(Book_Bookings);
+
+                  Set(varBookingError, !IsEmpty(Filter(colFailedBookings, Reason = "error")));
+
+                  /* Report the outcome back to the wizard */
+                  Set(
+                      gbl_Book_SubmitResult,
+                      If(varBookingError, "error", "success")
+                  );
+
+                  /* Tell user what happened; close the modal on all branches */
+                  If(
+                      varBookingError,
+                      Notify(
+                          "Some bookings failed to save. Please try again. Not created: " &
+                          Concat(Filter(colFailedBookings, Reason = "error"), BookingDate, ", "),
+                          NotificationType.Error,
+                          10000
+                      ),
+                      !IsBlank(varNewSeriesID),
+                      Notify(
+                          If(fnRuleIsPermanent(First(colPayloadSnapshot).RecurrenceType), "Permanent booking created", $"Series booked · {CountRows(colPayloadSnapshot)} occurrences") &
+                          If(
+                              CountRows(Filter(colFailedBookings, Reason = "clash")) > 0,
+                              $", {CountRows(Filter(colFailedBookings, Reason = "clash"))} clash(es) to resolve",
+                              ""
+                          ),
+                          If(
+                              CountRows(Filter(colFailedBookings, Reason = "clash")) > 0,
+                              NotificationType.Warning,
+                              NotificationType.Success
+                          ),
+                          10000
+                      ),
+                      CountRows(Filter(colFailedBookings, Reason = "clash")) > 0,
+                      Notify(
+                          $"Created {CountRows(colPayloadSnapshot)} bookings — {CountRows(Filter(colFailedBookings, Reason = "clash"))} clash and need rescheduling. See My Bookings → Series.",
+                          NotificationType.Warning,
+                          10000
+                      ),
+                      Notify(
+                          "Booking(s) created successfully",
+                          NotificationType.Success
+                      )
+                  );
+                  Set(gbl_UI_Book_Modal, false)
+
+                  /* Stay on myBookings — nothing to rebuild: this instance backs the
+                     Change-time wizard hand-off from cpt_BookingDetailModal_myb (create
+                     is not reachable from this screen); the list renders from colBookings,
+                     so the per-occurrence mirror above is enough. */
+              )
+            OnSubmitEdit: ="Text"
+            OptionalLabelText: =" "
+            Visible: =gbl_UI_Book_Modal = true
             Width: =App.Width
