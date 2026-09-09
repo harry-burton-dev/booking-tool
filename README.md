@@ -1,7 +1,7 @@
 # Booking Tool — Canvas App source
 
 Source distribution of the room-booking Power Apps canvas app (app id
-`498d4962-0b5f-4990-a400-1bf5de9a367c`, env `Default-ecf69819-…`). **This repo is a distro, not
+`a5fe0780-88fa-4bc5-9e55-5a2e9850ecda`, env `Default-ecf69819-…`). **This repo is a distro, not
 the live app** — the live app is the source of truth; `Src/` here is a byte-adopted fresh sync
 taken after the last publish. Retrieve from here into your production environment; do not treat
 git alone as proof of what is live.
