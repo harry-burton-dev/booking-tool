@@ -670,6 +670,118 @@ App:
                   /* Sandbox sentinel - the production revert flips this to false (MOCK_DATA.md) */
                   IsSandbox = false;
 
+                  //--------------------------------------------------------
+                  //--- Room facilities vocabulary (T3): classification tags,
+                  //--- system/equipment tag matching, derived-key helpers ---
+                  //--------------------------------------------------------
+
+                  /* In-code fallback vocabularies (T3). These are what ClassificationLevels/
+                     SystemTagList/EquipmentTagList resolve to before any admin configures rows
+                     in Book_AppSettings, so the feature works out of the box. */
+                  ClassificationDefaults = Table(
+                      {Code: "OFF", Label: "Official",           Rank: 10, ColorToken: "StatusFree"},
+                      {Code: "OS",  Label: "Official-Sensitive", Rank: 20, ColorToken: "StatusBusy"},
+                      {Code: "SEC", Label: "Secret",             Rank: 30, ColorToken: "StatusBusy"}
+                  );
+                  SystemTagDefaults = Table(
+                      {Code: "MODNET",     Label: "MODNET"},
+                      {Code: "DVS",        Label: "DVS"},
+                      {Code: "VTC",        Label: "VTC"},
+                      {Code: "STANDALONE", Label: "Standalone"}
+                  );
+                  EquipmentTagDefaults = Table(
+                      {Code: "Screen",     Label: "Screen"},
+                      {Code: "Whiteboard", Label: "Whiteboard"},
+                      {Code: "Projector",  Label: "Projector"},
+                      {Code: "VC",         Label: "VC"}
+                  );
+
+                  /* Settings-backed vocabularies (T3). Rows share Title = "Classification" /
+                     "SystemTag" / "EquipmentTag" in Book_AppSettings (same multi-row-key
+                     pattern as AdminEmailList above), pipe-delimited in Value:
+                     Classification is code|label|rank|themeToken, the tag lists are code|label.
+                     Falls back to the in-code defaults above when no rows are configured yet.
+                     ClassificationLevels is sorted by Rank ascending. */
+                  ClassificationLevels = With(
+                      {_rows: Filter(colAppSettings, Title = "Classification")},
+                      If(
+                          IsEmpty(_rows),
+                          ClassificationDefaults,
+                          Sort(
+                              ForAll(
+                                  _rows As _r,
+                                  With(
+                                      {_p: Split(_r.Value, "|")},
+                                      {
+                                          Code: Index(_p, 1).Value,
+                                          Label: Index(_p, 2).Value,
+                                          Rank: Value(Index(_p, 3).Value),
+                                          ColorToken: Index(_p, 4).Value
+                                      }
+                                  )
+                              ),
+                              Rank,
+                              SortOrder.Ascending
+                          )
+                      )
+                  );
+                  SystemTagList = With(
+                      {_rows: Filter(colAppSettings, Title = "SystemTag")},
+                      If(
+                          IsEmpty(_rows),
+                          SystemTagDefaults,
+                          ForAll(
+                              _rows As _r,
+                              With(
+                                  {_p: Split(_r.Value, "|")},
+                                  {Code: Index(_p, 1).Value, Label: Index(_p, 2).Value}
+                              )
+                          )
+                      )
+                  );
+                  EquipmentTagList = With(
+                      {_rows: Filter(colAppSettings, Title = "EquipmentTag")},
+                      If(
+                          IsEmpty(_rows),
+                          EquipmentTagDefaults,
+                          ForAll(
+                              _rows As _r,
+                              With(
+                                  {_p: Split(_r.Value, "|")},
+                                  {Code: Index(_p, 1).Value, Label: Index(_p, 2).Value}
+                              )
+                          )
+                      )
+                  );
+
+                  /* Tag key/match helpers (T3, defect B-1). Canonical key form is lowercase,
+                     semicolon-delimited, WITH leading and trailing semicolons - that is what
+                     makes fnHasTag an exact membership test instead of a substring match
+                     (";vc;" in ";screen;vc;" is true; ";vc;" in ";screen;avc;" is false). */
+                  fnTagKey(raw:Text):Text =
+                      ";" & Concat(
+                          ForAll(
+                              Split(Substitute(Coalesce(raw, ""), ",", ";"), ";") As _t,
+                              {V: Trim(_t.Value)}
+                          ),
+                          If(IsBlank(V), "", Lower(V) & ";")
+                      );
+
+                  fnHasTag(key:Text, tag:Text):Boolean = ";" & Lower(Trim(tag)) & ";" in key;
+
+                  /* Classification rank helper (T3). 0 for a blank or unrecognised code, so an
+                     unrated room never outranks a rated one in classification-ordered
+                     comparisons. The LookUp is inlined rather than split into a fnClassOf
+                     companion: a UDF must declare a return type, and Power Fx has no record
+                     return type to declare here (probe compile 2026-09-09 rejected it with
+                     "'fnClassOf' is an unknown or unsupported function"). Consumers that need
+                     the whole level record LookUp ClassificationLevels directly. */
+                  fnClassRank(code:Text):Number = Coalesce(LookUp(ClassificationLevels, Code = code).Rank, 0);
+
+                  //--------------------------------------------------------
+                  //--- End room facilities vocabulary (T3) ---
+                  //--------------------------------------------------------
+
                   ThemeMap = {
                       Light: {
                           PrimaryText: ThemeMapHex.Light.PrimaryText,
@@ -1187,6 +1299,12 @@ App:
                                       Description: _room.description,
                                       Capacity: _room.Capacity,
                                       Equipment: Coalesce(_room.Equipment, ""),
+                                      Classification: Coalesce(_room.Classification, ""),
+                                      ClassRank: fnClassRank(_room.Classification),
+                                      SystemsKey: fnTagKey(_room.Systems),
+                                      EquipmentKey: fnTagKey(_room.Equipment),
+                                      Notes: Coalesce(_room.RoomNotes, ""),
+                                      IsActive: Coalesce(_room.IsActive, true),
                                       StatusKey: If(
                                           varNowTick < TodayWindowStart || varNowTick >= TodayWindowEnd,
                                           "OutsideHours",
