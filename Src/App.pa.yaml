@@ -1460,11 +1460,6 @@ App:
                   // whole bdmFooter action row on first open.
                   Set(gbl_UI_Detail_Modal, false);
                   Set(gbl_UI_Detail_ConfirmMode, "");
-                  // Same class: bookingDetail.OnVisible is the only thing that seeds this
-                  // today, and that screen is now unreachable. Seeded here so the three
-                  // `gbl_UI_ScopePrompt = ""` gates cannot see Blank(). Retire the global
-                  // with the screen in M5 rather than carrying this seed forward.
-                  Set(gbl_UI_ScopePrompt, "");
                   Set(gblAsWeekend, "");
                   Set(gblAsMigConfirm, false);
                   Set(gblAsMigScanned, false);
