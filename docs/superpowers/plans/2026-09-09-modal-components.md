@@ -310,10 +310,35 @@ in `Home.pa.yaml`, **a file the push did not edit**, and a re-push of the identi
 restored it. Marker greps would not have caught this — only a full pushed-vs-echoed `diff -rq`
 did. Do that diff on every publish, not just greps.
 
-### M5 status: unblocked, one prerequisite left
-`bdmFooterRight` carries a hardcoded `Visible: =false` (**not `bdmBtnChangeTime`, as the earlier
-note in this file said**), so change-time is still unreachable from the modal. That remains M5's
-prerequisite; the footer itself now renders.
+### Change time made reachable — 2026-09-10 (`34b83b3`)
+
+`bdmFooterRight` carried a hardcoded `Visible: =false`. Removing that one property is the whole
+fix: every gate the screen applies to `btnChangeTimeDetail` is already applied by the modal's
+ancestors — `bdmFooter` has the identical four-term owner/past/permanent gate, and
+`bdmFooterActions` gates on `gbl_UI_Detail_ConfirmMode = ""`, which subsumes the screen's
+`!varConfirmCancel && gbl_UI_ScopePrompt = ""`. Removed rather than set `=true` so the round-trip
+stays byte-stable against default-stripping.
+
+`bdmBtnChangeTime.OnSelect` was already complete and correct — it prefills the wizard and hands
+off to `bookingDetail`, whose `cpt_Modal__book_detail.OnSubmitEdit` raises
+`Set(gbl_UI_ScopePrompt, "edit")` for series members. Scope selection and the differential write
+are intact (read, not assumed). Rung 2 compile clean, rung 3 whole-tree diff byte-identical.
+
+**This does NOT unblock M5.** Change time now *works*, but it works **by depending on the
+`bookingDetail` screen** — the handoff target, the only host of a wizard instance with a working
+`OnSubmitEdit`, and the surface that owns the edit-scope prompt UI. Deleting that screen still
+removes change time.
+
+**M5's remaining prerequisite is unchanged in substance:** host a wizard instance on each screen
+that opens the modal, port `OnSubmitEdit` to those instances, port the edit-scope prompt, and drop
+the `Navigate(bookingDetail)` handoff. **That is exactly the work preserved on
+`feat/detail-modal-selfsufficient`, whose only stated blocker was the non-rendering footer — now
+fixed.** Re-evaluate that branch against current `main` rather than rewriting it; its
+`OnSubmitEdit` ports were LCS-verified as pure ordered subsequences of the source.
+
+**Seed `gbl_UI_ScopePrompt` as part of M5.** It has three bare `= ""` comparisons and no
+`App.OnStart` seed, covered today only by `bookingDetail.OnVisible`. Retiring that screen removes
+the cover and reproduces the exact bug just fixed on `gbl_UI_Detail_ConfirmMode`.
 
 ## Deliberately not in this plan
 
