@@ -11,7 +11,15 @@ ComponentDefinitions:
           Properties:
             Fill: =AppTheme.ModalScrim
             Height: =Parent.Height
-            OnSelect: =Set(gbl_UI_RoomEdit_Modal, false)
+            OnSelect: |-
+              =// RESET-SITE[room-edit-scrim-close] clear typed fields so the next room opens clean (M-12)
+              Reset(rmeInpTitle_mc);
+              Reset(rmeInpCap_mc);
+              Reset(rmeDrpClass_mc);
+              Reset(rmeInpNotes_mc);
+              Reset(rmeTglActive_mc);
+              Reset(rmeInpDesc_mc);
+              Set(gbl_UI_RoomEdit_Modal, false)
             Visible: =gbl_UI_RoomEdit_Modal
             Width: =Parent.Width
       - rmeCard:
@@ -328,6 +336,13 @@ ComponentDefinitions:
                                            is far below the 500-row limit and a Filter wrapper draws a delegation
                                            warning that fails the publish outright. */
                                         ClearCollect(colRooms, Book_Rooms);
+                                        // RESET-SITE[room-edit-save] clear typed fields so the next room opens clean (M-12)
+                                        Reset(rmeInpTitle_mc);
+                                        Reset(rmeInpCap_mc);
+                                        Reset(rmeDrpClass_mc);
+                                        Reset(rmeInpNotes_mc);
+                                        Reset(rmeTglActive_mc);
+                                        Reset(rmeInpDesc_mc);
                                         Set(gbl_UI_RoomEdit_Modal, false);
                                         Notify("Room saved.", NotificationType.Success)
                                     )
@@ -356,7 +371,15 @@ ComponentDefinitions:
                               HoverFill: =AppTheme.Border
                               LayoutMinHeight: =0
                               LayoutMinWidth: =0
-                              OnSelect: =Set(gbl_UI_RoomEdit_Modal, false)
+                              OnSelect: |-
+                                =// RESET-SITE[room-edit-cancel] clear typed fields so the next room opens clean (M-12)
+                                Reset(rmeInpTitle_mc);
+                                Reset(rmeInpCap_mc);
+                                Reset(rmeDrpClass_mc);
+                                Reset(rmeInpNotes_mc);
+                                Reset(rmeTglActive_mc);
+                                Reset(rmeInpDesc_mc);
+                                Set(gbl_UI_RoomEdit_Modal, false)
                               PressedColor: =AppTheme.TextPrimary
                               PressedFill: =AppTheme.Border
                               RadiusBottomLeft: =0

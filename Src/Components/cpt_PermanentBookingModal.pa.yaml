@@ -17,6 +17,15 @@ ComponentDefinitions:
               Set(gblRecurFreq, "W");
               Set(gblRecurInterval, 1);
               Set(gblRecurMonthMode, "day");
+              // RESET-SITE[permanent-scrim-close] clear typed fields so the next series opens clean (M-12)
+              Reset(adBRInpTitle_pbm);
+              Reset(adBRDrpRoom_pbm);
+              Reset(adBRDteFirst_pbm);
+              Reset(adBRDrpStartHour_pbm);
+              Reset(adBRDrpStartMin_pbm);
+              Reset(adBRDrpEndHour_pbm);
+              Reset(adBRDrpEndMin_pbm);
+              Reset(adRecDrpInterval_pbm);
               Set(gbl_UI_PermanentNew_Modal, false)
             Visible: =gbl_UI_PermanentNew_Modal
             Width: =Parent.Width
@@ -95,6 +104,15 @@ ComponentDefinitions:
                           Set(gblRecurFreq, "W");
                           Set(gblRecurInterval, 1);
                           Set(gblRecurMonthMode, "day");
+                          // RESET-SITE[permanent-cancel] clear typed fields so the next series opens clean (M-12)
+                          Reset(adBRInpTitle_pbm);
+                          Reset(adBRDrpRoom_pbm);
+                          Reset(adBRDteFirst_pbm);
+                          Reset(adBRDrpStartHour_pbm);
+                          Reset(adBRDrpStartMin_pbm);
+                          Reset(adBRDrpEndHour_pbm);
+                          Reset(adBRDrpEndMin_pbm);
+                          Reset(adRecDrpInterval_pbm);
                           Set(gbl_UI_PermanentNew_Modal, false)
                         PressedColor: =AppTheme.TextPrimary
                         PressedFill: =AppTheme.Border
@@ -909,6 +927,15 @@ ComponentDefinitions:
                                             Set(gblRecurFreq, "W");
                                             Set(gblRecurInterval, 1);
                                             Set(gblRecurMonthMode, "day");
+                                            // RESET-SITE[permanent-create] clear typed fields so the next series opens clean (M-12)
+                                            Reset(adBRInpTitle_pbm);
+                                            Reset(adBRDrpRoom_pbm);
+                                            Reset(adBRDteFirst_pbm);
+                                            Reset(adBRDrpStartHour_pbm);
+                                            Reset(adBRDrpStartMin_pbm);
+                                            Reset(adBRDrpEndHour_pbm);
+                                            Reset(adBRDrpEndMin_pbm);
+                                            Reset(adRecDrpInterval_pbm);
                                             Notify("Permanent booking created.", NotificationType.Success);
                                             Set(gbl_UI_PermanentNew_Modal, false)
                                         )

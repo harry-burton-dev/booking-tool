@@ -11,7 +11,16 @@ ComponentDefinitions:
           Properties:
             Fill: =AppTheme.ModalScrim
             Height: =Parent.Height
-            OnSelect: =Set(gbl_UI_AdminSettings_Modal, false)
+            OnSelect: |-
+              =// RESET-SITE[admin-settings-scrim-close] clear typed fields so the next open shows saved values (M-12)
+              Reset(asInpSiteName_asm);
+              Reset(asDrpDayStart_asm);
+              Reset(asDrpDayEnd_asm);
+              Reset(asDrpSlot_asm);
+              Reset(asDteWhatsNew_asm);
+              Reset(asInpWhatsNewText_asm);
+              Reset(adSetInpAdminEmail_asm);
+              Set(gbl_UI_AdminSettings_Modal, false)
             Width: =Parent.Width
       - asmCard:
           Control: GroupContainer
@@ -85,7 +94,16 @@ ComponentDefinitions:
                         HoverFill: =AppTheme.SurfaceAlt
                         LayoutMinHeight: =0
                         LayoutMinWidth: =0
-                        OnSelect: =Set(gbl_UI_AdminSettings_Modal, false)
+                        OnSelect: |-
+                          =// RESET-SITE[admin-settings-close] clear typed fields so the next open shows saved values (M-12)
+                          Reset(asInpSiteName_asm);
+                          Reset(asDrpDayStart_asm);
+                          Reset(asDrpDayEnd_asm);
+                          Reset(asDrpSlot_asm);
+                          Reset(asDteWhatsNew_asm);
+                          Reset(asInpWhatsNewText_asm);
+                          Reset(adSetInpAdminEmail_asm);
+                          Set(gbl_UI_AdminSettings_Modal, false)
                         PressedColor: =AppTheme.TextPrimary
                         PressedFill: =AppTheme.Border
                         RadiusBottomLeft: =0

@@ -2666,7 +2666,9 @@ ComponentDefinitions:
                                                       Filter(
                                                           Sequence(_kmax + 1, 0) As _k,
                                                           !_repeating || !IsBlank(fnOccStart(_anchorStart, _rule, _k.Value)),
-                                                          !_repeating || (Weekday(fnOccStart(_anchorStart, _rule, _k.Value)) >= 2 && Weekday(fnOccStart(_anchorStart, _rule, _k.Value)) <= 6),
+                                                          /* Kept consistent with App.pa.yaml's RecurOccurrences named
+                                                             formula: weekends only pass when the site policy allows them. */
+                                                          !_repeating || (WeekendPolicy = "allow" || (Weekday(fnOccStart(_anchorStart, _rule, _k.Value)) >= 2 && Weekday(fnOccStart(_anchorStart, _rule, _k.Value)) <= 6)),
                                                           !_repeating || IsBlank(fnRuleUntil(_rule)) || fnOccDate(_anchorStart, _rule, _k.Value) <= fnRuleUntil(_rule)
                                                       ) As _kk,
                                                       {
