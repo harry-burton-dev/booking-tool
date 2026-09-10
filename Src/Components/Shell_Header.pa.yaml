@@ -484,7 +484,6 @@ ComponentDefinitions:
                               BorderColor: =RGBA(0,0,0,0)
                               BorderStyle: =BorderStyle.None
                               Color: =RGBA(0,0,0,0)
-                              DisplayMode: =DisplayMode.View
                               Fill: =If(gblUI_Nav_currentTab = "Profile", AppTheme.HeaderNavItemActiveBg, RGBA(0,0,0,0))
                               Height: =48
                               HoverFill: =AppTheme.HeaderNavItemHover

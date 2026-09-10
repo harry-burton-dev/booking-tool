@@ -653,7 +653,7 @@ App:
                      always admins and cannot be removed from the Admin > Settings tab, so the app can
                      never lock every admin out. Everyone else comes from Book_AppSettings.
                      UI-level gating only: SharePoint list permissions are unchanged (see spec section 3). */
-                  AdminEmails = ["harry@harry-burton.ai", "harry.burton100@mod.gov.uk"];
+                  AdminEmails = ["harry.burton100@mod.gov.uk"];
 
                   /* Typed accessors over the Book_AppSettings key/value list (colAppSettings is pulled in OnStart). */
                   SettingText(key:Text):Text = LookUp(colAppSettings, Title = key).Value;

@@ -1125,7 +1125,6 @@ Screens:
                                                       "Book " & ThisItem.SlotRoomTitle & " from " & Text(DateAdd(varFindWindowStart, (ThisItem.Value - 1) * 15, TimeUnit.Minutes), "HH:mm"),
                                                       "Open " & Text(DateAdd(varFindWeekStart, ThisItem.Value - 1, TimeUnit.Days), "ddd dd mmm")
                                                   )
-                                                Visible: =false
                                                 Width: =Parent.TemplateWidth
                         - conFindLegendRule_f3:
                             Control: GroupContainer
