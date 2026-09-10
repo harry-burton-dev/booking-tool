@@ -1125,7 +1125,14 @@ Screens:
                                     Height: =32
                                     HoverColor: =AppTheme.StatusWarnText
                                     HoverFill: =AppTheme.StatusWarnBg
-                                    OnSelect: =Set(gbl_FixCycleSeriesID, ThisItem.SeriesID); Set(gblSelectedBooking, ThisItem.EarliestClash); Set(gbl_UI_Detail_Modal, true)
+                                    OnSelect: |-
+                                      =// RESET-SITE[detail-modal-open] the component has no
+                                      // OnVisible; confirm state must be cleared here or a
+                                      // previous row's prompt survives into this one.
+                                      Set(gbl_FixCycleSeriesID, ThisItem.SeriesID);
+                                      Set(gblSelectedBooking, ThisItem.EarliestClash);
+                                      Set(gbl_UI_Detail_ConfirmMode, "");
+                                      Set(gbl_UI_Detail_Modal, true)
                                     PressedColor: =AppTheme.StatusWarnText
                                     PressedFill: =AppTheme.StatusWarnBg
                                     RadiusBottomLeft: =0
