@@ -12,8 +12,16 @@ ComponentDefinitions:
             Fill: =AppTheme.ModalScrim
             Height: =Parent.Height
             OnSelect: |-
-              =// RESET-SITE[detail-modal-close] scrim dismiss clears confirm state before hiding
+              =// RESET-SITE[detail-modal-close] scrim dismiss drops all staged detail state
               Set(gbl_UI_Detail_ConfirmMode, "");
+              /* bookingDetail.btnDetailBack cleared these on exit; dismissing the modal is now
+                 the equivalent exit, so the staged edit payload and the fix-cycle target have to
+                 be dropped here or they leak into the next booking opened. */
+              Set(gbl_PendingStart, Blank());
+              Set(gbl_PendingEnd, Blank());
+              Set(gbl_PendingRoomId, 0);
+              Set(gbl_PendingRoomText, "");
+              Set(gbl_FixCycleSeriesID, "");
               Set(gbl_UI_Detail_Modal, false)
             Width: =Parent.Width
       - bdmCard:
@@ -115,8 +123,16 @@ ComponentDefinitions:
                         LayoutMinHeight: =0
                         LayoutMinWidth: =0
                         OnSelect: |-
-                          =// RESET-SITE[detail-modal-close] X dismiss clears confirm state before hiding
+                          =// RESET-SITE[detail-modal-close] X dismiss drops all staged detail state
                           Set(gbl_UI_Detail_ConfirmMode, "");
+                          /* bookingDetail.btnDetailBack cleared these on exit; dismissing the modal is now
+                             the equivalent exit, so the staged edit payload and the fix-cycle target have to
+                             be dropped here or they leak into the next booking opened. */
+                          Set(gbl_PendingStart, Blank());
+                          Set(gbl_PendingEnd, Blank());
+                          Set(gbl_PendingRoomId, 0);
+                          Set(gbl_PendingRoomText, "");
+                          Set(gbl_FixCycleSeriesID, "");
                           Set(gbl_UI_Detail_Modal, false)
                         PressedColor: =AppTheme.TextPrimary
                         PressedFill: =AppTheme.Border
@@ -613,25 +629,23 @@ ComponentDefinitions:
                                          tglRecurring/drpWeeks live inside cpt_Modal_ and cannot be
                                          Reset() from here; that component resets them on close. */
 
-                                      If(
-                                          IsBlank(gblSelectedBooking.SeriesID),
-                                          // Standalone booking: prefill the wizard from the booking being edited and hand off immediately
-                                          Set(gblEditingBookingID, gblSelectedBooking.ID);
-                                          Set(varSelectedRoom, LookUp(colRooms, ID = gblSelectedBooking.RoomID.Id));
-                                          Set(varSelectedDate, DateValue(Text(gblSelectedBooking.StartDateTime, "yyyy-mm-dd")));
-                                          Set(varStartTime, gblSelectedBooking.StartDateTime);
-                                          Set(varEndTime, gblSelectedBooking.EndDateTime);
-                                          Set(varTitle, gblSelectedBooking.Title);
+                                      /* Series members take the SAME path as standalone bookings: prefill and open the
+                                         wizard. The scope prompt is raised afterwards by the wizard's OnSubmitEdit, which
+                                         is the only thing that populates the gbl_PendingStart/End/RoomId/RoomText set. Short-circuiting straight to the
+                                         prompt here left those globals blank and wrote blank times over live rows. */
+                                      Set(gblEditingBookingID, gblSelectedBooking.ID);
+                                      Set(varSelectedRoom, LookUp(colRooms, ID = gblSelectedBooking.RoomID.Id));
+                                      Set(varSelectedDate, DateValue(Text(gblSelectedBooking.StartDateTime, "yyyy-mm-dd")));
+                                      Set(varStartTime, gblSelectedBooking.StartDateTime);
+                                      Set(varEndTime, gblSelectedBooking.EndDateTime);
+                                      Set(varTitle, gblSelectedBooking.Title);
 
-                                          // RESET-SITE[detail-modal-close] close this modal before handing off to the wizard
-                                          Set(gbl_UI_Detail_ConfirmMode, "");
-                                          Set(gbl_UI_Detail_Modal, false);
+                                      // RESET-SITE[detail-modal-close] close this modal before handing off to the wizard
+                                      Set(gbl_UI_Detail_ConfirmMode, "");
+                                      Set(gbl_UI_Detail_Modal, false);
 
-                                          Set(gbl_UI_Book_Modal_Step, WizardStepWhen);
-                                          Set(gbl_UI_Book_Modal, true),
-                                          // Series member: ask which occurrences the new time applies to before opening the wizard (bdmEditScopeRow)
-                                          Set(gbl_UI_Detail_ConfirmMode, "edit-scope")
-                                      )
+                                      Set(gbl_UI_Book_Modal_Step, WizardStepWhen);
+                                      Set(gbl_UI_Book_Modal, true)
                                     PressedColor: =ColorValue(AppTheme.PrimaryText)
                                     PressedFill: =ColorValue(AppTheme.ButtonPrimaryActive)
                                     RadiusBottomLeft: =0
@@ -1255,20 +1269,27 @@ ComponentDefinitions:
                                                           }
                                                       )
                                                   },
-                                                  Collect(colBookings, _new);
-                                                  Set(gblSelectedBooking, LookUp(AllBookings, ID = _new.ID));
-                                                  If(
-                                                      _free,
-                                                      Notify("Booking updated", NotificationType.Success),
-                                                      Notify("Slot still busy — booking is still clashed", NotificationType.Warning)
-                                                  );
-                                                  // RESET-SITE[detail-modal-close] edit completed, dismiss the modal
-                                                  Set(gbl_UI_Detail_ConfirmMode, "");
-                                                  Set(gbl_UI_Detail_Modal, false);
-                                                  Set(gbl_PendingStart, Blank());
-                                                  Set(gbl_PendingEnd, Blank());
-                                                  Set(gbl_PendingRoomId, 0);
-                                                  Set(gbl_PendingRoomText, "")
+                                                  /* The cancel twin wraps its insert in IfError; this one did not, so a rejected
+                                                     exception row still ran Collect/Notify and reported "Booking updated". The guard
+                                                     sits inside the With because the success branch references _new. */
+                                                  IfError(
+                                                      _new,
+                                                      Notify("Couldn't update this booking. Please try again.", NotificationType.Error),
+                                                      Collect(colBookings, _new);
+                                                      Set(gblSelectedBooking, LookUp(AllBookings, ID = _new.ID));
+                                                      If(
+                                                          _free,
+                                                          Notify("Booking updated", NotificationType.Success),
+                                                          Notify("Slot still busy — booking is still clashed", NotificationType.Warning)
+                                                      );
+                                                      // RESET-SITE[detail-modal-close] edit completed, dismiss the modal
+                                                      Set(gbl_UI_Detail_ConfirmMode, "");
+                                                      Set(gbl_UI_Detail_Modal, false);
+                                                      Set(gbl_PendingStart, Blank());
+                                                      Set(gbl_PendingEnd, Blank());
+                                                      Set(gbl_PendingRoomId, 0);
+                                                      Set(gbl_PendingRoomText, "")
+                                                  )
                                               )
                                           ),
                                           // _changes is the server Patch payload; the colBookings mirror re-reads the row instead (T-13/A1)
@@ -1571,6 +1592,11 @@ ComponentDefinitions:
                                                   Filter(
                                                       colSeriesServerRows,
                                                       StartDateTime >= Now(), Status <> "Cancelled", Status <> "Migrated", !IsException,
+                                                      /* Exclude the BR master itself. A master has IsException = false, so !IsException
+                                                         alone lets it into the plan; Patching its Status to "Clash" drops it out of
+                                                         colBRMasters and every virtual occurrence of the series vanishes. The sibling
+                                                         cancel path (bdmBtnScopeSeries) already carries this term. */
+                                                      !(fnIsBRRow(RecurrenceType) && !IsException),
                                                       fnIsMine(BookedByEmail)
                                                   ),
                                                   With(
@@ -1709,7 +1735,16 @@ ComponentDefinitions:
                                     HoverFill: =AppTheme.SurfaceAlt
                                     LayoutMinHeight: =0
                                     LayoutMinWidth: =0
-                                    OnSelect: =Set(gbl_UI_Detail_ConfirmMode, "")
+                                    OnSelect: |-
+                                      =// RESET-SITE[detail-modal-editscope-back] restores the full body of the
+                                      // btnScopeBack this was ported from - clearing ConfirmMode alone left the
+                                      // staged payload armed, so the next booking opened inherited these times.
+                                      Set(gbl_UI_Detail_ConfirmMode, "");
+                                      Set(gbl_PendingStart, Blank());
+                                      Set(gbl_PendingEnd, Blank());
+                                      Set(gbl_PendingRoomId, 0);
+                                      Set(gbl_PendingRoomText, "");
+                                      Set(gbl_FixCycleSeriesID, "")
                                     PressedColor: =AppTheme.TextPrimary
                                     PressedFill: =AppTheme.Border
                                     RadiusBottomLeft: =0

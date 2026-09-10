@@ -1485,6 +1485,14 @@ App:
                      prompt is open. 0 / "" = nothing staged (every reset site restores these). */
                   Set(gbl_PendingRoomId, 0);
                   Set(gbl_PendingRoomText, "");
+                  /* Start/End were never seeded: blank is a legal staged value, but it made a
+                     half-populated payload indistinguishable from none. */
+                  Set(gbl_PendingStart, Blank());
+                  Set(gbl_PendingEnd, Blank());
+                  /* Y2: the fix-cycle advance tests `gbl_FixCycleSeriesID <> ""`, and
+                     Blank() <> "" is TRUE in Power Fx - unseeded, that block fired on a
+                     cold session and jumped the wizard onto an unrelated clashed row. */
+                  Set(gbl_FixCycleSeriesID, "");
                   /* Seed the Find-screen globals the App-level named formulas
                      (varFindWindowStart/End, varFindWeekStart, WeekBookings) read —
                      without these, any consumer outside Find gets poisoned blanks (BUG-8). */

@@ -1480,7 +1480,11 @@ Screens:
                           Set(gbl_PendingEnd, _occ.EndDateTime);
                           Set(gbl_PendingRoomId, _occ.RoomIdNumber);
                           Set(gbl_PendingRoomText, _occ.RoomIdText);
-                          Set(gbl_UI_Detail_ConfirmMode, "edit-scope"),
+                          Set(gbl_UI_Detail_ConfirmMode, "edit-scope");
+                          /* Re-open the detail modal: bdmEditScopeRow lives inside the component, which is
+                             gated on gbl_UI_Detail_Modal. Every route to this wizard closed it on the way
+                             in, so without this the prompt arms invisibly and the edit is discarded. */
+                          Set(gbl_UI_Detail_Modal, true),
                           // Standalone booking: unchanged single-row conflict check + Patch
                           If(
                               !IsBlank(
