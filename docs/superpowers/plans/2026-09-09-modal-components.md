@@ -340,6 +340,52 @@ fixed.** Re-evaluate that branch against current `main` rather than rewriting it
 `App.OnStart` seed, covered today only by `bookingDetail.OnVisible`. Retiring that screen removes
 the cover and reproduces the exact bug just fixed on `gbl_UI_Detail_ConfirmMode`.
 
+## M5 DONE, M6 open — 2026-09-10 end of session
+
+**Live now carries the whole conversion.** Screens **8 → 7**; `bookingDetail` is deleted from the
+server. `gbl_UI_ScopePrompt` retired with it (that screen was its sole consumer, so the seed added
+earlier the same day would have become an orphan `Set` of an unread global).
+
+**Verified:** rung 5 (all seven preview scenarios, incl. the series scope prompt and cancel from
+both Admin and RoomsTimeline) *before* the deletion, per DM5. Then rung 2 (compile 0 errors, 17
+files) and rung 3 (screen absent from a fresh sync, whole-tree pushed-vs-live diff byte-identical).
+App Checker **19 — unchanged**: the edit path added `bdmBtnEditScopeSeries` but removing the dead
+`mb2`/`ad` create bodies dropped two findings.
+
+### Reviewer pass: what it cost and what it caught
+Three parallel reviewers, ~552k subagent tokens against the plan's 1.0M ceiling. They found **two
+blockers no tool in the chain could see**, both consequences of moving a screen-hosted prompt into
+a component:
+
+- series "Change time" short-circuited to the scope prompt without opening the wizard, so the
+  scope buttons wrote blank times over live rows — at `k=0` that cancelled the master and inserted
+  a null-time replacement, **destroying the series**;
+- the wizard-raised prompt armed while the detail modal was closed, so the edit was silently
+  dropped and a valid payload stayed armed for the next booking.
+
+Plus `colSeriesEditPlan` missing the master exclusion its sibling cancel path carries (a master has
+`IsException = false`, so Patching it to `"Clash"` dropped it out of `colBRMasters` and vanished
+every occurrence), and destructive old-master writes not gated on the replacement insert landing.
+**The reviewer pass paid for itself several times over — on this kind of change it is not optional.**
+
+### New rule: Y10 / lint L9
+`Blank() = ""` is **false** in Power Fx. L2 only asks whether a `Set()` exists *anywhere*, so this
+class shipped **three times** (`gbl_UI_Detail_ConfirmMode`, `gbl_UI_ScopePrompt`,
+`gbl_FixCycleSeriesID`). L9 requires an `App.OnStart` seed for any global gated on `""`, and is
+regression-tested against `84fbca4`: it reports exactly those three there and zero on current `Src`.
+
+**L6 remains toothless and `statefulVars` stays empty deliberately** — L6 demands every registered
+var at every `RESET-SITE` app-wide, which yields **148 errors** on this app. Scoping L6 per marker
+name is the prerequisite for giving D4 teeth.
+
+### M6 is now actionable
+Its inventory was deliberately deferred until M4/M5 landed. They have. The confirm surfaces left
+are the cancel-confirm and cancel-scope rows inside `cpt_BookingDetailModal`, and myBookings'
+per-row cancel-series confirm — which is a **global** gating three `Visible` sites inside a gallery
+template, so it duplicates per row and cannot overlay the page. That global also had no disarm on
+screen entry until `M-03b` today: an armed "Yes, cancel series" survived navigating away and back,
+where one click cancelled the series.
+
 ## Deliberately not in this plan
 
 | Item | Why |

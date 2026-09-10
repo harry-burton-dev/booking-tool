@@ -12,7 +12,12 @@ Screens:
             ClearCollect(colBRMasters,
                 Filter(Book_Bookings, StartsWith(RecurrenceType, "BR-"), IsException = false, Status = "Active")),
             Notify("Couldn't refresh bookings — showing the last snapshot", NotificationType.Warning)
-        )
+        );
+        // RESET-SITE[mybookings-onvisible] the per-row cancel-series confirm is a global, so an
+        // armed "Yes, cancel series" survived navigating away and back - one click on return
+        // would cancel the series. Cleared on entry; Blank() is the disarmed value here because
+        // the gates compare against ThisItem.SeriesID, not "".
+        Set(gbl_UI_CancelSeriesConfirmID, Blank())
     Children:
       - mb2ConShell:
           Control: GroupContainer
