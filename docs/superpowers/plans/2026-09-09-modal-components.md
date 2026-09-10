@@ -277,3 +277,50 @@ state is per-row) and the confirm rows inside the booking-detail surfaces.
 | Retiring `cpt_Modal_`'s custom properties | Same reason. DM1 stops the bleeding by not adding more. |
 | `RoomsTimeline` / `Find` timeline consolidation | Two timeline surfaces with shared engine code — a real question, but a different one. |
 | B-5 (`RoomID` allocation) | Still open from the room-facilities pass. Unrelated. |
+
+---
+
+## M4b/M4c/M5 attempt — 2026-09-10, REVERTED from production
+
+**Production is on the pre-attempt baseline.** `Src` on `main` is byte-identical to live. The work
+is preserved on branch `feat/detail-modal-selfsufficient` and must not be compiled as-is.
+
+### What was built (and is good)
+- `OnSubmitEdit` — the app's **only** working booking-edit save path, present on exactly one wizard
+  instance (`cpt_Modal__book_detail`); every other instance is a `="Text"` stub — was ported to the
+  `mb2` / `ad` / `tl2` instances. Verified by LCS diff: the source is a **pure ordered subsequence**
+  of each port, so no row, field or ordering was altered. Two lines differ per instance: the
+  mandated `gbl_UI_ScopePrompt` → `gbl_UI_Detail_ConfirmMode` swap, and the instance self-reference
+  rename that `.ValidPayload` / `.PatchPayload` require.
+- The modal's three edit-scope buttons, which previously ran identical bodies and wrote nothing,
+  received the differential edit branches from the screen's scope buttons.
+- Change-time made reachable, `Navigate(bookingDetail)` handoff removed, component instances added
+  to every screen that opens booking detail.
+
+### Why it was reverted
+`bdmFooter` **does not render** — verified in Studio preview at rung 5, and confirmed structurally
+(the footer is `FillPortions: =0, Height: =64` in a vertical AutoLayout; the grid absorbing its
+space is exactly what an invisible sibling produces). With detail navigation repointed to the modal,
+**RoomsTimeline and Admin users lost working cancel and change-time** — the screen still had them.
+That regression was live and was rolled back.
+
+### The blocker is PRE-EXISTING, not caused by this work
+`git log -p` shows the footer's `Visible` was extended from
+`!IsBlank(gblSelectedBooking) && !fnIsPast(...)` to its current four-term form in
+**`55372a6 "fix: mask private bookings on the booking detail view (BOOK-3)"`**, before any of
+today's work. Every term evaluates **true** for the booking tested (future, non-permanent — note
+`MyBookings` filters `!IsPermanent` so that term always passes — owned by the caller, who is also
+admin), yet the container renders hidden. Static analysis is exhausted; this needs the resolved
+value read off `bdmFooter` in Studio.
+
+**Consequence: the booking detail modal has no visible actions at all today.** Cancel is only
+reachable from the myBookings list buttons, which is likely why nobody noticed.
+
+### M5 stays blocked, M6 not started
+M5 cannot proceed until the footer renders — retiring the screen while the modal shows no actions
+removes cancel and change-time from the app. M6 was sequenced after M5 deliberately.
+
+### Open product question for Harry
+"This and following" applied to a **time change** (not a cancel) detaches a new series from
+occurrence k, end-dates or cancels the old master, and cancels exceptions ≥ k. That was ported
+faithfully rather than redesigned. Confirm it is the intended semantics before M5 ships.
