@@ -386,6 +386,23 @@ template, so it duplicates per row and cannot overlay the page. That global also
 screen entry until `M-03b` today: an armed "Yes, cancel series" survived navigating away and back,
 where one click cancelled the series.
 
+## Series-edit semantics — SETTLED 2026-09-10 (Harry)
+
+The question left open across four asks is closed. **"Whole series" means future-only**, matching
+what the cancel path already did:
+
+- A **started** series (master anchor in the past) **refuses** a whole-series retime and points the
+  user at "This and following". Rewriting occurrences that have already happened is not wanted.
+  Implemented as the third refusal on `bdmBtnEditScopeSeries`, alongside the existing room-change
+  and date-change refusals. A series whose anchor is still in the future retimes normally, and
+  legacy materialised series with no master row are unaffected.
+- **"This and following" on a time change** keeps the ported behaviour: detach a new series from
+  occurrence k, end-date the old master at `date(k) − 1` (or cancel it outright at `k = 0`), and
+  cancel exceptions `>= k`. Confirmed correct, not just faithful.
+
+Treat this as the reference for any future work on the series write paths — it is a product
+decision, not something derivable from the code.
+
 ## Deliberately not in this plan
 
 | Item | Why |
@@ -437,7 +454,7 @@ reachable from the myBookings list buttons, which is likely why nobody noticed.
 M5 cannot proceed until the footer renders — retiring the screen while the modal shows no actions
 removes cancel and change-time from the app. M6 was sequenced after M5 deliberately.
 
-### Open product question for Harry
+### Open product question for Harry — ANSWERED 2026-09-10
 "This and following" applied to a **time change** (not a cancel) detaches a new series from
 occurrence k, end-dates or cancels the old master, and cancels exceptions ≥ k. That was ported
 faithfully rather than redesigned. Confirm it is the intended semantics before M5 ships.
