@@ -1141,3 +1141,42 @@ ComponentDefinitions:
                                     Size: =11
                                     Text: ="Back"
                                     Width: =120
+      - bdmProbeFooterDiag_p1:
+          Control: Label
+          Properties:
+            Color: =AppTheme.StatusWarnText
+            Fill: =AppTheme.StatusWarnBg
+            Font: ="IBM Plex Sans"
+            Height: =150
+            Size: =10
+            Text: |-
+              =// PROD-REVERT[bdmfooter-probe] temporary diagnostic readout for the bdmFooter
+              // hidden-footer defect. DEV ONLY - this whole control is deleted before prod.
+              "FTRvis=" & If(bdmFooter.Visible, "Y", "N") &
+              " FTRh=" & Text(bdmFooter.Height) &
+              " ACTvis=" & If(bdmFooterActions.Visible, "Y", "N") &
+              " RIGHTvis=" & If(bdmFooterRight.Visible, "Y", "N") &
+              " GRIDvis=" & If(bdmGrid.Visible, "Y", "N") &
+              " CARDh=" & Text(bdmCard.Height) &
+              Char(10) &
+              "T1rec=" & If(!IsBlank(gblSelectedBooking), "Y", "N") &
+              " T2notpast=" & If(!fnIsPast(gblSelectedBooking.EndDateTime), "Y", "N") &
+              " T3notperm=" & If(!gblSelectedBooking.IsPermanent, "Y", "N") &
+              " T4mine=" & If(fnIsMine(gblSelectedBooking.BookedByEmail), "Y", "N") &
+              " ADM=" & If(IsAdmin, "Y", "N") &
+              Char(10) &
+              "ALL4=" & If(
+                  !IsBlank(gblSelectedBooking) && !fnIsPast(gblSelectedBooking.EndDateTime) &&
+                  (!gblSelectedBooking.IsPermanent || IsAdmin) &&
+                  (fnIsMine(gblSelectedBooking.BookedByEmail) || IsAdmin),
+                  "Y", "N"
+              ) &
+              " CM=[" & gbl_UI_Detail_ConfirmMode & "]" &
+              Char(10) &
+              "END=[" & Text(gblSelectedBooking.EndDateTime) & "]" &
+              " NOW=[" & Text(Now()) & "]" &
+              Char(10) &
+              "EM=[" & gblSelectedBooking.BookedByEmail & "]" &
+              " ME=[" & User().Email & "]" &
+              " PERMraw=[" & If(gblSelectedBooking.IsPermanent, "T", "F") & "]"
+            Width: =Parent.Width
