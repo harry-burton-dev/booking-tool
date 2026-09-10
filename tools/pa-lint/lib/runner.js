@@ -11,6 +11,7 @@ const CHECKS = [
   require('../checks/l6-reset-sites'),
   require('../checks/l7-locale'),
   require('../checks/l8-name-collisions'),
+  require('../checks/l9-blank-string-gates'),
   require('../checks/ds1-raw-values'),
 ];
 

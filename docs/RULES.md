@@ -57,6 +57,13 @@ Rule IDs are stable; do not renumber. Add new rules at the bottom of their secti
   outer rows in nested Filter/LookUp; `Set()` is illegal inside `ForAll`.
 - **Y9** `[ADVISORY]` Empty spacer containers lose sizing on round-trip; fixed-size AutoLayout
   children need explicit Width/Height with `FillPortions: 0`.
+- **Y10** `[LINT:L9]` A global compared against `""` must be seeded in `App.OnStart`.
+  `Blank() = ""` is **false** in Power Fx, so an unseeded global falsifies the gate on a cold
+  start while still printing as empty - the defect reads as a layout bug, not a state bug. Y2
+  only asks whether a `Set()` exists anywhere, which is why this class shipped three times
+  (`gbl_UI_Detail_ConfirmMode`, `gbl_UI_ScopePrompt`, `gbl_FixCycleSeriesID`). Screens can seed on
+  `OnVisible`; **components have no `OnVisible`**, so for anything a component reads `App.OnStart`
+  is the only seed site that always runs.
 
 ## Sandbox & data (D-rules)
 
