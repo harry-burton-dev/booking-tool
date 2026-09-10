@@ -269,6 +269,52 @@ state is per-row) and the confirm rows inside the booking-detail surfaces.
 
 ---
 
+## bdmFooter blocker RESOLVED — 2026-09-10, rung 5
+
+**The footer's `Visible` was never the problem.** The previous pass chased the wrong property and
+declared static analysis exhausted; it was exhausted because the defect was not in that formula.
+
+A diagnostic Label pushed into the component read the resolved values in preview:
+
+```
+FTRvis=Y FTRh=124 ACTvis=N RIGHTvis=N GRIDvis=Y CARDh=520
+T1rec=Y T2notpast=Y T3notperm=Y T4mine=Y ADM=Y
+ALL4=Y CM=[]
+```
+
+`bdmFooter.Visible` is **true** and all four of its terms resolve true. The footer rendered as a
+**124px empty band**: `gbl_UI_Detail_ConfirmMode` had **no `App.OnStart` seed** (a Y2/DM2
+violation), so it held `Blank()` rather than `""` — and **`Blank() = "" ` is false in Power Fx**.
+That falsified `bdmFooterActions.Visible`, sized the footer for confirm mode via
+`If(CM = "", 64, 124)`, and left the confirm/scope rows hidden too since they test for
+`"confirm"`/`"scope"`.
+
+**Why the screen never hit it:** `bookingDetail.OnVisible` runs `Set(gbl_UI_ScopePrompt, "")`.
+Components have no `OnVisible` — precisely the edge this plan flagged as "the sharpest edge in the
+whole pattern", missed for this one global.
+
+**Why static analysis could not see it:** the bug is **first-open-only**. Both close handlers set a
+real `""`, so the footer behaves correctly for the rest of the app session once dismissed.
+
+**Fix (`4e59bba`):** `App.OnStart` seeds `gbl_UI_Detail_ConfirmMode` and `gbl_UI_Detail_Modal`;
+the three `myBookings` open sites clear confirm state as `// RESET-SITE[detail-modal-open]` (D4),
+which also fixes a stale prompt surviving nav-away-and-reopen. Verified rung 2 (compile 0 errors),
+rung 3 (marker greps 4/4, byte-identical round-trip), rung 5 (probe readout above).
+
+**Same latent defect elsewhere:** `gbl_UI_ScopePrompt` has three `= ""` comparisons and no
+`OnStart` seed — safe today only because the screen's `OnVisible` covers it. If `bookingDetail`
+is retired in M5, that cover disappears. Seed it as part of M5.
+
+**Publish hazard observed:** the fix push silently dropped `PaddingTop: =32` from `con_body_home`
+in `Home.pa.yaml`, **a file the push did not edit**, and a re-push of the identical directory
+restored it. Marker greps would not have caught this — only a full pushed-vs-echoed `diff -rq`
+did. Do that diff on every publish, not just greps.
+
+### M5 status: unblocked, one prerequisite left
+`bdmFooterRight` carries a hardcoded `Visible: =false` (**not `bdmBtnChangeTime`, as the earlier
+note in this file said**), so change-time is still unreachable from the modal. That remains M5's
+prerequisite; the footer itself now renders.
+
 ## Deliberately not in this plan
 
 | Item | Why |
