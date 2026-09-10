@@ -673,7 +673,6 @@ ComponentDefinitions:
                                           RadiusTopRight: =0
                                           Size: =12
                                           Text: ="Fri"
-                                          Visible: =WeekendPolicy = "allow" || Weekday(RecurAnchorStart) = 7
                                           Width: =44
                                     - adRecBtnDay7_pbm:
                                         Control: Classic/Button
