@@ -67,6 +67,34 @@ Refresh(Book_Bookings);
 
 ---
 
+### booking-create-home
+
+Home screen create (the `home` wizard instance): same dev/prod shape as booking-create-find — the marker sits directly above the reinstated `Refresh(Book_Bookings)` call.
+
+```dev
+reinstate Refresh(Book_Bookings) here
+```
+
+```prod
+Refresh(Book_Bookings);
+```
+
+---
+
+### booking-create-roomsTimeline
+
+RoomsTimeline screen create (the `tl2` wizard instance): same dev/prod shape as booking-create-find — the marker sits directly above the reinstated `Refresh(Book_Bookings)` call.
+
+```dev
+reinstate Refresh(Book_Bookings) here
+```
+
+```prod
+Refresh(Book_Bookings);
+```
+
+---
+
 ### booking-cancel
 
 Soft-delete: dev patches colBookings Status; prod patches Book_Bookings (Remove() retired per WS4).

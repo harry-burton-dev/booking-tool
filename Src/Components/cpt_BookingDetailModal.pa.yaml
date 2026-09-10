@@ -12,8 +12,16 @@ ComponentDefinitions:
             Fill: =AppTheme.ModalScrim
             Height: =Parent.Height
             OnSelect: |-
-              =// RESET-SITE[detail-modal-close] scrim dismiss clears confirm state before hiding
+              =// RESET-SITE[detail-modal-close] scrim dismiss drops all staged detail state
               Set(gbl_UI_Detail_ConfirmMode, "");
+              /* bookingDetail.btnDetailBack cleared these on exit; dismissing the modal is now
+                 the equivalent exit, so the staged edit payload and the fix-cycle target have to
+                 be dropped here or they leak into the next booking opened. */
+              Set(gbl_PendingStart, Blank());
+              Set(gbl_PendingEnd, Blank());
+              Set(gbl_PendingRoomId, 0);
+              Set(gbl_PendingRoomText, "");
+              Set(gbl_FixCycleSeriesID, "");
               Set(gbl_UI_Detail_Modal, false)
             Width: =Parent.Width
       - bdmCard:
@@ -115,8 +123,16 @@ ComponentDefinitions:
                         LayoutMinHeight: =0
                         LayoutMinWidth: =0
                         OnSelect: |-
-                          =// RESET-SITE[detail-modal-close] X dismiss clears confirm state before hiding
+                          =// RESET-SITE[detail-modal-close] X dismiss drops all staged detail state
                           Set(gbl_UI_Detail_ConfirmMode, "");
+                          /* bookingDetail.btnDetailBack cleared these on exit; dismissing the modal is now
+                             the equivalent exit, so the staged edit payload and the fix-cycle target have to
+                             be dropped here or they leak into the next booking opened. */
+                          Set(gbl_PendingStart, Blank());
+                          Set(gbl_PendingEnd, Blank());
+                          Set(gbl_PendingRoomId, 0);
+                          Set(gbl_PendingRoomText, "");
+                          Set(gbl_FixCycleSeriesID, "");
                           Set(gbl_UI_Detail_Modal, false)
                         PressedColor: =AppTheme.TextPrimary
                         PressedFill: =AppTheme.Border
@@ -600,7 +616,7 @@ ComponentDefinitions:
                                     LayoutMinWidth: =0
                                     OnSelect: |-
                                       =Set(varConflict, false);
-                                      // RESET-SITE[detail-modal-change-time] wizard state reset before opening step 2 (times-only)
+                                      // RESET-SITE[detail-modal-change-time] wizard state reset before opening step 2 (times-only) or the edit-scope prompt
                                       Set(varBookingError, false);
                                       Set(varSubmitting, false);
                                       Set(varTitleTouched, false);
@@ -613,7 +629,10 @@ ComponentDefinitions:
                                          tglRecurring/drpWeeks live inside cpt_Modal_ and cannot be
                                          Reset() from here; that component resets them on close. */
 
-                                      /* Prefill the wizard from the booking being edited */
+                                      /* Series members take the SAME path as standalone bookings: prefill and open the
+                                         wizard. The scope prompt is raised afterwards by the wizard's OnSubmitEdit, which
+                                         is the only thing that populates the gbl_PendingStart/End/RoomId/RoomText set. Short-circuiting straight to the
+                                         prompt here left those globals blank and wrote blank times over live rows. */
                                       Set(gblEditingBookingID, gblSelectedBooking.ID);
                                       Set(varSelectedRoom, LookUp(colRooms, ID = gblSelectedBooking.RoomID.Id));
                                       Set(varSelectedDate, DateValue(Text(gblSelectedBooking.StartDateTime, "yyyy-mm-dd")));
@@ -626,8 +645,7 @@ ComponentDefinitions:
                                       Set(gbl_UI_Detail_Modal, false);
 
                                       Set(gbl_UI_Book_Modal_Step, WizardStepWhen);
-                                      Set(gbl_UI_Book_Modal, true);
-                                      Navigate(bookingDetail, ScreenTransition.Fade)
+                                      Set(gbl_UI_Book_Modal, true)
                                     PressedColor: =ColorValue(AppTheme.PrimaryText)
                                     PressedFill: =ColorValue(AppTheme.ButtonPrimaryActive)
                                     RadiusBottomLeft: =0
@@ -932,8 +950,8 @@ ComponentDefinitions:
                                     LayoutMinWidth: =0
                                     OnSelect: |-
                                       =// PROD-REVERT[booking-cancel] soft delete via Patch; Remove() retired per WS4
-                                      // Ported from bookingDetail.btnScopeFollowing - cancel branch only (this modal
-                                      // has no edit-scope prompt reachable today; bdmFooterRight/change-time is hidden)
+                                      // Ported from bookingDetail.btnScopeFollowing - cancel branch only; the edit
+                                      // branch's scope prompt lives in bdmEditScopeRow below (bdmBtnEditScopeFollowing)
                                       With(
                                           {
                                               _sid: gblSelectedBooking.SeriesID,
@@ -1131,6 +1149,621 @@ ComponentDefinitions:
                                     LayoutMinHeight: =0
                                     LayoutMinWidth: =0
                                     OnSelect: =Set(gbl_UI_Detail_ConfirmMode, "")
+                                    PressedColor: =AppTheme.TextPrimary
+                                    PressedFill: =AppTheme.Border
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Size: =11
+                                    Text: ="Back"
+                                    Width: =120
+                  - bdmEditScopeRow:
+                      Control: GroupContainer
+                      Variant: AutoLayout
+                      Properties:
+                        BorderColor: =AppTheme.StatusWarnText
+                        BorderThickness: =1
+                        DropShadow: =DropShadow.None
+                        Fill: =AppTheme.StatusWarnBg
+                        LayoutAlignItems: =LayoutAlignItems.Stretch
+                        LayoutDirection: =LayoutDirection.Vertical
+                        LayoutGap: =12
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        PaddingBottom: =12
+                        PaddingLeft: =12
+                        PaddingRight: =12
+                        PaddingTop: =12
+                        RadiusBottomLeft: =0
+                        RadiusBottomRight: =0
+                        RadiusTopLeft: =0
+                        RadiusTopRight: =0
+                        Visible: =gbl_UI_Detail_ConfirmMode = "edit-scope"
+                      Children:
+                        - bdmLblEditScope:
+                            Control: Label
+                            Properties:
+                              AutoHeight: =true
+                              Color: =AppTheme.StatusWarnText
+                              Font: ="IBM Plex Sans"
+                              Height: =20
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              Size: =12
+                              Text: ="This booking is part of a series. Apply the new time to:"
+                        - bdmEditScopeButtons:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              DropShadow: =DropShadow.None
+                              Fill: =RGBA(0,0,0,0) /* DS-EXEMPT transparent layout container, no painted surface */
+                              Height: =40
+                              LayoutAlignItems: =LayoutAlignItems.Stretch
+                              LayoutDirection: =LayoutDirection.Horizontal
+                              LayoutGap: =8
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                            Children:
+                              - bdmBtnEditScopeJust:
+                                  Control: Classic/Button
+                                  Properties:
+                                    BorderColor: =AppTheme.Border
+                                    BorderThickness: =1
+                                    Color: =AppTheme.TextPrimary
+                                    Fill: =AppTheme.Surface
+                                    FocusedBorderColor: =ColorValue(AppTheme.ButtonPrimary)
+                                    FocusedBorderThickness: =2
+                                    Font: ="IBM Plex Sans"
+                                    FontWeight: =FontWeight.Normal
+                                    HoverColor: =AppTheme.TextPrimary
+                                    HoverFill: =AppTheme.SurfaceAlt
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    OnSelect: |-
+                                      =With(
+                                          {
+                                              /* T-09/3.2: the target room is the PENDING one (the wizard's Room step is
+                                                 reachable in edit mode), and the check runs over AllBookings rather than
+                                                 colBookings so another series' virtual occurrences block the move too. */
+                                              _free: IsBlank(
+                                                  LookUp(
+                                                      Filter(
+                                                          AllBookings,
+                                                          Status = "Active",
+                                                          fnOverlaps(StartDateTime, EndDateTime, gbl_PendingStart, gbl_PendingEnd),
+                                                          ID <> gblSelectedBooking.ID
+                                                      ),
+                                                      RoomID.Id = gbl_PendingRoomId
+                                                  )
+                                              )
+                                          },
+                                          If(
+                                          gblSelectedBooking.ID < 0,
+                                          /* Virtual occurrence: nothing to patch — materialise it as an
+                                             exception row carrying the moved times. */
+                                          With(
+                                              {
+                                                  _m: LookUp(colBRMasters, ID = RoundDown(-gblSelectedBooking.ID / 10000, 0)),
+                                                  _k: Mod(-gblSelectedBooking.ID, 10000)
+                                              },
+                                              With(
+                                                  {
+                                                      _new: Patch(
+                                                          Book_Bookings,
+                                                          Defaults(Book_Bookings),
+                                                          {
+                                                              Title: _m.Title,
+                                                              BookedByEmail: _m.BookedByEmail,
+                                                              /* T-09/3.2: the exception carries the pending room, not the master's */
+                                                              RoomID: {Id: gbl_PendingRoomId, Value: gbl_PendingRoomText},
+                                                              StartDateTime: gbl_PendingStart,
+                                                              EndDateTime: gbl_PendingEnd,
+                                                              IsPrivate: Coalesce(_m.IsPrivate, false),
+                                                              BookedBy: _m.BookedBy,
+                                                              Status: If(_free, "Active", "Clash"),
+                                                              SeriesID: _m.SeriesID,
+                                                              RecurrenceType: "BR-Exception",
+                                                              OccIndex: _k,
+                                                              IsException: true
+                                                          }
+                                                      )
+                                                  },
+                                                  /* The cancel twin wraps its insert in IfError; this one did not, so a rejected
+                                                     exception row still ran Collect/Notify and reported "Booking updated". The guard
+                                                     sits inside the With because the success branch references _new. */
+                                                  IfError(
+                                                      _new,
+                                                      Notify("Couldn't update this booking. Please try again.", NotificationType.Error),
+                                                      Collect(colBookings, _new);
+                                                      Set(gblSelectedBooking, LookUp(AllBookings, ID = _new.ID));
+                                                      If(
+                                                          _free,
+                                                          Notify("Booking updated", NotificationType.Success),
+                                                          Notify("Slot still busy — booking is still clashed", NotificationType.Warning)
+                                                      );
+                                                      // RESET-SITE[detail-modal-close] edit completed, dismiss the modal
+                                                      Set(gbl_UI_Detail_ConfirmMode, "");
+                                                      Set(gbl_UI_Detail_Modal, false);
+                                                      Set(gbl_PendingStart, Blank());
+                                                      Set(gbl_PendingEnd, Blank());
+                                                      Set(gbl_PendingRoomId, 0);
+                                                      Set(gbl_PendingRoomText, "")
+                                                  )
+                                              )
+                                          ),
+                                          // _changes is the server Patch payload; the colBookings mirror re-reads the row instead (T-13/A1)
+                                          With(
+                                              {
+                                                  _changes: {
+                                                      /* T-09/3.2: a room move applies to this occurrence only */
+                                                      RoomID: {Id: gbl_PendingRoomId, Value: gbl_PendingRoomText},
+                                                      StartDateTime: gbl_PendingStart,
+                                                      EndDateTime: gbl_PendingEnd,
+                                                      IsException: true,
+                                                      /* BUG-4: a busy target slot is a clash, whatever the row was before */
+                                                      Status: If(_free, "Active", "Clash")
+                                                  }
+                                              },
+                                          IfError(
+                                              Patch(
+                                                  Book_Bookings,
+                                                  LookUp(Book_Bookings, ID = gblSelectedBooking.ID),
+                                                  _changes
+                                              ),
+                                              Notify("Couldn't update this booking. Please try again.", NotificationType.Error),
+                                              Refresh(Book_Bookings);
+                                              /* MIRROR-FALLBACK (T-13/A1): a room move changes 'RoomID: Title' too, which
+                                                 the _changes record cannot carry (a record UpdateIf on the lookup is
+                                                 rejected by the compiler), so re-read this one row from the server.
+                                                 colBookings is BookingsWindow = Filter(Book_Bookings, ...), same schema. */
+                                              RemoveIf(colBookings, ID = gblSelectedBooking.ID);
+                                              Collect(colBookings, LookUp(Book_Bookings, ID = gblSelectedBooking.ID));
+                                              If(
+                                                  _free,
+                                                  Notify("Booking updated", NotificationType.Success),
+                                                  Notify("Slot still busy — booking is still clashed", NotificationType.Warning)
+                                              );
+                                              // Fix cycling: advance to the next clash in this series, if any
+                                              If(
+                                                  gbl_FixCycleSeriesID <> "",
+                                                  With(
+                                                      {_next: First(SortByColumns(Filter(colBookings, SeriesID = gbl_FixCycleSeriesID, Status = "Clash", ID <> gblSelectedBooking.ID), "StartDateTime", SortOrder.Ascending))},
+                                                      If(
+                                                          IsBlank(_next),
+                                                          Set(gbl_FixCycleSeriesID, "");
+                                                          If(
+                                                              _free,
+                                                              Notify("All clashes resolved", NotificationType.Success),
+                                                              Notify("No further clashes to fix — this booking is still clashed", NotificationType.Warning)
+                                                          ),
+                                                          // RESET-SITE[bookingdetail-fix-cycle-advance] wizard state reset before opening the next clash
+                                                          // _next is a colBookings row — re-derive it in the AllBookings shape
+                                                          Set(gblSelectedBooking, LookUp(AllBookings, ID = _next.ID));
+                                                          Set(gblEditingBookingID, _next.ID);
+                                                          Set(varConflict, false);
+                                                          Set(varBookingError, false);
+                                                          Set(varSubmitting, false);
+                                                          Set(varTitleTouched, false);
+                                                          Set(gbl_UI_Book_CancelConfirm, false);
+                                                          Set(gbl_Book_SubmitResult, "");
+                                                          Set(varConflictingBooking, Blank());
+                                                          Set(varNextFreeSlot, Blank());
+                                                          Set(varSelectedRoom, LookUp(colRooms, ID = _next.RoomID.Id));
+                                                          Set(varSelectedDate, DateValue(Text(_next.StartDateTime, "yyyy-mm-dd")));
+                                                          Set(varStartTime, _next.StartDateTime);
+                                                          Set(varEndTime, _next.EndDateTime);
+                                                          Set(varTitle, _next.Title);
+                                                          Set(gbl_UI_Book_Modal_Step, WizardStepWhen);
+                                                          Set(gbl_UI_Book_Modal, true)
+                                                      )
+                                                  )
+                                              );
+                                              // RESET-SITE[detail-modal-close] edit completed, dismiss the modal
+                                              Set(gbl_UI_Detail_ConfirmMode, "");
+                                              Set(gbl_UI_Detail_Modal, false);
+                                              Set(gbl_PendingStart, Blank());
+                                              Set(gbl_PendingEnd, Blank());
+                                              Set(gbl_PendingRoomId, 0);
+                                              Set(gbl_PendingRoomText, "")
+                                          )
+                                          )
+                                          )
+                                      )
+                                    PressedColor: =AppTheme.TextPrimary
+                                    PressedFill: =AppTheme.Border
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Size: =11
+                                    Text: ="Just this booking"
+                                    Width: =168
+                              - bdmBtnEditScopeFollowing:
+                                  Control: Classic/Button
+                                  Properties:
+                                    BorderColor: =AppTheme.Border
+                                    BorderThickness: =1
+                                    Color: =AppTheme.TextPrimary
+                                    Fill: =AppTheme.Surface
+                                    FocusedBorderColor: =ColorValue(AppTheme.ButtonPrimary)
+                                    FocusedBorderThickness: =2
+                                    Font: ="IBM Plex Sans"
+                                    FontWeight: =FontWeight.Normal
+                                    HoverColor: =AppTheme.TextPrimary
+                                    HoverFill: =AppTheme.SurfaceAlt
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    OnSelect: |-
+                                      =With(
+                                          {
+                                              _sid: gblSelectedBooking.SeriesID,
+                                              _m: LookUp(colBRMasters, SeriesID = gblSelectedBooking.SeriesID),
+                                              _k: If(gblSelectedBooking.ID < 0, Mod(-gblSelectedBooking.ID, 10000), gblSelectedBooking.OccIndex)
+                                          },
+                                          With(
+                                              {
+                                                  // the ORIGINAL slot date of occurrence k - the split boundary
+                                                  _kDate: fnOccDate(_m.StartDateTime, _m.RecurrenceType, _k),
+                                                  _allowed: !IsBlank(_m) && (fnIsMine(_m.BookedByEmail) || IsAdmin)
+                                              },
+                                              If(
+                                                  !_allowed,
+                                                  // REFUSAL: nothing written - keep the scope prompt open so "Just this booking" stays reachable
+                                                  Notify("Only the series owner or an admin can change the rest of a series.", NotificationType.Warning),
+                                                  With(
+                                                      {
+                                                          _newRule: fnRuleRebase(_m.RecurrenceType, _m.StartDateTime, gbl_PendingStart, _k),
+                                                          _dur: DateDiff(gbl_PendingStart, gbl_PendingEnd, TimeUnit.Minutes),
+                                                          _cOld: fnRuleCount(_m.RecurrenceType)
+                                                      },
+                                                      With(
+                                                          {
+                                                              _untilNew: fnRuleUntil(_newRule),
+                                                              _prevDate: If(_k > 0, fnOccDate(_m.StartDateTime, _m.RecurrenceType, _k - 1))
+                                                          },
+                                                      If(
+                                                          !IsBlank(_cOld) && _cOld - _k < 1,
+                                                          Notify("There are no occurrences left to move from this one onwards.", NotificationType.Warning),
+                                                          // F4: the split cannot start after the rule's own end date - the new master would expand to nothing
+                                                          !IsBlank(_untilNew) && DateValue(gbl_PendingStart) > _untilNew,
+                                                          Notify("The new date is after the series end date (" & Text(_untilNew, "d mmm yyyy") & "). Choose ""Just this booking"" or pick an earlier date.", NotificationType.Warning, 6000),
+                                                          // F11: the split cannot be dragged back on top of the occurrence before it
+                                                          _k > 0 && DateValue(gbl_PendingStart) <= _prevDate,
+                                                          Notify("This and following can't start before the previous occurrence (" & Text(_prevDate, "d mmm yyyy") & "). Choose ""Just this booking"" to move only this one.", NotificationType.Warning, 6000),
+                                                          With(
+                                                              {_kmax: Min(fnRuleKmax(_newRule), 51), _until: fnRuleUntil(_newRule)},
+                                                              With(
+                                                                  {
+                                                                      /* Whole-horizon clash pre-check: expand the NEW rule exactly like
+                                                                         RecurOccurrences (blank dates skipped, weekend policy, U honoured)
+                                                                         and test every slot. The old series' own rows are about to be
+                                                                         replaced, so they must not block the split. */
+                                                                      _occs: ForAll(
+                                                                          Filter(
+                                                                              ForAll(Sequence(_kmax + 1, 0) As _j,
+                                                                                  {S: fnOccStart(gbl_PendingStart, _newRule, _j.Value)}
+                                                                              ) As _o,
+                                                                              !IsBlank(_o.S),
+                                                                              WeekendPolicy = "allow" || (Weekday(_o.S) >= 2 && Weekday(_o.S) <= 6),
+                                                                              IsBlank(_until) || DateValue(_o.S) <= _until
+                                                                          ) As _q,
+                                                                          {
+                                                                              S: _q.S,
+                                                                              Busy: !IsEmpty(
+                                                                                  Filter(AllBookings,
+                                                                                      Status = "Active",
+                                                                                      RoomID.Id = gbl_PendingRoomId,
+                                                                                      SeriesID <> _sid,
+                                                                                      fnOverlaps(StartDateTime, EndDateTime, _q.S, DateAdd(_q.S, _dur, TimeUnit.Minutes))
+                                                                                  )
+                                                                              )
+                                                                          }
+                                                                      )
+                                                                  },
+                                                                  With(
+                                                                      {_clash: First(Filter(_occs, Busy))},
+                                                                      If(
+                                                                          !IsBlank(_clash),
+                                                                          Notify("The new times clash on " & Text(_clash.S, "d mmm yyyy") & ". Choose ""Just this booking"" or pick another time or room.", NotificationType.Warning, 6000),
+                                                                          IfError(
+                                                                              With(
+                                                                                  {
+                                                                                      _new: Patch(
+                                                                                          Book_Bookings,
+                                                                                          Defaults(Book_Bookings),
+                                                                                          {
+                                                                                              Title: _m.Title,
+                                                                                              BookedBy: _m.BookedBy,
+                                                                                              BookedByEmail: _m.BookedByEmail,
+                                                                                              IsPrivate: Coalesce(_m.IsPrivate, false),
+                                                                                              WantsInvite: Coalesce(_m.WantsInvite, false),
+                                                                                              RoomID: {Id: gbl_PendingRoomId, Value: gbl_PendingRoomText},
+                                                                                              StartDateTime: gbl_PendingStart,
+                                                                                              EndDateTime: gbl_PendingEnd,
+                                                                                              SeriesID: Text(GUID()),
+                                                                                              RecurrenceType: _newRule,
+                                                                                              OccIndex: 0,
+                                                                                              IsException: false,
+                                                                                              Status: "Active",
+                                                                                              RecurrenceLabel: fnRuleLabel(_newRule, gbl_PendingStart),
+                                                                                              NextOccurrence: gbl_PendingStart
+                                                                                          }
+                                                                                      )
+                                                                                  },
+                                                                                  /* #4: the old master must not be touched unless the replacement actually landed.
+                                                                                     The enclosing IfError reports a failed insert but cannot prevent it - these
+                                                                                     Patches are side effects that have already run by the time it fires, so at k=0
+                                                                                     a throttled or rejected insert left the series cancelled with no replacement. */
+                                                                                  If(
+                                                                                      IsError(_new) || IsBlank(_new.ID),
+                                                                                      Notify("Couldn't create the replacement series - nothing was changed.", NotificationType.Error),
+                                                                                      If(
+                                                                                          _k = 0,
+                                                                                          Patch(Book_Bookings, {ID: _m.ID}, {Status: "Cancelled"}),
+                                                                                          With(
+                                                                                              {_endRule: fnRuleWithUntil(_m.RecurrenceType, _m.StartDateTime, DateAdd(_kDate, -1, TimeUnit.Days))},
+                                                                                              Patch(Book_Bookings, {ID: _m.ID}, {RecurrenceType: _endRule, RecurrenceLabel: fnRuleLabel(_endRule, _m.StartDateTime)})
+                                                                                          )
+                                                                                      );
+                                                                                      /* Exceptions at or after the split are cancelled, not re-keyed onto
+                                                                                         the new master: the user asked for new times from k onwards, so
+                                                                                         earlier deviations of those slots are moot. The selected booking
+                                                                                         is among them when it is itself an exception row - correct, the
+                                                                                         new master's occurrence 0 replaces it. */
+                                                                                      Patch(
+                                                                                          Book_Bookings,
+                                                                                          ForAll(
+                                                                                              Filter(Book_Bookings, SeriesID = _sid, IsException = true, OccIndex >= _k, Status = "Active" || Status = "Clash") As _ex2,
+                                                                                              {ID: _ex2.ID, Status: "Cancelled"}
+                                                                                          )
+                                                                                      );
+                                                                                      UpdateIf(colBookings, SeriesID = _sid && IsException && OccIndex >= _k && Status <> "Cancelled", {Status: "Cancelled"});
+                                                                                      // F9: pull the server view back BEFORE rebuilding the master cache
+                                                                                      Refresh(Book_Bookings);
+                                                                                      ClearCollect(colBRMasters, Filter(Book_Bookings, StartsWith(RecurrenceType, "BR-"), IsException = false, Status = "Active"));
+                                                                                      /* F10: the series has been rewritten around this occurrence — there is no single
+                                                                                         row left for the detail screen to show, so leave it like the cancel path. */
+                                                                                      Set(gblSelectedBooking, Blank())
+                                                                                  )
+                                                                              ),
+                                                                              Notify("Couldn't update the rest of this series. Please try again.", NotificationType.Error),
+                                                                              Notify("Series updated from " & Text(gbl_PendingStart, "d mmm yyyy"), NotificationType.Success);
+                                                                              Set(gbl_FixCycleSeriesID, "");
+                                                                              // RESET-SITE[detail-modal-close] edit completed, dismiss the modal
+                                                                              Set(gbl_UI_Detail_ConfirmMode, "");
+                                                                              Set(gbl_UI_Detail_Modal, false);
+                                                                              Set(gbl_PendingStart, Blank());
+                                                                              Set(gbl_PendingEnd, Blank());
+                                                                              Set(gbl_PendingRoomId, 0);
+                                                                              Set(gbl_PendingRoomText, "")
+                                                                          )
+                                                                      )
+                                                                  )
+                                                              )
+                                                          )
+                                                      )
+                                                      )
+                                                  )
+                                              )
+                                          )
+                                      )
+                                    PressedColor: =AppTheme.TextPrimary
+                                    PressedFill: =AppTheme.Border
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Size: =11
+                                    Text: ="This and following"
+                                    Visible: |-
+                                      =/* Rule-driven series only: a legacy materialised series has no master
+                                         row to re-rule, so it keeps the two-button prompt. */
+                                      !IsBlank(LookUp(colBRMasters, SeriesID = gblSelectedBooking.SeriesID))
+                                    Width: =170
+                              - bdmBtnEditScopeSeries:
+                                  Control: Classic/Button
+                                  Properties:
+                                    BorderColor: =ColorValue(AppTheme.ButtonPrimary)
+                                    BorderThickness: =1
+                                    Color: =ColorValue(AppTheme.PrimaryText)
+                                    Fill: =ColorValue(AppTheme.ButtonPrimary)
+                                    FocusedBorderColor: =ColorValue(AppTheme.ButtonPrimary)
+                                    FocusedBorderThickness: =2
+                                    Font: ="IBM Plex Sans"
+                                    FontWeight: =FontWeight.Normal
+                                    HoverColor: =ColorValue(AppTheme.PrimaryText)
+                                    HoverFill: =ColorValue(AppTheme.ButtonPrimaryActive)
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    OnSelect: |-
+                                      =If(
+                                          // T-09/3.2: same shape as the BUG-17 guard below — a series master carries one
+                                          // RoomID, so a room move can only ever be an occurrence-level change.
+                                          gbl_PendingRoomId <> gblSelectedBooking.RoomID.Id,
+                                          Notify("Room changes apply to this occurrence only. Choose ""Just this booking"" to move the room.", NotificationType.Warning),
+                                          // BUG-17: a whole-series retime only ever changes the clock time below —
+                                          // a date change can't be applied series-wide, so refuse rather than drop it silently.
+                                          DateValue(gbl_PendingStart) <> DateValue(gblSelectedBooking.StartDateTime),
+                                          Notify("Date changes apply to this occurrence only. Choose ""Just this booking"" to move the date, or keep the original date to retime the whole series.", NotificationType.Warning),
+                                      /* #9: BRVirtual derives every occurrence from the master anchor, so retiming the
+                                         anchor rewrites occurrences that have already happened - the plan loop's
+                                         StartDateTime >= Now() guard only protects materialised rows. The cancel path
+                                         treats "whole series" as future-only, so refuse here rather than silently
+                                         rewriting history; "This and following" does this correctly from occurrence k.
+                                         Blank anchor = legacy materialised series with no master, which is unaffected. */
+                                      With(
+                                          {_mAnchor: LookUp(colBRMasters, SeriesID = gblSelectedBooking.SeriesID).StartDateTime},
+                                          !IsBlank(_mAnchor) && fnIsPast(_mAnchor)
+                                      ),
+                                      Notify("This series has already started, so retiming all of it would change occurrences that have already happened. Choose ""This and following"" to retime from this occurrence onwards.", NotificationType.Warning, 8000),
+                                      // EDIT — whole series: re-time every future, non-cancelled, non-exception member
+                                      With(
+                                          {
+                                              _sid: gblSelectedBooking.SeriesID,
+                                              _startMinutes: Hour(gbl_PendingStart) * 60 + Minute(gbl_PendingStart),
+                                              _endMinutes: Hour(gbl_PendingEnd) * 60 + Minute(gbl_PendingEnd)
+                                          },
+                                          ClearCollect(colSeriesServerRows, Filter(Book_Bookings, SeriesID = _sid));
+                                          ClearCollect(
+                                              colSeriesEditPlan,
+                                              ForAll(
+                                                  Filter(
+                                                      colSeriesServerRows,
+                                                      StartDateTime >= Now(), Status <> "Cancelled", Status <> "Migrated", !IsException,
+                                                      /* Exclude the BR master itself. A master has IsException = false, so !IsException
+                                                         alone lets it into the plan; Patching its Status to "Clash" drops it out of
+                                                         colBRMasters and every virtual occurrence of the series vanishes. The sibling
+                                                         cancel path (bdmBtnScopeSeries) already carries this term. */
+                                                      !(fnIsBRRow(RecurrenceType) && !IsException),
+                                                      fnIsMine(BookedByEmail)
+                                                  ),
+                                                  With(
+                                                      {
+                                                          _memberId: ID,
+                                                          _memberStatus: Status,
+                                                          _memberRoomId: RoomID.Id,
+                                                          _newStart: DateAdd(DateValue(Text(StartDateTime, "yyyy-mm-dd")), _startMinutes, TimeUnit.Minutes),
+                                                          _newEnd: DateAdd(DateValue(Text(StartDateTime, "yyyy-mm-dd")), _endMinutes, TimeUnit.Minutes)
+                                                      },
+                                                      With(
+                                                          {
+                                                              _isWeekend: Weekday(_newStart, StartOfWeek.Monday) > 5 && WeekendPolicy <> "allow",
+                                                              _occupied: !IsBlank(
+                                                                  LookUp(
+                                                                      Filter(colBookings, Status = "Active", SeriesID <> _sid, fnOverlaps(StartDateTime, EndDateTime, _newStart, _newEnd)),
+                                                                      RoomID.Id = _memberRoomId
+                                                                  )
+                                                              )
+                                                          },
+                                                          {
+                                                              MemberID: _memberId,
+                                                              PrevStatus: _memberStatus,
+                                                              NewStart: _newStart,
+                                                              NewEnd: _newEnd,
+                                                              NewStatus: If(_isWeekend || _occupied, "Clash", "Active")
+                                                          }
+                                                      )
+                                                  )
+                                              )
+                                          );
+
+                                          With(
+                                              {
+                                                  _results: ForAll(
+                                                      colSeriesEditPlan,
+                                                      IfError(
+                                                          Patch(
+                                                              Book_Bookings,
+                                                              LookUp(Book_Bookings, ID = MemberID),
+                                                              {StartDateTime: NewStart, EndDateTime: NewEnd, Status: NewStatus}
+                                                          );
+                                                          true,
+                                                          Notify("Couldn't update one or more occurrences.", NotificationType.Error);
+                                                          false
+                                                      )
+                                                  )
+                                              },
+                                              Refresh(Book_Bookings);
+                                              If(
+                                                  CountRows(Filter(_results, !Value)) = 0,
+                                                  // Mirror: iterate the same plan collection the server loop wrote from — identical change set
+                                                  // (blank-safe: skip rows absent from the colBookings window; UpdateIf is not supported inside ForAll)
+                                                  ForAll(
+                                                      colSeriesEditPlan As _p,
+                                                      With(
+                                                          {_mirrorRow: LookUp(colBookings, ID = _p.MemberID)},
+                                                          If(!IsBlank(_mirrorRow), Patch(colBookings, _mirrorRow, {StartDateTime: _p.NewStart, EndDateTime: _p.NewEnd, Status: _p.NewStatus}))
+                                                      )
+                                                  ),
+                                                  // MIRROR-FALLBACK: partial series-edit failure — local picture uncertain, re-pull the window
+                                                  ClearCollect(colBookings, BookingsWindow)
+                                              );
+                                              Set(gblSelectedBooking, LookUp(AllBookings, ID = gblSelectedBooking.ID))
+                                          );
+
+                                          /* A rule-driven series is a single master row, so the plan loop above
+                                             has nothing to walk: re-time the master itself — same calendar date,
+                                             new clock times — and the whole expansion moves with it. */
+                                          With(
+                                              {_master: LookUp(colBRMasters, SeriesID = _sid)},
+                                              If(
+                                                  !IsBlank(_master) && (fnIsMine(_master.BookedByEmail) || IsAdmin),
+                                                  IfError(
+                                                      Patch(
+                                                          Book_Bookings,
+                                                          {ID: _master.ID},
+                                                          {
+                                                              StartDateTime: DateAdd(DateValue(Text(_master.StartDateTime, "yyyy-mm-dd")), _startMinutes, TimeUnit.Minutes),
+                                                              EndDateTime: DateAdd(DateValue(Text(_master.StartDateTime, "yyyy-mm-dd")), _endMinutes, TimeUnit.Minutes)
+                                                          }
+                                                      ),
+                                                      Notify("Couldn't re-time the recurring series. Please try again.", NotificationType.Error),
+                                                      ClearCollect(colBRMasters, Filter(Book_Bookings, StartsWith(RecurrenceType, "BR-"), IsException = false, Status = "Active"))
+                                                  )
+                                              )
+                                          );
+
+                                          If(
+                                              // a re-timed master counts as an update even with an empty member plan
+                                              CountRows(colSeriesEditPlan) = 0 && IsBlank(LookUp(colBRMasters, SeriesID = _sid)),
+                                              Notify("Nothing to update — no upcoming occurrences you own in this series.", NotificationType.Warning),
+                                              With(
+                                                  {
+                                                      _healed: CountRows(Filter(colSeriesEditPlan, PrevStatus = "Clash", NewStatus = "Active")),
+                                                      _newClashes: CountRows(Filter(colSeriesEditPlan, PrevStatus <> "Clash", NewStatus = "Clash"))
+                                                  },
+                                                  Notify(
+                                                      "Series updated" &
+                                                      If(_healed > 0, " — " & _healed & " clash" & If(_healed = 1, "", "es") & " healed", "") &
+                                                      If(_newClashes > 0, " — " & _newClashes & " now need" & If(_newClashes = 1, "s", "") & " rescheduling", ""),
+                                                      NotificationType.Success
+                                                  )
+                                              )
+                                          );
+                                          // RESET-SITE[detail-modal-close] edit completed, dismiss the modal
+                                          Set(gbl_UI_Detail_ConfirmMode, "");
+                                          Set(gbl_UI_Detail_Modal, false);
+                                          Set(gbl_PendingStart, Blank());
+                                          Set(gbl_PendingEnd, Blank());
+                                          Set(gbl_PendingRoomId, 0);
+                                          Set(gbl_PendingRoomText, "")
+                                      )
+                                      )
+                                    PressedColor: =ColorValue(AppTheme.PrimaryText)
+                                    PressedFill: =ColorValue(AppTheme.ButtonPrimaryActive)
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Size: =11
+                                    Text: ="Whole series"
+                                    Width: =168
+                              - bdmBtnEditScopeBack:
+                                  Control: Classic/Button
+                                  Properties:
+                                    BorderColor: =AppTheme.Border
+                                    BorderThickness: =1
+                                    Color: =AppTheme.TextPrimary
+                                    Fill: =AppTheme.Surface
+                                    FocusedBorderColor: =ColorValue(AppTheme.ButtonPrimary)
+                                    FocusedBorderThickness: =2
+                                    Font: ="IBM Plex Sans"
+                                    FontWeight: =FontWeight.Normal
+                                    HoverColor: =AppTheme.TextPrimary
+                                    HoverFill: =AppTheme.SurfaceAlt
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    OnSelect: |-
+                                      =// RESET-SITE[detail-modal-editscope-back] restores the full body of the
+                                      // btnScopeBack this was ported from - clearing ConfirmMode alone left the
+                                      // staged payload armed, so the next booking opened inherited these times.
+                                      Set(gbl_UI_Detail_ConfirmMode, "");
+                                      Set(gbl_PendingStart, Blank());
+                                      Set(gbl_PendingEnd, Blank());
+                                      Set(gbl_PendingRoomId, 0);
+                                      Set(gbl_PendingRoomText, "");
+                                      Set(gbl_FixCycleSeriesID, "")
                                     PressedColor: =AppTheme.TextPrimary
                                     PressedFill: =AppTheme.Border
                                     RadiusBottomLeft: =0
