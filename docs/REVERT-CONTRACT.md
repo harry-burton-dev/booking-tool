@@ -39,18 +39,6 @@ One sentence: what this site does in dev and what it must become in prod.
 
 ---
 
-### bdmfooter-probe
-
-Temporary diagnostic Label `bdmProbeFooterDiag_p1` in `cpt_BookingDetailModal`, added to read the resolved `bdmFooter.Visible` and its four Visible terms at runtime while chasing the hidden-footer defect. Dev carries the control; prod must not contain it at all — the whole control is deleted, not reconfigured.
-
-```dev
-PROD-REVERT[bdmfooter-probe]
-```
-
-```prod
-(control absent)
-```
-
 ### booking-create-find
 
 Find screen series create: the marker sits directly above the reinstated `Refresh(Book_Bookings)` call; dev leaves that refresh commented out, prod reinstates it so SharePoint-assigned IDs land in colBookings.

@@ -1455,6 +1455,11 @@ App:
                   Set(gbl_UI_PermanentNew_Modal, false);
                   Set(gbl_UI_AdminSettings_Modal, false);
                   Set(gbl_UI_SeriesMigration_Modal, false);
+                  // Y2/DM2: the detail modal has no OnVisible to seed this, and
+                  // Blank() = "" is false in Power Fx - an unseeded blank hid the
+                  // whole bdmFooter action row on first open.
+                  Set(gbl_UI_Detail_Modal, false);
+                  Set(gbl_UI_Detail_ConfirmMode, "");
                   Set(gblAsWeekend, "");
                   Set(gblAsMigConfirm, false);
                   Set(gblAsMigScanned, false);
