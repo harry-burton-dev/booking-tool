@@ -67,37 +67,9 @@ Refresh(Book_Bookings);
 
 ---
 
-### booking-create-ad
-
-Admin screen create (the `ad` wizard instance): same dev/prod shape as booking-create-find — the marker sits directly above the reinstated `Refresh(Book_Bookings)` call.
-
-```dev
-reinstate Refresh(Book_Bookings) here
-```
-
-```prod
-Refresh(Book_Bookings);
-```
-
----
-
 ### booking-create-home
 
 Home screen create (the `home` wizard instance): same dev/prod shape as booking-create-find — the marker sits directly above the reinstated `Refresh(Book_Bookings)` call.
-
-```dev
-reinstate Refresh(Book_Bookings) here
-```
-
-```prod
-Refresh(Book_Bookings);
-```
-
----
-
-### booking-create-mb2
-
-myBookings screen create (the `mb2` wizard instance): same dev/prod shape as booking-create-find — the marker sits directly above the reinstated `Refresh(Book_Bookings)` call.
 
 ```dev
 reinstate Refresh(Book_Bookings) here

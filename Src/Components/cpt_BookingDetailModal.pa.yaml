@@ -1491,33 +1491,41 @@ ComponentDefinitions:
                                                                                           }
                                                                                       )
                                                                                   },
+                                                                                  /* #4: the old master must not be touched unless the replacement actually landed.
+                                                                                     The enclosing IfError reports a failed insert but cannot prevent it - these
+                                                                                     Patches are side effects that have already run by the time it fires, so at k=0
+                                                                                     a throttled or rejected insert left the series cancelled with no replacement. */
                                                                                   If(
-                                                                                      _k = 0,
-                                                                                      Patch(Book_Bookings, {ID: _m.ID}, {Status: "Cancelled"}),
-                                                                                      With(
-                                                                                          {_endRule: fnRuleWithUntil(_m.RecurrenceType, _m.StartDateTime, DateAdd(_kDate, -1, TimeUnit.Days))},
-                                                                                          Patch(Book_Bookings, {ID: _m.ID}, {RecurrenceType: _endRule, RecurrenceLabel: fnRuleLabel(_endRule, _m.StartDateTime)})
-                                                                                      )
-                                                                                  );
-                                                                                  /* Exceptions at or after the split are cancelled, not re-keyed onto
-                                                                                     the new master: the user asked for new times from k onwards, so
-                                                                                     earlier deviations of those slots are moot. The selected booking
-                                                                                     is among them when it is itself an exception row - correct, the
-                                                                                     new master's occurrence 0 replaces it. */
-                                                                                  Patch(
-                                                                                      Book_Bookings,
-                                                                                      ForAll(
-                                                                                          Filter(Book_Bookings, SeriesID = _sid, IsException = true, OccIndex >= _k, Status = "Active" || Status = "Clash") As _ex2,
-                                                                                          {ID: _ex2.ID, Status: "Cancelled"}
-                                                                                      )
-                                                                                  );
-                                                                                  UpdateIf(colBookings, SeriesID = _sid && IsException && OccIndex >= _k && Status <> "Cancelled", {Status: "Cancelled"});
-                                                                                  // F9: pull the server view back BEFORE rebuilding the master cache
-                                                                                  Refresh(Book_Bookings);
-                                                                                  ClearCollect(colBRMasters, Filter(Book_Bookings, StartsWith(RecurrenceType, "BR-"), IsException = false, Status = "Active"));
-                                                                                  /* F10: the series has been rewritten around this occurrence — there is no single
-                                                                                     row left for the detail screen to show, so leave it like the cancel path. */
-                                                                                  Set(gblSelectedBooking, Blank())
+                                                                                      IsError(_new) || IsBlank(_new.ID),
+                                                                                      Notify("Couldn't create the replacement series - nothing was changed.", NotificationType.Error),
+                                                                                      If(
+                                                                                          _k = 0,
+                                                                                          Patch(Book_Bookings, {ID: _m.ID}, {Status: "Cancelled"}),
+                                                                                          With(
+                                                                                              {_endRule: fnRuleWithUntil(_m.RecurrenceType, _m.StartDateTime, DateAdd(_kDate, -1, TimeUnit.Days))},
+                                                                                              Patch(Book_Bookings, {ID: _m.ID}, {RecurrenceType: _endRule, RecurrenceLabel: fnRuleLabel(_endRule, _m.StartDateTime)})
+                                                                                          )
+                                                                                      );
+                                                                                      /* Exceptions at or after the split are cancelled, not re-keyed onto
+                                                                                         the new master: the user asked for new times from k onwards, so
+                                                                                         earlier deviations of those slots are moot. The selected booking
+                                                                                         is among them when it is itself an exception row - correct, the
+                                                                                         new master's occurrence 0 replaces it. */
+                                                                                      Patch(
+                                                                                          Book_Bookings,
+                                                                                          ForAll(
+                                                                                              Filter(Book_Bookings, SeriesID = _sid, IsException = true, OccIndex >= _k, Status = "Active" || Status = "Clash") As _ex2,
+                                                                                              {ID: _ex2.ID, Status: "Cancelled"}
+                                                                                          )
+                                                                                      );
+                                                                                      UpdateIf(colBookings, SeriesID = _sid && IsException && OccIndex >= _k && Status <> "Cancelled", {Status: "Cancelled"});
+                                                                                      // F9: pull the server view back BEFORE rebuilding the master cache
+                                                                                      Refresh(Book_Bookings);
+                                                                                      ClearCollect(colBRMasters, Filter(Book_Bookings, StartsWith(RecurrenceType, "BR-"), IsException = false, Status = "Active"));
+                                                                                      /* F10: the series has been rewritten around this occurrence — there is no single
+                                                                                         row left for the detail screen to show, so leave it like the cancel path. */
+                                                                                      Set(gblSelectedBooking, Blank())
+                                                                                  )
                                                                               ),
                                                                               Notify("Couldn't update the rest of this series. Please try again.", NotificationType.Error),
                                                                               Notify("Series updated from " & Text(gbl_PendingStart, "d mmm yyyy"), NotificationType.Success);
@@ -1578,6 +1586,17 @@ ComponentDefinitions:
                                           // a date change can't be applied series-wide, so refuse rather than drop it silently.
                                           DateValue(gbl_PendingStart) <> DateValue(gblSelectedBooking.StartDateTime),
                                           Notify("Date changes apply to this occurrence only. Choose ""Just this booking"" to move the date, or keep the original date to retime the whole series.", NotificationType.Warning),
+                                      /* #9: BRVirtual derives every occurrence from the master anchor, so retiming the
+                                         anchor rewrites occurrences that have already happened - the plan loop's
+                                         StartDateTime >= Now() guard only protects materialised rows. The cancel path
+                                         treats "whole series" as future-only, so refuse here rather than silently
+                                         rewriting history; "This and following" does this correctly from occurrence k.
+                                         Blank anchor = legacy materialised series with no master, which is unaffected. */
+                                      With(
+                                          {_mAnchor: LookUp(colBRMasters, SeriesID = gblSelectedBooking.SeriesID).StartDateTime},
+                                          !IsBlank(_mAnchor) && fnIsPast(_mAnchor)
+                                      ),
+                                      Notify("This series has already started, so retiming all of it would change occurrences that have already happened. Choose ""This and following"" to retime from this occurrence onwards.", NotificationType.Warning, 8000),
                                       // EDIT — whole series: re-time every future, non-cancelled, non-exception member
                                       With(
                                           {

@@ -1235,6 +1235,13 @@ Screens:
                               Visible: =false
                               X: =40
                               Y: =40
+      - cpt_BookingDetailModal_tl2:
+          Control: CanvasComponent
+          ComponentName: cpt_BookingDetailModal
+          Properties:
+            Height: =App.Height
+            Visible: =gbl_UI_Detail_Modal = true
+            Width: =App.Width
       - cpt_Modal__book_tl2:
           Control: CanvasComponent
           ComponentName: cpt_Modal_
@@ -1571,15 +1578,13 @@ Screens:
                       Set(gblSelectedBooking, LookUp(AllBookings, ID = gblEditingBookingID))
                   );
                   Set(gblEditingBookingID, 0);
-                  Set(gbl_UI_Book_Modal, false)
+                  Set(gbl_UI_Book_Modal, false);
+                  /* #7: tl2Gal reads colTimelineRows, a snapshot only tl2BtnLoadTimeline builds. The
+                     create OnSubmit already rebuilds it; the edit path did not, so a retimed block sat
+                     at its old position until the date changed. This property is a screen child, so it
+                     can Select that button - the modal component itself cannot. */
+                  Select(tl2BtnLoadTimeline)
               )
             OptionalLabelText: =" "
             Visible: =gbl_UI_Book_Modal = true
-            Width: =App.Width
-      - cpt_BookingDetailModal_tl2:
-          Control: CanvasComponent
-          ComponentName: cpt_BookingDetailModal
-          Properties:
-            Height: =App.Height
-            Visible: =gbl_UI_Detail_Modal = true
             Width: =App.Width
