@@ -582,7 +582,6 @@ ComponentDefinitions:
                               LayoutJustifyContent: =LayoutJustifyContent.End
                               LayoutMinHeight: =0
                               LayoutMinWidth: =0
-                              Visible: =false
                             Children:
                               - bdmBtnChangeTime:
                                   Control: Classic/Button
